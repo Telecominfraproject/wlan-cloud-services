@@ -1,0 +1,12 @@
+{
+"maxConnectionsTotal":100,
+"maxConnectionsPerRoute":10,
+"truststoreType":"",
+"truststoreProvider":"",
+"truststoreFile":"",
+"truststorePass":"",
+"credentialsList":[
+    {"host":"localhost","port":-1,"user":"user","password":"password"}
+    ]
+
+}

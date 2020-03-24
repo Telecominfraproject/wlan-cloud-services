@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <modelVersion>4.0.0</modelVersion>
+        <parent>
+                <groupId>com.telecominfraproject.wlan</groupId>
+                <artifactId>tip-wlan-cloud-root-pom</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+		<relativePath>../../tip-wlan-cloud-root</relativePath>
+        </parent>
+
+        <artifactId>cloud-services-build</artifactId>
+        <packaging>pom</packaging>
+        <description>Aggregation of all cloud services modules - to build them in one shot.</description>
+        <scm>
+                <connection>https://connectustechnologies.atlassian.net/</connection>
+                <developerConnection>https://connectustechnologies.atlassian.net/wiki/spaces/NaaS/overview</developerConnection>
+                <url>https://bitbucket.org/connectustechnologies/tip-wlan-cloud-services/</url>
+        </scm>
+        <issueManagement>
+                <system>Jira</system>
+                <url>https://connectustechnologies.atlassian.net</url>
+        </issueManagement>
+        <ciManagement>
+                <system>Crucible</system>
+                <url>https://crucible.connectus.ai</url>
+        </ciManagement>
+        <profiles>
+                <profile>
+                        <id>full-build</id>
+                        <activation>
+                                <property>
+                                        <name>full-build</name>
+                                </property>
+				<activeByDefault>true</activeByDefault>
+                        </activation>
+                        <modules>
+                                <module>../cloud-event-dispatcher</module>
+                                <module>../cloud-event-dispatcher-empty</module>
+                                <module>../cloud-event-dispatcher-interface</module>
+                                <module>../cloud-event-dispatcher-local</module>
+                                <module>../cloud-event-dispatcher-remote</module>
+                                <module>../tip-wlan-cloud-service-metrics-models</module>
+                                <module>../tip-wlan-cloud-system-event-models</module>
+                        </modules>
+                </profile>
+        </profiles>
+</project>
