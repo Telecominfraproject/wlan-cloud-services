@@ -41,6 +41,11 @@
                                 <module>../cloud-event-dispatcher-remote</module>
                                 <module>../tip-wlan-cloud-service-metrics-models</module>
                                 <module>../tip-wlan-cloud-system-event-models</module>
+                                <module>../customer-models</module>
+                                <module>../customer-datastore-interface</module>
+                                <module>../customer-datastore-common-test</module>
+                                <module>../customer-datastore-inmemory</module>
+                                <module>../customer-datastore-rdbms</module>
                         </modules>
                 </profile>
         </profiles>
