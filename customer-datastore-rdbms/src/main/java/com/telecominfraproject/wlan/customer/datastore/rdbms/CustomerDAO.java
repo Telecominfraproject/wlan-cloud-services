@@ -51,7 +51,7 @@ public class CustomerDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
 
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(
-            Arrays.asList(COL_ID));
+            Arrays.asList(COL_ID, "createdTimestamp"));
 
     static final String ALL_COLUMNS;
     private static final String ALL_COLUMNS_FOR_INSERT;
@@ -251,7 +251,7 @@ public class CustomerDAO extends BaseJdbcDao {
                 customer.getEmail(),
                 customer.getName(),
                 
-                customer.getCreatedTimestamp(), 
+                //customer.getCreatedTimestamp(), - not updating this one 
                 newLastModifiedTs,
                 
                 // use id for update operation

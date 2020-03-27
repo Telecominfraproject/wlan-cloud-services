@@ -10,8 +10,6 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 public class SystemEventRecord extends BaseJsonModel {
     private static final long serialVersionUID = 6763035984453691752L;
 
-    private long id;
- 
     private int customerId;
     private long equipmentId;
     private long eventTimestamp;
@@ -20,7 +18,6 @@ public class SystemEventRecord extends BaseJsonModel {
     private SystemEvent payload;
     
     private long createdTimestamp;
-    private long lastModifiedTimestamp;
     
     public SystemEventRecord() {
         // for serialization
@@ -81,14 +78,6 @@ public class SystemEventRecord extends BaseJsonModel {
         this.payload = payload;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getCreatedTimestamp() {
         return createdTimestamp;
     }
@@ -97,13 +86,6 @@ public class SystemEventRecord extends BaseJsonModel {
         this.createdTimestamp = createdTimestamp;
     }
 
-    public long getLastModifiedTimestamp() {
-        return lastModifiedTimestamp;
-    }
-
-    public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
-        this.lastModifiedTimestamp = lastModifiedTimestamp;
-    }
 
     @Override
     public SystemEventRecord clone() {

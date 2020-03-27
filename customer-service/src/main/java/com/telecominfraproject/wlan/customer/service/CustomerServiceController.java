@@ -47,10 +47,7 @@ public class CustomerServiceController {
      * Creates new customer record.
      * 
      * To call this method use: <br>
-     * curl --request POST --header "Content-Type: application/json;
-     * charset=utf-8" --data
-     * '{"email":"test@example.org","name":"Example
-     * Inc."}' http://localhost:9090/customer
+     * curl --request POST --header "Content-Type: application/json; charset=utf-8" --data '{"email":"test@example.org","name":"Example Inc."}' http://localhost:9090/customer
      * 
      * @param customer object
      * @return created customer object

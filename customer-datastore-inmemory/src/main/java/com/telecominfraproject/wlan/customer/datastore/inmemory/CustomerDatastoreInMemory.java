@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.customer.datastore.CustomerDatastore;
 import com.telecominfraproject.wlan.customer.models.Customer;
+import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
@@ -47,6 +48,10 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
 
         int id = customerId.incrementAndGet();
         customerCopy.setId(id);
+        if(customerCopy.getCreatedTimestamp()==0) {
+        	customerCopy.setCreatedTimestamp(System.currentTimeMillis());
+        }
+        customerCopy.setLastModifiedTimestamp(getNewLastModTs(0));
         idToCustomerMap.put(id, customerCopy);
         
         LOG.debug("Stored {}", customerCopy);
@@ -119,6 +124,12 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
 
         Customer existingCustomer = get(customerCopy.getId());
 
+        if(existingCustomer.getLastModifiedTimestamp()!=customerCopy.getLastModifiedTimestamp()) {
+            throw new DsConcurrentModificationException("Concurrent modification detected for customer with id "
+                    + customer.getId() + " expected version is " + customerCopy.getLastModifiedTimestamp()
+                    + " but version in db was " + existingCustomer.getLastModifiedTimestamp());
+        }
+        
         idToCustomerMap.forEach(
         		(id, c) -> {
         			if(id!= existingCustomer.getId() && c.getEmail().equalsIgnoreCase(customerCopy.getEmail())) {
@@ -126,7 +137,7 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
 			        } }
         		);
         
-
+        customerCopy.setCreatedTimestamp(existingCustomer.getCreatedTimestamp());
         customerCopy.setLastModifiedTimestamp(getNewLastModTs(existingCustomer.getLastModifiedTimestamp()));
         
         idToCustomerMap.put(existingCustomer.getId(), customerCopy);

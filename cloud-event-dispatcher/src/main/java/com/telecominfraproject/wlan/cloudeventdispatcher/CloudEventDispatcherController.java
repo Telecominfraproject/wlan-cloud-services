@@ -78,10 +78,6 @@ public class CloudEventDispatcherController {
         	systemEventRecord.setCreatedTimestamp(systemEventRecord.getEventTimestamp());
         }
         
-        if(systemEventRecord.getPayload().getDeploymentId()==null){
-        	systemEventRecord.getPayload().setDeploymentId(CloudMetricsTags.deployment);
-        }
-        
         systemEventStream.publish(systemEventRecord);
         
         GenericResponse ret = new GenericResponse();
@@ -104,10 +100,6 @@ public class CloudEventDispatcherController {
             	ser.setCreatedTimestamp(ser.getEventTimestamp());
             }
             
-            if(ser.getPayload().getDeploymentId()==null){
-            	ser.getPayload().setDeploymentId(CloudMetricsTags.deployment);
-            }
-
             systemEventStream.publish(ser);
 
         }

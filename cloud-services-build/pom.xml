@@ -50,6 +50,9 @@
                                 <module>../customer-service-interface</module>
                                 <module>../customer-service-local</module>
                                 <module>../customer-service-remote</module>
+                                <module>../single-process-streams</module>
+                                <module>../prov-process</module>
+                                <module>../ssc-process</module>
                         </modules>
                 </profile>
         </profiles>

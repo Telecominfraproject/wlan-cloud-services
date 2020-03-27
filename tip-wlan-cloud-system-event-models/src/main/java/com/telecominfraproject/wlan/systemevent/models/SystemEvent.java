@@ -17,7 +17,6 @@ public abstract class SystemEvent extends BaseJsonModel implements HasCustomerId
     private static final long serialVersionUID = -2030250050038922237L;
 
     private long eventTimestamp;
-    private String deploymentId;
 
     protected SystemEvent() {
     }
@@ -81,14 +80,6 @@ public abstract class SystemEvent extends BaseJsonModel implements HasCustomerId
     }
 
 
-    public String getDeploymentId() {
-        return deploymentId;
-    }
-
-    public void setDeploymentId(String deploymentId) {
-        this.deploymentId = deploymentId;
-    }
-
     @Override
     public int getCustomerId() {
         //subclasses will override this as needed
@@ -101,8 +92,4 @@ public abstract class SystemEvent extends BaseJsonModel implements HasCustomerId
         return 0;
     }
     
-    public String calculateUniqueId() {
-        //subclasses will override this as needed
-        return null;        
-    }
 }

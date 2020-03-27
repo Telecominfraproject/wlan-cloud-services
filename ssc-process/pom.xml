@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>tip-wlan-cloud-root-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../tip-wlan-cloud-root</relativePath>
+  </parent>
+
+  <artifactId>ssc-process</artifactId>
+  <name>ssc-process</name>
+  <description>Process definition for Scalable Service Container. Describes executable jar file. This process hosts components that do not use transactions.</description>
+
+	<properties>
+		<start-class>com.telecominfraproject.wlan.server.SscService</start-class>
+	</properties>
+  
+    <dependencies>
+      <dependency>
+        <artifactId>base-container</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+    
+      <dependency>
+        <artifactId>cloud-event-dispatcher</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>single-process-streams</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+    </dependencies>
+</project>
+
+
