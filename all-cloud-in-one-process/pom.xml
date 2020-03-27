@@ -7,12 +7,12 @@
     <relativePath>../../tip-wlan-cloud-root</relativePath>
   </parent>
 
-  <artifactId>prov-process</artifactId>
-  <name>prov-process</name>
-  <description>Process definition for hosting provisioning services. Describes executable jar file. This process hosts components that communicate with PostgreSQL DB and use transactions.</description>
+  <artifactId>all-cloud-in-one-process</artifactId>
+  <name>all-cloud-in-one-process</name>
+  <description>Process definition for hosting all cloud services. Describes executable jar file. This is the simpliest deployment, used mainly in development.</description>
 
 	<properties>
-		<start-class>com.telecominfraproject.wlan.server.ProvService</start-class>
+		<start-class>com.telecominfraproject.wlan.server.AllCloudInOneServer</start-class>
 	</properties>
   
     <dependencies>
@@ -30,7 +30,19 @@
       </dependency>
 
       <dependency>
-        <artifactId>cloud-event-dispatcher-remote</artifactId>
+        <artifactId>cloud-event-dispatcher-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+        <artifactId>cloud-event-dispatcher</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>single-process-streams</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

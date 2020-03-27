@@ -53,6 +53,7 @@
                                 <module>../single-process-streams</module>
                                 <module>../prov-process</module>
                                 <module>../ssc-process</module>
+                                <module>../all-cloud-in-one-process</module>
                         </modules>
                 </profile>
         </profiles>
