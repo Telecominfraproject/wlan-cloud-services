@@ -7,52 +7,34 @@
     <relativePath>../../tip-wlan-cloud-root</relativePath>
   </parent>
 
-  <artifactId>cloud-event-dispatcher-remote</artifactId>
-  <name>cloud-event-dispatcher-remote</name>
-  <description>Remote client for accessing cloud event dispatcher, uses REST API calls.</description>
+  <artifactId>customer-service</artifactId>
+  <name>customer-service</name>
+  <description>Server side implementation of customer management service.</description>
   
     <dependencies>
-      <dependency>
-        <artifactId>cloud-event-dispatcher-interface</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>base-client</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
-      </dependency>
-
-	<!-- Dependencies for the unit tests -->
-      <dependency>
-        <artifactId>base-remote-tests</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
-        <scope>test</scope>
-      </dependency>
-      
       <dependency>
         <artifactId>base-container</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
-        <artifactId>cloud-event-dispatcher</artifactId>
+        <artifactId>customer-datastore-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
-        <scope>test</scope>
       </dependency>
+      <dependency>
+        <artifactId>cloud-event-dispatcher-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>      
 
       <dependency>
-        <artifactId>base-stream-interface</artifactId>
+        <artifactId>cloud-metrics</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
-        <scope>test</scope>
       </dependency>
-      
+
     </dependencies>
 </project>
 

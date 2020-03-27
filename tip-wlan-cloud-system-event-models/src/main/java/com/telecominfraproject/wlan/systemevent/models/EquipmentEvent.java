@@ -13,8 +13,8 @@ public abstract class EquipmentEvent<T> extends CustomerEvent<T> {
 
     private long equipmentId;
 
-    protected EquipmentEvent(int customerId, long equipmentId, long eventTimestamp) {
-        super(customerId, eventTimestamp);
+    protected EquipmentEvent(int customerId, long equipmentId, long eventTimestamp, T payload) {
+        super(customerId, eventTimestamp, payload);
         this.equipmentId = equipmentId;
     }
 
@@ -29,7 +29,6 @@ public abstract class EquipmentEvent<T> extends CustomerEvent<T> {
     @Override
     public EquipmentEvent<T> clone() {
         EquipmentEvent<T> ret = (EquipmentEvent<T>) super.clone();
-
         return ret;
     }
 
@@ -57,7 +56,8 @@ public abstract class EquipmentEvent<T> extends CustomerEvent<T> {
             return false;
         }
 
-        EquipmentEvent<T> other = (EquipmentEvent<T>) obj;
+        @SuppressWarnings("unchecked")
+		EquipmentEvent<T> other = (EquipmentEvent<T>) obj;
         if (equipmentId != other.equipmentId) {
             return false;
         }

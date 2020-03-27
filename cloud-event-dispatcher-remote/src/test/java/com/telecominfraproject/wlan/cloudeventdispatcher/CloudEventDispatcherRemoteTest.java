@@ -10,18 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.telecominfraproject.wlan.core.client.RestHttpClientConfig;
-import com.telecominfraproject.wlan.core.client.RestTemplateConfigurationSingleUserPerServiceDigestHttpAuth;
-import com.telecominfraproject.wlan.core.client.models.HttpClientConfig;
-import com.telecominfraproject.wlan.core.client.models.HttpClientCredentials;
-import com.telecominfraproject.wlan.core.server.container.ServletFilters;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
 import com.telecominfraproject.wlan.stream.StreamInterface;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 import com.telecominfraproject.wlan.systemevent.models.TestSystemEvent;
 
@@ -30,14 +23,6 @@ import com.telecominfraproject.wlan.systemevent.models.TestSystemEvent;
       "integration_test",
       "no_ssl","http_digest_auth","rest-template-single-user-per-service-digest-auth",
       }) 
-@Import(value = {
-	     //CloudEventDispatcherRemoteTest.Config.class,
-//	      RestHttpClientConfig.class,
-//	      RestTemplateConfigurationSingleUserPerServiceDigestHttpAuth.class,
-//	      ServletFilters.class,
-	      //CloudEventDispatcherController.class,
-	      //CloudEventDispatcherRemote.class,
-      })
 public class CloudEventDispatcherRemoteTest extends BaseRemoteTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudEventDispatcherRemoteTest.class);
@@ -51,21 +36,6 @@ public class CloudEventDispatcherRemoteTest extends BaseRemoteTest {
 
     @Configuration
     public static class Config {
-
-//        @Bean
-//        public HttpClientConfig configureHttpClientConfig() {
-//        	HttpClientConfig ret = new HttpClientConfig();
-//        	HttpClientCredentials httpClientCredentials = new HttpClientCredentials();
-//        	httpClientCredentials.setHost("localhost");
-//        	httpClientCredentials.setPort(-1);
-//        	httpClientCredentials.setUser("user");
-//        	httpClientCredentials.setPassword("password");
-//        	
-//        	ret.setCredentialsList(new ArrayList<>());
-//			ret.getCredentialsList().add(httpClientCredentials );
-//			
-//        	return ret;
-//        }
 
         @Bean
         public StreamInterface<SingleMetricRecord> metricStreamInterface() {

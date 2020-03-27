@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.systemevent.models;
 
+import java.util.Objects;
 
 /**
  * @author dtoptygin
@@ -11,14 +12,12 @@ public abstract class CustomerEvent<T> extends SystemEvent {
     private static final long serialVersionUID = -6866253868015569466L;
     
     private int customerId;
-    /**
-     * Rule agent queue name into which this event is to be delivered
-     */
-    private String queueName;
+    private T payload;
 
-    protected CustomerEvent(int customerId, long eventTimestamp) {
+    protected CustomerEvent(int customerId, long eventTimestamp, T payload) {
         super(eventTimestamp);
         this.customerId = customerId;
+        this.payload = payload;
     }
     
     public int getCustomerId() {
@@ -29,34 +28,25 @@ public abstract class CustomerEvent<T> extends SystemEvent {
         this.customerId = customerId;
     }
     
-    /**
-     * @return Rule agent queue name into which this event is to be delivered
-     */
-    public String getQueueName() {
-        return queueName;
+    public T getPayload() {
+    	return payload;
     }
 
-    /**
-     * Set Rule agent queue name into which this event is to be delivered
-     * @param queueName
-     */
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
+    public void setPayload(T payload) {
+    	this.payload = payload;
     }
 
     @Override
     public CustomerEvent<T> clone() {
-        CustomerEvent<T> ret = (CustomerEvent<T>) super.clone();
+        @SuppressWarnings("unchecked")
+		CustomerEvent<T> ret = (CustomerEvent<T>) super.clone();
         
         return ret;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + customerId;
-        return result;
+        return Objects.hash(customerId);
     }
 
     @Override
@@ -70,7 +60,8 @@ public abstract class CustomerEvent<T> extends SystemEvent {
         if (!(obj instanceof CustomerEvent)) {
             return false;
         }
-        CustomerEvent<T> other = (CustomerEvent<T>) obj;
+        @SuppressWarnings("unchecked")
+		CustomerEvent<T> other = (CustomerEvent<T>) obj;
         if (customerId != other.customerId) {
             return false;
         }

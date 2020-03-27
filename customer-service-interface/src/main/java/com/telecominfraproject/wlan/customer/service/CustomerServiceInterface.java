@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.customer.datastore;
+package com.telecominfraproject.wlan.customer.service;
 
 import java.util.List;
 import java.util.Set;
@@ -6,11 +6,7 @@ import java.util.Set;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.customer.models.Customer;
 
-/**
- * @author dtoptygin
- *
- */
-public interface CustomerDatastore  {
+public interface CustomerServiceInterface {
 
     /**
      * Create customer object
@@ -78,5 +74,5 @@ public interface CustomerDatastore  {
      * @return list of matching Customer objects.
      */
     List<Customer> get(Set<Integer> customerIdSet);
-        
+
 }

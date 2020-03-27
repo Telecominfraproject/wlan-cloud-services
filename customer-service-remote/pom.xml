@@ -7,13 +7,13 @@
     <relativePath>../../tip-wlan-cloud-root</relativePath>
   </parent>
 
-  <artifactId>cloud-event-dispatcher-remote</artifactId>
-  <name>cloud-event-dispatcher-remote</name>
-  <description>Remote client for accessing cloud event dispatcher, uses REST API calls.</description>
+  <artifactId>customer-service-remote</artifactId>
+  <name>customer-service-remote</name>
+  <description>Remote client for accessing customer management service, uses REST API calls.</description>
   
     <dependencies>
       <dependency>
-        <artifactId>cloud-event-dispatcher-interface</artifactId>
+        <artifactId>customer-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -33,26 +33,26 @@
       </dependency>
       
       <dependency>
-        <artifactId>base-container</artifactId>
+        <artifactId>customer-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
-        <artifactId>cloud-event-dispatcher</artifactId>
+        <artifactId>customer-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
-        <artifactId>base-stream-interface</artifactId>
+        <artifactId>cloud-event-dispatcher-empty</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
         <scope>test</scope>
       </dependency>
-      
+
     </dependencies>
 </project>
 

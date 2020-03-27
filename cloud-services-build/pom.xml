@@ -46,6 +46,10 @@
                                 <module>../customer-datastore-common-test</module>
                                 <module>../customer-datastore-inmemory</module>
                                 <module>../customer-datastore-rdbms</module>
+                                <module>../customer-service</module>
+                                <module>../customer-service-interface</module>
+                                <module>../customer-service-local</module>
+                                <module>../customer-service-remote</module>
                         </modules>
                 </profile>
         </profiles>
