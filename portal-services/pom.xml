@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>tip-wlan-cloud-root-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../tip-wlan-cloud-root</relativePath>
+  </parent>
+
+  <artifactId>portal-services</artifactId>
+  <name>portal-services</name>
+  <description>Portal services exposed as REST APIs - they enforce access control and call out other cloud services.</description>
+  
+    <dependencies>
+
+      <dependency>
+        <artifactId>base-container</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>      
+
+	  <!--  ssc dependencies -->
+      <dependency>
+        <artifactId>cloud-event-dispatcher-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>      
+
+      <dependency>
+        <artifactId>cloud-metrics</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+	<!--  prov dependencies -->
+     <dependency>
+        <artifactId>customer-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+    </dependencies>
+</project>
+
+
