@@ -86,7 +86,7 @@ public class CloudEventDispatcherRemote extends BaseRemoteClient implements Clou
 
     public String getBaseUrl() {
         if(baseUrl==null){
-            baseUrl = environment.getProperty("tip.wlan.cloudEventDispatcherBaseUrl").trim() + "/cloudEventDispatcher";
+            baseUrl = environment.getProperty("tip.wlan.cloudEventDispatcherBaseUrl").trim() + "/api/cloudEventDispatcher";
         }
         return baseUrl;
     }

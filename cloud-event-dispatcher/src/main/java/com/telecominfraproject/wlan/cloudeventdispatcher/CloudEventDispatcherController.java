@@ -17,7 +17,7 @@ import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 @RestController
-@RequestMapping(value="/cloudEventDispatcher")
+@RequestMapping(value="/api/cloudEventDispatcher")
 public class CloudEventDispatcherController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudEventDispatcherController.class);

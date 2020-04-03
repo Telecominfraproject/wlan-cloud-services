@@ -50,6 +50,15 @@
                                 <module>../customer-service-interface</module>
                                 <module>../customer-service-local</module>
                                 <module>../customer-service-remote</module>
+                                <module>../location-models</module>
+                                <module>../location-datastore-interface</module>
+                                <module>../location-datastore-common-test</module>
+                                <module>../location-datastore-inmemory</module>
+                                <module>../location-datastore-rdbms</module>
+                                <module>../location-service</module>
+                                <module>../location-service-interface</module>
+                                <module>../location-service-local</module>
+                                <module>../location-service-remote</module>
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>

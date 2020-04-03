@@ -1,0 +1,194 @@
+package com.telecominfraproject.wlan.location.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
+import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.pair.PairIntString;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
+import com.telecominfraproject.wlan.location.models.Location;
+import com.telecominfraproject.wlan.location.models.events.LocationAddedEvent;
+import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
+import com.telecominfraproject.wlan.location.models.events.LocationRemovedEvent;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
+
+@RestController
+@Transactional
+@RequestMapping(value="/api/location")
+public class LocationServiceController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LocationServiceController.class);
+
+    public static class ListOfLocations extends ArrayList<Location> {
+        private static final long serialVersionUID = 3070319062835500930L;
+    }
+
+    public static class ListOfPairIntStrings extends ArrayList<PairIntString> {
+        private static final long serialVersionUID = -2741465769595978625L;
+    }
+
+    @Autowired private LocationDatastore locationDatastore;
+    @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
+
+    /**
+     * Creates new location record.
+     * 
+     * @param location object
+     * @return created location object
+     * @throws RuntimeException
+     *             if location record already exists
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    public Location create(@RequestBody final Location location) {
+        if (BaseJsonModel.hasUnsupportedValue(location)) {
+            LOG.error("Failed to create location, request contains unsupported value: {}", location);
+            throw new DsDataValidationException("Location contains unsupported value");
+        }
+
+        Location dbRequest = location.clone();
+        long ts = System.currentTimeMillis();
+        if (dbRequest.getCreatedTimestamp() == 0) {
+            dbRequest.setCreatedTimestamp(ts);
+        }
+        dbRequest.setLastModifiedTimestamp(ts);
+
+        Location result = locationDatastore.create(dbRequest);
+
+        LOG.debug("Created customer {}", dbRequest);
+
+        LocationAddedEvent event = new LocationAddedEvent(result);
+        publishEvent(event);
+
+        return result;
+    }
+    
+    /**
+     * Updates location record
+     * 
+     * @param location
+     * @return location object
+     * @throws RuntimeException
+     *             if location record does not exist
+     */
+    @RequestMapping(method = RequestMethod.PUT)
+    public Location update(@RequestBody Location location) {
+
+        if (BaseJsonModel.hasUnsupportedValue(location)) {
+            LOG.error("Failed to update location, request contains unsupported value: {}", location);
+            throw new DsDataValidationException("Location contains unsupported value");
+        }
+
+        Location ret = locationDatastore.update(location);
+        
+        LocationChangedEvent event = new LocationChangedEvent(ret);
+        publishEvent(event);
+
+        return ret;
+    }
+    
+    /**
+     * Removes location record
+     * 
+     * @param email
+     * @return deleted location object
+     * @throws RuntimeException
+     *             if location record does not exist
+     */
+    @RequestMapping(method = RequestMethod.DELETE)
+    public Location delete(@RequestParam Long locationId) {
+
+    	Location location = locationDatastore.delete(locationId);
+
+    	LocationRemovedEvent event = new LocationRemovedEvent(location);
+        publishEvent(event);
+
+        return location;
+    }
+
+
+    /**
+     * Retrieves location record by id
+     * 
+     * @param locationId
+     * @return location object
+     * @throws RuntimeException
+     *             if location record does not exist
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    public Location get(@RequestParam Long locationId) {
+    	Location location = locationDatastore.get(locationId);
+        return location;
+    }
+
+
+    /**
+     * Retrieves top-level location record for a supplied location id
+     * 
+     * @param locationId
+     * @return location object
+     * @throws RuntimeException
+     *             if location record does not exist
+     */
+    @RequestMapping(value="/top", method = RequestMethod.GET)
+    public Location getTopLevelLocation(@RequestParam Long locationId) {
+    	Location location = locationDatastore.getTopLevelLocation(locationId);
+        return location;
+    }
+
+
+    @RequestMapping(value = "/allForCustomer", method = RequestMethod.GET)
+    public ListOfLocations getAllForCustomer(@RequestParam Integer customerId) {
+        LOG.debug("getAllForCustomer({})", customerId);
+        try {
+            List<Location> result = locationDatastore.getAllForCustomer(customerId);
+            LOG.debug("getAllForCustomer({}) return {} entries", customerId, result.size());
+            ListOfLocations ret = new ListOfLocations();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getAllForCustomer({}) exception ", customerId, exp);
+             throw exp;
+        }
+    }
+    
+    @RequestMapping(value = "/allDescendants", method = RequestMethod.GET)
+    public ListOfLocations getAllDescendants(@RequestParam Long locationId) {
+        LOG.debug("getAllDescendants({})", locationId);
+        try {
+            List<Location> result = locationDatastore.getAllDescendants(locationId);
+            LOG.debug("getAllDescendants({}) return {} entries", locationId, result.size());
+            ListOfLocations ret = new ListOfLocations();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+            LOG.error("getAllDescendants({}) exception ", locationId, exp);
+            throw exp;
+        }
+    }
+    
+    
+    private void publishEvent(SystemEvent event) {
+        if (event == null) {
+            return;
+        }
+        
+        try {
+            cloudEventDispatcher.publishEvent(event);
+        } catch (Exception e) {
+            LOG.error("Failed to publish event : {}", event, e);
+        }
+    }
+
+}

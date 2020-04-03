@@ -161,7 +161,7 @@ public class CustomerServiceRemote  extends BaseRemoteClient implements Customer
 
     public String getBaseUrl() {
         if(baseUrl==null){
-            baseUrl = environment.getProperty("tip.wlan.customerServiceBaseUrl").trim() + "/customer";
+            baseUrl = environment.getProperty("tip.wlan.customerServiceBaseUrl").trim() + "/api/customer";
         }
         return baseUrl;
     }

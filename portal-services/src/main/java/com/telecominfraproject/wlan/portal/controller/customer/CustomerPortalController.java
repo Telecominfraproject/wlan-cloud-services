@@ -24,11 +24,11 @@ import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 @RequestMapping(value = "/portal")
 public class CustomerPortalController  {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomerPortalController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerPortalController.class);
 
     // For serialization:
     // need these wrapper classes so that each element in returned container is
-    // marked with "_type" attribute
+    // marked with "model_type" attribute
     // all callers of this class can deal with normal collections
     public static class ListOfCustomers extends ArrayList<Customer> {
         private static final long serialVersionUID = 1158560190003268713L;
@@ -50,7 +50,7 @@ public class CustomerPortalController  {
     @RequestMapping(value = "/customer", method = RequestMethod.GET)
     public Customer getCustomer(@RequestParam int customerId) {
         //checkRequestAccessValidityForCustomer(customerId, "getCustomer", DEAULT_ACCESS_RIGHTS_REQUIRED, customerId);
-        logger.debug("Getting customer {}", customerId);
+        LOG.debug("Getting customer {}", customerId);
 
         Customer customer = customerServiceInterface.get(customerId);
 
@@ -70,7 +70,7 @@ public class CustomerPortalController  {
     @RequestMapping(value = "/customer", method = RequestMethod.PUT)
     public Customer updateCustomer(@RequestBody Customer customer) {
 
-        logger.debug("Updating customer {}", customer.getId());
+        LOG.debug("Updating customer {}", customer.getId());
 
         //Customer existing = customerServiceInterface.get(customer.getId());
 

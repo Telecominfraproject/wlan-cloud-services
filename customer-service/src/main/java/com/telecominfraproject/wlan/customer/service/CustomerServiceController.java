@@ -27,7 +27,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 @RestController
 @Transactional
-@RequestMapping(value="/customer")
+@RequestMapping(value="/api/customer")
 public class CustomerServiceController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerServiceController.class);

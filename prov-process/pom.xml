@@ -30,6 +30,19 @@
       </dependency>
 
       <dependency>
+        <artifactId>location-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+      <!-- Use in-memory DS for now, later switch to RDBMS -->
+        <artifactId>location-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
         <artifactId>cloud-event-dispatcher-remote</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
