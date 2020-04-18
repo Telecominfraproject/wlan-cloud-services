@@ -95,7 +95,7 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
 
         LOG.debug("Updated {}", existingLocationCopy);
 
-        return existingLocationCopy;
+        return existingLocationCopy.clone();
     }
     
     @Override

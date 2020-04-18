@@ -9,7 +9,7 @@
 
   <artifactId>location-service-interface</artifactId>
   <name>location-service-interface</name>
-  <description>Interface definitions for the Customer management service.</description>
+  <description>Interface definitions for the Location management service.</description>
   
     <dependencies>
       <dependency>

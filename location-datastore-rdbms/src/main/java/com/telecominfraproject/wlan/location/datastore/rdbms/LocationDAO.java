@@ -180,7 +180,7 @@ public class LocationDAO extends BaseJdbcDao {
         }
 
         // keyHolder.getKey() now contains the generated key
-        location.setId(((Long) keyHolder.getKeys().get(COL_ID)).intValue());
+        location.setId((Long) keyHolder.getKeys().get(COL_ID));
         location.setCreatedTimestamp(ts);
         location.setLastModifiedTimestamp(ts);
 

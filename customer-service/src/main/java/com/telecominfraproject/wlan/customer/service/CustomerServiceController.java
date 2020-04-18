@@ -122,7 +122,7 @@ public class CustomerServiceController {
      *             if customer record does not exist
      */
     @RequestMapping(method = RequestMethod.DELETE)
-    public Customer delete(@RequestParam Integer customerId) {
+    public Customer delete(@RequestParam int customerId) {
 
         Customer customer = customerDatastore.delete(customerId);
 
@@ -146,7 +146,7 @@ public class CustomerServiceController {
      *             if customer record does not exist
      */
     @RequestMapping(method = RequestMethod.GET)
-    public Customer get(@RequestParam Integer customerId) {
+    public Customer get(@RequestParam int customerId) {
         Customer customer = customerDatastore.get(customerId);
         return customer;
     }
@@ -163,7 +163,7 @@ public class CustomerServiceController {
      * @return customer object or null if customer record does not exist
      */
     @RequestMapping(value = "/orNull", method = RequestMethod.GET)
-    public Customer getOrNull(@RequestParam Integer customerId) {
+    public Customer getOrNull(@RequestParam int customerId) {
         Customer customer = customerDatastore.getOrNull(customerId);
 
         return customer;

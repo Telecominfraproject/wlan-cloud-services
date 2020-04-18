@@ -107,7 +107,7 @@ public class LocationServiceController {
      *             if location record does not exist
      */
     @RequestMapping(method = RequestMethod.DELETE)
-    public Location delete(@RequestParam Long locationId) {
+    public Location delete(@RequestParam long locationId) {
 
     	Location location = locationDatastore.delete(locationId);
 
@@ -127,7 +127,7 @@ public class LocationServiceController {
      *             if location record does not exist
      */
     @RequestMapping(method = RequestMethod.GET)
-    public Location get(@RequestParam Long locationId) {
+    public Location get(@RequestParam long locationId) {
     	Location location = locationDatastore.get(locationId);
         return location;
     }
@@ -142,14 +142,14 @@ public class LocationServiceController {
      *             if location record does not exist
      */
     @RequestMapping(value="/top", method = RequestMethod.GET)
-    public Location getTopLevelLocation(@RequestParam Long locationId) {
+    public Location getTopLevelLocation(@RequestParam long locationId) {
     	Location location = locationDatastore.getTopLevelLocation(locationId);
         return location;
     }
 
 
     @RequestMapping(value = "/allForCustomer", method = RequestMethod.GET)
-    public ListOfLocations getAllForCustomer(@RequestParam Integer customerId) {
+    public ListOfLocations getAllForCustomer(@RequestParam int customerId) {
         LOG.debug("getAllForCustomer({})", customerId);
         try {
             List<Location> result = locationDatastore.getAllForCustomer(customerId);
@@ -164,7 +164,7 @@ public class LocationServiceController {
     }
     
     @RequestMapping(value = "/allDescendants", method = RequestMethod.GET)
-    public ListOfLocations getAllDescendants(@RequestParam Long locationId) {
+    public ListOfLocations getAllDescendants(@RequestParam long locationId) {
         LOG.debug("getAllDescendants({})", locationId);
         try {
             List<Location> result = locationDatastore.getAllDescendants(locationId);
