@@ -41,6 +41,12 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
+      <dependency>
+        <artifactId>equipment-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
     
       <!-- prov services -->
       <dependency>
@@ -65,6 +71,19 @@
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>location-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>equipment-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+      <!-- Use in-memory DS for now, later switch to RDBMS -->
+        <artifactId>equipment-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

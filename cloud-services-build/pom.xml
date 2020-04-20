@@ -59,6 +59,15 @@
                                 <module>../location-service-interface</module>
                                 <module>../location-service-local</module>
                                 <module>../location-service-remote</module>
+                                <module>../equipment-datastore-common-test</module>
+                                <module>../equipment-datastore-inmemory</module>
+                                <module>../equipment-datastore-interface</module>
+                                <module>../equipment-datastore-rdbms</module>
+                                <module>../equipment-models</module>
+                                <module>../equipment-service</module>
+                                <module>../equipment-service-interface</module>
+                                <module>../equipment-service-local</module>
+                                <module>../equipment-service-remote</module>
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
