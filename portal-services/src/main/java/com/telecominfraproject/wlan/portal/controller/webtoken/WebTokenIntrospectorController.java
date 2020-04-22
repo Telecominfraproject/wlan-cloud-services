@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.codec.digest.Crypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -34,6 +35,8 @@ public class WebTokenIntrospectorController {
 
     private static final long accessTokenExpiryMs = Long.getLong("tip.wlan.AccessTokenExpiryMs", 300000);
     private static final long refreshTokenExpiryMs = Long.getLong("tip.wlan.RefreshTokenExpiryMs", 3600000);
+    
+    private static final long customerIdForWebToken = Long.getLong("tip.wlan.webtokenCustomerId", 2);
 
 
     @RequestMapping(value = "/introspecttoken", method = RequestMethod.POST, consumes=MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -78,12 +81,12 @@ public class WebTokenIntrospectorController {
             throw new IllegalArgumentException("Invalid token format");
         }
 
-        String tokenWithoutSignature = encodedToken.substring(0, encodedToken.lastIndexOf('.'));
-        String signature = encodedToken.substring(encodedToken.lastIndexOf('.') + 1);
+        String tokenWithoutSignature = encodedToken.substring(0, encodedToken.indexOf('.'));
+        String signature = encodedToken.substring(encodedToken.indexOf('.') + 1);
         String ret = new String(Base64Utils.decodeFromString(tokenWithoutSignature));
 
-        //verify the hashcode (used as a signature)
-        if( !(Integer.toString(ret.hashCode())).equals(signature) ) {
+        //verify the signature
+        if( !( signature.equals(Crypt.crypt(ret, signature)) ) ) {
             throw new IllegalArgumentException("Invalid token signature");
         }
 
@@ -93,8 +96,7 @@ public class WebTokenIntrospectorController {
     private static String encodeAndSign(String plainToken) {
         String ret = null;
         try {
-            //we'll add original token hashcode (used as a signature)
-            ret = Base64Utils.encodeToString(plainToken.getBytes("UTF-8")) + "." + plainToken.hashCode();
+            ret = Base64Utils.encodeToString(plainToken.getBytes("UTF-8")) + "." + Crypt.crypt(plainToken);
         } catch (UnsupportedEncodingException e) {
             LOG.error("Cannot encode token", e);
         }
@@ -126,9 +128,9 @@ public class WebTokenIntrospectorController {
         ret.setExpires_in((int) (accessTokenExpiryMs/1000));
         ret.setIdle_timeout((int) (refreshTokenExpiryMs/1000));
 
-        String accessToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + accessTokenExpiryMs)+"}" );
+        String accessToken = createAccessToken();
         ret.setAccess_token(accessToken);
-        String refreshToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + refreshTokenExpiryMs)+",\"refresh\":true}");
+        String refreshToken = createRefreshToken();
         ret.setRefresh_token(refreshToken);
 
         LOG.debug("token {}", ret);
@@ -140,7 +142,8 @@ public class WebTokenIntrospectorController {
     public static void main(String[] args) {
         String uuid = UUID.randomUUID().toString();
         System.out.println("UUID="+uuid);
-        String token = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+uuid+"\",\"expiryTime\":"+System.currentTimeMillis()+"}");
+        String token = createAccessToken();
+
         System.out.println(token);
         System.out.println(decodeAndVerify(token));
 
@@ -171,14 +174,24 @@ public class WebTokenIntrospectorController {
         ret.setExpires_in((int) (accessTokenExpiryMs/1000));
         ret.setIdle_timeout((int) (refreshTokenExpiryMs/1000));
 
-        String accessToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + accessTokenExpiryMs)+"}");
+        String accessToken = createAccessToken();
         ret.setAccess_token(accessToken);
-        String refreshToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + refreshTokenExpiryMs)+",\"refresh\":true}");
+        String refreshToken = createRefreshToken();
         ret.setRefresh_token(refreshToken);
 
         LOG.debug("refreshToken {}", ret);
 
         return ret;
+    }
+    
+    private static String createAccessToken() {
+        String accessToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + accessTokenExpiryMs)+",\"customerId\":"+customerIdForWebToken+"}" );
+        return accessToken;
+    }
+
+    private static String createRefreshToken() {
+        String refreshToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()+"\",\"expiryTime\":"+(System.currentTimeMillis() + refreshTokenExpiryMs)+",\"refresh\":true}");
+        return refreshToken;
     }
 
 }
