@@ -3,6 +3,11 @@ create table equipment (
     id BIGSERIAL PRIMARY KEY,
 
     customerId int,
+    networkConfigId bigint,
+    locationId bigint,
+    equipmentType int,
+    inventoryId varchar(100) unique not null,
+    
     name varchar(50),
     details bytea,
     
@@ -12,5 +17,9 @@ create table equipment (
 );
 
 create index equipment_customerId on equipment (customerId);
+create index equipment_customerId_equipmentType on equipment (customerId, equipmentType);  
+create index equipment_networkConfigId on equipment (networkConfigId);  
+create index equipment_inventoryId on equipment (inventoryId);
+create index equipment_location on equipment (locationId);
 
 

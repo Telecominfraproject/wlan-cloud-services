@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.equipment.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
@@ -16,7 +17,11 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 	private long id;
     private int customerId;
 
-    //TODO: put more fields here, generate getters/setters for them
+    private long networkConfigId;
+    private long locationId;
+    private EquipmentType equipmentType;
+    private String inventoryId;
+    
     private String name;
     private EquipmentDetails details;
     
@@ -71,6 +76,38 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		this.details = details;
 	}
 
+	public long getNetworkConfigId() {
+		return networkConfigId;
+	}
+
+	public void setNetworkConfigId(long networkConfigId) {
+		this.networkConfigId = networkConfigId;
+	}
+
+	public long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(long locationId) {
+		this.locationId = locationId;
+	}
+
+	public EquipmentType getEquipmentType() {
+		return equipmentType;
+	}
+
+	public void setEquipmentType(EquipmentType equipmentType) {
+		this.equipmentType = equipmentType;
+	}
+
+	public String getInventoryId() {
+		return inventoryId;
+	}
+
+	public void setInventoryId(String inventoryId) {
+		this.inventoryId = inventoryId;
+	}
+
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -80,7 +117,11 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		if(details!=null && details.hasUnsupportedValue()) {
 			return true;
 		}
-		
+
+		if(equipmentType!=null && EquipmentType.isUnsupported(equipmentType)) {
+			return true;
+		}
+
 		return false;
 	}
 	
@@ -96,7 +137,8 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, name, details);
+		return Objects.hash(createdTimestamp, customerId, details, equipmentType, id, inventoryId,
+				lastModifiedTimestamp, locationId, name, networkConfigId);
 	}
 
 	@Override
@@ -108,10 +150,11 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 			return false;
 		}
 		Equipment other = (Equipment) obj;
-		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
-				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(name, other.name)
-				&& Objects.equals(details, other.details);
+		return createdTimestamp == other.createdTimestamp && customerId == other.customerId
+				&& Objects.equals(details, other.details) && equipmentType == other.equipmentType && id == other.id
+				&& Objects.equals(inventoryId, other.inventoryId)
+				&& lastModifiedTimestamp == other.lastModifiedTimestamp && locationId == other.locationId
+				&& Objects.equals(name, other.name) && networkConfigId == other.networkConfigId;
 	}
     
 }

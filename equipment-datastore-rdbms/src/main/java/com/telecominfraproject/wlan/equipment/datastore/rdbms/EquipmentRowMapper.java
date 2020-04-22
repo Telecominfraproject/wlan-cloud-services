@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -26,9 +27,14 @@ public class EquipmentRowMapper implements RowMapper<Equipment> {
         int colIdx=1;
         equipment.setId(rs.getLong(colIdx++));
 
-        //TODO: add columns from properties Equipment in here. 
+        //add columns from properties Equipment in here. 
         //make sure order of fields is the same as defined in Equipment
         equipment.setCustomerId(rs.getInt(colIdx++));
+        equipment.setNetworkConfigId(rs.getLong(colIdx++));
+        equipment.setLocationId(rs.getLong(colIdx++));
+        equipment.setEquipmentType(EquipmentType.getById(rs.getInt(colIdx++)));
+        equipment.setInventoryId(rs.getString(colIdx++));
+        
         equipment.setName(rs.getString(colIdx++));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);

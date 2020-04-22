@@ -55,6 +55,11 @@ public class EquipmentDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties Equipment in here
         "customerId",
+        "networkConfigId",
+        "locationId",
+        "equipmentType",
+        "inventoryId",
+
         "name",
         "details",
         //make sure the order of properties matches this list and list in EquipmentRowMapper and list in create/update methods
@@ -178,6 +183,11 @@ public class EquipmentDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from Equipment here 
                         ps.setInt(colIdx++, equipment.getCustomerId());
+                        ps.setLong(colIdx++, equipment.getNetworkConfigId());
+                        ps.setLong(colIdx++, equipment.getLocationId());
+                        ps.setInt(colIdx++, equipment.getEquipmentType().getId());
+                        ps.setString(colIdx++, equipment.getInventoryId());
+                        
                         ps.setString(colIdx++, equipment.getName());
                       	ps.setBytes(colIdx++, (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null);
                         
@@ -248,6 +258,10 @@ public class EquipmentDAO extends BaseJdbcDao {
 
                 //TODO: add remaining properties from Equipment here
         		equipment.getCustomerId(),
+        		equipment.getNetworkConfigId(),
+        		equipment.getLocationId(),
+        		equipment.getEquipmentType().getId(),
+        		equipment.getInventoryId(),
                 equipment.getName(),
                 (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null ,
                                 

@@ -1,6 +1,7 @@
 insert into equipment (
     id,
-    customerId,     
+    customerId,
+    inventoryId,     
     name,
     details,
     createdTimestamp,
@@ -8,6 +9,7 @@ insert into equipment (
 ) values (
     1,
     1,
+    'testId',
     'test',
     null,
     0,0
