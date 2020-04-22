@@ -37,6 +37,11 @@ public class WebTokenIntrospectorController {
     private static final long refreshTokenExpiryMs = Long.getLong("tip.wlan.RefreshTokenExpiryMs", 3600000);
     
     private static final long customerIdForWebToken = Long.getLong("tip.wlan.webtokenCustomerId", 2);
+    /** For the format of the Salt @see Crypt.crypt()
+    * SHA-512 salts start with {@code $6$} and are up to 16 chars long. 
+    * The chars in the salt string are drawn from the set {@code [a-zA-Z0-9./]}.
+    */
+    private static final String saltForTheSignature = System.getProperty("tip.wlan.saltForTheSignature", "$6$V9DcGMV/");
 
 
     @RequestMapping(value = "/introspecttoken", method = RequestMethod.POST, consumes=MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -82,11 +87,11 @@ public class WebTokenIntrospectorController {
         }
 
         String tokenWithoutSignature = encodedToken.substring(0, encodedToken.indexOf('.'));
-        String signature = encodedToken.substring(encodedToken.indexOf('.') + 1);
+        String signature = saltForTheSignature + "$" +encodedToken.substring(encodedToken.indexOf('.') + 1);
         String ret = new String(Base64Utils.decodeFromString(tokenWithoutSignature));
 
         //verify the signature
-        if( !( signature.equals(Crypt.crypt(ret, signature)) ) ) {
+        if( !( signature.equals(Crypt.crypt(ret, saltForTheSignature)) ) ) {
             throw new IllegalArgumentException("Invalid token signature");
         }
 
@@ -96,7 +101,7 @@ public class WebTokenIntrospectorController {
     private static String encodeAndSign(String plainToken) {
         String ret = null;
         try {
-            ret = Base64Utils.encodeToString(plainToken.getBytes("UTF-8")) + "." + Crypt.crypt(plainToken);
+            ret = Base64Utils.encodeToString(plainToken.getBytes("UTF-8")) + "." + Crypt.crypt(plainToken, saltForTheSignature).substring(saltForTheSignature.length()+1);
         } catch (UnsupportedEncodingException e) {
             LOG.error("Cannot encode token", e);
         }
@@ -149,7 +154,10 @@ public class WebTokenIntrospectorController {
 
         String decodedToken = decodeAndVerify(token);
         System.out.println(extractExpiryTime(decodedToken));
-
+        
+        String externalToken = "eyJpc3MiOiJ0aXAiLCJqdGkiOiI4M2ZkYWJjZS04MjhiLTQxM2UtYTEwMi1mZjlkMGNhM2U2NTciLCJleHBpcnlUaW1lIjoxNTg3NTgxNjAzNjg5LCJjdXN0b21lcklkIjoyfQ==.IPUCQtXrzL4UuAI9bgEfFvINNh0EMHVzt6B4OPmxCA1yQYTGObLpgLVbJK1/kdqgtZn3UdsAYWXoawvp6cthx.";
+        System.out.println(decodeAndVerify(externalToken));
+        
     }
 
     @RequestMapping(value = "/refreshToken", method = RequestMethod.POST)
