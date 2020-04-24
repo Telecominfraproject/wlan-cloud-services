@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -56,5 +57,11 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     public PaginationResponse<Equipment> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Equipment> context) {
     	return equipmentDAO.getForCustomer( customerId, sortBy, context);
+    }
+    
+    @Override
+    public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
+    		Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+    	return equipmentDAO.getForCustomer( customerId, equipmentType, locationIds, sortBy, context);
     }
 }

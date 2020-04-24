@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -160,7 +161,38 @@ public class EquipmentController {
 
         return ret;
     }
-    
+
+    @RequestMapping(value = "/forCustomerWithFilter", method = RequestMethod.GET)
+    public PaginationResponse<Equipment> getForCustomerWithFilter(@RequestParam int customerId,
+            @RequestParam EquipmentType equipmentType, @RequestParam Set<Long> locationIds,
+            @RequestParam List<ColumnAndSort> sortBy,
+            @RequestParam PaginationContext<Equipment> paginationContext) {
+
+        LOG.debug("Looking up equipment {} for customer {} locations {} last returned page number {}", equipmentType,
+                customerId, locationIds, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<Equipment> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up equipment {} for customer {} locations {} last returned page number {}",
+                    equipmentType, customerId, locationIds, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<Equipment> cePage = this.equipmentDatastore
+                .getForCustomer(customerId, equipmentType, locationIds, sortBy, paginationContext);
+        ret.setContext(cePage.getContext());
+        ret.getItems().addAll(cePage.getItems());
+
+        LOG.debug("Retrieved {} equipment {} for customer {} locations {} ", cePage.getItems().size(), equipmentType,
+                customerId, locationIds);
+
+        return ret;
+    }
+
     /**
      * Updates Equipment record
      * 

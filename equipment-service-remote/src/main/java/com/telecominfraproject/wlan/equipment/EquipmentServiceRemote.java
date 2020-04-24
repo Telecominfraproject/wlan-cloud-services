@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -131,8 +132,37 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
 
         ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
+                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={context}",
                 HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+
+        PaginationResponse<Equipment> ret = responseEntity.getBody();
+        LOG.debug("completed getForCustomer {} ", ret.getItems().size());
+
+        return ret;
+	}
+
+	@Override
+	public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
+			Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+		
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {} )", customerId, equipmentType, locationIds,
+                sortBy, context);
+
+        String locationIdsStr = null;
+        if (locationIds != null && !locationIds.isEmpty()) {
+            locationIdsStr = locationIds.toString();
+            // remove [] around the string, otherwise wil get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            locationIdsStr = locationIdsStr.substring(1, locationIdsStr.length() - 1);
+        }
+
+        ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                        + "/forCustomerWithFilter?customerId={customerId}&equipmentType={equipmentType}&locationIds={locationIdsStr}&sortBy={sortBy}&paginationContext={context}",
+                HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentType,
+                locationIdsStr, sortBy, context);
 
         PaginationResponse<Equipment> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());

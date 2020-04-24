@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -57,6 +58,13 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
         return equipmentController.getForCustomer(customerId, sortBy, context);
     }
 
+    @Override
+    public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
+    		Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+        LOG.debug("calling equipmentController.getForCustomer {} {} {} ", customerId, equipmentType, locationIds);
+        return equipmentController.getForCustomerWithFilter(customerId, equipmentType, locationIds, sortBy, context);
+    }
+    
     @Override
     public Equipment update(Equipment equipment) {
         LOG.debug("calling equipmentController.update {} ", equipment);

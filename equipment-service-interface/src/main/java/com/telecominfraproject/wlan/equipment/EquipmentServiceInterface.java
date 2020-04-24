@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.equipment;
 import java.util.List;
 import java.util.Set;
 
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -83,5 +84,7 @@ public interface EquipmentServiceInterface {
      * @return next page of matching Equipment objects.
      */
     PaginationResponse<Equipment> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
+
+    PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
 }
