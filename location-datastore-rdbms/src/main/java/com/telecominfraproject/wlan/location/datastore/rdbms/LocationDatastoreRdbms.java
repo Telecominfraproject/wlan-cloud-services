@@ -1,11 +1,15 @@
 package com.telecominfraproject.wlan.location.datastore.rdbms;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
 import com.telecominfraproject.wlan.location.models.Location;
 
@@ -53,5 +57,16 @@ public class LocationDatastoreRdbms implements LocationDatastore {
 	public Location getTopLevelLocation(long locationId) {
 		return locationDAO.getTopLevelLocation(locationId);
 	}
+
+    @Override
+    public List<Location> get(Set<Long> locationIdSet) {
+    	return locationDAO.get(locationIdSet);
+    }
+    
+    @Override
+    public PaginationResponse<Location> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+    		PaginationContext<Location> context) {
+    	return locationDAO.getForCustomer( customerId, sortBy, context);
+    }
 
 }

@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.location.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.location.models.Location;
 
@@ -20,8 +25,9 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
 
     private static final Logger LOG = LoggerFactory.getLogger(LocationServiceRemote.class);
 
-    private static final ParameterizedTypeReference<List<Location>> LOCATION_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Location>>() {
-    };
+    private static final ParameterizedTypeReference<List<Location>> Location_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Location>>() {};
+
+    private static final ParameterizedTypeReference<PaginationResponse<Location>> Location_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<Location>>() {};
 
     
     private String baseUrl;
@@ -67,6 +73,52 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
         return result;
     }
     
+	@Override
+	public List<Location> get(Set<Long> locationIdSet) {
+		
+        LOG.debug("get({})", locationIdSet);
+
+        if (locationIdSet == null || locationIdSet.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String setString = locationIdSet.toString().substring(1, locationIdSet.toString().length() - 1);
+        
+        try {
+            ResponseEntity<List<Location>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/inSet?locationIdSet={locationIdSet}", HttpMethod.GET,
+                    null, Location_LIST_CLASS_TOKEN, setString);
+
+            List<Location> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("get({}) return {} entries", locationIdSet, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getAllInSet({}) exception ", locationIdSet, exp);
+            throw exp;
+        }
+
+	}
+
+	@Override
+	public PaginationResponse<Location> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+			PaginationContext<Location> context) {
+		
+        LOG.debug("calling getForCustomer( {}, {}, {} )", customerId, sortBy, context);
+
+        ResponseEntity<PaginationResponse<Location>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, Location_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+
+        PaginationResponse<Location> ret = responseEntity.getBody();
+        LOG.debug("completed getForCustomer {} ", ret.getItems().size());
+
+        return ret;
+	}
+
     @Override
     public Location update(Location location) {
     	
@@ -120,7 +172,7 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
 
         ResponseEntity<List<Location>> responseEntity = restTemplate.exchange(
                 getBaseUrl() + "/allForCustomer?customerId={customerId}", HttpMethod.GET,
-                null, LOCATION_LIST_CLASS_TOKEN, customerId);
+                null, Location_LIST_CLASS_TOKEN, customerId);
 
         List<Location> result = responseEntity.getBody();
 
@@ -135,7 +187,7 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
 
         ResponseEntity<List<Location>> responseEntity = restTemplate.exchange(
                 getBaseUrl() + "/allDescendants?locationId={locationId}", HttpMethod.GET,
-                null, LOCATION_LIST_CLASS_TOKEN, locationId);
+                null, Location_LIST_CLASS_TOKEN, locationId);
 
         List<Location> result = responseEntity.getBody();
 

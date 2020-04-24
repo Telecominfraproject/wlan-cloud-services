@@ -1,8 +1,12 @@
 package com.telecominfraproject.wlan.location.datastore.inmemory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
@@ -149,4 +157,113 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
 		});
 
     }
+    
+    @Override
+    public List<Location> get(Set<Long> locationIdSet) {
+
+    	List<Location> ret = new ArrayList<>();
+    	
+    	if(locationIdSet!=null && !locationIdSet.isEmpty()) {	    	
+	    	idToLocationMap.forEach(
+	        		(id, c) -> {
+	        			if(locationIdSet.contains(id)) {
+				        	ret.add(c.clone());
+				        } }
+	        		);
+    	}
+
+        LOG.debug("Found Locations by ids {}", ret);
+
+        return ret;
+    
+    }
+
+    @Override
+    public PaginationResponse<Location> getForCustomer(int customerId, 
+    		final List<ColumnAndSort> sortBy, PaginationContext<Location> context) {
+
+        PaginationResponse<Location> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            return ret;
+        }
+
+        List<Location> items = new LinkedList<>();
+
+        // apply filters and build the full result list first - inefficient, but ok for testing
+        for (Location mdl : idToLocationMap.values()) {
+
+            if (mdl.getCustomerId() != customerId) {
+                continue;
+            }
+
+            items.add(mdl);
+        }
+
+        // apply sortBy columns
+        Collections.sort(items, new Comparator<Location>() {
+            @Override
+            public int compare(Location o1, Location o2) {
+                if (sortBy == null || sortBy.isEmpty()) {
+                    // sort ascending by id by default
+                    return Long.compare(o1.getId(), o2.getId());
+                } else {
+                    int cmp;
+                    for (ColumnAndSort column : sortBy) {
+                        switch (column.getColumnName()) {
+                        case "id":
+                            cmp = Long.compare(o1.getId(), o2.getId());
+                            break;
+                        case "name":
+                            cmp = o1.getName().compareTo(o2.getName());
+                            break;
+                        default:
+                            // skip unknown column
+                            continue;
+                        }
+
+                        if (cmp != 0) {
+                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
+                        }
+
+                    }
+                }
+                return 0;
+            }
+        });
+
+        // now select only items for the requested page
+        // find first item to add
+        int fromIndex = 0;
+        if (context.getStartAfterItem() != null) {
+            for (Location mdl : items) {
+                fromIndex++;
+                if (mdl.equals(context.getStartAfterItem())) {
+                    break;
+                }
+            }
+        }
+
+        // find last item to add
+        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        if (toIndexExclusive > items.size()) {
+            toIndexExclusive = items.size();
+        }
+
+        // copy page items into result
+        List<Location> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        for (Location mdl : items.subList(fromIndex, toIndexExclusive)) {
+            selectedItems.add(mdl.clone());
+        }
+
+        ret.setItems(selectedItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        return ret;
+    }
+    
 }

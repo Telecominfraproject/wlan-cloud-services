@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.location.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
@@ -178,6 +182,50 @@ public class LocationServiceController {
         }
     }
     
+    @RequestMapping(value = "/inSet", method = RequestMethod.GET)
+    public ListOfLocations getAllInSet(@RequestParam Set<Long> locationIdSet) {
+        LOG.debug("getAllInSet({})", locationIdSet);
+        try {
+            List<Location> result = locationDatastore.get(locationIdSet);
+            LOG.debug("getAllInSet({}) return {} entries", locationIdSet, result.size());
+            ListOfLocations ret = new ListOfLocations();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getAllInSet({}) exception ", locationIdSet, exp);
+             throw exp;
+        }
+    }
+
+    @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
+    public PaginationResponse<Location> getForCustomer(@RequestParam int customerId,
+            @RequestParam List<ColumnAndSort> sortBy,
+            @RequestParam PaginationContext<Location> paginationContext) {
+
+        LOG.debug("Looking up Locations for customer {} with last returned page number {}", 
+                customerId, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<Location> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Locations for customer {} with last returned page number {}",
+                    customerId, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<Location> onePage = this.locationDatastore
+                .getForCustomer(customerId,  sortBy, paginationContext);
+        ret.setContext(onePage.getContext());
+        ret.getItems().addAll(onePage.getItems());
+
+        LOG.debug("Retrieved {} Locations for customer {} ", onePage.getItems().size(), 
+                customerId);
+
+        return ret;
+    }
     
     private void publishEvent(SystemEvent event) {
         if (event == null) {

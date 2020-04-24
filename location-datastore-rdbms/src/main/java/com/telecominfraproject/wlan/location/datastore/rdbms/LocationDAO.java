@@ -3,7 +3,9 @@ package com.telecominfraproject.wlan.location.datastore.rdbms;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,14 +25,18 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.utils.JsonPatchException;
 import com.telecominfraproject.wlan.core.model.utils.JsonPatchUtil;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.Location;
+import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.server.exceptions.SerializationException;
 
 /**
@@ -63,6 +69,8 @@ public class LocationDAO extends BaseJdbcDao {
     private static final String TABLE_NAME = "equipment_location";
     private static final String TABLE_PREFIX = "s.";
     private static final String ALL_COLUMNS;
+    
+    private static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
 
     @SuppressWarnings("unused")
     // use this for queries where multiple tables are involved
@@ -79,6 +87,8 @@ public class LocationDAO extends BaseJdbcDao {
         StringBuilder strbBindVarsForInsert = new StringBuilder(128);
         StringBuilder strbColumnsForUpdate = new StringBuilder(512);
         for (String colName : ALL_COLUMNS_LIST) {
+
+            ALL_COLUMNS_LOWERCASE.add(colName.toLowerCase());
 
             strbAllColumns.append(colName).append(",");
             strbAllColumnsWithPrefix.append(TABLE_PREFIX).append(colName).append(",");
@@ -142,6 +152,11 @@ public class LocationDAO extends BaseJdbcDao {
 
     private static final String SQL_GET_ALL_CITIES = "select " + ALL_COLUMNS + " from " + TABLE_NAME + " "
             + " where parentid = 0";
+
+    private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
+
+    private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
+    private static final String SORT_SUFFIX = "";
 
     private static final RowMapper<Location> locationRowMapper = new LocationRowMapper();
 
@@ -346,6 +361,119 @@ public class LocationDAO extends BaseJdbcDao {
         return ret;
     }
 
+    public List<Location> get(Set<Long> locationIdSet) {
+        LOG.debug("calling get({})", locationIdSet);
+
+        if (locationIdSet == null || locationIdSet.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        StringBuilder set = new StringBuilder(256);
+        set.append("(");
+        for(int i =0; i< locationIdSet.size(); i++) {
+        		set.append("?,");
+        }
+        //remove last comma
+        set.deleteCharAt(set.length()-1);
+        set.append(")");
+        
+        String query = SQL_GET_ALL_IN_SET + set;
+        List<Location> results = this.jdbcTemplate.query(query, locationIdSet.toArray(), locationRowMapper);
+
+        LOG.debug("get({}) returns {} record(s)", locationIdSet, (null == results) ? 0 : results.size());
+        return results;
+    }
+
+
+	public PaginationResponse<Location> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+			PaginationContext<Location> context) {
+
+        PaginationResponse<Location> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Locations for customer {} with last returned page number {}",
+                    customerId, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Locations for customer {} with last returned page number {}", 
+                customerId, context.getLastReturnedPageNumber());
+
+        String query = SQL_GET_BY_CUSTOMER_ID;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append(COL_ID);
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX ;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Location> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                locationRowMapper);
+
+        if (pageItems == null) {
+            LOG.debug("Cannot find Locations for customer {} with last returned page number {}",
+                    customerId, context.getLastReturnedPageNumber());
+        } else {
+            LOG.debug("Found {} Locations for customer {} with last returned page number {}",
+                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
+        }
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
+    }
     private static String generatePatch(LocationDetails details) {
         try {
             if (details != null) {

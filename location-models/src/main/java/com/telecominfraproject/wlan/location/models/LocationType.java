@@ -8,7 +8,7 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 
 public enum LocationType {
     
-    SITE(1), BUILDING(2), FLOOR(3), UNSUPPORTED(-1);
+    COUNTRY(1), SITE(2), BUILDING(3), FLOOR(4), UNSUPPORTED(-1);
     
     private final int id;
     private static final Map<Integer, LocationType> ELEMENTS = new HashMap<>();
