@@ -33,7 +33,7 @@ public class WebTokenIntrospectorController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebTokenIntrospectorController.class);
 
-    private static final long accessTokenExpiryMs = Long.getLong("tip.wlan.AccessTokenExpiryMs", 300000);
+    private static final long accessTokenExpiryMs = Long.getLong("tip.wlan.AccessTokenExpiryMs", 3000000);
     private static final long refreshTokenExpiryMs = Long.getLong("tip.wlan.RefreshTokenExpiryMs", 3600000);
     
     private static final long customerIdForWebToken = Long.getLong("tip.wlan.webtokenCustomerId", 2);
