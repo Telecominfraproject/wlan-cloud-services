@@ -1,0 +1,868 @@
+openapi: 3.0.3
+info:
+  title: CloudSDK Portal API
+  description: APIs that provide services for provisioning, monitoring, and history retrieval of various data elements of CloudSDK.
+  version: 1.0.0
+servers:
+  - url: https://localhost:9091
+    description: Local Dev server
+  - url: https://192.168.0.143:9091
+    description: Local Dev server
+
+
+tags:
+- name: "Data Model Overview"
+  description: |
+    A Customer has Locations.
+
+    Locations can be arranged in a hierarchy of Country -> Site -> Building -> Floor.
+
+    Equipment (AccessPoints) can be bound to a customer and location.
+
+    Customer can have multiple Network Configurations (settings that can be attached to multiple equipment instances like SSIDs, radius server settings, etc.).
+
+    Each Equipment can be linked to only one Network Configuration.
+
+    Each Equipment also has an Element Configuration (radio settings that are not shared between equipment instances).
+- name: "Login"
+- name: "Customer"
+  description: |
+    Customer represents a single customer with many locations. All equipment is bound to the customer.
+- name: "Location"
+  description: |
+    Locations can be arranged in a hierarchy of Country -> Site -> Building -> Floor. Equipment can be associated with a single location at any level in the location hierarchy.
+- name: "Equipment"
+  description: |
+    Equipment (AccessPoints) can be bound to a customer and location.
+- name: "Equipment Config"
+- name: "Network Config"
+- name: "Equipment Status"
+- name: "Client Status"
+- name: "Alarms"
+- name: "WLAN Service Metrics"
+- name: "System Events"
+
+components:
+  securitySchemes:
+    tip_wlan_ts_auth:
+      type: http
+      scheme: bearer
+
+  responses:
+    GenericApiError:
+      description: this object is returned in the cases when an API throws an exception
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JsonSerializedException'
+
+  schemas:
+    GenericResponse:
+      properties:
+        message:
+          type: string
+        success:
+          type: boolean
+
+    JsonSerializedException:
+      description: this object is returned in the cases when an API throws an exception
+      properties:
+        exType:
+          type: string
+          enum:
+            - IllegalStateException
+        error:
+          description: error message
+          type: string
+        path:
+          description: API path with parameters that produced the exception
+          type: string
+        timestamp:
+          description: time stamp of when the exception was generated
+          type: integer
+          format: int64
+
+    Customer:
+      description: Customer object
+      type: "object"
+      required:
+        - id
+        - email
+        - name
+        - lastModifiedTimestamp
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        email:
+          type: "string"
+          format: "email"
+        name:
+          type: "string"
+        createdTimestamp:
+          type: "integer"
+          format: "int64"
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: "integer"
+          format: "int64"
+          
+    Location:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        locationType:
+          type: "string"
+          enum:
+            - COUNTRY
+            - SITE
+            - BUILDING
+            - FLOOR
+            - UNSUPPORTED
+        customerId:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        parentId:
+          type: "integer"
+          format: "int64"
+        details:
+          $ref: "#/components/schemas/LocationDetails"
+        createdTimestamp:
+          type: "integer"
+          format: "int64"
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: "integer"
+          format: "int64"
+    LocationDetails:
+      type: "object"
+      properties:
+        countryCode:
+          type: "string"
+          enum:
+            - usa
+            - ca
+            - integration
+            - UNSUPPORTED
+        dailyActivityDetails:
+           $ref: "#/components/schemas/LocationActivityDetailsMap"
+        maintenanceWindow:
+          type: "string"
+        rrmEnabled:
+          type: "boolean"
+    LocationActivityDetailsMap:
+      properties:
+        SUNDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        MONDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        TUESDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        WEDNESDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        THURSDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        FRIDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+        SATURDAY:
+          $ref: "#/components/schemas/LocationActivityDetails"
+    LocationActivityDetails:
+      properties:
+        busyTime:
+          type: "string"
+        quietTime:
+          type: "string"
+        timezone:
+          type: "string"
+        lastBusySnapshot:
+          type: "integer"
+          format: "int64"
+
+
+    EquipmentType:
+      type: "string"
+      enum:
+        - AP
+        - SWITCH
+
+    Equipment:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        equipmentType:
+          $ref: '#/components/schemas/EquipmentType'
+        inventoryId:
+          type: "string"
+        customerId:
+          type: "integer"
+          format: "int32"
+        networkConfigId:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        locationId:
+          type: "integer"
+          format: "int64"
+        details:
+           $ref: "#/components/schemas/EquipmentDetails"
+        serial:
+          type: "string"
+        createdTimestamp:
+          type: "integer"
+          format: "int64"
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: "integer"
+          format: "int64"
+
+    EquipmentDetails:
+      description: Place to put extended equipment properties.
+      type: "object"
+      properties:
+        sampleDetailsStr:
+          type: "string"
+
+    WebTokenRequest:
+      description: User Id and password.
+      type: "object"
+      required: 
+        - userId
+        - password
+      properties:
+        userId:
+          type: "string"
+          default: "support@example.com"
+        password:
+          type: "string"
+          default: "support"
+          
+          
+    AclTemplate:
+      type: "object"
+      properties:
+        Read:
+          type: boolean
+        ReadWrite:
+          type: boolean
+        ReadWriteCreate:
+          type: boolean
+        Delete:
+          type: boolean
+        PortalLogin:
+          type: boolean
+
+    WebTokenAclTemplate:
+      type: "object"
+      properties:
+        aclTemplate:
+         $ref: "#/components/schemas/AclTemplate"
+
+
+    WebTokenResult:
+      description: Login and Refresh Tokens to be used in subsequent API calls.
+      type: "object"
+      properties:
+        access_token:
+          type: "string"
+        refresh_token:
+          type: "string"
+        token_type:
+          type: "string"
+        expires_in:
+          type: "integer"
+          format: "int32"
+        idle_timeout:
+          type: "integer"
+          format: "int32"
+        aclTemplate:
+          $ref: "#/components/schemas/WebTokenAclTemplate"
+
+    SortOrder:
+      type: string
+      default: asc
+      enum:
+      - asc
+      - desc
+    
+    SortColumnsLocation:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: id
+          enum: 
+          - id
+          - name
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+          
+    PaginationContextLocation:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        isLastPage:
+          type: boolean
+      
+    PaginationResponseLocation:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        context:
+          $ref: '#/components/schemas/PaginationContextLocation'          
+
+    SortColumnsEquipment:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: id
+          enum: 
+          - id
+          - name
+          - networkConfigId
+          - locationId
+          - equipmentType
+          - inventoryId
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+
+      
+    PaginationContextEquipment:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        isLastPage:
+          type: boolean
+      
+    PaginationResponseEquipment:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+        context:
+          $ref: '#/components/schemas/PaginationContextEquipment'
+
+## ---------------------------------------------------------------------------
+security:
+ - tip_wlan_ts_auth: []
+paths:
+  /management/v1/oauth2/token:
+    post:
+      tags:
+      - "Login"
+      summary: "Get access token - to be used as Bearer token header for all other API requests."
+      operationId: "getAccessToken"
+      requestBody:
+        description: "User id and password"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebTokenRequest"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebTokenResult"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+      
+  /portal/customer:
+    get:
+      tags:
+      - "Customer"
+      summary: "Get Customer By Id"
+      operationId: "getCustomerById"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - "Customer"
+      summary: "Update Customer"
+      operationId: "updateCustomer"
+      requestBody:
+        description: "customer info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/location:
+    post:
+      tags:
+       - "Location"
+      summary: "Create new Location"
+      operationId: "createLocation"
+      requestBody:
+        description: "location info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Location"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - "Location"
+      summary: "Get Location By Id"
+      operationId: "getLocationById"
+      parameters:
+      - name: "locationId"
+        in: "query"
+        description: "location id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - "Location"
+      summary: "Update Location"
+      operationId: "updateLocation"
+      requestBody:
+        description: "location info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Location"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - "Location"
+      summary: "Delete Location"
+      operationId: "deleteLocation"
+      parameters:
+      - name: "locationId"
+        in: "query"
+        description: "location id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/location/inSet:
+    get:
+      tags:
+      - "Location"
+      summary: "Get Locations By a set of ids"
+      operationId: "getLocationBySetOfIds"
+      parameters:
+      - name: "locationIdSet"
+        in: "query"
+        description: "set of location ids"
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "array"
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Location"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/location/forCustomer:
+    get:
+      tags:
+      - "Location"
+      summary: "Get Locations By customerId"
+      operationId: "getLocationsByCustomerId"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: "sortBy"
+        in: "query"
+        description: "sort options"
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortColumnsLocation"
+#        content:
+#          application/json:
+#            schema:
+#              type: "array"
+#              items:
+#                $ref: "#/components/schemas/SortColumnsLocation"
+#            examples: 
+#              nameAsc:
+#                summary: An example of a sort by name ascending
+#                value:
+#                  model_type: ColumnAndSort
+#                  columnName: name
+#                  sortOrder: asc
+      - name: "paginationContext"
+        in: "query"
+        description: "pagination context"
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/PaginationContextLocation"
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponseLocation"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/equipment:
+    post:
+      tags:
+       - "Equipment"
+      summary: "Create new Equipment"
+      operationId: "createEquipment"
+      requestBody:
+        description: "equipment info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Equipment"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - "Equipment"
+      summary: "Get Equipment By Id"
+      operationId: "getEquipmentById"
+      parameters:
+      - name: "equipmentId"
+        in: "query"
+        description: "equipment id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - "Equipment"
+      summary: "Update Equipment"
+      operationId: "updateEquipment"
+      requestBody:
+        description: "equipment info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Equipment"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - "Equipment"
+      summary: "Delete Equipment"
+      operationId: "deleteEquipment"
+      parameters:
+      - name: "equipmentId"
+        in: "query"
+        description: "equipment id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/equipment/inSet:
+    get:
+      tags:
+      - "Equipment"
+      summary: "Get Equipment By a set of ids"
+      operationId: "getEquipmentBySetOfIds"
+      parameters:
+      - name: "equipmentIdSet"
+        in: "query"
+        description: "set of equipment ids"
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "array"
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Equipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/equipment/forCustomer:
+    get:
+      tags:
+      - "Equipment"
+      summary: "Get Equipment By customerId"
+      operationId: "getEquipmentByCustomerId"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: "sortBy"
+        in: "query"
+        description: "sort options"
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortColumnsEquipment"
+      - name: "paginationContext"
+        in: "query"
+        description: "pagination context"
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/PaginationContextEquipment"
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponseEquipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/equipment/forCustomerWithFilter:
+    get:
+      tags:
+      - "Equipment"
+      summary: "Get Equipment for customerId, equipment type, and location id"
+      operationId: "getEquipmentByCustomerWithFilter"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: "equipmentType"
+        in: "query"
+        schema:
+          $ref: '#/components/schemas/EquipmentType'
+      - name: "locationIds"
+        in: "query"
+        description: "set of location ids"
+        content:
+          text/plain:
+            schema:
+              type: "array"
+              items:
+                type: integer
+                format: int64
+      - name: "sortBy"
+        in: "query"
+        description: "sort options"
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortColumnsEquipment"
+      - name: "paginationContext"
+        in: "query"
+        description: "pagination context"
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/PaginationContextEquipment"
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponseEquipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
