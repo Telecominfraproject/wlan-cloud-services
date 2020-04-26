@@ -30,7 +30,7 @@ public class EquipmentRowMapper implements RowMapper<Equipment> {
         //add columns from properties Equipment in here. 
         //make sure order of fields is the same as defined in Equipment
         equipment.setCustomerId(rs.getInt(colIdx++));
-        equipment.setNetworkConfigId(rs.getLong(colIdx++));
+        equipment.setProfileId(rs.getLong(colIdx++));
         equipment.setLocationId(rs.getLong(colIdx++));
         equipment.setEquipmentType(EquipmentType.getById(rs.getInt(colIdx++)));
         equipment.setInventoryId(rs.getString(colIdx++));

@@ -52,7 +52,7 @@ public abstract class BaseEquipmentDatastoreTest {
         assertNotNull(created.getDetails());
         assertEquals(equipment.getDetails(), created.getDetails());
         
-        assertEquals(equipment.getNetworkConfigId(), created.getNetworkConfigId());
+        assertEquals(equipment.getProfileId(), created.getProfileId());
         assertEquals(equipment.getLocationId(), created.getLocationId());
         assertEquals(equipment.getEquipmentType(), created.getEquipmentType());
         assertEquals(equipment.getInventoryId(), created.getInventoryId());
@@ -125,7 +125,7 @@ public abstract class BaseEquipmentDatastoreTest {
         for (int i = 0; i < 10; i++) {
             equipment.setName("test_" + i);
             equipment.setCustomerId(i);
-            equipment.setNetworkConfigId(1);
+            equipment.setProfileId(1);
             equipment.setLocationId(2);
             equipment.setEquipmentType(EquipmentType.AP);
             equipment.setInventoryId("inv-" + equipment.getName());
@@ -183,7 +183,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-testEquipmentPagination-" + mdl.getName());
@@ -196,7 +196,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_2);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-testEquipmentPagination-" + mdl.getName());
@@ -307,7 +307,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_1);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -320,7 +320,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -334,7 +334,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_2);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_3);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -436,7 +436,7 @@ public abstract class BaseEquipmentDatastoreTest {
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);
         result.setName("test-" + nextId); 
-        result.setNetworkConfigId(1);
+        result.setProfileId(1);
         result.setLocationId(2);
         result.setEquipmentType(EquipmentType.AP);
         result.setInventoryId("inv-" + result.getName());

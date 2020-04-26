@@ -17,7 +17,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 	private long id;
     private int customerId;
 
-    private long networkConfigId;
+    private long profileId;
     private long locationId;
     private EquipmentType equipmentType;
     private String inventoryId;
@@ -76,12 +76,12 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		this.details = details;
 	}
 
-	public long getNetworkConfigId() {
-		return networkConfigId;
+	public long getProfileId() {
+		return profileId;
 	}
 
-	public void setNetworkConfigId(long networkConfigId) {
-		this.networkConfigId = networkConfigId;
+	public void setProfileId(long profileId) {
+		this.profileId = profileId;
 	}
 
 	public long getLocationId() {
@@ -138,7 +138,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdTimestamp, customerId, details, equipmentType, id, inventoryId,
-				lastModifiedTimestamp, locationId, name, networkConfigId);
+				lastModifiedTimestamp, locationId, name, profileId);
 	}
 
 	@Override
@@ -154,7 +154,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 				&& Objects.equals(details, other.details) && equipmentType == other.equipmentType && id == other.id
 				&& Objects.equals(inventoryId, other.inventoryId)
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp && locationId == other.locationId
-				&& Objects.equals(name, other.name) && networkConfigId == other.networkConfigId;
+				&& Objects.equals(name, other.name) && profileId == other.profileId;
 	}
     
 }

@@ -304,7 +304,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_1);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -317,7 +317,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -331,7 +331,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_2);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setNetworkConfigId(1);
+           mdl.setProfileId(1);
            mdl.setLocationId(locationId_3);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());

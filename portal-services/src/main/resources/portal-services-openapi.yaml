@@ -202,7 +202,7 @@ components:
         customerId:
           type: "integer"
           format: "int32"
-        networkConfigId:
+        profileId:
           type: "integer"
           format: "int64"
         name:
@@ -360,7 +360,7 @@ components:
           enum: 
           - id
           - name
-          - networkConfigId
+          - profileId
           - locationId
           - equipmentType
           - inventoryId
