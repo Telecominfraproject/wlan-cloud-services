@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>tip-wlan-cloud-root-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../wlan-cloud-root</relativePath>
+  </parent>
+
+  <artifactId>manufacturer-service-remote</artifactId>
+  <name>manufacturer-service-remote</name>
+   <description>Remote client for accessing the service, uses REST API calls.</description>
+  
+    <dependencies>
+      <dependency>
+        <artifactId>manufacturer-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+        <artifactId>base-client</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+    <!-- Dependencies for the unit tests -->
+      <dependency>
+        <artifactId>base-remote-tests</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+      
+      <dependency>
+        <artifactId>manufacturer-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>manufacturer-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>cloud-event-dispatcher-empty</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+</project>

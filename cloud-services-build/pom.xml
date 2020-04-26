@@ -131,6 +131,46 @@
                                 <module>../status-service-local</module>
                                 <module>../status-service-remote</module>
 
+                                <module>../client-datastore-common-test</module>
+                                <module>../client-datastore-inmemory</module>
+                                <module>../client-datastore-interface</module>
+                                <module>../client-datastore-rdbms</module>
+                                <module>../client-models</module>
+                                <module>../client-service</module>
+                                <module>../client-service-interface</module>
+                                <module>../client-service-local</module>
+                                <module>../client-service-remote</module>
+
+                                <module>../routing-datastore-common-test</module>
+                                <module>../routing-datastore-inmemory</module>
+                                <module>../routing-datastore-interface</module>
+                                <module>../routing-datastore-rdbms</module>
+                                <module>../routing-models</module>
+                                <module>../routing-service</module>
+                                <module>../routing-service-interface</module>
+                                <module>../routing-service-local</module>
+                                <module>../routing-service-remote</module>
+
+                                <module>../firmware-datastore-common-test</module>
+                                <module>../firmware-datastore-inmemory</module>
+                                <module>../firmware-datastore-interface</module>
+                                <module>../firmware-datastore-rdbms</module>
+                                <module>../firmware-models</module>
+                                <module>../firmware-service</module>
+                                <module>../firmware-service-interface</module>
+                                <module>../firmware-service-local</module>
+                                <module>../firmware-service-remote</module>
+
+                                <module>../manufacturer-datastore-common-test</module>
+                                <module>../manufacturer-datastore-inmemory</module>
+                                <module>../manufacturer-datastore-interface</module>
+                                <module>../manufacturer-datastore-rdbms</module>
+                                <module>../manufacturer-models</module>
+                                <module>../manufacturer-service</module>
+                                <module>../manufacturer-service-interface</module>
+                                <module>../manufacturer-service-local</module>
+                                <module>../manufacturer-service-remote</module>
+
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
