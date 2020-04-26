@@ -111,6 +111,16 @@
                                 <module>../system-event-service-local</module>
                                 <module>../system-event-service-remote</module>
 
+                                <module>../alarm-datastore-common-test</module>
+                                <module>../alarm-datastore-inmemory</module>
+                                <module>../alarm-datastore-interface</module>
+                                <module>../alarm-datastore-rdbms</module>
+                                <module>../alarm-models</module>
+                                <module>../alarm-service</module>
+                                <module>../alarm-service-interface</module>
+                                <module>../alarm-service-local</module>
+                                <module>../alarm-service-remote</module>
+
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
