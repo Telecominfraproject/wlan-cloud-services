@@ -101,6 +101,16 @@
                                 <module>../service-metric-service-local</module>
                                 <module>../service-metric-service-remote</module>
 
+                                <module>../system-event-datastore-common-test</module>
+                                <module>../system-event-datastore-inmemory</module>
+                                <module>../system-event-datastore-interface</module>
+                                <module>../system-event-datastore-rdbms</module>
+                                <module>../system-event-models</module>
+                                <module>../system-event-service</module>
+                                <module>../system-event-service-interface</module>
+                                <module>../system-event-service-local</module>
+                                <module>../system-event-service-remote</module>
+
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>

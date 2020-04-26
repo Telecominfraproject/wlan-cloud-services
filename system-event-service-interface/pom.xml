@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>tip-wlan-cloud-root-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../wlan-cloud-root</relativePath>
+  </parent>
+
+  <artifactId>system-event-service-interface</artifactId>
+  <name>system-event-service-interface</name>
+  <description>Interface definitions for the service.</description>
+  
+    <dependencies>
+      <dependency>
+        <artifactId>system-event-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+    </dependencies>
+        
+    
+</project>
