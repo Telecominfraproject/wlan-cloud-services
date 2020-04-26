@@ -20,13 +20,8 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
-
 import com.telecominfraproject.wlan.servicemetric.datastore.ServiceMetricDatastore;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
-import com.telecominfraproject.wlan.servicemetric.models.events.ServiceMetricAddedEvent;
-import com.telecominfraproject.wlan.servicemetric.models.events.ServiceMetricChangedEvent;
-import com.telecominfraproject.wlan.servicemetric.models.events.ServiceMetricRemovedEvent;
 
 
 /**
@@ -74,10 +69,6 @@ public class ServiceMetricController {
         ServiceMetric ret = serviceMetricDatastore.create(serviceMetric);
 
         LOG.debug("Created ServiceMetric {}", ret);
-
-        ServiceMetricAddedEvent event = new ServiceMetricAddedEvent(ret);
-        publishEvent(event);
-
 
         return ret;
     }
@@ -182,9 +173,6 @@ public class ServiceMetricController {
 
         LOG.debug("Updated ServiceMetric {}", ret);
 
-        ServiceMetricChangedEvent event = new ServiceMetricChangedEvent(ret);
-        publishEvent(event);
-
         return ret;
     }
     
@@ -203,23 +191,7 @@ public class ServiceMetricController {
 
         LOG.debug("Deleted ServiceMetric {}", ret);
         
-        ServiceMetricRemovedEvent event = new ServiceMetricRemovedEvent(ret);
-        publishEvent(event);
-
         return ret;
     }
-
-    private void publishEvent(SystemEvent event) {
-        if (event == null) {
-            return;
-        }
-        
-        try {
-            cloudEventDispatcher.publishEvent(event);
-        } catch (Exception e) {
-            LOG.error("Failed to publish event : {}", event, e);
-        }
-    }
-
     
 }
