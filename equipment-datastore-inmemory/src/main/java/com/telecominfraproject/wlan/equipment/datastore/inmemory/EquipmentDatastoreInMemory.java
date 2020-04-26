@@ -208,7 +208,7 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         if (context.getStartAfterItem() != null) {
             for (Equipment mdl : items) {
                 fromIndex++;
-                if (mdl.equals(context.getStartAfterItem())) {
+                if (mdl.getId() == context.getStartAfterItem().getId()) {
                     break;
                 }
             }
@@ -230,7 +230,14 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
 
         // adjust context for the next page
         ret.prepareForNextPage();
-
+        
+        if(ret.getContext().getStartAfterItem()!=null) {
+        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
+        	Equipment newStartAfterItem = new Equipment();
+        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ret.getContext().setStartAfterItem(newStartAfterItem);
+        }
+        
         return ret;
     }
     
@@ -305,7 +312,7 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         if (context.getStartAfterItem() != null) {
             for (Equipment ce : items) {
                 fromIndex++;
-                if (ce.equals(context.getStartAfterItem())) {
+                if (ce.getId() == context.getStartAfterItem().getId()) {
                     break;
                 }
             }
@@ -328,6 +335,13 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         // adjust context for the next page
         ret.prepareForNextPage();
 
+        if(ret.getContext().getStartAfterItem()!=null) {
+        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
+        	Equipment newStartAfterItem = new Equipment();
+        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ret.getContext().setStartAfterItem(newStartAfterItem);
+        }
+        
         return ret;
     }    
 }

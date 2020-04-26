@@ -240,7 +240,7 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
         if (context.getStartAfterItem() != null) {
             for (Location mdl : items) {
                 fromIndex++;
-                if (mdl.equals(context.getStartAfterItem())) {
+                if (mdl.getId() == context.getStartAfterItem().getId()) {
                     break;
                 }
             }
@@ -263,6 +263,13 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
         // adjust context for the next page
         ret.prepareForNextPage();
 
+        if(ret.getContext().getStartAfterItem()!=null) {
+        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
+        	Location newStartAfterItem = new Location();
+        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ret.getContext().setStartAfterItem(newStartAfterItem);
+        }
+        
         return ret;
     }
     
