@@ -50,6 +50,7 @@
                                 <module>../customer-service-interface</module>
                                 <module>../customer-service-local</module>
                                 <module>../customer-service-remote</module>
+
                                 <module>../location-models</module>
                                 <module>../location-datastore-interface</module>
                                 <module>../location-datastore-common-test</module>
@@ -59,6 +60,7 @@
                                 <module>../location-service-interface</module>
                                 <module>../location-service-local</module>
                                 <module>../location-service-remote</module>
+
                                 <module>../equipment-datastore-common-test</module>
                                 <module>../equipment-datastore-inmemory</module>
                                 <module>../equipment-datastore-interface</module>
@@ -68,6 +70,37 @@
                                 <module>../equipment-service-interface</module>
                                 <module>../equipment-service-local</module>
                                 <module>../equipment-service-remote</module>
+
+                                <module>../profile-datastore-common-test</module>
+                                <module>../profile-datastore-inmemory</module>
+                                <module>../profile-datastore-interface</module>
+                                <module>../profile-datastore-rdbms</module>
+                                <module>../profile-models</module>
+                                <module>../profile-service</module>
+                                <module>../profile-service-interface</module>
+                                <module>../profile-service-local</module>
+                                <module>../profile-service-remote</module>
+
+                                <module>../portal-user-datastore-common-test</module>
+                                <module>../portal-user-datastore-inmemory</module>
+                                <module>../portal-user-datastore-interface</module>
+                                <module>../portal-user-datastore-rdbms</module>
+                                <module>../portal-user-models</module>
+                                <module>../portal-user-service</module>
+                                <module>../portal-user-service-interface</module>
+                                <module>../portal-user-service-local</module>
+                                <module>../portal-user-service-remote</module>
+
+                                <module>../service-metric-datastore-common-test</module>
+                                <module>../service-metric-datastore-inmemory</module>
+                                <module>../service-metric-datastore-interface</module>
+                                <module>../service-metric-datastore-rdbms</module>
+                                <module>../service-metric-models</module>
+                                <module>../service-metric-service</module>
+                                <module>../service-metric-service-interface</module>
+                                <module>../service-metric-service-local</module>
+                                <module>../service-metric-service-remote</module>
+
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
