@@ -121,6 +121,16 @@
                                 <module>../alarm-service-local</module>
                                 <module>../alarm-service-remote</module>
 
+                                <module>../status-datastore-common-test</module>
+                                <module>../status-datastore-inmemory</module>
+                                <module>../status-datastore-interface</module>
+                                <module>../status-datastore-rdbms</module>
+                                <module>../status-models</module>
+                                <module>../status-service</module>
+                                <module>../status-service-interface</module>
+                                <module>../status-service-local</module>
+                                <module>../status-service-remote</module>
+
                                 <module>../single-process-streams</module>
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
