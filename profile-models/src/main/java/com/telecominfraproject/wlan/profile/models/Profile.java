@@ -17,7 +17,8 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
     private int customerId;
 
     //TODO: put more fields here, generate getters/setters for them
-    private String sampleStr;
+    private ProfileType profileType;
+    private String name;
     private ProfileDetails details;
     
     private long createdTimestamp;
@@ -55,14 +56,6 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
         this.lastModifiedTimestamp = lastModifiedTimestamp;
     }
 
-    public void setSampleStr(String sampleStr) {
-        this.sampleStr = sampleStr;
-    }
-
-    public String getSampleStr() {
-        return sampleStr;
-    }
-
 	public ProfileDetails getDetails() {
 		return details;
 	}
@@ -71,12 +64,32 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 		this.details = details;
 	}
 
+	public ProfileType getProfileType() {
+		return profileType;
+	}
+
+	public void setProfileType(ProfileType profileType) {
+		this.profileType = profileType;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
 			return true;
 		}
 
+		if(profileType==null || ProfileType.isUnsupported(profileType)) {
+			return true;
+		}
+		
 		if(details!=null && details.hasUnsupportedValue()) {
 			return true;
 		}
@@ -96,7 +109,7 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, sampleStr, details);
+		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, name, profileType, details);
 	}
 
 	@Override
@@ -110,7 +123,8 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 		Profile other = (Profile) obj;
 		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(sampleStr, other.sampleStr)
+				&& Objects.equals(name, other.name)
+				&& Objects.equals(profileType, other.profileType)
 				&& Objects.equals(details, other.details);
 	}
     

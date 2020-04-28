@@ -55,7 +55,8 @@ public class ProfileDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties Profile in here
         "customerId",
-        "sampleStr",
+        "profileType",
+        "name",
         "details",
         //make sure the order of properties matches this list and list in ProfileRowMapper and list in create/update methods
         
@@ -178,7 +179,8 @@ public class ProfileDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from Profile here 
                         ps.setInt(colIdx++, profile.getCustomerId());
-                        ps.setString(colIdx++, profile.getSampleStr());
+                        ps.setInt(colIdx++, profile.getProfileType().getId());
+                        ps.setString(colIdx++, profile.getName());
                       	ps.setBytes(colIdx++, (profile.getDetails()!=null)?profile.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -248,7 +250,8 @@ public class ProfileDAO extends BaseJdbcDao {
 
                 //TODO: add remaining properties from Profile here
         		profile.getCustomerId(),
-                profile.getSampleStr(),
+        		profile.getProfileType().getId(),
+                profile.getName(),
                 (profile.getDetails()!=null)?profile.getDetails().toZippedBytes():null ,
                                 
                 //profile.getCreatedTimestamp(), - not updating this one

@@ -29,6 +29,7 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -54,7 +55,9 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
         
         //Create new Profile - success
         Profile profile = new Profile();
-        profile.setSampleStr("test");
+        profile.setName("test");
+        profile.setProfileType(ProfileType.equipment_ap);
+
 
         Profile ret = remoteInterface.create(profile);
         assertNotNull(ret);
@@ -69,7 +72,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
         assertNull(remoteInterface.getOrNull(-1));
 
         //Update success
-        ret.setSampleStr(ret.getSampleStr()+"_modified");
+        ret.setName(ret.getName()+"_modified");
         //TODO: add more Profile fields to modify here
         
         Profile updatedProfile = remoteInterface.update(ret);
@@ -125,7 +128,8 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
         int customerId = getNextCustomerId();
         
         for (int i = 0; i < 10; i++) {
-            profile.setSampleStr("test_" + i);
+            profile.setName("test_" + i);
+            profile.setProfileType(ProfileType.equipment_ap);
             profile.setCustomerId(customerId);
 
             Profile ret = remoteInterface.create(profile);
@@ -179,7 +183,9 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        for(int i = 0; i< 50; i++){
            mdl = new Profile();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileType(ProfileType.equipment_ap);
+
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -187,7 +193,9 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        for(int i = 0; i< 50; i++){
            mdl = new Profile();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileType(ProfileType.equipment_ap);
+
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -195,7 +203,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        //paginate over Profiles
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
        
        PaginationContext<Profile> context = new PaginationContext<>(10);
        PaginationResponse<Profile> page1 = remoteInterface.getForCustomer(customerId_1, sortBy, context);
@@ -233,7 +241,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getName()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -251,7 +259,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getName()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -261,18 +269,18 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getName()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
        //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Profile> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       PaginationResponse<Profile> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getName()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
@@ -283,7 +291,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
             Profile expected,
             Profile actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getName(), actual.getName());
         //TODO: add more fields to check here
     }
 

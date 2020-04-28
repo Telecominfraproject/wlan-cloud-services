@@ -40,6 +40,10 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     @Override
     public Profile create(Profile profile) {
         
+    	if(profile.hasUnsupportedValue()) {
+    		throw new IllegalStateException("unsupported value in profile object");
+    	}
+    	
         Profile profileCopy = profile.clone();
         
         long id = profileIdCounter.incrementAndGet();
@@ -181,8 +185,8 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
                         case "id":
                             cmp = Long.compare(o1.getId(), o2.getId());
                             break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
+                        case "name":
+                            cmp = o1.getName().compareTo(o2.getName());
                             break;
                         default:
                             // skip unknown column

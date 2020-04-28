@@ -18,6 +18,7 @@ import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmp
 
 import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreInMemory;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -53,7 +54,8 @@ public class ProfileControllerTest {
         
         //Create new Profile - success
         Profile profile = new Profile();
-        profile.setSampleStr("test");
+        profile.setName("test");
+        profile.setProfileType(ProfileType.equipment_ap);
 
         Profile ret = profileController.create(profile);
         assertNotNull(ret);
@@ -75,7 +77,8 @@ public class ProfileControllerTest {
             Profile expected,
             Profile actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getProfileType(), actual.getProfileType());
         //TODO: add more fields to check here
     }
 

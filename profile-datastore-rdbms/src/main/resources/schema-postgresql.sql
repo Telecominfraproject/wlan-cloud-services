@@ -3,7 +3,9 @@ create table profile (
     id BIGSERIAL PRIMARY KEY,
 
     customerId int,
-    sampleStr varchar(50),
+    profileType int not null,
+    name varchar(255),
+    
     details bytea,
     
     createdTimestamp bigint not null,

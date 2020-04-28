@@ -27,6 +27,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
 
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -46,21 +47,22 @@ public abstract class BaseProfileDatastoreTest {
     	Profile created = testInterface.create(profile);
         assertNotNull(created);
         assertTrue(created.getId() > 0);
-        assertEquals(profile.getSampleStr(), created.getSampleStr());
+        assertEquals(profile.getName(), created.getName());
         assertEquals(profile.getCustomerId(), created.getCustomerId());
+        assertEquals(profile.getProfileType(), created.getProfileType());
         assertNotNull(created.getDetails());
         assertEquals(profile.getDetails(), created.getDetails());
                 
         // update
-        created.setSampleStr(created.getSampleStr()+"_updated");
+        created.setName(created.getName()+"_updated");
         Profile updated = testInterface.update(created);
         assertNotNull(updated);
-        assertEquals(created.getSampleStr(), updated.getSampleStr());
+        assertEquals(created.getName(), updated.getName());
         
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Profile modelConcurrentUpdate = created.clone();
-        	modelConcurrentUpdate.setSampleStr("not important");
+        	modelConcurrentUpdate.setName("not important");
         	testInterface.update(modelConcurrentUpdate);
         	fail("failed to detect concurrent modification");
         }catch (DsConcurrentModificationException e) {
@@ -117,8 +119,9 @@ public abstract class BaseProfileDatastoreTest {
         Profile profile = new Profile();
 
         for (int i = 0; i < 10; i++) {
-            profile.setSampleStr("test_" + i);
+            profile.setName("test_" + i);
             profile.setCustomerId(i);
+            profile.setProfileType(ProfileType.equipment_ap);
 
             Profile ret = testInterface.create(profile);
 
@@ -171,7 +174,9 @@ public abstract class BaseProfileDatastoreTest {
        for(int i = 0; i< 50; i++){
            mdl = new Profile();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileType(ProfileType.equipment_ap);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -179,7 +184,9 @@ public abstract class BaseProfileDatastoreTest {
        for(int i = 0; i< 50; i++){
            mdl = new Profile();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileType(ProfileType.equipment_ap);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -187,7 +194,7 @@ public abstract class BaseProfileDatastoreTest {
        //paginate over Profiles
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
        
        PaginationContext<Profile> context = new PaginationContext<>(10);
        PaginationResponse<Profile> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
@@ -225,7 +232,7 @@ public abstract class BaseProfileDatastoreTest {
        
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getName()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -243,7 +250,7 @@ public abstract class BaseProfileDatastoreTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getName()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -253,18 +260,18 @@ public abstract class BaseProfileDatastoreTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getName()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
        //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Profile> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       PaginationResponse<Profile> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getName()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
@@ -274,7 +281,8 @@ public abstract class BaseProfileDatastoreTest {
     	Profile result = new Profile();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);
-        result.setSampleStr("test-" + nextId); 
+        result.setName("test-" + nextId); 
+        result.setProfileType(ProfileType.equipment_ap);
         ProfileDetails details = new ProfileDetails();
         details.setSampleDetailsStr("test-details-" + nextId);
 		result.setDetails(details );

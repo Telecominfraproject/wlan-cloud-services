@@ -11,6 +11,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -29,7 +30,8 @@ public class ProfileRowMapper implements RowMapper<Profile> {
         //TODO: add columns from properties Profile in here. 
         //make sure order of fields is the same as defined in Profile
         profile.setCustomerId(rs.getInt(colIdx++));
-        profile.setSampleStr(rs.getString(colIdx++));
+        profile.setProfileType(ProfileType.getById(rs.getInt(colIdx++)));
+        profile.setName(rs.getString(colIdx++));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {

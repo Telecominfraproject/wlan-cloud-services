@@ -1,11 +1,13 @@
 insert into profile (
     id,
-    customerId,     
-    sampleStr,
+    customerId,
+    profileType,     
+    name,
     details,
     createdTimestamp,
     lastModifiedTimestamp
 ) values (
+    1,
     1,
     1,
     'test',
