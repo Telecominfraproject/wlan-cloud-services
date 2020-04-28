@@ -212,6 +212,10 @@ components:
           format: "int64"
         details:
            $ref: "#/components/schemas/EquipmentDetails"
+        latitude:
+          type: "string"
+        longitude:
+          type: "string"
         serial:
           type: "string"
         createdTimestamp:

@@ -63,6 +63,9 @@ public class EquipmentDAO extends BaseJdbcDao {
 
         "name",
         "details",
+        "latitude",
+        "longitude", 
+        "serial",
         //make sure the order of properties matches this list and list in EquipmentRowMapper and list in create/update methods
         
         "createdTimestamp",
@@ -194,6 +197,9 @@ public class EquipmentDAO extends BaseJdbcDao {
                         
                         ps.setString(colIdx++, equipment.getName());
                       	ps.setBytes(colIdx++, (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null);
+                      	ps.setString(colIdx++, equipment.getLatitude());
+                      	ps.setString(colIdx++, equipment.getLongitude());
+                      	ps.setString(colIdx++, equipment.getSerial());
                         
                         ps.setLong(colIdx++, ts);
                         ps.setLong(colIdx++, ts);
@@ -268,6 +274,9 @@ public class EquipmentDAO extends BaseJdbcDao {
         		equipment.getInventoryId(),
                 equipment.getName(),
                 (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null ,
+                equipment.getLatitude(),
+                equipment.getLongitude(),
+                equipment.getSerial(),
                                 
                 //equipment.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,

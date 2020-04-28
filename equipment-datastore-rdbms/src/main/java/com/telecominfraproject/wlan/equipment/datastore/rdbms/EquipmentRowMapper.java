@@ -47,6 +47,10 @@ public class EquipmentRowMapper implements RowMapper<Equipment> {
             }
         }
 
+        equipment.setLatitude(rs.getString(colIdx++));
+        equipment.setLongitude(rs.getString(colIdx++));
+        equipment.setSerial(rs.getString(colIdx++));
+        
         equipment.setCreatedTimestamp(rs.getLong(colIdx++));
         equipment.setLastModifiedTimestamp(rs.getLong(colIdx++));
         

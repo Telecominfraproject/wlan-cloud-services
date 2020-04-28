@@ -56,7 +56,11 @@ public abstract class BaseEquipmentDatastoreTest {
         assertEquals(equipment.getLocationId(), created.getLocationId());
         assertEquals(equipment.getEquipmentType(), created.getEquipmentType());
         assertEquals(equipment.getInventoryId(), created.getInventoryId());
-                
+
+        assertEquals(equipment.getLatitude(), created.getLatitude());
+        assertEquals(equipment.getLongitude(), created.getLongitude());
+        assertEquals(equipment.getSerial(), created.getSerial());
+
         // update
         created.setName(created.getName()+"_updated");
         Equipment updated = testInterface.update(created);
@@ -444,6 +448,10 @@ public abstract class BaseEquipmentDatastoreTest {
         EquipmentDetails details = new EquipmentDetails();
         details.setSampleDetailsStr("test-details-" + nextId);
 		result.setDetails(details );
+		result.setLatitude("42");
+		result.setLongitude("314");
+		result.setSerial("serial-"+nextId);
+		
         return result;
     }
 }

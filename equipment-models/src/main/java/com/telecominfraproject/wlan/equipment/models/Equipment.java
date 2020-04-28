@@ -25,6 +25,11 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
     private String name;
     private EquipmentDetails details;
     
+    private  String latitude;
+    private  String longitude;
+    
+    private  String serial;
+    
     private long createdTimestamp;
     private long lastModifiedTimestamp;
     
@@ -76,6 +81,22 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		this.details = details;
 	}
 
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
 	public long getProfileId() {
 		return profileId;
 	}
@@ -108,6 +129,14 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		this.inventoryId = inventoryId;
 	}
 
+	public String getSerial() {
+		return serial;
+	}
+
+	public void setSerial(String serial) {
+		this.serial = serial;
+	}
+
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -138,7 +167,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdTimestamp, customerId, details, equipmentType, id, inventoryId,
-				lastModifiedTimestamp, locationId, name, profileId);
+				lastModifiedTimestamp, locationId, name, profileId, latitude, longitude, serial);
 	}
 
 	@Override
@@ -154,7 +183,11 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 				&& Objects.equals(details, other.details) && equipmentType == other.equipmentType && id == other.id
 				&& Objects.equals(inventoryId, other.inventoryId)
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp && locationId == other.locationId
-				&& Objects.equals(name, other.name) && profileId == other.profileId;
+				&& Objects.equals(name, other.name) && profileId == other.profileId
+						&& Objects.equals(latitude, other.latitude)
+						&& Objects.equals(longitude, other.longitude)
+						&& Objects.equals(serial, other.serial)
+						;
 	}
     
 }
