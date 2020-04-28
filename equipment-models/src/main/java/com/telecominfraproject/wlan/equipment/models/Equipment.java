@@ -147,7 +147,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 			return true;
 		}
 
-		if(equipmentType!=null && EquipmentType.isUnsupported(equipmentType)) {
+		if(equipmentType==null || EquipmentType.isUnsupported(equipmentType)) {
 			return true;
 		}
 

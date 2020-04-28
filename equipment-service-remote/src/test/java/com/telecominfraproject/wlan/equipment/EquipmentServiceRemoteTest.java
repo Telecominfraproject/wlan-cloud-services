@@ -57,6 +57,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         //Create new Equipment - success
         Equipment equipment = new Equipment();
         equipment.setName("test");
+        equipment.setEquipmentType(EquipmentType.AP);
 
         Equipment ret = remoteInterface.create(equipment);
         assertNotNull(ret);
@@ -129,6 +130,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         for (int i = 0; i < 10; i++) {
             equipment.setName("test_" + i);
             equipment.setCustomerId(customerId);
+            equipment.setEquipmentType(EquipmentType.AP);
 
             Equipment ret = remoteInterface.create(equipment);
 
@@ -187,6 +189,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl.setName("qr_"+apNameIdx);
            mdl.setInventoryId("inv-testEquipmentPagination-" + mdl.getName());
            mdl.setLocationId(locationId_1);
+           mdl.setEquipmentType(EquipmentType.AP);
+
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -197,6 +201,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl.setName("qr_"+apNameIdx);
            mdl.setInventoryId("inv-testEquipmentPagination-" + mdl.getName());
            mdl.setLocationId(locationId_3);
+           mdl.setEquipmentType(EquipmentType.AP);
+           
            apNameIdx++;
            remoteInterface.create(mdl);
        }

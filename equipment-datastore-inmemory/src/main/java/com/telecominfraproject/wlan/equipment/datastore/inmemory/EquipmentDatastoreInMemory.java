@@ -43,6 +43,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
     @Override
     public Equipment create(Equipment equipment) {
         
+    	if(equipment.hasUnsupportedValue()) {
+    		throw new IllegalStateException("unsupported value in equipment object");
+    	}
+
         Equipment equipmentCopy = equipment.clone();
         
         long id = equipmentIdCounter.incrementAndGet();

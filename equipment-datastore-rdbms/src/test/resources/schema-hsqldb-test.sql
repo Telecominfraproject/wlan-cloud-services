@@ -7,7 +7,7 @@ create table equipment (
     customerId int,
     profileId bigint,
     locationId bigint,
-    equipmentType int,
+    equipmentType int not null,
     inventoryId varchar(100) unique not null,
     
     name varchar(50),
