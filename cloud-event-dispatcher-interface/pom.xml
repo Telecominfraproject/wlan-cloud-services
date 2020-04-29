@@ -27,6 +27,62 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
     </dependency>      
+    <dependency>
+        <artifactId>customer-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>location-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>equipment-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>profile-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>portal-user-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>alarm-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>status-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>client-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>routing-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>firmware-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+    <dependency>
+        <artifactId>manufacturer-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+    </dependency>      
+
     </dependencies>
         
     

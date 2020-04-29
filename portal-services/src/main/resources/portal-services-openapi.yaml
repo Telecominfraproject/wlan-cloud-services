@@ -7,7 +7,9 @@ servers:
   - url: https://localhost:9091
     description: Local Dev server
   - url: https://192.168.0.143:9091
-    description: Local Dev server
+    description: Local Dev server - all-in-one
+  - url: https://192.168.0.143:9051
+    description: Local Dev server - portal, prov, and ssc
 
 
 tags:
@@ -34,9 +36,12 @@ tags:
 - name: "Equipment"
   description: |
     Equipment (AccessPoints) can be bound to a customer and location.
-- name: "Equipment Config"
-- name: "Network Config"
-- name: "Equipment Status"
+- name: "Profile"
+  description: |
+    Profiles for various services can be associated tith equipment and with other profiles.
+- name: "Status"
+  description: |
+    Status for the network and individual equipment.
 - name: "Client Status"
 - name: "Alarms"
 - name: "WLAN Service Metrics"
@@ -138,9 +143,14 @@ components:
           description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
           type: "integer"
           format: "int64"
+          
     LocationDetails:
       type: "object"
       properties:
+        model_type:
+          type: string
+          enum:
+            - LocationDetails
         countryCode:
           type: "string"
           enum:
@@ -228,6 +238,51 @@ components:
 
     EquipmentDetails:
       description: Place to put extended equipment properties.
+      type: "object"
+      properties:
+        sampleDetailsStr:
+          type: "string"
+
+    ProfileType:
+      type: "string"
+      enum:
+        - equipment_ap
+        - equipment_switch
+        - ssid
+        - bonjour
+        - radius
+        - captive_portal
+
+    Profile:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        profileType:
+          $ref: '#/components/schemas/ProfileType'
+        customerId:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        childProfileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        details:
+           $ref: "#/components/schemas/ProfileDetails"
+        createdTimestamp:
+          type: "integer"
+          format: "int64"
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: "integer"
+          format: "int64"          
+
+    ProfileDetails:
+      description: Place to put extended profile properties specific to each type of the profile.
       type: "object"
       properties:
         sampleDetailsStr:
@@ -404,6 +459,59 @@ components:
         context:
           $ref: '#/components/schemas/PaginationContextEquipment'
 
+    SortColumnsProfile:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: id
+          enum: 
+          - id
+          - name
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+
+      
+    PaginationContextProfile:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        isLastPage:
+          type: boolean
+      
+    PaginationResponseProfile:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+        context:
+          $ref: '#/components/schemas/PaginationContextProfile'
+          
 ## ---------------------------------------------------------------------------
 security:
  - tip_wlan_ts_auth: []
@@ -868,5 +976,192 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginationResponseEquipment"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/profile:
+    post:
+      tags:
+       - "Profile"
+      summary: "Create new Profile"
+      operationId: "createProfile"
+      requestBody:
+        description: "profile info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - "Profile"
+      summary: "Get Profile By Id"
+      operationId: "getProfileById"
+      parameters:
+      - name: "profileId"
+        in: "query"
+        description: "profile id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - "Profile"
+      summary: "Update Profile"
+      operationId: "updateProfile"
+      requestBody:
+        description: "profile info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - "Profile"
+      summary: "Delete Profile"
+      operationId: "deleteProfile"
+      parameters:
+      - name: "profileId"
+        in: "query"
+        description: "profile id"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/profile/inSet:
+    get:
+      tags:
+      - "Profile"
+      summary: "Get Profiles By a set of ids"
+      operationId: "getProfilesBySetOfIds"
+      parameters:
+      - name: "profileIdSet"
+        in: "query"
+        description: "set of profile ids"
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "array"
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/profile/forCustomer:
+    get:
+      tags:
+      - "Profile"
+      summary: "Get Profiles By customerId"
+      operationId: "getProfilesByCustomerId"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: "sortBy"
+        in: "query"
+        description: "sort options"
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortColumnsProfile"
+      - name: "paginationContext"
+        in: "query"
+        description: "pagination context"
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/PaginationContextProfile"
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponseProfile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/profile/withChildren:
+    get:
+      tags:
+      - "Profile"
+      summary: "Get Profile and all its associated children"
+      operationId: "getProfileWithChildren"
+      parameters:
+      - name: "profileId"
+        in: "query"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Profile"
         500:
           $ref: '#/components/responses/GenericApiError'
