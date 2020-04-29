@@ -57,6 +57,12 @@ public abstract class BaseClientDatastoreTest {
         assertNotNull(updated);
         assertEquals(created.getSampleStr(), updated.getSampleStr());
         
+        if(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
+        	//update again to make the timestamps different      	
+            created.setSampleStr(created.getSampleStr()+"_updated_1");
+            updated = testInterface.update(created);
+        }
+
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Client modelConcurrentUpdate = created.clone();

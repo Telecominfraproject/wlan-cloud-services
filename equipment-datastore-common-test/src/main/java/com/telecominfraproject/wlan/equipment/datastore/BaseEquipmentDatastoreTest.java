@@ -67,6 +67,12 @@ public abstract class BaseEquipmentDatastoreTest {
         assertNotNull(updated);
         assertEquals(created.getName(), updated.getName());
         
+        if(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
+        	//update again to make the timestamps different      	
+            created.setName(created.getName()+"_updated_1");
+            updated = testInterface.update(created);
+        }
+
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Equipment modelConcurrentUpdate = created.clone();
