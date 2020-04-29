@@ -33,7 +33,6 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
 import com.telecominfraproject.wlan.profile.models.Profile;
 
 /**
@@ -199,6 +198,9 @@ public class ProfileDAO extends BaseJdbcDao {
         profile.setCreatedTimestamp(ts);
         profile.setLastModifiedTimestamp(ts);
 
+        if(!profile.getChildProfileIds().isEmpty()) {
+        	updateChildProfileIds(profile);
+        }
 
         LOG.debug("Stored Profile {}", profile);
         
@@ -214,6 +216,9 @@ public class ProfileDAO extends BaseJdbcDao {
                     SQL_GET_BY_ID,
                     profileRowMapper, profileId);
             
+            //retrieve child profile ids
+            profile.setChildProfileIds(getChildProfileIds(profile.getId()));
+
             LOG.debug("Found Profile {}", profile);
             
             return profile;
@@ -231,6 +236,9 @@ public class ProfileDAO extends BaseJdbcDao {
                     SQL_GET_BY_ID,
                     profileRowMapper, profileId);
             
+            //retrieve child profile ids
+            profile.setChildProfileIds(getChildProfileIds(profile.getId()));
+
             LOG.debug("Found Profile {}", profile);
             
             return profile;
@@ -300,6 +308,8 @@ public class ProfileDAO extends BaseJdbcDao {
         //make a copy so that we don't accidentally update caller's version by reference
         Profile profileCopy = profile.clone();
         profileCopy.setLastModifiedTimestamp(newLastModifiedTs);
+        
+        updateChildProfileIds(profileCopy);
 
         LOG.debug("Updated Profile {}", profileCopy);
         
@@ -326,6 +336,10 @@ public class ProfileDAO extends BaseJdbcDao {
         if (ret == null) {
             LOG.debug("Cannot find Profiles for customer {}", customerId);
         } else {
+        	
+            //retrieve child profile ids
+            ret.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
+
             LOG.debug("Found Profiles for customer {} : {}", customerId, ret);
         }
 
@@ -350,6 +364,9 @@ public class ProfileDAO extends BaseJdbcDao {
         
         String query = SQL_GET_ALL_IN_SET + set;
         List<Profile> results = this.jdbcTemplate.query(query, profileIdSet.toArray(), profileRowMapper);
+        
+        //retrieve child profile ids
+        results.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
 
         LOG.debug("get({}) returns {} record(s)", profileIdSet, (null == results) ? 0 : results.size());
         return results;
@@ -431,6 +448,10 @@ public class ProfileDAO extends BaseJdbcDao {
             LOG.debug("Cannot find Profiles for customer {} with last returned page number {}",
                     customerId, context.getLastReturnedPageNumber());
         } else {
+        	
+            //retrieve child profile ids
+        	pageItems.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
+
             LOG.debug("Found {} Profiles for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
         }
@@ -445,4 +466,44 @@ public class ProfileDAO extends BaseJdbcDao {
 
         return ret;
     }
+	
+	private Set<Long> getChildProfileIds(long profileId){
+        LOG.debug("Looking up child profiles for Profile {}", profileId);
+
+        Set<Long> ret = new HashSet<>();
+        
+        List<Long> idList = this.jdbcTemplate.queryForList(
+                "select childProfileId from profile_map where parentProfileId = ?", Long.class, 
+                profileId);
+        
+        LOG.debug("Found {} child profiles for Profile {}", idList.size(), profileId);
+        
+        if(!idList.isEmpty()) {
+        	ret.addAll(idList);
+        }
+        
+        return ret;
+	}
+    
+    private void updateChildProfileIds(Profile profile){
+        LOG.debug("Updating child profiles for Profile {}", profile.getId());
+
+        //remove old ids
+        this.jdbcTemplate.update(
+                "delete from profile_map where parentProfileId = ?",  
+                profile.getId());
+        
+        //insert new ids in a batch
+        if(!profile.getChildProfileIds().isEmpty()) {
+	        List<Object[]> batchArgs = new ArrayList<Object[]>();
+	        profile.getChildProfileIds().forEach(cpId -> { batchArgs.add( new Object[] {profile.getCustomerId(), profile.getId(), cpId} ); });
+	        
+			this.jdbcTemplate.batchUpdate(
+	                "insert into profile_map (customerId, parentProfileId, childProfileId) values (?, ?, ? )", batchArgs );
+        }
+        
+        LOG.debug("Updated child profiles for Profile {}", profile.getId());        
+            	        
+    }
+    
 }

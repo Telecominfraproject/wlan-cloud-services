@@ -59,6 +59,12 @@ public abstract class BaseProfileDatastoreTest {
         assertNotNull(updated);
         assertEquals(created.getName(), updated.getName());
         
+        if(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
+        	//update again to make the timestamps different      	
+            created.setName(created.getName()+"_updated_1");
+            updated = testInterface.update(created);
+        }
+        
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Profile modelConcurrentUpdate = created.clone();
@@ -275,6 +281,63 @@ public abstract class BaseProfileDatastoreTest {
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
+    }
+    
+    @Test
+    public void testChildProfiles() {
+    	Profile profile_c1 = createProfileObject();
+    	
+    	Profile profile_c2 = createProfileObject();
+    	profile_c2.setCustomerId(profile_c1.getCustomerId());
+
+        //create with no children
+    	profile_c1 = testInterface.create(profile_c1);
+    	assertTrue(profile_c1.getChildProfileIds().isEmpty());
+
+    	profile_c2 = testInterface.create(profile_c2);
+    	
+    	//create with 1 child
+    	Profile profile_p1 = createProfileObject();
+    	profile_p1.setCustomerId(profile_c1.getCustomerId());
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
+
+    	profile_p1 = testInterface.create(profile_p1);
+    	assertEquals(1, profile_p1.getChildProfileIds().size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId())), profile_p1.getChildProfileIds());
+
+    	//create with 2 children
+    	Profile profile_p2 = createProfileObject();
+    	profile_p2.setCustomerId(profile_c1.getCustomerId());
+    	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+
+    	profile_p2 = testInterface.create(profile_p2);
+    	assertEquals(2, profile_p2.getChildProfileIds().size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())), profile_p2.getChildProfileIds());
+
+    	//update profile with 1 child to have 2 children
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+    	profile_p1 = testInterface.update(profile_p1);
+    	assertEquals(2, profile_p1.getChildProfileIds().size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())), profile_p1.getChildProfileIds());
+
+    	//now update it back to have 1 child
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c2.getId())));
+    	profile_p1 = testInterface.update(profile_p1);
+    	assertEquals(1, profile_p1.getChildProfileIds().size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_c2.getId())), profile_p1.getChildProfileIds());
+
+    	//now update it to have 0 children
+    	profile_p1.getChildProfileIds().clear();
+    	profile_p1 = testInterface.update(profile_p1);
+    	assertEquals(0, profile_p1.getChildProfileIds().size());
+
+    	//now delete the parent profiles and check that the former children are still there
+    	testInterface.delete(profile_p1.getId());
+    	testInterface.delete(profile_p2.getId());
+    	
+    	assertNotNull(testInterface.getOrNull(profile_c1.getId()));
+    	assertNotNull(testInterface.getOrNull(profile_c2.getId()));
+    	
     }
     
     private Profile createProfileObject() {

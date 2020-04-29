@@ -15,4 +15,15 @@ create table profile (
 
 create index profile_customerId on profile (customerId);
 
+create table profile_map (
+    customerId int,
+    parentProfileId bigint, 
+    childProfileId bigint,
+    
+    FOREIGN KEY (parentProfileId) REFERENCES profile(id) ON DELETE CASCADE,
+    FOREIGN KEY (childProfileId) REFERENCES profile(id) ON DELETE CASCADE    
+);
+
+create index profile_map_customerId on profile_map (customerId);
+create index profile_map_customerId_parent on profile_map (customerId, parentProfileId);
 

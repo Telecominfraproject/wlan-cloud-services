@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.profile.models;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
@@ -23,7 +25,9 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
     
     private long createdTimestamp;
     private long lastModifiedTimestamp;
-    
+
+    private Set<Long> childProfileIds = new HashSet<>();
+
     public long getId() {
         return id;
     }
@@ -80,6 +84,18 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 		this.name = name;
 	}
 
+	public Set<Long> getChildProfileIds() {
+		return childProfileIds;
+	}
+
+	public void setChildProfileIds(Set<Long> childProfileIds) {
+		this.childProfileIds.clear();
+		
+		if(childProfileIds!=null && !childProfileIds.isEmpty()) {
+			this.childProfileIds.addAll(childProfileIds);
+		}
+	}
+
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -104,12 +120,16 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
     		ret.setDetails(details.clone());
     	}
     	
+    	if(childProfileIds!=null) {
+    		ret.childProfileIds = new HashSet<>(childProfileIds);
+    	}
+    	
     	return ret;
     }
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, name, profileType, details);
+		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, name, profileType, details, childProfileIds);
 	}
 
 	@Override
@@ -125,7 +145,9 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
 				&& Objects.equals(name, other.name)
 				&& Objects.equals(profileType, other.profileType)
-				&& Objects.equals(details, other.details);
+				&& Objects.equals(details, other.details)
+				&& Objects.equals(childProfileIds, other.childProfileIds)
+				;
 	}
     
 }
