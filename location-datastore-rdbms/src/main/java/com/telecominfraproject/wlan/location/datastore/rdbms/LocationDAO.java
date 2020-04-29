@@ -143,14 +143,14 @@ public class LocationDAO extends BaseJdbcDao {
             + " FROM "+TABLE_NAME+" s" + " JOIN recursetree rt ON rt.id = s.parentid)"
             + " SELECT * FROM recursetree";
 
-    private static final String SQL_GET_TOP_LEVEL_CITY = "WITH RECURSIVE recursetree("+ALL_COLUMNS+") AS ("
+    private static final String SQL_GET_TOP_LEVEL_LOCATION = "WITH RECURSIVE recursetree("+ALL_COLUMNS+") AS ("
             + " SELECT "+ALL_COLUMNS+" FROM "+TABLE_NAME+" WHERE id = ?"
             + " UNION "
             + " SELECT " + ALL_COLUMNS_WITH_PREFIX
             + " FROM "+TABLE_NAME+" s" + " JOIN recursetree rt ON rt.parentid = s.id)"
             + " SELECT * FROM recursetree where parentid = 0";
 
-    private static final String SQL_GET_ALL_CITIES = "select " + ALL_COLUMNS + " from " + TABLE_NAME + " "
+    private static final String SQL_GET_ALL_TOP_LEVEL = "select " + ALL_COLUMNS + " from " + TABLE_NAME + " "
             + " where parentid = 0";
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
@@ -313,7 +313,7 @@ public class LocationDAO extends BaseJdbcDao {
     public List<Location> getAllTopLocations() {
         LOG.debug("getAllTopLocations()");
 
-        List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_CITIES,
+        List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_TOP_LEVEL,
                 locationRowMapper);
 
         if (ret == null) {
@@ -345,7 +345,7 @@ public class LocationDAO extends BaseJdbcDao {
         Location ret = null;
 
         try {
-            ret = this.jdbcTemplate.queryForObject(SQL_GET_TOP_LEVEL_CITY, locationRowMapper,
+            ret = this.jdbcTemplate.queryForObject(SQL_GET_TOP_LEVEL_LOCATION, locationRowMapper,
                     locationId);
         } catch (EmptyResultDataAccessException e) {
             // we'll log below.

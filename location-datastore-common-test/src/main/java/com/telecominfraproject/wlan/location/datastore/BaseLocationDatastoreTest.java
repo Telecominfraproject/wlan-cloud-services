@@ -139,7 +139,6 @@ public abstract class BaseLocationDatastoreTest {
 
        Location bartJr = testInterface.create(generateLocation(bart.getId()));
 
-       @SuppressWarnings("unused")
        // Just to see if Flanders ends up in the mix
        Location flanders = testInterface.create(generateLocation(0));
 
@@ -152,6 +151,7 @@ public abstract class BaseLocationDatastoreTest {
        assertTrue(children.contains(bart));
        assertTrue(children.contains(bartJr));
        assertTrue(children.contains(lisa));
+       assertFalse(children.contains(flanders));
     }
 
     @Test
