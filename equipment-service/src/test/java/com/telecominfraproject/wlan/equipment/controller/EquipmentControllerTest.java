@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 
@@ -54,6 +54,7 @@ public class EquipmentControllerTest {
         //Create new Equipment - success
         Equipment equipment = new Equipment();
         equipment.setName("test");
+        equipment.setEquipmentType(EquipmentType.AP);
 
         Equipment ret = equipmentController.create(equipment);
         assertNotNull(ret);
