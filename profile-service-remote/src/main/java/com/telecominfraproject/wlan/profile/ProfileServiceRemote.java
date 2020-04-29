@@ -140,6 +140,29 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
         return ret;
 	}
 	
+	@Override
+	public List<Profile> getProfileWithChildren(long profileId) {
+		
+        LOG.debug("getProfileWithChildren({})", profileId);
+
+        try {
+            ResponseEntity<List<Profile>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/withChildren?profileId={profileId}", HttpMethod.GET,
+                    null, Profile_LIST_CLASS_TOKEN, profileId);
+
+            List<Profile> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getProfileWithChildren({}) return {} entries", profileId, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getProfileWithChildren({}) exception ", profileId, exp);
+            throw exp;
+        }
+
+	}
+	
     @Override
     public Profile update(Profile profile) {
         

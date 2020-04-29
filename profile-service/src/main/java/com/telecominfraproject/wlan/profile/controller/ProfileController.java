@@ -161,6 +161,22 @@ public class ProfileController {
         return ret;
     }
     
+    @RequestMapping(value = "/withChildren", method = RequestMethod.GET)
+    public ListOfProfiles getWithChildren(@RequestParam long profileId) {
+        LOG.debug("getWithChildren({})", profileId);
+        try {
+            List<Profile> result = profileDatastore.getProfileWithChildren(profileId);
+            LOG.debug("getWithChildren({}) return {} entries", profileId, result.size());
+            ListOfProfiles ret = new ListOfProfiles();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getWithChildren({}) exception ", profileId, exp);
+             throw exp;
+        }
+    }
+
+    
     /**
      * Updates Profile record
      * 

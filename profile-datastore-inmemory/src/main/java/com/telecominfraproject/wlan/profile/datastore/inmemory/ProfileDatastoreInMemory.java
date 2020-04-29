@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.profile.datastore.inmemory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -240,5 +241,27 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         }
 
         return ret;
-    }    
+    }
+    
+    @Override
+    public List<Profile> getProfileWithChildren(long profileId) {
+    	Set<Profile> profileSet = new HashSet<>();
+    	
+    	getAllDescendants(get(profileId), profileSet);
+    	
+    	List<Profile> descendants = new ArrayList<>(profileSet);
+    	
+    	return descendants;
+    }
+    
+    private void getAllDescendants(Profile profile, Set<Profile> collectedChildren) {
+
+    	collectedChildren.add(profile.clone());
+    	
+    	if(profile.getChildProfileIds()!=null && !profile.getChildProfileIds().isEmpty()) {
+    		profile.getChildProfileIds().forEach(pId -> getAllDescendants(get(pId), collectedChildren) );
+    	}
+
+    }
+    
 }

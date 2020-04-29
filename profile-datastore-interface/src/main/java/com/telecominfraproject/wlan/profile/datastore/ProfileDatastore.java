@@ -48,4 +48,11 @@ public interface ProfileDatastore {
      */
     PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
 
+    /**
+	 * @param profileId
+	 * @return list of profiles that includes the one with supplied profile id, as
+	 *         well as all other profiles that it refers to directly or indirectly
+	 *         via the child relationships.
+	 */
+    List<Profile> getProfileWithChildren(long profileId);
 }

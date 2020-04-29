@@ -26,10 +26,10 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
-import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
-
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 
 /**
  * @author dtoptygin
@@ -286,7 +286,65 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     }
 
+    @Test
+    public void testGetProfileWithChildren(){
+    	int nextId = getNextCustomerId();
+
+    	Profile profile_c1 = createProfileObject(nextId);
+    	Profile profile_c2 = createProfileObject(nextId);
+
+        //create with no children
+    	profile_c1 = remoteInterface.create(profile_c1);
+    	profile_c2 = remoteInterface.create(profile_c2);
+    	
+    	//create with 1 child
+    	Profile profile_p1 = createProfileObject(nextId);
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
+    	profile_p1 = remoteInterface.create(profile_p1);
+
+    	//create with 2 children
+    	Profile profile_p2 = createProfileObject(nextId);
+    	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+    	profile_p2 = remoteInterface.create(profile_p2);
+    	
+    	//create with 2 children and 2 grand children
+    	Profile profile_gp1 = createProfileObject(nextId);
+    	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
+    	profile_gp1 = remoteInterface.create(profile_gp1);
+    	
+    	//test with no children
+    	List<Profile> result = remoteInterface.getProfileWithChildren(profile_c1.getId());
+    	assertEquals(1, result.size());
+    	assertEquals(profile_c1, result.get(0));
+
+    	//test with 1 child
+    	result = remoteInterface.getProfileWithChildren(profile_p1.getId());
+    	assertEquals(2, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_p1, profile_c1)), new HashSet<>(result) );
+
+    	//test with 2 children
+    	result = remoteInterface.getProfileWithChildren(profile_p2.getId());
+    	assertEquals(3, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_p2, profile_c1, profile_c2)), new HashSet<>(result) );
+
+    	//test with 2 children and 2 grand children
+    	result = remoteInterface.getProfileWithChildren(profile_gp1.getId());
+    	assertEquals(5, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_gp1, profile_p1, profile_p2, profile_c1, profile_c2)), new HashSet<>(result) );
+
+    }
     
+    private Profile createProfileObject(int customerId) {
+    	Profile result = new Profile();        
+        result.setCustomerId(customerId);
+        result.setName("test-" + customerId); 
+        result.setProfileType(ProfileType.equipment_ap);
+        ProfileDetails details = new ProfileDetails();
+        details.setSampleDetailsStr("test-details-" + customerId);
+		result.setDetails(details );
+        return result;
+    }
+
     private void assertEqualProfiles(
             Profile expected,
             Profile actual) {

@@ -154,6 +154,13 @@ public class ProfileDAO extends BaseJdbcDao {
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
+    private static final String SQL_GET_ALL_CHILDREN_IDS = "WITH RECURSIVE recursetree( childProfileId ) AS ("
+            + " SELECT childProfileId FROM profile_map WHERE parentProfileId = ?"
+            + " UNION "
+            + " SELECT s.childProfileId " 
+            + " FROM profile_map s JOIN recursetree rt ON rt.childProfileId = s.parentProfileId)"
+            + " SELECT * FROM recursetree";
+
 
     private static final RowMapper<Profile> profileRowMapper = new ProfileRowMapper();
 
@@ -505,5 +512,20 @@ public class ProfileDAO extends BaseJdbcDao {
         LOG.debug("Updated child profiles for Profile {}", profile.getId());        
             	        
     }
+
+
+	public List<Profile> getProfileWithChildren(long profileId) {
+        List<Long> profileIds = this.jdbcTemplate.queryForList(SQL_GET_ALL_CHILDREN_IDS,
+                Long.class, profileId);
+        
+        profileIds.add(profileId);
+        
+        List<Profile> ret = new ArrayList<Profile>();
+        if(!profileIds.isEmpty()) {
+        	ret.addAll(get(new HashSet<>(profileIds)));
+        }
+        
+		return ret;
+	}
     
 }

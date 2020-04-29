@@ -58,6 +58,12 @@ public class ProfileServiceLocal implements ProfileServiceInterface {
     }
 
     @Override
+    public List<Profile> getProfileWithChildren(long profileId) {
+        LOG.debug("calling profileController.getProfileWithChildren {} ", profileId);
+        return profileController.getWithChildren(profileId);
+    }
+    
+    @Override
     public Profile update(Profile profile) {
         LOG.debug("calling profileController.update {} ", profile);
         return profileController.update(profile);

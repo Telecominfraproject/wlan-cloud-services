@@ -41,7 +41,9 @@ public abstract class BaseProfileDatastoreTest {
 
     @Test
     public void testCRUD() {
-    	Profile profile = createProfileObject();
+    	int nextId = (int) testSequence.getAndIncrement();
+
+    	Profile profile = createProfileObject(nextId);
 
         //create
     	Profile created = testInterface.create(profile);
@@ -285,10 +287,10 @@ public abstract class BaseProfileDatastoreTest {
     
     @Test
     public void testChildProfiles() {
-    	Profile profile_c1 = createProfileObject();
-    	
-    	Profile profile_c2 = createProfileObject();
-    	profile_c2.setCustomerId(profile_c1.getCustomerId());
+    	int nextId = (int) testSequence.getAndIncrement();
+
+    	Profile profile_c1 = createProfileObject(nextId);
+    	Profile profile_c2 = createProfileObject(nextId);
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
@@ -297,8 +299,7 @@ public abstract class BaseProfileDatastoreTest {
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject();
-    	profile_p1.setCustomerId(profile_c1.getCustomerId());
+    	Profile profile_p1 = createProfileObject((int)nextId);
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
 
     	profile_p1 = testInterface.create(profile_p1);
@@ -306,8 +307,7 @@ public abstract class BaseProfileDatastoreTest {
     	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId())), profile_p1.getChildProfileIds());
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject();
-    	profile_p2.setCustomerId(profile_c1.getCustomerId());
+    	Profile profile_p2 = createProfileObject((int)nextId);
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
 
     	profile_p2 = testInterface.create(profile_p2);
@@ -340,14 +340,61 @@ public abstract class BaseProfileDatastoreTest {
     	
     }
     
-    private Profile createProfileObject() {
-    	Profile result = new Profile();
-        long nextId = testSequence.getAndIncrement();
-        result.setCustomerId((int) nextId);
-        result.setName("test-" + nextId); 
+    @Test
+    public void testGetProfileWithChildren(){
+    	int nextId = (int) testSequence.getAndIncrement();
+
+    	Profile profile_c1 = createProfileObject(nextId);
+    	Profile profile_c2 = createProfileObject(nextId);
+
+        //create with no children
+    	profile_c1 = testInterface.create(profile_c1);
+    	profile_c2 = testInterface.create(profile_c2);
+    	
+    	//create with 1 child
+    	Profile profile_p1 = createProfileObject(nextId);
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
+    	profile_p1 = testInterface.create(profile_p1);
+
+    	//create with 2 children
+    	Profile profile_p2 = createProfileObject(nextId);
+    	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+    	profile_p2 = testInterface.create(profile_p2);
+    	
+    	//create with 2 children and 2 grand children
+    	Profile profile_gp1 = createProfileObject(nextId);
+    	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
+    	profile_gp1 = testInterface.create(profile_gp1);
+    	
+    	//test with no children
+    	List<Profile> result = testInterface.getProfileWithChildren(profile_c1.getId());
+    	assertEquals(1, result.size());
+    	assertEquals(profile_c1, result.get(0));
+
+    	//test with 1 child
+    	result = testInterface.getProfileWithChildren(profile_p1.getId());
+    	assertEquals(2, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_p1, profile_c1)), new HashSet<>(result) );
+
+    	//test with 2 children
+    	result = testInterface.getProfileWithChildren(profile_p2.getId());
+    	assertEquals(3, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_p2, profile_c1, profile_c2)), new HashSet<>(result) );
+
+    	//test with 2 children and 2 grand children
+    	result = testInterface.getProfileWithChildren(profile_gp1.getId());
+    	assertEquals(5, result.size());
+    	assertEquals(new HashSet<>(Arrays.asList(profile_gp1, profile_p1, profile_p2, profile_c1, profile_c2)), new HashSet<>(result) );
+
+    }
+    
+    private Profile createProfileObject(int customerId) {
+    	Profile result = new Profile();        
+        result.setCustomerId(customerId);
+        result.setName("test-" + customerId); 
         result.setProfileType(ProfileType.equipment_ap);
         ProfileDetails details = new ProfileDetails();
-        details.setSampleDetailsStr("test-details-" + nextId);
+        details.setSampleDetailsStr("test-details-" + customerId);
 		result.setDetails(details );
         return result;
     }
