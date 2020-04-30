@@ -31,13 +31,13 @@
 
   </appender>
   <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>/app/logs/portalservice.log</file>
+    <file>/app/logs/provservice.log</file>
     <append>true</append>
     <encoder>
       <pattern>%date %level [%thread] %logger{36} [%file:%line] %msg%n</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>/app/logs/portalservice.%i.log.gz</fileNamePattern>
+      <fileNamePattern>/app/logs/provservice.%i.log.gz</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>3</maxIndex>
     </rollingPolicy>
