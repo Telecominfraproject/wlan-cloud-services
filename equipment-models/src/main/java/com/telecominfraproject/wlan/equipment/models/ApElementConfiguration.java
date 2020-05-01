@@ -66,9 +66,8 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 
         /* We populate the advanced radio map */
         advancedRadioMap = new EnumMap<>(RadioType.class);
-        for (RadioType type : RadioType.validValues()) {
-            advancedRadioMap.put(type, RadioConfiguration.createWithDefaults(type));
-        }
+        advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+        advancedRadioMap.put(RadioType.is5GHz, RadioConfiguration.createWithDefaults(RadioType.is5GHz));
     }
 
     @Override

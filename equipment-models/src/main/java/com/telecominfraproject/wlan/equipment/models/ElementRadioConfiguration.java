@@ -132,7 +132,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
                 && Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(eirpTxPower, other.eirpTxPower)
-                && Objects.equals(manualChannelNumber, other.manualChannelNumber)
+                && Objects.equals(getManualChannelNumber(), other.getManualChannelNumber())
                 && Objects.equals(minAutoCellSize, other.minAutoCellSize)
                 && Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
                 && Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
@@ -221,7 +221,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
     public int hashCode() {
         return Objects.hash(allowedChannelsPowerLevels, autoChannelSelection, backupChannelNumber, bannedChannels,
                 bestAPSteerType, bestApEnabled, channelBandwidth, channelNumber, clientDisconnectThresholdDb,
-                deauthAttackDetection, eirpTxPower, manualChannelNumber, minAutoCellSize, neighbouringListApConfig,
+                deauthAttackDetection, eirpTxPower, getManualChannelNumber(), minAutoCellSize, neighbouringListApConfig,
                 perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
     }
 

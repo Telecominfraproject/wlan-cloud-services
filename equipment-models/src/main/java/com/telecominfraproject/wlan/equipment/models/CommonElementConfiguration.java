@@ -76,6 +76,11 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
         if (obj == null) {
             return false;
         }
+
+        if (!super.equals(obj)) {
+            return false;
+        }
+        
         if (!(obj instanceof CommonElementConfiguration)) {
             return false;
         }
