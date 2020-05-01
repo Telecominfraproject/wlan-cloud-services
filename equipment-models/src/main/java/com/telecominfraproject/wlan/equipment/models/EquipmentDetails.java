@@ -34,7 +34,9 @@ public class EquipmentDetails extends BaseJsonModel {
 	
     @Override
     public EquipmentDetails clone() {
-        return (EquipmentDetails) super.clone();
+    	EquipmentDetails ret = (EquipmentDetails) super.clone();
+    	
+        return ret;
     }
 
 	@Override
@@ -53,5 +55,6 @@ public class EquipmentDetails extends BaseJsonModel {
 		EquipmentDetails other = (EquipmentDetails) obj;
 		return Objects.equals(sampleDetailsStr, other.sampleDetailsStr);
 	}
-    
+
+	
 }
