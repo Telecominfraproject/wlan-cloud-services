@@ -161,7 +161,7 @@ components:
         dailyActivityDetails:
            $ref: "#/components/schemas/LocationActivityDetailsMap"
         maintenanceWindow:
-          type: "string"
+           $ref: "#/components/schemas/DaysOfWeekTimeRangeSchedule"
         rrmEnabled:
           type: "boolean"
     LocationActivityDetailsMap:
@@ -191,6 +191,39 @@ components:
         lastBusySnapshot:
           type: "integer"
           format: "int64"
+
+    DaysOfWeekTimeRangeSchedule:
+      type: object
+      properties:
+        timezone:
+          type: string
+        timeBegin:
+          $ref: '#/components/schemas/LocalTimeValue'
+        timeEnd:
+          $ref: '#/components/schemas/LocalTimeValue'
+        daysOfWeek:
+          type: array
+          items:
+            $ref: '#/components/schemas/DayOfWeek'
+    
+    LocalTimeValue:
+      type: object
+      properties:
+        hour:
+          type: integer
+        minute:
+          type: integer
+          
+    DayOfWeek:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
 
 
     EquipmentType:
@@ -239,10 +272,415 @@ components:
     EquipmentDetails:
       description: Place to put extended equipment properties.
       type: "object"
+      oneOf:
+        ## TODO: add other metric types in here
+        - $ref: '#/components/schemas/ApElementConfiguration'
+      discriminator:
+        propertyName: model_type
+
+    ActiveScanSettings:
+      type: "object"
       properties:
-        sampleDetailsStr:
+        enabled:
+          type: "boolean"
+        scanFrequencySeconds:
+          type: "integer"
+          format: "int32"
+        scanDurationMillis:
+          type: "integer"
+          format: "int32"
+
+    AntennaType:
+      type: "string"
+      enum:
+       - OMNI
+       - OAP30_DIRECTIONAL
+
+    DeviceMode:
+      type: "string"
+      enum:
+       - standaloneAP
+       - managedAP
+       - gatewaywithAP
+       - gatewayOnly
+
+    DeploymentType:
+      type: "string"
+      enum:
+        - DESK
+        - CEILING
+
+    NetworkForwardMode:
+      type: "string"
+      enum:
+        - BRIDGE
+        - NAT
+
+    ApElementConfiguration:
+      type: "object"
+      properties:
+        elementConfigVersion:
+          type: "string"
+        equipmentType:
+          $ref: '#/components/schemas/EquipmentType'
+        deviceMode:
+          $ref: '#/components/schemas/DeviceMode'
+        gettingIP:
+          type: "string"
+          enum:
+            - dhcp
+            - manual
+        staticIP:
+          type: "string"
+        staticIpMaskCidr:
+          type: integer
+        staticIpGw:
+          type: "string"
+        gettingDNS:
+          type: "string"
+          enum:
+            - dhcp
+            - manual
+        staticDnsIp1:
+          type: "string"
+        staticDnsIp2:
+          type: "string"
+        peerInfoList:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/PeerInfo"
+        deviceName:
+          type: "string"
+        locationData:
+          type: "string"
+        locallyConfiguredMgmtVlan:
+          type: "integer"
+          format: "int32"
+        locallyConfigured:
+          type: "boolean"
+        deploymentType:
+          $ref: '#/components/schemas/DeploymentType'
+        syntheticClientEnabled:
+          type: "boolean"
+        frameReportThrottleEnabled:
+          type: "boolean"
+        antennaType:
+          $ref: '#/components/schemas/AntennaType'
+        costSavingEventsEnabled:
+          type: "boolean"
+        forwardMode:
+          $ref: '#/components/schemas/NetworkForwardMode'
+        radioMap:
+           $ref: "#/components/schemas/RadioMap"
+        advancedRadioMap:
+          $ref: "#/components/schemas/AdvancedRadioMap"
+
+    TunnelIndicator:
+      type: string
+      enum:
+        - no
+        - primary
+        - secondary
+        
+    PeerInfo:
+      properties:
+        peerMAC:
+          type: array
+          items:
+            type: integer
+            format: byte
+            minItems: 6
+            maxItems: 6 
+        peerIP:
+          type: "string"
+        tunnel:
+          $ref: '#/components/schemas/TunnelIndicator'
+        vlans:
+          type: array
+          items:
+            type: integer
+            format: byte
+        radiusSecret:
           type: "string"
 
+    RadioMap:
+      properties:
+        "0": # corresponds to radioType == is5GHz
+          $ref: "#/components/schemas/ElementRadioConfiguration"
+        "1": # corresponds to radioType == is2dot4GHz
+          $ref: "#/components/schemas/ElementRadioConfiguration"
+
+    ChannelBandwidth:
+      description: On 2.4GHz radio only auto or is20MHz values can be used. On 5GHz radio all values can be used. 
+      type: "string"
+      enum:
+        - auto
+        - is20MHz
+        - is40MHz
+        - is80MHz
+        - is160MHz
+
+    RadioType:
+      type: string
+      enum:
+        - is5GHz
+        - is2dot4GHz
+        - is5GHzU
+        - is5GHzL
+
+    BannedChannel:
+      type: "object"
+      properties:
+        channelNumber:
+          type: "integer"
+          format: "int32"
+        bannedOnEpoc:
+          type: "integer"
+          format: "int64"
+
+    AutoOrManualValue:
+      type: "object"
+      properties:
+        auto:
+          type: "boolean"
+        value:
+          type: "integer"
+          format: "int32"
+      
+    BestAPSteerType:
+      type: string
+      enum:
+        - both
+        - loadBalanceOnly
+        - linkQualityOnly
+        
+    ChannelPowerLevel:
+      type: object
+      properties:
+        channelNumber:
+          type: integer
+          format: int32
+        powerLevel:
+          type: integer
+          format: int32
+        dfs:
+          type: boolean
+        channelWidth:
+          description: Value is in MHz, -1 means AUTO
+          type: integer
+          format: int32
+        
+    NeighbouringAPListConfiguration:
+      type: object
+      properties:
+        minSignal:
+          type: "integer"
+          format: "int32"
+        maxAps:
+          type: "integer"
+          format: "int32"
+        
+
+    ElementRadioConfiguration:
+      properties:
+        radioType:
+          $ref: "#/components/schemas/RadioType"
+        channelNumber:
+          description: The channel that was picked through the cloud's assigment
+          type: "integer"
+          format: "int32"
+        manualChannelNumber:
+          description: The channel that was manually entered
+          type: "integer"
+          format: "int32"
+        backupChannelNumber:
+          description: "Backup channel (this is never set by the customer: it's deduced from the primary channel (either manual or auto)"
+          type: "integer"
+          format: "int32"
+        autoChannelSelection:
+          type: "boolean"
+        channelBandwidth:
+          $ref: "#/components/schemas/ChannelBandwidth"
+        bannedChannels:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BannedChannel"
+        rxCellSizeDb:
+          $ref: "#/components/schemas/AutoOrManualValue"
+        probeResponseThresholdDb:
+          $ref: "#/components/schemas/AutoOrManualValue"
+        clientDisconnectThresholdDb:
+          $ref: "#/components/schemas/AutoOrManualValue"
+        eirpTxPower:
+          $ref: "#/components/schemas/AutoOrManualValue"
+        bestApEnabled:
+          type: "boolean"
+        neighbouringListApConfig:
+           $ref: "#/components/schemas/NeighbouringAPListConfiguration"
+        minAutoCellSize:
+          type: "integer"
+          format: "int32"
+        perimeterDetectionEnabled:
+          type: "boolean"
+        bestAPSteerType:  
+          $ref: '#/components/schemas/BestAPSteerType'
+        deauthAttackDetection:
+          type: "boolean"
+        allowedChannelsPowerLevels:
+          $ref: '#/components/schemas/ChannelPowerLevel'
+
+    AdvancedRadioMap:
+      properties:
+        is5GHz:
+          $ref: "#/components/schemas/RadioConfiguration"
+        is2dot4GHz:
+          $ref: "#/components/schemas/RadioConfiguration"
+
+    StateSetting:
+      type: string
+      enum:
+        - enabled
+        - disabled
+
+    ManagementRate:
+      type: "string"
+      enum:
+        - auto
+        - rate1mbps
+        - rate2mbps
+        - rate5dot5mbps
+        - rate6mbps
+        - rate9mbps
+        - rate11mbps
+        - rate12mbps
+        - rate18mbps
+        - rate24mbps
+
+    MulticastRate:
+      type: "string"
+      enum:
+        - auto
+        - rate6mbps
+        - rate9mbps
+        - rate12mbps
+        - rate18mbps
+        - rate24mbps
+        - rate36mbps
+        - rate48mbps
+        - rate54mbps
+
+    RadioMode:
+      type: "string"
+      enum:
+        - modeN
+        - modeAC
+        - modeGN
+
+    MimoMode:
+      type: "string"
+      enum:
+        - none
+        - oneByOne
+        - twoByTwo
+        - threeByThree
+        - fourByFour
+
+    RadioConfiguration:
+      properties:
+        radioType:
+          $ref: "#/components/schemas/RadioType"
+        radioAdminState:
+          $ref: "#/components/schemas/StateSetting"
+        fragmentationThresholdBytes:
+          type: "integer"
+          format: "int32"
+        rtsCtsThreshold:
+          type: "integer"
+          format: "int32"
+        autoChannelSelection:
+          $ref: "#/components/schemas/StateSetting"
+        radioMode:
+          $ref: '#/components/schemas/RadioMode'
+        mimoMode:
+          $ref: '#/components/schemas/MimoMode'
+        wmmState:
+          $ref: "#/components/schemas/StateSetting"
+        uapsdState:
+          $ref: "#/components/schemas/StateSetting"
+        maxNumClients:
+          type: "integer"
+          format: "int32"
+        stationIsolation:
+          $ref: "#/components/schemas/StateSetting"
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
+        managementRate:
+          $ref: "#/components/schemas/ManagementRate"
+        activeScanSettings:
+          $ref: "#/components/schemas/ActiveScanSettings"
+        channelHopSettings:
+          $ref: "#/components/schemas/ChannelHopSettings"
+        bestApSettings:
+          $ref: "#/components/schemas/RadioBestApSettings"
+        forceScanDuringVoice:
+          $ref: "#/components/schemas/StateSetting"
+        legacyBSSRate:
+          $ref: "#/components/schemas/StateSetting"
+        beaconInterval:
+          type: "integer"
+          format: "int32"
+        deauthAttackDetection:
+          type: "boolean"
+
+    ObssHopMode:
+      type: "string"
+      enum:
+        - NON_WIFI
+        - NON_WIFI_AND_OBSS
+      default: NON_WIFI
+
+    RadioBestApSettings:
+      description: If mlComputed=true, then dropInSnrPercentage and minLoadFactor properties are populated by ML algorithms. If  mlComputed=false, then those values are supposed to be populated by hand (ML-computed ones will be ignored).
+      type: "object"
+      properties:
+        mlComputed:
+          type: "boolean"
+          default: true
+        dropInSnrPercentage:
+          type: "integer"
+          format: "int32"
+          default: 10
+        minLoadFactor:
+          type: "integer"
+          format: "int32"
+          default: 10
+          
+    ChannelHopSettings:
+      description: If noise floor (avg over 4 measurements, measurement interval being 1 sec.) is above -75 dB for more than 3 minutes OR
+        If Non WiFi utilization is more than 50% for more than 3 minutes channel will be changed.
+      type: "object"
+      properties:
+        noiseFloorThresholdInDB:
+          type: "integer"
+          format: "int32"
+          default: -75
+        noiseFloorThresholdTimeInSeconds:
+          type: "integer"
+          format: "int32"
+          default: 180
+        nonWifiThresholdInPercentage:
+          type: "integer"
+          format: "int32"
+          default: 50
+        nonWifiThresholdTimeInSeconds:
+          type: "integer"
+          format: "int32"
+          default: 180
+        obssHopMode:
+          $ref: '#/components/schemas/ObssHopMode'
+
+    
+          
     ProfileType:
       type: "string"
       enum:
