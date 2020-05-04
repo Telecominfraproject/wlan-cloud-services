@@ -24,7 +24,9 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationExcepti
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
@@ -239,6 +241,12 @@ public class EquipmentController {
         publishEvent(event);
 
         return ret;
+    }
+
+    @RequestMapping(value = "/defaultDetails", method=RequestMethod.GET)
+    public EquipmentDetails getDefaultEquipmentDetails(@RequestParam EquipmentType equipmentType) {
+    	ApElementConfiguration apElementConfiguration = ApElementConfiguration.createWithDefaults();
+    	return apElementConfiguration;
     }
 
     private void publishEvent(SystemEvent event) {

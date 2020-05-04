@@ -15,6 +15,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
 /**
  * @author dtoptygin
@@ -77,4 +78,8 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
         return equipmentController.delete(equipmentId);
     }
 
+    @Override
+    public EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType) {
+    	return equipmentController.getDefaultEquipmentDetails(equipmentType);
+    }
 }

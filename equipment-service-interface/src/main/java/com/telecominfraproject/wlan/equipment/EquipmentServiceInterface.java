@@ -9,6 +9,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
 
 /**
@@ -87,4 +88,10 @@ public interface EquipmentServiceInterface {
 
     PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
+    /**
+     * @param equipmentType
+     * @return equipment details object specific to the supplied equipmentType, populated with default values. 
+     */
+    EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType);
+    
 }

@@ -1417,6 +1417,27 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
+  /portal/equipment/defaultDetails:
+    get:
+      tags:
+      - "Equipment"
+      summary: "Get default values for Equipment details for a specific equipment type"
+      operationId: "getDefaultEquipmentDetails"
+      parameters:
+      - name: "equipmentType"
+        in: "query"
+        schema:
+          $ref: '#/components/schemas/EquipmentType'
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
   /portal/profile:
     post:
       tags:

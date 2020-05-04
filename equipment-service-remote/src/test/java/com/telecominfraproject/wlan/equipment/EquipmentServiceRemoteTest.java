@@ -23,14 +23,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
-
+import com.telecominfraproject.wlan.equipment.models.AntennaType;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
 /**
  * @author dtoptygin
@@ -420,6 +423,18 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
 
+    }
+    
+    public void testDefaultDetails() {
+    	EquipmentDetails details = remoteInterface.getDefaultEquipmentDetails(EquipmentType.AP);
+    	
+    	assertTrue(details instanceof ApElementConfiguration);
+    	
+    	ApElementConfiguration apElementConfiguration = (ApElementConfiguration) details;
+    	
+    	assertEquals(AntennaType.OMNI, apElementConfiguration.getAntennaType());
+    	assertEquals(DeploymentType.CEILING, apElementConfiguration.getDeploymentType());
+    	
     }
     
     private void assertEqualEquipments(

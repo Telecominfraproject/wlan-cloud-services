@@ -19,6 +19,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 
@@ -156,5 +157,10 @@ public class EquipmentPortalController  {
 
         return ret;
     }    
+    
+    @RequestMapping(value = "/equipment/defaultDetails", method=RequestMethod.GET)
+    public EquipmentDetails getDefaultEquipmentDetails(@RequestParam EquipmentType equipmentType) {
+    	return this.equipmentServiceInterface.getDefaultEquipmentDetails(equipmentType);
+    }
     
 }

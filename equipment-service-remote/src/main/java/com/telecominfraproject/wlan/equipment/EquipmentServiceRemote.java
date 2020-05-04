@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
 /**
  * @author dtoptygin
@@ -95,6 +96,23 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         return ret;
     }
 
+    @Override
+    public EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType) {
+        
+        LOG.debug("calling equipment.getDefaultEquipmentDetails {} ", equipmentType);
+
+        ResponseEntity<EquipmentDetails> responseEntity = restTemplate.getForEntity(
+                getBaseUrl()
+                +"/defaultDetails?equipmentType={equipmentType}",
+                EquipmentDetails.class, equipmentType);
+        
+        EquipmentDetails ret = responseEntity.getBody();
+        
+        LOG.debug("completed equipment.getDefaultEquipmentDetails {} ", ret);
+        
+        return ret;
+    }
+    
 	@Override
 	public List<Equipment> get(Set<Long> equipmentIdSet) {
 		
