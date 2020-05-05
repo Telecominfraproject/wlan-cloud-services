@@ -102,6 +102,10 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 			return true;
 		}
 
+        if ( name==null || name.isEmpty()) {
+        	return true;
+        }
+
 		if(profileType==null || ProfileType.isUnsupported(profileType)) {
 			return true;
 		}

@@ -13,7 +13,8 @@ public enum ProfileType {
     ssid(3), 
     bonjour(4), 
     radius(5), 
-    captive_portal(6), 
+    captive_portal(6),
+    mesh(7),
     UNSUPPORTED   (-1);
     
     private final int id;

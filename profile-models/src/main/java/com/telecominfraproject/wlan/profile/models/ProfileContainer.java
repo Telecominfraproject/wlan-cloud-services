@@ -28,4 +28,29 @@ public class ProfileContainer {
 		profileMap.values().forEach(p -> { if(p.getProfileType() == profileType) { ret.add(p); } });		
 		return ret;
 	}
+	
+	public Profile getChildOfTypeOrNull(long profileId, ProfileType childProfileType) {
+		List<Profile> ret = getChildrenOfType(profileId, childProfileType);
+		
+		if(ret.isEmpty()) {
+			return null;
+		}
+		
+		//return first child that matches the profile type
+		return ret.get(0);
+	}
+
+	public List<Profile> getChildrenOfType(long profileId, ProfileType childProfileType) {
+		Profile parent = profileMap.get(profileId);
+		List<Profile> ret = new ArrayList<>();	
+		
+		if(parent == null || parent.getChildProfileIds()==null || parent.getChildProfileIds().isEmpty()) {
+			return ret;
+		}
+		
+		parent.getChildProfileIds().forEach(pId -> { Profile p = profileMap.get(profileId); if(p!=null && p.getProfileType() == childProfileType) { ret.add(p); } });
+		
+		return ret;
+	}
+
 }

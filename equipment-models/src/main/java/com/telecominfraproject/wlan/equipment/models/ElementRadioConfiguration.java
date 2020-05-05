@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualValue;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
