@@ -273,7 +273,7 @@ components:
       description: Place to put extended equipment properties.
       type: "object"
       oneOf:
-        ## TODO: add other metric types in here
+        ## TODO: add other equipment types in here
         - $ref: '#/components/schemas/ApElementConfiguration'
       discriminator:
         propertyName: model_type
@@ -405,9 +405,13 @@ components:
 
     RadioMap:
       properties:
-        "0": # corresponds to radioType == is5GHz
+        is5GHz:
           $ref: "#/components/schemas/ElementRadioConfiguration"
-        "1": # corresponds to radioType == is2dot4GHz
+        is5GHzU:
+          $ref: "#/components/schemas/ElementRadioConfiguration"
+        is5GHzL:
+          $ref: "#/components/schemas/ElementRadioConfiguration"
+        is2dot4GHz:
           $ref: "#/components/schemas/ElementRadioConfiguration"
 
     ChannelBandwidth:
@@ -446,6 +450,14 @@ components:
         value:
           type: "integer"
           format: "int32"
+
+    AutoOrManualString:
+      type: object
+      properties:
+        auto:
+          type: boolean
+        value:
+          type: string
       
     BestAPSteerType:
       type: string
@@ -532,6 +544,10 @@ components:
     AdvancedRadioMap:
       properties:
         is5GHz:
+          $ref: "#/components/schemas/RadioConfiguration"
+        is5GHzU:
+          $ref: "#/components/schemas/RadioConfiguration"
+        is5GHzL:
           $ref: "#/components/schemas/RadioConfiguration"
         is2dot4GHz:
           $ref: "#/components/schemas/RadioConfiguration"
@@ -690,8 +706,10 @@ components:
         - bonjour
         - radius
         - captive_portal
+        - mesh
 
     Profile:
+      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
       type: "object"
       properties:
         id:
@@ -710,7 +728,7 @@ components:
             type: integer
             format: int64
         details:
-           $ref: "#/components/schemas/ProfileDetails"
+           $ref: "#/components/schemas/ProfileDetailsChildren"
         createdTimestamp:
           type: "integer"
           format: "int64"
@@ -722,9 +740,627 @@ components:
     ProfileDetails:
       description: Place to put extended profile properties specific to each type of the profile.
       type: "object"
+      discriminator:
+        propertyName: model_type
       properties:
-        sampleDetailsStr:
-          type: "string"
+        model_type:
+          type: string
+          enum:
+          - BonjourGatewayProfile
+          - CaptivePortalConfiguration
+          - ApNetworkConfiguration
+          - MeshGroup
+          - RadiusProfile
+          - SsidConfiguration
+      required: 
+        - model_type
+
+    ProfileDetailsChildren:
+      oneOf:
+        - $ref: '#/components/schemas/BonjourGatewayProfile'
+        - $ref: '#/components/schemas/CaptivePortalConfiguration'
+        - $ref: '#/components/schemas/ApNetworkConfiguration'
+        - $ref: '#/components/schemas/MeshGroup'
+        - $ref: '#/components/schemas/RadiusProfile'
+        - $ref: '#/components/schemas/SsidConfiguration'
+      discriminator:
+        propertyName: model_type
+        
+    BonjourGatewayProfile:
+      description: Properties for the Bonjour Gateway profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - BonjourGatewayProfile
+          profileDescription:
+            type: string
+          bonjourServices:
+            type: array
+            items:
+              $ref: '#/components/schemas/BonjourServiceSet'
+
+    BonjourServiceSet:
+      type: object
+      properties:
+        vlanId:
+          type: integer
+          format: int16
+        supportAllServices:
+          type: boolean
+        serviceNames:
+          type: array
+          items:
+            type: string
+            
+    CaptivePortalConfiguration:
+      description: Properties for the Captive Portal Service profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - CaptivePortalConfiguration
+          browserTitle:
+            type: string
+          headerContent:
+            type: string
+          userAcceptancePolicy:
+            type: string
+          successPageMarkdownText:          
+            type: string
+          redirectURL:
+            type: string
+          externalCaptivePortalURL:
+            type: string
+          sessionTimeoutInMinutes:
+            type: integer
+            format: int32
+          logoFile:
+            $ref: '#/components/schemas/ManagedFileInfo'
+          backgroundFile:
+            $ref: '#/components/schemas/ManagedFileInfo'
+          walledGardenWhitelist:
+            type: array
+            items:
+              type: string
+          usernamePasswordFile:
+            $ref: '#/components/schemas/ManagedFileInfo'
+          authenticationType:
+            $ref: '#/components/schemas/CaptivePortalAuthenticationType'
+          radiusAuthMethod:
+            $ref: '#/components/schemas/RadiusAuthenticationMethod'
+          maxUsersWithSameCredentials:
+            type: integer
+            format: int32
+          externalPolicyFile:
+            $ref: '#/components/schemas/ManagedFileInfo'
+          backgroundPosition:
+            $ref: '#/components/schemas/BackgroundPosition'
+          backgroundRepeat:
+            $ref: '#/components/schemas/BackgroundRepeat'
+          radiusServiceName:
+            type: string
+          expiryType:
+            $ref: '#/components/schemas/SessionExpiryType'
+          userList:
+            type: array
+            items:
+              $ref: '#/components/schemas/TimedAccessUserRecord'
+          macWhiteList:
+            type: array
+            items:
+              $ref: '#/components/schemas/MacWhitelistRecord'
+
+    ManagedFileInfo:
+      type: object
+      properties:
+        md5checksum:
+          type: array
+          items:
+            type: integer
+            format: byte
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+        apExportUrl:
+          type: string
+        fileCategory:
+          $ref: '#/components/schemas/FileCategory'
+        fileType:
+          $ref: '#/components/schemas/FileType'
+        altSlot:
+          type: boolean
+          
+    FileCategory:
+      type: string
+      enum:
+      - CaptivePortalLogo
+      - CaptivePortalBackground
+      - ExternalPolicyConfiguration
+      - UsernamePasswordList
+      - DeviceMacBlackList
+      - DoNotSteerClientList
+
+    FileType:
+      type: string
+      enum:
+      - PNG
+      - JPG
+      - PROTOBUF
+
+    CaptivePortalAuthenticationType:
+      type: string
+      enum:
+      - guest
+      - username
+      - radius
+      - external
+
+    RadiusAuthenticationMethod:
+      type: string
+      enum:
+      - PAP
+      - CHAP
+      - MSCHAPv2
+
+    BackgroundPosition:
+      type: string
+      enum:
+      - left_top
+      - left_center
+      - left_bottom
+      - right_top
+      - right_center
+      - right_bottom
+      - center_top
+      - center_center
+      - center_bottom
+
+    BackgroundRepeat:
+      type: string
+      enum:
+      - repeat_x
+      - repeat_y
+      - repeat
+      - space
+      - round
+      - no_repeat
+      - cover
+    
+    SessionExpiryType:
+      type: string
+      enum:
+      - time_limited
+      - unlimited
+
+    TimedAccessUserRecord:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        activationTime:
+          type: integer
+          format: int64
+        expirationTime:
+          type: integer
+          format: int64
+        numDevices:
+          type: integer
+          format: int32
+        userDetails:
+          $ref: '#/components/schemas/TimedAccessUserDetails'
+        userMacAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/MacAddress'
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+    
+    TimedAccessUserDetails:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        passwordNeedsReset:
+          type: boolean
+          
+    MacAddress:
+      type: object
+      properties:
+        addressAsString:
+          type: string
+      
+    MacWhitelistRecord:
+      type: object
+      properties:
+        macAddress:
+          $ref: '#/components/schemas/MacAddress'
+        notes:
+          type: string
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+      
+
+    ApNetworkConfiguration:
+      description: Properties for the AP Network Configuration profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - ApNetworkConfiguration
+          networkConfigVersion:
+            type: string
+            enum:
+            - "AP-1"
+          equipmentType:
+            type: string
+            enum:
+            - AP
+          vlanNative:
+            type: boolean
+          vlan:
+            type: integer
+            format: int32
+          ntpServer:
+            $ref: '#/components/schemas/AutoOrManualString'
+          syslogRelay:
+            $ref: '#/components/schemas/SyslogRelay'
+          rtlsSettings:
+            $ref: '#/components/schemas/RtlsSettings'
+          syntheticClientEnabled:
+            type: boolean
+          ledControlEnabled:
+            type: boolean
+          equipmentDiscovery:
+            type: boolean
+          radioMap:
+            $ref: '#/components/schemas/RadioProfileConfigurationMap'
+
+
+    RadioProfileConfigurationMap:
+      properties:
+        is5GHz:
+          $ref: "#/components/schemas/RadioProfileConfiguration"
+        is5GHzU:
+          $ref: "#/components/schemas/RadioProfileConfiguration"
+        is5GHzL:
+          $ref: "#/components/schemas/RadioProfileConfiguration"
+        is2dot4GHz:
+          $ref: "#/components/schemas/RadioProfileConfiguration"
+
+    RadioProfileConfiguration:
+      properties:
+        bestApEnabled:
+          type: boolean
+        bestAPSteerType:
+          $ref: '#/components/schemas/BestAPSteerType'
+
+    SyslogRelay:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        srvHostIp:
+          type: string
+        srvHostPort:
+          type: integer
+          format: int32
+        severity:
+          $ref: '#/components/schemas/SyslogSeverityType'
+    
+    
+    SyslogSeverityType:
+      type: string
+      enum:
+      - EMERG
+      - ALERT
+      - CRIT
+      - ERR
+      - WARING
+      - NOTICE
+      - INFO
+      - DEBUG
+
+    RtlsSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        srvHostIp:
+          type: string
+        srvHostPort:
+          type: integer
+          format: int32
+      
+    
+    MeshGroup:
+      description: Properties for the Mesh Group profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - MeshGroup
+          property:
+            $ref: '#/components/schemas/MeshGroupProperty'
+          members:
+            type: array
+            items:
+              $ref: '#/components/schemas/MeshGroupMember'
+              
+    MeshGroupProperty:
+      properties:
+        name:
+          type: string
+        locationId:
+          type: integer
+          format: int64
+        ethernetProtection:
+          type: boolean
+
+    MeshGroupMember:
+      properties:
+        mashMode:
+          $ref: '#/components/schemas/ApMeshMode'
+        equipmentId:
+          type: integer
+          format: int64
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+
+    ApMeshMode:
+      description: STANDALONE = no mesh. MESH_PORTAL = Wired AP, accepting wireless connections from MESH_POINTs. MESH_POINT = Extender AP. connects to MESH_PORTAL.
+      type: string
+      enum:
+      - STANDALONE
+      - MESH_PORTAL
+      - MESH_POINT
+
+    RadiusProfile:
+      description: Properties for the RADIUS profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - RadiusProfile
+          subnetConfiguration:
+            $ref: '#/components/schemas/RadiusSubnetConfigurationMap'
+          serviceRegionMap:
+            $ref: '#/components/schemas/RadiusServiceRegionMap'
+            
+    RadiusSubnetConfigurationMap:
+      description: Map of subnet configurations. Key is the subnet name, value is the actual configuration.
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/RadiusSubnetConfiguration'
+
+    RadiusServiceRegionMap:
+      description: Map of Radius Service Regions, keyed by Region Name
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/RadiusServiceRegion'
+    
+    RadiusSubnetConfiguration:
+      properties:
+        serviceRegionName:
+          type: string
+        subnetName:
+          type: string
+        proxyConfig:
+          $ref: '#/components/schemas/RadiusProxyConfiguration'
+        probeInterval:
+          description: Synthentic client probing internval (seconds). Use 0 or null for disable.
+          type: integer
+          format: int32
+        subnetAddress:
+          description: Subnet IpAddress
+          type: string
+        subnetCidrPrefix:
+          type: integer
+          format: int32
+          
+    RadiusProxyConfiguration:
+      properties:
+        floatingIpAddress:
+          description: Proxy server floating IP address
+          type: string
+        floatingIfCidrPrefix:
+          description: Optional subnet CIDR prefix for floating IP address. Required if different floating IP address is outside of the the management subnet.
+          type: integer
+          format: int32
+        floatingIfGwAddress:
+          description: Optional Gateway IP Address for the floating IP interface
+          type: string
+        floatingIfVlan:
+          description: Optional VLAN id for the floating IP interface
+          type: integer
+          format: int32
+        sharedSecret:
+          description: Shared secret used to communicate with the proxy server
+          type: string
+        
+    
+    RadiusServiceRegion:
+      description: Region with the same set of Radius Service Configurations
+      properties:
+        regionName:
+          description: Named server mapping
+          type: string
+          default: Default
+        serverMap:
+          $ref: '#/components/schemas/RadiusServerMap'
+        
+    RadiusServerMap:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/RadiusServer'
+          
+    RadiusServer:
+      properties:
+        ipAddress:
+          type: string
+        secret:
+          type: string
+        authPort:
+          type: integer
+          format: int32
+        timeout:
+          type: integer
+          format: int32
+        
+    
+
+    SsidConfiguration:
+      description: Properties for the SSID Configuration profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - SsidConfiguration
+          ssid:
+            type: string
+          appliedRadios:
+            type: array
+            items:
+              $ref: '#/components/schemas/RadioType'
+          ssidAdminState:
+            $ref: '#/components/schemas/StateSetting'
+          secureMode:
+            $ref: '#/components/schemas/SsidSecureMode'
+          vlanId:
+            type: integer
+            format: int32
+          keyStr:
+            type: string
+          broadcastSsid:
+            $ref: '#/components/schemas/StateSetting'
+          keyRefresh:
+            type: integer
+            format: int32
+            default: 0
+          noLocalSubnets:
+            type: boolean
+          radiusServiceName:
+            type: string
+          captivePortalId:
+            description: id of a CaptivePortalConfiguration profile, must be also added to the children of this profile
+            type: integer
+            format: int64
+          bandwidthLimitDown:
+            type: integer
+            format: int64
+          bandwidthLimitUp:
+            type: integer
+            format: int64
+          videoTrafficOnly:
+            type: boolean
+          radioBasedConfigs:
+            $ref: '#/components/schemas/RadioBasedSsidConfigurationMap'
+          bonjourGatewayProfileId:
+            description: id of a BonjourGateway profile, must be also added to the children of this profile
+            type: integer
+            format: int64
+          enable80211w:
+            type: boolean
+          wepConfig:
+            $ref: '#/components/schemas/WepConfiguration'
+          forwardMode:
+            $ref: '#/components/schemas/NetworkForwardMode'
+            
+    SsidSecureMode:
+      type: string
+      enum:
+      - open
+      - wpaPSK
+      - wpa2PSK
+      - wpaRadius
+      - wpa2Radius
+      - wpa2OnlyPSK
+      - wpa2OnlyRadius
+      - wep
+      
+    RadioBasedSsidConfigurationMap:
+      properties:
+        is5GHz:
+          $ref: "#/components/schemas/RadioBasedSsidConfiguration"
+        is5GHzU:
+          $ref: "#/components/schemas/RadioBasedSsidConfiguration"
+        is5GHzL:
+          $ref: "#/components/schemas/RadioBasedSsidConfiguration"
+        is2dot4GHz:
+          $ref: "#/components/schemas/RadioBasedSsidConfiguration"
+      
+    RadioBasedSsidConfiguration:
+      properties:
+        enable80211r:
+          type: boolean
+        enable80211k:
+          type: boolean
+        enable80211v:
+          type: boolean
+          
+    WepConfiguration:
+      properties:
+        primaryTxKeyId:
+          type: integer
+          format: int32
+        wepKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/WepKey'
+        wepAuthType:
+          $ref: '#/components/schemas/WepAuthType'
+          
+    WepAuthType:
+      type: string
+      enum:
+      - open
+      - shared
+    
+    WepKey:
+      properties:
+        txKey:
+          type: string
+        txKeyConverted:
+          type: string
+        txKeyType:
+          $ref: '#/components/schemas/WepType'
+        
+    WepType:
+      type: string
+      enum:
+      - wep64
+      - wep128
+      
 
     WebTokenRequest:
       description: User Id and password.
