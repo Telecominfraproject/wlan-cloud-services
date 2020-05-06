@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 
 import org.junit.Test;
 
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration.ApModel;
 
 
@@ -42,10 +43,10 @@ public class EquipmentElementConfigurationTests
    {
        ApElementConfiguration generated = (ApElementConfiguration) ApElementConfiguration.fromFile(EquipmentElementConfigurationTests.class.getResource("oldFormat.json").getFile(), ApElementConfiguration.class);
        
-       ElementRadioConfiguration bgRadio = generated.getRadioMap().get(ApElementConfiguration.TWO_POINT_FOUR_GHZ_RADIO_INDEX);
+       ElementRadioConfiguration bgRadio = generated.getRadioMap().get(RadioType.is2dot4GHz);
        assertEquals(ElementRadioConfiguration.MIN_BG_RADIO_CELL_SIZE, bgRadio.getMinAutoCellSize());
        
-       ElementRadioConfiguration acRadio = generated.getRadioMap().get(ApElementConfiguration.FIVE_GHZ_RADIO_INDEX);
+       ElementRadioConfiguration acRadio = generated.getRadioMap().get(RadioType.is5GHz);
        assertEquals(ElementRadioConfiguration.MIN_AC_RADIO_CELL_SIZE, acRadio.getMinAutoCellSize());
    }
  
@@ -61,7 +62,7 @@ public class EquipmentElementConfigurationTests
    public void testOutdoorChannels()
    {
        ApElementConfiguration apElemConfig = ApElementConfiguration.createWithDefaults("xxx", ApModel.OUTDOOR);
-       ElementRadioConfiguration radioConfig = apElemConfig.getRadioMap().get(ApElementConfiguration.FIVE_GHZ_RADIO_INDEX);
+       ElementRadioConfiguration radioConfig = apElemConfig.getRadioMap().get(RadioType.is5GHz);
        assertTrue(radioConfig.getActiveChannel() >= 149);
        assertTrue(radioConfig.getChannelNumber() >= 149);
        assertTrue(radioConfig.getBackupChannelNumber() >= 149);

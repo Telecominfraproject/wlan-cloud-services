@@ -19,10 +19,10 @@ public class BonjourServiceSet extends BaseJsonModel {
      * VLAN id, null if it's the default VLAN
      */
     private Short vlanId;
-    private boolean supportAllService;
+    private boolean supportAllServices;
 
     /**
-     * List of service. Should be empty if {@link #isSupportAllService()} is
+     * List of service. Should be empty if {@link #isSupportAllServices()} is
      * true
      */
     private Set<String> serviceNames;
@@ -67,7 +67,7 @@ public class BonjourServiceSet extends BaseJsonModel {
         } else if (!serviceNames.equals(other.serviceNames)) {
             return false;
         }
-        if (supportAllService != other.supportAllService) {
+        if (supportAllServices != other.supportAllServices) {
             return false;
         }
         if (vlanId == null) {
@@ -81,7 +81,7 @@ public class BonjourServiceSet extends BaseJsonModel {
     }
 
     public Set<String> getServiceNames() {
-        if (isSupportAllService()) {
+        if (isSupportAllServices()) {
             return null;
         }
         return this.serviceNames;
@@ -96,13 +96,13 @@ public class BonjourServiceSet extends BaseJsonModel {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((serviceNames == null) ? 0 : serviceNames.hashCode());
-        result = prime * result + (supportAllService ? 1231 : 1237);
+        result = prime * result + (supportAllServices ? 1231 : 1237);
         result = prime * result + ((vlanId == null) ? 0 : vlanId.hashCode());
         return result;
     }
 
-    public boolean isSupportAllService() {
-        return this.supportAllService;
+    public boolean isSupportAllServices() {
+        return this.supportAllServices;
     }
 
     /**
@@ -111,11 +111,11 @@ public class BonjourServiceSet extends BaseJsonModel {
      * @param bonjourServiceSet
      */
     public void mergeServiceSet(BonjourServiceSet bonjourServiceSet) {
-        if (this.supportAllService) {
+        if (this.supportAllServices) {
             return;
         }
-        if (bonjourServiceSet.supportAllService) {
-            this.supportAllService = true;
+        if (bonjourServiceSet.supportAllServices) {
+            this.supportAllServices = true;
 
             this.serviceNames.clear();
         } else if (null != bonjourServiceSet.serviceNames) {
@@ -131,8 +131,8 @@ public class BonjourServiceSet extends BaseJsonModel {
         this.serviceNames = serviceNames;
     }
 
-    public void setSupportAllService(boolean supportAllService) {
-        this.supportAllService = supportAllService;
+    public void setSupportAllServices(boolean supportAllServices) {
+        this.supportAllServices = supportAllServices;
     }
 
     public void setVlanId(Short vlanId) {
@@ -147,7 +147,7 @@ public class BonjourServiceSet extends BaseJsonModel {
         if ((null != this.vlanId) && !NetworkConstants.isValidVLANTagForProvision(this.vlanId)) {
             throw new DsDataValidationException("Invalid VLAN id specified: " + this.vlanId);
         }
-        if (!this.supportAllService && ((null == this.serviceNames) || this.serviceNames.isEmpty())) {
+        if (!this.supportAllServices && ((null == this.serviceNames) || this.serviceNames.isEmpty())) {
             throw new DsDataValidationException("No bonjour service name defined for service VLAN " + this.vlanId);
         }
     }

@@ -2,8 +2,10 @@ package com.telecominfraproject.wlan.profile.ssid.models;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     final static String  DEFAULT_SSID_NAME = "Default-SSID";
     
     private String ssid;
-    private AppliedRadio appliedRadio;
+    private Set<RadioType> appliedRadios = new HashSet<>();
     private StateSetting ssidAdminState;
     private SecureMode secureMode;
     private Integer vlanId = DEFAULT_VLAN;
@@ -89,7 +91,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
          */
         long timestamp = System.currentTimeMillis();
         setSsid(DEFAULT_SSID_NAME + "-" + timestamp);
-        setAppliedRadio(AppliedRadio.radioAandB);
+        getAppliedRadios().add(RadioType.is2dot4GHz);
+        getAppliedRadios().add(RadioType.is5GHz);
         setBroadcastSsid(DEFAULT_BROADCAST_SSID);
         setVlanId(1);
         setSecureMode(SecureMode.open);
@@ -110,15 +113,15 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.ssid = ssid;
     }
 
-    public AppliedRadio getAppliedRadio() {
-        return appliedRadio;
-    }
+    public Set<RadioType> getAppliedRadios() {
+		return appliedRadios;
+	}
 
-    public void setAppliedRadio(AppliedRadio appliedRadio) {
-        this.appliedRadio = appliedRadio;
-    }
+	public void setAppliedRadios(Set<RadioType> appliedRadios) {
+		this.appliedRadios = appliedRadios;
+	}
 
-    public StateSetting getSsidAdminState() {
+	public StateSetting getSsidAdminState() {
         return ssidAdminState;
     }
 
@@ -271,9 +274,15 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             return false;
         }
         SsidConfiguration other = (SsidConfiguration) obj;
-        if (appliedRadio != other.appliedRadio) {
+
+        if (appliedRadios == null) {
+            if (other.appliedRadios != null) {
+                return false;
+            }
+        } else if (!appliedRadios.equals(other.appliedRadios)) {
             return false;
         }
+        
         if (broadcastSsid != other.broadcastSsid) {
             return false;
         }
@@ -387,9 +396,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             return false;
         }
         SsidConfiguration other = (SsidConfiguration) obj;
-        if (appliedRadio != other.appliedRadio) {
+        if (appliedRadios == null) {
+            if (other.appliedRadios != null) {
+                return false;
+            }
+        } else if (!appliedRadios.equals(other.appliedRadios)) {
             return false;
         }
+
         if (broadcastSsid != other.broadcastSsid) {
             return false;
         }
@@ -498,49 +512,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.radiusServiceName = radiusServiceName;
     }
 
-    public static enum AppliedRadio {
-
-        radioA(0L), //radio 5GHz
-        radioB(1L), //radio 2.4GHz
-        radioAandB(2L),
-        
-        UNSUPPORTED (-1L);
-
-        private final long id;
-        private static final Map<Long, AppliedRadio> ELEMENTS = new HashMap<>();
-
-        private AppliedRadio(long id) {
-            this.id = id;
-        }
-
-        public long getId() {
-            return this.id;
-        }
-
-        public static AppliedRadio getById(long enumId) {
-            if (ELEMENTS.isEmpty()) {
-                synchronized (ELEMENTS) {
-                    if (ELEMENTS.isEmpty()) {
-                        //initialize elements map
-                        for(AppliedRadio met : AppliedRadio.values()) {
-                            ELEMENTS.put(met.getId(), met);
-                        }
-                    }
-                }
-            }
-            return ELEMENTS.get(enumId);
-        }
-        
-        @JsonCreator
-        public static AppliedRadio getByName(String value) {
-            return JsonDeserializationUtils.deserializEnum(value, AppliedRadio.class, UNSUPPORTED);
-        }
-        
-        public static boolean isUnsupported(AppliedRadio value) {
-            return UNSUPPORTED.equals(value);
-        }
-    }
-
     public static enum SecureMode {
 
         open(0L),
@@ -602,13 +573,22 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             return true;
         }
         
-        if (AppliedRadio.isUnsupported(appliedRadio) || StateSetting.isUnsupported(ssidAdminState)
+        if (appliedRadios==null || appliedRadios.isEmpty() || StateSetting.isUnsupported(ssidAdminState)
                 || SecureMode.isUnsupported(secureMode) || StateSetting.isUnsupported(broadcastSsid)
                 || NetworkForwardMode.isUnsupported(this.forwardMode) 
                 || hasUnsupportedValue(wepConfig)) {
             return true;
         }
-        return false;
+        
+        boolean hasUnsupported = false;
+        for(RadioType rt: appliedRadios) {
+        	if(RadioType.isUnsupported(rt)){ 
+        		hasUnsupported = true;
+        		break;
+        	} 
+        }
+        
+        return hasUnsupported;
     }
 
     private static Map<RadioType, RadioBasedSsidConfiguration> initRadioBasedConfig() {

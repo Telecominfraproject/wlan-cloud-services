@@ -42,7 +42,7 @@ public class ApElementConfiguration extends CommonElementConfiguration {
         return createWithDefaults(elementVersion, ApModel.INDOOR);
     }
 
-    private Map<Integer, ElementRadioConfiguration> radioMap;
+    private Map<RadioType, ElementRadioConfiguration> radioMap;
 
     /*
      * These are the "advanced" radio configuration. They can be redefined via
@@ -59,9 +59,9 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 
         /* We populate the radio map */
         radioMap = new HashMap<>();
-        radioMap.put(ApElementConfiguration.FIVE_GHZ_RADIO_INDEX,
+        radioMap.put(RadioType.is5GHz,
                 ElementRadioConfiguration.createWithDefaults(RadioType.is5GHz));
-        radioMap.put(ApElementConfiguration.TWO_POINT_FOUR_GHZ_RADIO_INDEX,
+        radioMap.put(RadioType.is2dot4GHz,
                 ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
 
         /* We populate the advanced radio map */
@@ -77,7 +77,7 @@ public class ApElementConfiguration extends CommonElementConfiguration {
         if (radioMap != null) {
             ret.radioMap = new HashMap<>();
 
-            for (Map.Entry<Integer, ElementRadioConfiguration> entry : radioMap.entrySet()) {
+            for (Map.Entry<RadioType, ElementRadioConfiguration> entry : radioMap.entrySet()) {
                 ret.radioMap.put(entry.getKey(), entry.getValue().clone());
             }
         }
@@ -104,7 +104,7 @@ public class ApElementConfiguration extends CommonElementConfiguration {
      * @return
      */
 
-    public Map<Integer, ElementRadioConfiguration> getRadioMap() {
+    public Map<RadioType, ElementRadioConfiguration> getRadioMap() {
         return radioMap;
     }
 
@@ -125,8 +125,8 @@ public class ApElementConfiguration extends CommonElementConfiguration {
         returnValue.setCostSavingEventsEnabled(true);
 
         if (model == ApModel.OUTDOOR) {
-            returnValue.getRadioMap().get(FIVE_GHZ_RADIO_INDEX).setBackupChannelNumber(157);
-            returnValue.getRadioMap().get(FIVE_GHZ_RADIO_INDEX).setChannelNumber(149);
+            returnValue.getRadioMap().get(RadioType.is5GHz).setBackupChannelNumber(157);
+            returnValue.getRadioMap().get(RadioType.is5GHz).setChannelNumber(149);
             // NAAS-8919 change mimo for outdoor to 3x3
             for (Entry<RadioType, RadioConfiguration> entry : returnValue.getAdvancedRadioMap().entrySet()) {
                 entry.getValue().setMimoMode(MimoMode.threeByThree);
@@ -176,7 +176,7 @@ public class ApElementConfiguration extends CommonElementConfiguration {
         this.advancedRadioMap = advancedRadioMap;
     }
 
-    public void setRadioMap(Map<Integer, ElementRadioConfiguration> radioMap) {
+    public void setRadioMap(Map<RadioType, ElementRadioConfiguration> radioMap) {
         this.radioMap = radioMap;
     }
 

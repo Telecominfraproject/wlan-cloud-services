@@ -73,7 +73,7 @@ public class BonjourGatewayProfileTests {
 
         // add bonjour service on default vlan
         serviceSet = new BonjourServiceSet();
-        serviceSet.setSupportAllService(true);
+        serviceSet.setSupportAllServices(true);
         src.addBonjourServiceSet(serviceSet);
 
         String jsonDoc = src.toString();

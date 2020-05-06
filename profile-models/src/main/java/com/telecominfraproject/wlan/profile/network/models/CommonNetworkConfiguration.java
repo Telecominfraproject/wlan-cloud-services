@@ -1,14 +1,8 @@
 package com.telecominfraproject.wlan.profile.network.models;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualString;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
-import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
-import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 
 
 /**
@@ -28,16 +22,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     private Boolean ledControlEnabled;
     private Boolean equipmentDiscovery;
 
-    //fields from CamiGeneralCfg go in here
-    /**
-     * Replaced by {@link SsidConfiguration#getRadiusServiceName()}
-     */
-    @Deprecated
-    private List<RadiusServer> radiusServers = new LinkedList<>();
-
-    /**
-     * Used by CAMI only
-     */
     public CommonNetworkConfiguration() {
     }
 
@@ -59,16 +43,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
 
     public void setEquipmentType(EquipmentType equipmentType) {
         this.equipmentType = equipmentType;
-    }
-
-    @Deprecated
-    public List<RadiusServer> getRadiusServers() {
-        return radiusServers;
-    }
-
-    @Deprecated
-    public void setRadiusServers(List<RadiusServer> radiusServers) {
-        this.radiusServers = radiusServers;
     }
 
     public int getVlan()
@@ -138,13 +112,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
 
         CommonNetworkConfiguration ret = (CommonNetworkConfiguration) super.clone();
 
-        if(radiusServers!=null){
-            ret.radiusServers = new ArrayList<>(radiusServers.size());
-            for(RadiusServer rs: radiusServers){
-                ret.radiusServers.add(rs.clone());
-            }
-        }
-
         if (syslogRelay != null) {
             ret.setSyslogRelay(syslogRelay.clone());
         }
@@ -169,7 +136,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         result = prime * result + ((ledControlEnabled == null) ? 0 : ledControlEnabled.hashCode());
         result = prime * result + ((networkConfigVersion == null) ? 0 : networkConfigVersion.hashCode());
         result = prime * result + ((ntpServer == null) ? 0 : ntpServer.hashCode());
-        result = prime * result + ((radiusServers == null) ? 0 : radiusServers.hashCode());
         result = prime * result + ((rtlsSettings == null) ? 0 : rtlsSettings.hashCode());
         result = prime * result + ((syntheticClientEnabled == null) ? 0 : syntheticClientEnabled.hashCode());
         result = prime * result + ((syslogRelay == null) ? 0 : syslogRelay.hashCode());
@@ -214,13 +180,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
                 return false;
             }
         } else if (!ntpServer.equals(other.ntpServer)) {
-            return false;
-        }
-        if (radiusServers == null) {
-            if (other.radiusServers != null) {
-                return false;
-            }
-        } else if (!radiusServers.equals(other.radiusServers)) {
             return false;
         }
         if (rtlsSettings == null) {

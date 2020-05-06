@@ -188,7 +188,7 @@ public class BonjourGatewayProfile extends ProfileDetails implements PushableCon
             serviceEntry.getValue().validateValue();
 
             // check service name
-            if (serviceEntry.getValue().isSupportAllService()) {
+            if (serviceEntry.getValue().isSupportAllServices()) {
                 continue;
             }
 

@@ -63,13 +63,12 @@ public class RadiusProfile extends ProfileDetails {
     }
 
     /**
-     * Map of subnet configuration. Key is the
-     * {@link RadiusProxyConfiguration#get}, value is the actual configuration
+     * Map of subnet configurations. Key is the subnet name, value is the actual configuration.
      */
     private Map<String, RadiusSubnetConfiguration> subnetConfiguration;
 
     /**
-     * List of Radius Service Region, keyed by Region Name
+     * Map of Radius Service Regions, keyed by Region Name
      */
     private Map<String, RadiusServiceRegion> serviceRegionMap;
 
