@@ -116,6 +116,24 @@ public class PortalUserController {
         return ret;
     }
 
+    /**
+     * Retrieves PortalUser by user name
+     * @param customerId
+     * @param username
+     * @return PortalUser for the supplied customerId and username
+     */
+    @RequestMapping(value = "/byUsernameOrNull", method=RequestMethod.GET)
+    public PortalUser getByUsernameOrNull(@RequestParam int customerId, @RequestParam String username) {
+        
+        LOG.debug("Retrieving PortalUser getByUsername {} {}", customerId, username);
+        
+        PortalUser ret = portalUserDatastore.getByUsernameOrNull(customerId, username);
+
+        LOG.debug("Retrieved PortalUser getByUsername {} {} : {}", customerId, username, ret);
+
+        return ret;
+    }
+
     @RequestMapping(value = "/inSet", method = RequestMethod.GET)
     public ListOfPortalUsers getAllInSet(@RequestParam Set<Long> portalUserIdSet) {
         LOG.debug("getAllInSet({})", portalUserIdSet);

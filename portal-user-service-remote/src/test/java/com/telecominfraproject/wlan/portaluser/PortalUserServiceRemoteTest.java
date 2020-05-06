@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
@@ -54,11 +55,13 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         
         //Create new PortalUser - success
         PortalUser portalUser = new PortalUser();
-        portalUser.setSampleStr("test");
+        portalUser.setUsername("test");
+        portalUser.setCustomerId(getNextCustomerId());
+        portalUser.setPassword("blah");
+        portalUser.setRole(PortalUserRole.TechSupport);
 
         PortalUser ret = remoteInterface.create(portalUser);
-        assertNotNull(ret);
-        
+        assertNotNull(ret);        
 
         ret = remoteInterface.get(ret.getId());
         assertEqualPortalUsers(portalUser, ret);
@@ -66,10 +69,17 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         ret = remoteInterface.getOrNull(ret.getId());
         assertEqualPortalUsers(portalUser, ret);
         
+        ret = remoteInterface.getByUsernameOrNull(portalUser.getCustomerId(), portalUser.getUsername());
+        assertNotNull(ret);
+        assertEqualPortalUsers(portalUser, ret);
+
         assertNull(remoteInterface.getOrNull(-1));
+        assertNull(remoteInterface.getByUsernameOrNull(-1, "non-existent"));
+        assertNull(remoteInterface.getByUsernameOrNull(portalUser.getCustomerId(), "non-existent"));
+
 
         //Update success
-        ret.setSampleStr(ret.getSampleStr()+"_modified");
+        ret.setUsername(ret.getUsername()+"_modified");
         //TODO: add more PortalUser fields to modify here
         
         PortalUser updatedPortalUser = remoteInterface.update(ret);
@@ -125,8 +135,10 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         int customerId = getNextCustomerId();
         
         for (int i = 0; i < 10; i++) {
-            portalUser.setSampleStr("test_" + i);
+            portalUser.setUsername("test_" + i);
             portalUser.setCustomerId(customerId);
+            portalUser.setPassword("blah");
+            portalUser.setRole(PortalUserRole.TechSupport);
 
             PortalUser ret = remoteInterface.create(portalUser);
 
@@ -179,7 +191,10 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
        for(int i = 0; i< 50; i++){
            mdl = new PortalUser();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setUsername("qr_"+apNameIdx);
+           mdl.setPassword("blah");
+           mdl.setRole(PortalUserRole.TechSupport);
+
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -187,7 +202,10 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
        for(int i = 0; i< 50; i++){
            mdl = new PortalUser();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setUsername("qr_"+apNameIdx);
+           mdl.setPassword("blah");
+           mdl.setRole(PortalUserRole.TechSupport);
+           
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -195,7 +213,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
        //paginate over PortalUsers
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("username")));
        
        PaginationContext<PortalUser> context = new PaginationContext<>(10);
        PaginationResponse<PortalUser> page1 = remoteInterface.getForCustomer(customerId_1, sortBy, context);
@@ -233,7 +251,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
        
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getUsername()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -251,7 +269,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getUsername()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -261,18 +279,18 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getUsername()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<PortalUser> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       //test first page of the results with sort descending order by a username property 
+       PaginationResponse<PortalUser> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("username", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getUsername()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
@@ -283,7 +301,11 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
             PortalUser expected,
             PortalUser actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getUsername(), actual.getUsername());
+        assertEquals(expected.getCustomerId(), actual.getCustomerId());
+        assertEquals(expected.getPassword(), actual.getPassword());
+        assertEquals(expected.getRole(), actual.getRole());
+        
         //TODO: add more fields to check here
     }
 

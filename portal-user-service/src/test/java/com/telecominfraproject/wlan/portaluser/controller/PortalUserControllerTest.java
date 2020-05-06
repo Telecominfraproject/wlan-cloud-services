@@ -53,7 +53,7 @@ public class PortalUserControllerTest {
         
         //Create new PortalUser - success
         PortalUser portalUser = new PortalUser();
-        portalUser.setSampleStr("test");
+        portalUser.setUsername("test");
 
         PortalUser ret = portalUserController.create(portalUser);
         assertNotNull(ret);
@@ -75,7 +75,7 @@ public class PortalUserControllerTest {
             PortalUser expected,
             PortalUser actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getUsername(), actual.getUsername());
         //TODO: add more fields to check here
     }
 

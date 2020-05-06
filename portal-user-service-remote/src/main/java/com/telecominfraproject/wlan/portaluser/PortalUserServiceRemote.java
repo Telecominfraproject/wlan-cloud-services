@@ -94,6 +94,22 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
         return ret;
     }
 
+    @Override
+    public PortalUser getByUsernameOrNull(int customerId, String username) {
+        LOG.debug("calling portalUser.getByUsernameOrNull {} {} ", customerId, username);
+
+        ResponseEntity<PortalUser> responseEntity = restTemplate.getForEntity(
+                getBaseUrl()
+                +"/byUsernameOrNull?customerId={customerId}&username={username}",
+                PortalUser.class, customerId, username);
+        
+        PortalUser ret = responseEntity.getBody();
+        
+        LOG.debug("completed portalUser.getByUsernameOrNull {} {} : {}", customerId, username, ret );
+        
+        return ret;
+    }
+    
 	@Override
 	public List<PortalUser> get(Set<Long> portalUserIdSet) {
 		

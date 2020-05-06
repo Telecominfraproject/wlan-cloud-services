@@ -22,6 +22,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 
@@ -46,27 +47,29 @@ public abstract class BasePortalUserDatastoreTest {
     	PortalUser created = testInterface.create(portalUser);
         assertNotNull(created);
         assertTrue(created.getId() > 0);
-        assertEquals(portalUser.getSampleStr(), created.getSampleStr());
+        assertEquals(portalUser.getUsername(), created.getUsername());
         assertEquals(portalUser.getCustomerId(), created.getCustomerId());
+        assertEquals(portalUser.getPassword(), created.getPassword());
+        assertEquals(portalUser.getRole(), created.getRole());
         assertNotNull(created.getDetails());
         assertEquals(portalUser.getDetails(), created.getDetails());
                 
         // update
-        created.setSampleStr(created.getSampleStr()+"_updated");
+        created.setUsername(created.getUsername()+"_updated");
         PortalUser updated = testInterface.update(created);
         assertNotNull(updated);
-        assertEquals(created.getSampleStr(), updated.getSampleStr());
+        assertEquals(created.getUsername(), updated.getUsername());
         
         if(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
         	//update again to make the timestamps different      	
-            created.setSampleStr(created.getSampleStr()+"_updated_1");
+            created.setUsername(created.getUsername()+"_updated_1");
             updated = testInterface.update(created);
         }
 
         //UPDATE test - fail because of concurrent modification exception
         try{
         	PortalUser modelConcurrentUpdate = created.clone();
-        	modelConcurrentUpdate.setSampleStr("not important");
+        	modelConcurrentUpdate.setUsername("not important");
         	testInterface.update(modelConcurrentUpdate);
         	fail("failed to detect concurrent modification");
         }catch (DsConcurrentModificationException e) {
@@ -82,6 +85,10 @@ public abstract class BasePortalUserDatastoreTest {
         assertNotNull(retrieved);
         assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
         
+        retrieved = testInterface.getByUsernameOrNull(created.getCustomerId(), created.getUsername());
+        assertNotNull(retrieved);
+        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+        
         //retrieve non-existent
         try {
         	testInterface.get(-1);
@@ -91,6 +98,8 @@ public abstract class BasePortalUserDatastoreTest {
         }
         
         assertNull(testInterface.getOrNull(-1));
+        assertNull(testInterface.getByUsernameOrNull(-1, "non-existent"));
+        assertNull(testInterface.getByUsernameOrNull(created.getCustomerId(), "non-existent"));
         
         //delete
         retrieved = testInterface.delete(created.getId());
@@ -123,8 +132,10 @@ public abstract class BasePortalUserDatastoreTest {
         PortalUser portalUser = new PortalUser();
 
         for (int i = 0; i < 10; i++) {
-            portalUser.setSampleStr("test_" + i);
+            portalUser.setUsername("test_" + i);
             portalUser.setCustomerId(i);
+            portalUser.setPassword("blah");
+            portalUser.setRole(PortalUserRole.TechSupport);
 
             PortalUser ret = testInterface.create(portalUser);
 
@@ -177,7 +188,10 @@ public abstract class BasePortalUserDatastoreTest {
        for(int i = 0; i< 50; i++){
            mdl = new PortalUser();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setUsername("qr_"+apNameIdx);
+           mdl.setPassword("blah");
+           mdl.setRole(PortalUserRole.TechSupport);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -185,7 +199,10 @@ public abstract class BasePortalUserDatastoreTest {
        for(int i = 0; i< 50; i++){
            mdl = new PortalUser();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setUsername("qr_"+apNameIdx);
+           mdl.setPassword("blah");
+           mdl.setRole(PortalUserRole.TechSupport);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -193,7 +210,7 @@ public abstract class BasePortalUserDatastoreTest {
        //paginate over PortalUsers
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("username")));
        
        PaginationContext<PortalUser> context = new PaginationContext<>(10);
        PaginationResponse<PortalUser> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
@@ -231,7 +248,7 @@ public abstract class BasePortalUserDatastoreTest {
        
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getUsername()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -249,7 +266,7 @@ public abstract class BasePortalUserDatastoreTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getUsername()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -259,18 +276,18 @@ public abstract class BasePortalUserDatastoreTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getUsername()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<PortalUser> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       //test first page of the results with sort descending order by a username property 
+       PaginationResponse<PortalUser> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("username", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getUsername()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
@@ -280,7 +297,9 @@ public abstract class BasePortalUserDatastoreTest {
     	PortalUser result = new PortalUser();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);
-        result.setSampleStr("test-" + nextId); 
+        result.setUsername("test-" + nextId); 
+        result.setPassword("blah");
+        result.setRole(PortalUserRole.TechSupport);
         PortalUserDetails details = new PortalUserDetails();
         details.setSampleDetailsStr("test-details-" + nextId);
 		result.setDetails(details );

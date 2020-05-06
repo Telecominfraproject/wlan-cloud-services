@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.portaluser.models.PortalUserDetails;
 
@@ -29,7 +29,9 @@ public class PortalUserRowMapper implements RowMapper<PortalUser> {
         //TODO: add columns from properties PortalUser in here. 
         //make sure order of fields is the same as defined in PortalUser
         portalUser.setCustomerId(rs.getInt(colIdx++));
-        portalUser.setSampleStr(rs.getString(colIdx++));
+        portalUser.setUsername(rs.getString(colIdx++));
+        portalUser.setPassword(rs.getString(colIdx++));
+        portalUser.setRole(PortalUserRole.getById(rs.getInt(colIdx++)));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {

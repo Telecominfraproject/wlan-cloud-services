@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 
 /**
  * @author dtoptygin
@@ -17,7 +18,10 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
     private int customerId;
 
     //TODO: put more fields here, generate getters/setters for them
-    private String sampleStr;
+    private String username;
+    private String password;
+    private PortalUserRole role;
+    
     private PortalUserDetails details;
     
     private long createdTimestamp;
@@ -55,16 +59,32 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
         this.lastModifiedTimestamp = lastModifiedTimestamp;
     }
 
-    public void setSampleStr(String sampleStr) {
-        this.sampleStr = sampleStr;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getSampleStr() {
-        return sampleStr;
+    public String getUsername() {
+        return username;
     }
 
 	public PortalUserDetails getDetails() {
 		return details;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public PortalUserRole getRole() {
+		return role;
+	}
+
+	public void setRole(PortalUserRole role) {
+		this.role = role;
 	}
 
 	public void setDetails(PortalUserDetails details) {
@@ -96,7 +116,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, sampleStr, details);
+		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, username, password, role, details);
 	}
 
 	@Override
@@ -110,7 +130,9 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		PortalUser other = (PortalUser) obj;
 		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(sampleStr, other.sampleStr)
+				&& Objects.equals(username, other.username)
+				&& Objects.equals(password, other.password)
+				&& Objects.equals(role, other.role)
 				&& Objects.equals(details, other.details);
 	}
     

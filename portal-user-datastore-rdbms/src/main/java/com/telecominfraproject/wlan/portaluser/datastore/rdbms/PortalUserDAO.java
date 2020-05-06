@@ -55,7 +55,9 @@ public class PortalUserDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties PortalUser in here
         "customerId",
-        "sampleStr",
+        "username",
+        "password",
+        "role",
         "details",
         //make sure the order of properties matches this list and list in PortalUserRowMapper and list in create/update methods
         
@@ -128,6 +130,9 @@ public class PortalUserDAO extends BaseJdbcDao {
     		"select " + ALL_COLUMNS +
     		" from " + TABLE_NAME + " " + 
     		" where customerId = ? ";
+    
+    private static final String SQL_GET_BY_CUSTOMERID_AND_USERNAME = SQL_GET_BY_CUSTOMER_ID +
+    		" and username = ?";
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -178,7 +183,9 @@ public class PortalUserDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from PortalUser here 
                         ps.setInt(colIdx++, portalUser.getCustomerId());
-                        ps.setString(colIdx++, portalUser.getSampleStr());
+                        ps.setString(colIdx++, portalUser.getUsername());
+                        ps.setString(colIdx++, portalUser.getPassword());
+                        ps.setInt(colIdx++, portalUser.getRole().getId());
                       	ps.setBytes(colIdx++, (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -248,7 +255,9 @@ public class PortalUserDAO extends BaseJdbcDao {
 
                 //TODO: add remaining properties from PortalUser here
         		portalUser.getCustomerId(),
-                portalUser.getSampleStr(),
+                portalUser.getUsername(),
+                portalUser.getPassword(),
+                portalUser.getRole().getId(),
                 (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null ,
                                 
                 //portalUser.getCreatedTimestamp(), - not updating this one
@@ -442,4 +451,22 @@ public class PortalUserDAO extends BaseJdbcDao {
 
         return ret;
     }
+
+
+	public PortalUser getByUsernameOrNull(int customerId, String username) {
+        LOG.debug("Looking up PortalUser for username {} {}", customerId, username);
+
+        try{
+            PortalUser portalUser = this.jdbcTemplate.queryForObject(
+                    SQL_GET_BY_CUSTOMERID_AND_USERNAME,
+                    portalUserRowMapper, customerId, username);
+            
+            LOG.debug("Found PortalUser {}", portalUser);
+            
+            return portalUser;
+        }catch (EmptyResultDataAccessException e) {
+            LOG.debug("Could not find PortalUser for username {} {}", customerId, username);
+            return null;
+        }
+	}
 }

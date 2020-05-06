@@ -48,4 +48,11 @@ public interface PortalUserDatastore {
      */
     PaginationResponse<PortalUser> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<PortalUser> context);
 
+    /**
+     * @param customerId
+     * @param username
+     * @return PortalUser for the supplied username or null if it cannot be found
+     */
+    PortalUser getByUsernameOrNull(int customerId, String username);
+
 }

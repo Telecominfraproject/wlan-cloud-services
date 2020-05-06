@@ -144,6 +144,19 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     }
 
     @Override
+    public PortalUser getByUsernameOrNull(int customerId, String username) {
+    	PortalUser ret = null;
+    	
+        for (PortalUser mdl : idToPortalUserMap.values()) {
+        	if(mdl.getCustomerId() == customerId && mdl.getUsername().equals(username)) {
+        		ret = mdl.clone();
+        	}
+        }
+        
+    	return ret;
+    }
+    
+    @Override
     public PaginationResponse<PortalUser> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<PortalUser> context) {
 
@@ -181,8 +194,8 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
                         case "id":
                             cmp = Long.compare(o1.getId(), o2.getId());
                             break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
+                        case "username":
+                            cmp = o1.getUsername().compareTo(o2.getUsername());
                             break;
                         default:
                             // skip unknown column

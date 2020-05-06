@@ -45,6 +45,12 @@ public class PortalUserServiceLocal implements PortalUserServiceInterface {
     }
     
     @Override
+    public PortalUser getByUsernameOrNull(int customerId, String username) {
+        LOG.debug("calling portalUserController.getByUsernameOrNull {} {}", customerId, username);
+        return portalUserController.getByUsernameOrNull(customerId, username);
+    }
+    
+    @Override
     public List<PortalUser> get(Set<Long> portalUserIdSet) {
         LOG.debug("calling portalUserController.getAllInSet {} ", portalUserIdSet);
         return portalUserController.getAllInSet(portalUserIdSet);

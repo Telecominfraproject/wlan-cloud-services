@@ -1,7 +1,9 @@
 insert into portal_user (
     id,
     customerId,     
-    sampleStr,
+    username,
+    password,
+    role,
     details,
     createdTimestamp,
     lastModifiedTimestamp
@@ -9,6 +11,8 @@ insert into portal_user (
     1,
     1,
     'test',
+    'blah',
+    1,
     null,
     0,0
 );

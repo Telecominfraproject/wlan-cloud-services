@@ -46,6 +46,7 @@ tags:
 - name: "Alarms"
 - name: "WLAN Service Metrics"
 - name: "System Events"
+- name: "Portal Users"
 
 components:
   securitySchemes:
@@ -1416,6 +1417,29 @@ components:
           format: "int32"
         aclTemplate:
           $ref: "#/components/schemas/WebTokenAclTemplate"
+          
+    PortalUser:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        role:
+          $ref: '#/components/schemas/PortalUserRole'
+        createdTimestamp:
+          type: "integer"
+          format: "int64"
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: "integer"
+          format: "int64"          
+          
+    PortalUserRole:
+      type: string
+      enum:
+      - SuperUser
+      - CustomerIT
 
     SortOrder:
       type: string
@@ -1585,6 +1609,59 @@ components:
             $ref: '#/components/schemas/Profile'
         context:
           $ref: '#/components/schemas/PaginationContextProfile'
+          
+    SortColumnsPortalUser:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: id
+          enum: 
+          - id
+          - username
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+          
+    PaginationContextPortalUser:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        isLastPage:
+          type: boolean
+      
+    PaginationResponsePortalUser:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalUser'
+        context:
+          $ref: '#/components/schemas/PaginationContextPortalUser' 
+          
           
 ## ---------------------------------------------------------------------------
 security:
@@ -2258,5 +2335,193 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Profile"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/portalUser:
+    post:
+      tags:
+       - "Portal Users"
+      summary: "Create new Portal User"
+      operationId: "createPortalUser"
+      requestBody:
+        description: "portal user info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortalUser"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - "Portal Users"
+      summary: "Get portal user By Id"
+      operationId: "getPortalUserById"
+      parameters:
+      - name: "portalUserId"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - "Portal Users"
+      summary: "Update PortalUser"
+      operationId: "updatePortalUser"
+      requestBody:
+        description: "PortalUser info"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortalUser"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - "Portal Users"
+      summary: "Delete PortalUser"
+      operationId: "deletePortalUser"
+      parameters:
+      - name: "portalUserId"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/portalUser/inSet:
+    get:
+      tags:
+      - "Portal Users"
+      summary: "Get PortalUsers By a set of ids"
+      operationId: "getPortalUsersBySetOfIds"
+      parameters:
+      - name: "portalUserIdSet"
+        in: "query"
+        description: "set of portalUser ids"
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "array"
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/PortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/portalUser/forCustomer:
+    get:
+      tags:
+      - "Portal Users"
+      summary: "Get PortalUsers By customerId"
+      operationId: "getPortalUsersByCustomerId"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        description: "customer id"
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: "sortBy"
+        in: "query"
+        description: "sort options"
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortColumnsPortalUser"
+      - name: "paginationContext"
+        in: "query"
+        description: "pagination context"
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/PaginationContextPortalUser"
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponsePortalUser"
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/portalUser/byUsernameOrNull:
+    get:
+      tags:
+      - "Portal Users"
+      summary: "Get portal user by user name"
+      operationId: "getPortalUserByUsername"
+      parameters:
+      - name: "customerId"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "username"
+        in: "query"
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUser"
         500:
           $ref: '#/components/responses/GenericApiError'
