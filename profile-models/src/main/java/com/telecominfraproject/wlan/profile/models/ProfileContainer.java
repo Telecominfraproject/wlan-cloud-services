@@ -48,7 +48,7 @@ public class ProfileContainer {
 			return ret;
 		}
 		
-		parent.getChildProfileIds().forEach(pId -> { Profile p = profileMap.get(profileId); if(p!=null && p.getProfileType() == childProfileType) { ret.add(p); } });
+		parent.getChildProfileIds().forEach(pId -> { Profile p = profileMap.get(pId); if(p!=null && p.getProfileType() == childProfileType) { ret.add(p); } });
 		
 		return ret;
 	}

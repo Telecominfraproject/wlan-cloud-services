@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.startuptasks;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
@@ -22,7 +25,10 @@ import com.telecominfraproject.wlan.location.models.LocationType;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 
 /**
  * Listen for context started event so that we can populate initial dataset in
@@ -119,25 +125,52 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileSsid.setCustomerId(customer.getId());
 		profileSsid.setProfileType(ProfileType.ssid);
 		profileSsid.setName("Connectus-cloud");
+		profileSsid.setDetails(SsidConfiguration.createWithDefaults());
 		profileSsid = profileServiceInterface.create(profileSsid);
 
 		Profile profileAp = new Profile();
 		profileAp.setCustomerId(customer.getId());
 		profileAp.setName("ApProfile");
 		profileAp.setProfileType(ProfileType.equipment_ap);
+		profileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
 		profileAp.getChildProfileIds().add(profileSsid.getId());
 		profileAp = profileServiceInterface.create(profileAp);
 
-		Equipment equipment = new Equipment();
-		equipment.setCustomerId(customer.getId());
-		equipment.setEquipmentType(EquipmentType.AP);
-		equipment.setLocationId(location_2.getId());
-		equipment.setProfileId(profileAp.getId());
+		Equipment equipment_1 = new Equipment();
+		equipment_1.setCustomerId(customer.getId());
+		equipment_1.setEquipmentType(EquipmentType.AP);
+		equipment_1.setLocationId(location_2.getId());
+		equipment_1.setProfileId(profileAp.getId());
+		equipment_1.setInventoryId("ap-1");
+		equipment_1.setName("First AP");
+		equipment_1.setSerial("serial-ap-1");
+		equipment_1.setDetails(ApElementConfiguration.createWithDefaults());
 
-		equipment = equipmentServiceInterface.create(equipment);
+		equipment_1 = equipmentServiceInterface.create(equipment_1);
+
+		Equipment equipment_2 = new Equipment();
+		equipment_2.setCustomerId(customer.getId());
+		equipment_2.setEquipmentType(EquipmentType.AP);
+		equipment_2.setLocationId(location_2.getId());
+		equipment_2.setProfileId(profileAp.getId());
+		equipment_2.setInventoryId("ap-2");
+		equipment_2.setName("Second AP");
+		equipment_2.setSerial("serial-ap-2");
+		equipment_2.setDetails(ApElementConfiguration.createWithDefaults());
+
+		equipment_2 = equipmentServiceInterface.create(equipment_2);
+
 
 		LOG.info("Done creating initial objects");
-
+		
+		//print out SSID configurations used by ap-1
+		ProfileContainer profileContainer = new ProfileContainer(profileServiceInterface.getProfileWithChildren(equipment_1.getProfileId()));
+		
+		List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipment_1.getProfileId(), ProfileType.ssid);
+		List<SsidConfiguration> ssidConfigs = new ArrayList<>();
+		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration)p.getDetails()));
+		LOG.info("SSID configs: {}", ssidConfigs);
+		
 	}
 
 }
