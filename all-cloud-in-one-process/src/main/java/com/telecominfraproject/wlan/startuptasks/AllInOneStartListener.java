@@ -115,20 +115,18 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		location_2 = locationServiceInterface.create(location_2);
 
-		Profile profileAp = new Profile();
-		profileAp.setCustomerId(customer.getId());
-		profileAp.setName("ApProfile");
-		profileAp.setProfileType(ProfileType.equipment_ap);
-		profileServiceInterface.create(profileAp);
-
 		Profile profileSsid = new Profile();
 		profileSsid.setCustomerId(customer.getId());
 		profileSsid.setProfileType(ProfileType.ssid);
 		profileSsid.setName("Connectus-cloud");
-		Set<Long> childProfileIds = new HashSet<Long>();
-		childProfileIds.add(profileAp.getId());
-		profileSsid.setChildProfileIds(childProfileIds);
-		profileServiceInterface.create(profileSsid);
+		profileSsid = profileServiceInterface.create(profileSsid);
+
+		Profile profileAp = new Profile();
+		profileAp.setCustomerId(customer.getId());
+		profileAp.setName("ApProfile");
+		profileAp.setProfileType(ProfileType.equipment_ap);
+		profileAp.getChildProfileIds().add(profileSsid.getId());
+		profileAp = profileServiceInterface.create(profileAp);
 
 		Equipment equipment = new Equipment();
 		equipment.setCustomerId(customer.getId());
