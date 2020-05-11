@@ -7,7 +7,7 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseKeyColumnConverter;
 
 /**
  * @author dtoptygin
- * SQL DataSource that is used by Routing Service
+ * SQL DataSource that is used by EquipmentRoutingRecord Service
  */
 public class RoutingDataSourceImpl extends BaseJDbcDataSource implements RoutingDataSourceInterface {
     

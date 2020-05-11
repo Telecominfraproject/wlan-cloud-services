@@ -6,8 +6,9 @@ import java.util.Set;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
-import com.telecominfraproject.wlan.routing.models.Routing;
+import com.telecominfraproject.wlan.core.model.service.GatewayType;
+import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
+import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
 
 
 /**
@@ -17,56 +18,56 @@ import com.telecominfraproject.wlan.routing.models.Routing;
 public interface RoutingServiceInterface {
     
     /**
-     * Creates new Routing
+     * Creates new EquipmentRoutingRecord
      *  
-     * @param Routing
-     * @return stored Routing object
-     * @throws RuntimeException if Routing record already exists
+     * @param EquipmentRoutingRecord
+     * @return stored EquipmentRoutingRecord object
+     * @throws RuntimeException if EquipmentRoutingRecord record already exists
      */
-    Routing create(Routing routing );
+    EquipmentRoutingRecord create(EquipmentRoutingRecord routing );
     
     /**
-     * Retrieves Routing by id
+     * Retrieves EquipmentRoutingRecord by id
      * @param routingId
-     * @return Routing for the supplied id
-     * @throws RuntimeException if Routing record does not exist
+     * @return EquipmentRoutingRecord for the supplied id
+     * @throws RuntimeException if EquipmentRoutingRecord record does not exist
      */
-    Routing get(long routingId );
+    EquipmentRoutingRecord get(long routingId );
 
     /**
-     * Retrieves Routing by id
+     * Retrieves EquipmentRoutingRecord by id
      * @param routingId
-     * @return Routing for the supplied id
+     * @return EquipmentRoutingRecord for the supplied id
      */
-    Routing getOrNull(long routingId );
+    EquipmentRoutingRecord getOrNull(long routingId );
 
     /**
-     * Retrieves a list of Routing records that which have their Id in the provided set.
+     * Retrieves a list of EquipmentRoutingRecord records that which have their Id in the provided set.
      * 
      * @param routingIdSet
-     * @return list of matching Routing objects.
+     * @return list of matching EquipmentRoutingRecord objects.
      */
-    List<Routing> get(Set<Long> routingIdSet);
+    List<EquipmentRoutingRecord> get(Set<Long> routingIdSet);
 
     /**
-     * Updates Routing 
+     * Updates EquipmentRoutingRecord 
      * 
-     * @param Routing
-     * @return updated Routing object
-     * @throws RuntimeException if Routing record does not exist or if it was modified concurrently
+     * @param EquipmentRoutingRecord
+     * @return updated EquipmentRoutingRecord object
+     * @throws RuntimeException if EquipmentRoutingRecord record does not exist or if it was modified concurrently
      */
-    Routing update(Routing routing);
+    EquipmentRoutingRecord update(EquipmentRoutingRecord routing);
     
     /**
-     * Deletes Routing
+     * Deletes EquipmentRoutingRecord
      * 
      * @param routingId
-     * @return deleted Routing object
+     * @return deleted EquipmentRoutingRecord object
      */
-    Routing delete(long routingId );
+    EquipmentRoutingRecord delete(long routingId );
     
     /**
-     * <br>Retrieves all of the Routing records that are mapped to the provided customerId.
+     * <br>Retrieves all of the EquipmentRoutingRecord records that are mapped to the provided customerId.
      * Results are returned in pages.
      * 
      * <br>When changing sort order or filters, pagination should be restarted again from the first page. 
@@ -77,11 +78,96 @@ public interface RoutingServiceInterface {
      * <br>If sortBy is not provided, then the data will be ordered by id.
      * <ul>Allowed columns for sorting are: 
 	 *<li>  "id"
-	 *<li> "sampleStr"
+	 *<li> "hostname"
      *<br> 
      * @param customerId
-     * @return next page of matching Routing objects.
+     * @return next page of matching EquipmentRoutingRecord objects.
      */
-    PaginationResponse<Routing> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Routing> context);
+    PaginationResponse<EquipmentRoutingRecord> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<EquipmentRoutingRecord> context);
+
+    ///
+
+    /**
+     * Registers a new EquipmentGatewayRecord in the datastore.
+     * 
+     * @param EquipmentGatewayRecord
+     * @return stored EquipmentGatewayRecord object
+     * @throws RuntimeException
+     *             if EquipmentGatewayRecord record already exists
+     */
+    EquipmentGatewayRecord registerGateway(EquipmentGatewayRecord equipmentGwRecord);
+
+    /**
+     * Retrieves EquipmentGatewayRecord by id
+     * 
+     * @param id
+     * @return EquipmentGatewayRecord for the supplied id
+     */
+    EquipmentGatewayRecord getGateway(long id);
+
+    /**
+     * Retrieves EquipmentGatewayRecord by gatewayId
+     * 
+     * @param hostname
+     * @return list of EquipmentGatewayRecord for the supplied hostname
+     */
+    List<EquipmentGatewayRecord> getGateway(String hostname);
+    
+    /**
+     * Get all registered gateways of the given type
+     * 
+     * @param gatewayType
+     * @return
+     */
+    List<EquipmentGatewayRecord> getGateway(GatewayType gatewayType);
+
+    /**
+     * Retrieves a list EquipmentRoutingRecords associated with the provided
+     * Equipment id.
+     * 
+     * @param equipmentId
+     * @return a list of EquipmentRoutingRecord objects associated with the
+     *         supplied id.
+     */
+    List<EquipmentRoutingRecord> getRegisteredRouteList(long equipmentId);
+
+
+    /**
+     * Retrieves a list EquipmentGatewayRecord associated with the provided
+     * Equipment id.
+     * 
+     * @param equipmentId
+     * @return a list of EquipmentGatewayRecord objects associated with the
+     *         supplied id.
+     */
+    List<EquipmentGatewayRecord> getRegisteredGatewayRecordList(long equipmentId);
+
+    /**
+     * Updates EquipmentGatewayRecord record
+     * 
+     * @param EquipmentGatewayRecord
+     * @return updated EquipmentGatewayRecord object
+     * @throws RuntimeException
+     *             if EquipmentGatewayRecord record does not exist or if it
+     *             was modified concurrently
+     */
+    EquipmentGatewayRecord updateGateway(EquipmentGatewayRecord equipmentGwRecord);
+
+    /**
+     * Deletes EquipmentGatewayRecord record
+     * 
+     * @param id
+     * @return deleted EquipmentGatewayRecord object
+     */
+    EquipmentGatewayRecord deleteGateway(long id);
+
+    /**
+     * Deletes EquipmentGatewayRecord records associated with the gatewayId
+     * 
+     * @param hostname
+     * @return deleted EquipmentGatewayRecord object associated with the
+     *         hostname
+     */
+    List<EquipmentGatewayRecord> deleteGateway(String hostname);
 
 }

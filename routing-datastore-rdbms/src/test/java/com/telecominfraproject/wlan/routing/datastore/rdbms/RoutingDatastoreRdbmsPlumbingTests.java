@@ -13,7 +13,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
 
-import com.telecominfraproject.wlan.routing.models.Routing;
+import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
 
 /**
  * @author dtoptygin
@@ -23,6 +23,7 @@ import com.telecominfraproject.wlan.routing.models.Routing;
         RoutingDatastoreRdbms.class,
         RoutingDataSourceConfig.class,
         RoutingDAO.class,
+        GatewayDAO.class,
         BaseJdbcTest.Config.class
         })
 @TestWithEmbeddedDB
@@ -43,7 +44,7 @@ public class RoutingDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
             //this is a simple test to see if embedded db is working in test environment
             JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
             Long ret = jdbcTemplate.queryForObject(
-                    "select id from routing where id = ?", 
+                    "select id from equipment_routing where id = ?", 
                     Long.class, 1);               
             
             assertEquals((Long)1L, ret);
@@ -55,14 +56,14 @@ public class RoutingDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     public void testCreateUpdateDeleteRouting() {
                 
         //GET by Id test
-        Routing ret = routingDatastore.get(1L);        
+        EquipmentRoutingRecord ret = routingDatastore.get(1L);        
 
         //DELETE Test
         routingDAO.delete(ret.getId());
         
         try{
             routingDatastore.get(ret.getId());
-            fail("failed to delete Routing");
+            fail("failed to delete EquipmentRoutingRecord");
         }catch (Exception e) {
             // expected it
         }

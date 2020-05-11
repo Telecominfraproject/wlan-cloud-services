@@ -9,9 +9,10 @@ import org.springframework.context.annotation.Configuration;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.service.GatewayType;
 import com.telecominfraproject.wlan.routing.datastore.RoutingDatastore;
-import com.telecominfraproject.wlan.routing.models.Routing;
+import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
+import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
 
 /**
  * @author dtoptygin
@@ -21,40 +22,87 @@ import com.telecominfraproject.wlan.routing.models.Routing;
 public class RoutingDatastoreRdbms implements RoutingDatastore {
 
     @Autowired RoutingDAO routingDAO;
+    @Autowired GatewayDAO gatewayDAO;
 
     @Override
-    public Routing create(Routing routing) {
+    public EquipmentRoutingRecord create(EquipmentRoutingRecord routing) {
         return routingDAO.create(routing);
     }
 
     @Override
-    public Routing get(long routingId) {
+    public EquipmentRoutingRecord get(long routingId) {
         return routingDAO.get(routingId);
     }
 
     @Override
-    public Routing getOrNull(long routingId) {
+    public EquipmentRoutingRecord getOrNull(long routingId) {
         return routingDAO.getOrNull(routingId);
     }
     
     @Override
-    public Routing update(Routing routing) {
+    public EquipmentRoutingRecord update(EquipmentRoutingRecord routing) {
         return routingDAO.update(routing);
     }
 
     @Override
-    public Routing delete(long routingId) {
+    public EquipmentRoutingRecord delete(long routingId) {
         return routingDAO.delete(routingId);
     }
     
     @Override
-    public List<Routing> get(Set<Long> routingIdSet) {
+    public List<EquipmentRoutingRecord> get(Set<Long> routingIdSet) {
     	return routingDAO.get(routingIdSet);
     }
     
     @Override
-    public PaginationResponse<Routing> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Routing> context) {
+    public PaginationResponse<EquipmentRoutingRecord> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+    		PaginationContext<EquipmentRoutingRecord> context) {
     	return routingDAO.getForCustomer( customerId, sortBy, context);
     }
+
+	@Override
+	public EquipmentGatewayRecord registerGateway(EquipmentGatewayRecord equipmentGatewayRecord) {
+		return gatewayDAO.create(equipmentGatewayRecord);
+	}
+
+	@Override
+	public EquipmentGatewayRecord getGateway(long id) {
+		return gatewayDAO.get(id);
+	}
+
+	@Override
+	public List<EquipmentGatewayRecord> getGateway(String hostname) {
+		return gatewayDAO.getGateway(hostname);
+	}
+
+	@Override
+	public List<EquipmentGatewayRecord> getGateway(GatewayType gatewayType) {
+		return gatewayDAO.getGateway(gatewayType);
+	}
+
+	@Override
+	public List<EquipmentRoutingRecord> getRegisteredRouteList(long equipmentId) {
+		return routingDAO.getRegisteredRouteList(equipmentId);
+	}
+
+	@Override
+	public List<EquipmentGatewayRecord> getRegisteredGatewayRecordList(long equipmentId) {
+		return gatewayDAO.getRegisteredGatewayRecordList(equipmentId);
+	}
+
+	@Override
+	public EquipmentGatewayRecord updateGateway(EquipmentGatewayRecord equipmentGwRecord) {
+		return gatewayDAO.update(equipmentGwRecord);
+	}
+
+	@Override
+	public EquipmentGatewayRecord deleteGateway(long id) {
+		return gatewayDAO.delete(id);
+	}
+
+	@Override
+	public List<EquipmentGatewayRecord> deleteGateway(String hostname) {
+		return gatewayDAO.deleteGateway(hostname);
+	}
+
 }

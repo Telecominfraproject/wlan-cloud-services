@@ -22,7 +22,7 @@ import com.telecominfraproject.wlan.routing.datastore.BaseRoutingDatastoreTest;
 @Rollback(value = true)
 @Transactional
 @Import(value = { RoutingDatastoreRdbms.class, RoutingDataSourceConfig.class,
-        RoutingDAO.class, BaseJdbcTest.Config.class })
+        RoutingDAO.class, GatewayDAO.class, BaseJdbcTest.Config.class })
 @TestWithEmbeddedDB
 public class RoutingDatastoreRdbmsTests extends BaseRoutingDatastoreTest {
 

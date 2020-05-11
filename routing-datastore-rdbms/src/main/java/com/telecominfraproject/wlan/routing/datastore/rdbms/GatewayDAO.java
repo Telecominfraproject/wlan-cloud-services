@@ -29,11 +29,12 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.service.GatewayType;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
+import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
 
 /**
  * @author dtoptygin
@@ -41,7 +42,7 @@ import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
  */
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-public class RoutingDAO extends BaseJdbcDao {
+public class GatewayDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingDatastoreRdbms.class);
     
@@ -52,11 +53,12 @@ public class RoutingDAO extends BaseJdbcDao {
     private static final String[] ALL_COLUMNS_LIST = {        
         COL_ID,
         
-        //TODO: add colums from properties EquipmentRoutingRecord in here
-        "equipmentId",
-        "customerId",
-        "gatewayId",
-        //make sure the order of properties matches this list and list in RoutingRowMapper and list in create/update methods
+        //TODO: add colums from properties EquipmentGatewayRecord in here
+        "hostname",
+        "ipAddr",
+        "port",
+        "gatewayType",
+        //make sure the order of properties matches this list and list in GatewayRowMapper and list in create/update methods
         
         "createdTimestamp",
         "lastModifiedTimestamp"
@@ -65,7 +67,7 @@ public class RoutingDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
     
-    private static final String TABLE_NAME = "equipment_routing";
+    private static final String TABLE_NAME = "equipment_gateway";
     private static final String TABLE_PREFIX = "s.";
     private static final String ALL_COLUMNS;
 
@@ -122,11 +124,10 @@ public class RoutingDAO extends BaseJdbcDao {
         "select " + ALL_COLUMNS +
         " from "+TABLE_NAME+" " +
         " where " + COL_ID + " = ?";
-    
-    private static final String SQL_GET_BY_CUSTOMER_ID = 
-    		"select " + ALL_COLUMNS +
-    		" from " + TABLE_NAME + " " + 
-    		" where customerId = ? ";
+
+    private static final String SQL_GET_ALL =
+            "select " + ALL_COLUMNS +
+            " from "+TABLE_NAME;
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -148,15 +149,13 @@ public class RoutingDAO extends BaseJdbcDao {
         + " and ( lastModifiedTimestamp = ? or ? = true) " //last parameter will allow us to skip check for concurrent modification, if necessary
         ;
 
-    public static final String SQL_GET_ALL = "select " + ALL_COLUMNS + " from "+TABLE_NAME ;
-
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
 
-    private static final RowMapper<EquipmentRoutingRecord> routingRowMapper = new RoutingRowMapper();
+    private static final RowMapper<EquipmentGatewayRecord> gatewayRowMapper = new GatewayRowMapper();
 
 
     @Autowired(required=false)
@@ -165,7 +164,7 @@ public class RoutingDAO extends BaseJdbcDao {
     }
 
 
-    public EquipmentRoutingRecord create(final EquipmentRoutingRecord routing) {
+    public EquipmentGatewayRecord create(final EquipmentGatewayRecord gatewayRecord) {
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         final long ts = System.currentTimeMillis();
@@ -177,10 +176,11 @@ public class RoutingDAO extends BaseJdbcDao {
                         PreparedStatement ps = connection.prepareStatement(SQL_INSERT, keyColumnConverter.getKeyColumnName(GENERATED_KEY_COLS) );
                         int colIdx = 1;
                         
-                        //TODO: add remaining properties from EquipmentRoutingRecord here 
-                        ps.setLong(colIdx++, routing.getEquipmentId());
-                        ps.setInt(colIdx++, routing.getCustomerId());
-                        ps.setLong(colIdx++, routing.getGatewayId());
+                        //TODO: add remaining properties from EquipmentGatewayRecord here 
+                        ps.setString(colIdx++, gatewayRecord.getHostname());
+                        ps.setString(colIdx++, gatewayRecord.getIpAddr());
+                        ps.setInt(colIdx++, gatewayRecord.getPort());
+                        ps.setInt(colIdx++, gatewayRecord.getGatewayType().getId());
                         
                         ps.setLong(colIdx++, ts);
                         ps.setLong(colIdx++, ts);
@@ -194,69 +194,70 @@ public class RoutingDAO extends BaseJdbcDao {
         }
         
         // keyHolder.getKey() now contains the generated key   
-        routing.setId(((Long)keyHolder.getKeys().get(COL_ID)));
-        routing.setCreatedTimestamp(ts);
-        routing.setLastModifiedTimestamp(ts);
+        gatewayRecord.setId(((Long)keyHolder.getKeys().get(COL_ID)));
+        gatewayRecord.setCreatedTimestamp(ts);
+        gatewayRecord.setLastModifiedTimestamp(ts);
 
 
-        LOG.debug("Stored EquipmentRoutingRecord {}", routing);
+        LOG.debug("Stored EquipmentGatewayRecord {}", gatewayRecord);
         
-        return routing.clone();
+        return gatewayRecord.clone();
     }
 
     
-    public EquipmentRoutingRecord get(long routingId) {
-        LOG.debug("Looking up EquipmentRoutingRecord for id {}", routingId);
+    public EquipmentGatewayRecord get(long gatewayId) {
+        LOG.debug("Looking up EquipmentGatewayRecord for id {}", gatewayId);
 
         try{
-            EquipmentRoutingRecord routing = this.jdbcTemplate.queryForObject(
+            EquipmentGatewayRecord gatewayRecord = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_ID,
-                    routingRowMapper, routingId);
+                    gatewayRowMapper, gatewayId);
             
-            LOG.debug("Found EquipmentRoutingRecord {}", routing);
+            LOG.debug("Found EquipmentGatewayRecord {}", gatewayRecord);
             
-            return routing;
+            return gatewayRecord;
         }catch (EmptyResultDataAccessException e) {
             throw new DsEntityNotFoundException(e);
         }
     }
 
     @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
-    public EquipmentRoutingRecord getOrNull(long routingId) {
-        LOG.debug("Looking up EquipmentRoutingRecord for id {}", routingId);
+    public EquipmentGatewayRecord getOrNull(long gatewayId) {
+        LOG.debug("Looking up EquipmentGatewayRecord for id {}", gatewayId);
 
         try{
-            EquipmentRoutingRecord routing = this.jdbcTemplate.queryForObject(
+            EquipmentGatewayRecord gatewayRecord = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_ID,
-                    routingRowMapper, routingId);
+                    gatewayRowMapper, gatewayId);
             
-            LOG.debug("Found EquipmentRoutingRecord {}", routing);
+            LOG.debug("Found EquipmentGatewayRecord {}", gatewayRecord);
             
-            return routing;
+            return gatewayRecord;
         }catch (EmptyResultDataAccessException e) {
-            LOG.debug("Could not find EquipmentRoutingRecord for id {}", routingId);
+            LOG.debug("Could not find EquipmentGatewayRecord for id {}", gatewayId);
             return null;
         }
     }
 
-    public EquipmentRoutingRecord update(EquipmentRoutingRecord routing) {
+    public EquipmentGatewayRecord update(EquipmentGatewayRecord gatewayRecord) {
 
         long newLastModifiedTs = System.currentTimeMillis();
-        long incomingLastModifiedTs = routing.getLastModifiedTimestamp();
+        long incomingLastModifiedTs = gatewayRecord.getLastModifiedTimestamp();
         
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //routing.getId(), - not updating this one
+                //gatewayRecord.getId(), - not updating this one
 
-                //TODO: add remaining properties from EquipmentRoutingRecord here
-        		routing.getEquipmentId(),
-        		routing.getCustomerId(),
-                routing.getGatewayId(),
+                //TODO: add remaining properties from EquipmentGatewayRecord here
+        		gatewayRecord.getHostname(),
+        		gatewayRecord.getIpAddr(),
+        		gatewayRecord.getPort(),
+                gatewayRecord.getGatewayType().getId(),
                                 
-                //routing.getCreatedTimestamp(), - not updating this one
+                //gatewayRecord.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,
                 
                 // use id for update operation
-                routing.getId(),
+                gatewayRecord.getId(),
                 // use lastModifiedTimestamp for data protection against concurrent modifications
                 incomingLastModifiedTs,
                 isSkipCheckForConcurrentUpdates()
@@ -276,70 +277,55 @@ public class RoutingDAO extends BaseJdbcDao {
                 long recordTimestamp = this.jdbcTemplate.queryForObject(
                     SQL_GET_LASTMOD_BY_ID,
                     Long.class,
-                    routing.getId()
+                    gatewayRecord.getId()
                     );
                 
-                LOG.debug("Concurrent modification detected for EquipmentRoutingRecord with id {} expected version is {} but version in db was {}", 
-                        routing.getId(),
+                LOG.debug("Concurrent modification detected for EquipmentGatewayRecord with id {} expected version is {} but version in db was {}", 
+                        gatewayRecord.getId(),
                         incomingLastModifiedTs,
                         recordTimestamp
                         );
-                throw new DsConcurrentModificationException("Concurrent modification detected for EquipmentRoutingRecord with id " + routing.getId()
+                throw new DsConcurrentModificationException("Concurrent modification detected for EquipmentGatewayRecord with id " + gatewayRecord.getId()
                         +" expected version is " + incomingLastModifiedTs
                         +" but version in db was " + recordTimestamp
                         );
                 
             }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find EquipmentRoutingRecord for {}", routing.getId());
-                throw new DsEntityNotFoundException("EquipmentRoutingRecord not found " + routing.getId());
+                LOG.debug("Cannot find EquipmentGatewayRecord for {}", gatewayRecord.getId());
+                throw new DsEntityNotFoundException("EquipmentGatewayRecord not found " + gatewayRecord.getId());
             }
         }
 
         //make a copy so that we don't accidentally update caller's version by reference
-        EquipmentRoutingRecord routingCopy = routing.clone();
-        routingCopy.setLastModifiedTimestamp(newLastModifiedTs);
+        EquipmentGatewayRecord gatewayRecordCopy = gatewayRecord.clone();
+        gatewayRecordCopy.setLastModifiedTimestamp(newLastModifiedTs);
 
-        LOG.debug("Updated EquipmentRoutingRecord {}", routingCopy);
+        LOG.debug("Updated EquipmentGatewayRecord {}", gatewayRecordCopy);
         
-        return routingCopy;
+        return gatewayRecordCopy;
     }
 
     
-    public EquipmentRoutingRecord delete(long routingId) {
-        EquipmentRoutingRecord ret = get(routingId);
+    public EquipmentGatewayRecord delete(long gatewayId) {
+        EquipmentGatewayRecord ret = get(gatewayId);
         
-        this.jdbcTemplate.update(SQL_DELETE, routingId);
+        this.jdbcTemplate.update(SQL_DELETE, gatewayId);
                 
-        LOG.debug("Deleted EquipmentRoutingRecord {}", ret);
+        LOG.debug("Deleted EquipmentGatewayRecord {}", ret);
         
         return ret;
     }
 
-    public List<EquipmentRoutingRecord> getAllForCustomer(int customerId) {
-        LOG.debug("Looking up Routings for customer {}", customerId);
+    public List<EquipmentGatewayRecord> get(Set<Long> gatewayRecordIdSet) {
+        LOG.debug("calling get({})", gatewayRecordIdSet);
 
-        List<EquipmentRoutingRecord> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
-                routingRowMapper, customerId);
-
-        if (ret == null) {
-            LOG.debug("Cannot find Routings for customer {}", customerId);
-        } else {
-            LOG.debug("Found Routings for customer {} : {}", customerId, ret);
-        }
-
-        return ret;
-    }
-
-    public List<EquipmentRoutingRecord> get(Set<Long> routingIdSet) {
-        LOG.debug("calling get({})", routingIdSet);
-
-        if (routingIdSet == null || routingIdSet.isEmpty()) {
+        if (gatewayRecordIdSet == null || gatewayRecordIdSet.isEmpty()) {
             return Collections.emptyList();
         }
 
         StringBuilder set = new StringBuilder(256);
         set.append("(");
-        for(int i =0; i< routingIdSet.size(); i++) {
+        for(int i =0; i< gatewayRecordIdSet.size(); i++) {
         		set.append("?,");
         }
         //remove last comma
@@ -347,35 +333,34 @@ public class RoutingDAO extends BaseJdbcDao {
         set.append(")");
         
         String query = SQL_GET_ALL_IN_SET + set;
-        List<EquipmentRoutingRecord> results = this.jdbcTemplate.query(query, routingIdSet.toArray(), routingRowMapper);
+        List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, gatewayRecordIdSet.toArray(), gatewayRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", routingIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", gatewayRecordIdSet, (null == results) ? 0 : results.size());
         return results;
     }
 
 
-	public PaginationResponse<EquipmentRoutingRecord> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<EquipmentRoutingRecord> context) {
+	public PaginationResponse<EquipmentGatewayRecord> getAll(List<ColumnAndSort> sortBy,
+			PaginationContext<EquipmentGatewayRecord> context) {
 
-        PaginationResponse<EquipmentRoutingRecord> ret = new PaginationResponse<>();
+        PaginationResponse<EquipmentGatewayRecord> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Routings for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
+                    "No more pages available when looking up EquipmentGateways with last returned page number {}",
+                    context.getLastReturnedPageNumber());
             return ret;
         }
 
-        LOG.debug("Looking up Routings for customer {} with last returned page number {}", 
-                customerId, context.getLastReturnedPageNumber());
+        LOG.debug("Looking up EquipmentGateways with last returned page number {}", 
+                context.getLastReturnedPageNumber());
 
-        String query = SQL_GET_BY_CUSTOMER_ID;
+        String query = SQL_GET_ALL;
 
         // add filters for the query
         ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
@@ -422,15 +407,15 @@ public class RoutingDAO extends BaseJdbcDao {
          * time. Once offset=5,000,000 the cost goes up to 92734 and execution
          * time is 758.484 ms. - DT: still acceptable for our use case
          */
-        List<EquipmentRoutingRecord> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
-                routingRowMapper);
+        List<EquipmentGatewayRecord> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                gatewayRowMapper);
 
         if (pageItems == null) {
-            LOG.debug("Cannot find Routings for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
+            LOG.debug("Cannot find EquipmentGateways with last returned page number {}",
+                    context.getLastReturnedPageNumber());
         } else {
-            LOG.debug("Found {} Routings for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
+            LOG.debug("Found {} EquipmentGateways with last returned page number {}",
+                    pageItems.size(), context.getLastReturnedPageNumber());
         }
 
         ret.setItems(pageItems);
@@ -444,15 +429,64 @@ public class RoutingDAO extends BaseJdbcDao {
         return ret;
     }
 
-	public List<EquipmentRoutingRecord> getRegisteredRouteList(long equipmentId) {
+
+	public List<EquipmentGatewayRecord> getGateway(String hostname) {
+        LOG.debug("calling getGateway({})", hostname);
+
+        if (hostname == null || hostname.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String query = SQL_GET_ALL + " where hostname = ? ";
+        List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, new Object[] {hostname}, gatewayRowMapper);
+
+        LOG.debug("getGateway({}) returns {} record(s)", hostname, (null == results) ? 0 : results.size());
+        return results;
+	}
+
+
+	public List<EquipmentGatewayRecord> getGateway(GatewayType gatewayType) {
+        LOG.debug("calling getGateway({})", gatewayType);
+
+        List<EquipmentGatewayRecord> results;
+        String query = SQL_GET_ALL;
+        if (gatewayType == null ) {
+            results = this.jdbcTemplate.query(query, new Object[] {}, gatewayRowMapper);
+        } else {
+            query += " where gatewayType = ? ";
+            results = this.jdbcTemplate.query(query, new Object[] {gatewayType.getId()}, gatewayRowMapper);        	
+        }
+
+
+        LOG.debug("getGateway({}) returns {} record(s)", gatewayType, (null == results) ? 0 : results.size());
+        return results;
+	}
+
+
+	public List<EquipmentGatewayRecord> getRegisteredGatewayRecordList(long equipmentId) {
         LOG.debug("calling getRegisteredGatewayRecordList({})", equipmentId);
 
-        String query = RoutingDAO.SQL_GET_ALL + " where equipmentId = ? ";
-        List<EquipmentRoutingRecord> results = this.jdbcTemplate.query(query, new Object[] {equipmentId}, routingRowMapper);
+        String query = SQL_GET_ALL + ", equipment_routing r where r.gatewayId = equipment_gateway.id AND r.equipmentId = ? ";
+        List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, new Object[] {equipmentId}, gatewayRowMapper);
 
         LOG.debug("getRegisteredGatewayRecordList({}) returns {} record(s)", equipmentId, (null == results) ? 0 : results.size());
         return results;
 	}
 
 
+	public List<EquipmentGatewayRecord> deleteGateway(String hostname) {
+        LOG.debug("calling deleteGateway({})", hostname);
+
+        List<EquipmentGatewayRecord> results = getGateway(hostname);
+        
+        if (results == null || results.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String query = "delete from "+TABLE_NAME+ " where hostname = ? ";
+        this.jdbcTemplate.update(query, new Object[] {hostname});
+
+        LOG.debug("deleteGateway({}) returns {} record(s)", hostname, (null == results) ? 0 : results.size());
+        return results;
+	}
 }

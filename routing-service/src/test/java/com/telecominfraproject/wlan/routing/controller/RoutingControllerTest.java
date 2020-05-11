@@ -3,6 +3,9 @@ package com.telecominfraproject.wlan.routing.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +18,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
+import com.telecominfraproject.wlan.core.model.service.GatewayType;
 import com.telecominfraproject.wlan.routing.datastore.inmemory.RoutingDatastoreInMemory;
-import com.telecominfraproject.wlan.routing.models.Routing;
+import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
+import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
 
 /**
  * @author dtoptygin
@@ -40,6 +44,8 @@ public class RoutingControllerTest {
     
     @Autowired private RoutingController routingController;
 
+    private static final AtomicLong testSequence = new AtomicLong(100);
+
     
     @Configuration
     //@PropertySource({ "classpath:persistence-${envTarget:dev}.properties" })
@@ -51,11 +57,22 @@ public class RoutingControllerTest {
     @Test
     public void testRoutingCRUD() throws Exception {
         
-        //Create new Routing - success
-        Routing routing = new Routing();
-        routing.setSampleStr("test");
+        //Create new EquipmentRoutingRecord - success
+    	EquipmentGatewayRecord gateway = new EquipmentGatewayRecord();
+    	gateway.setGatewayType(GatewayType.CEGW);
+    	gateway.setHostname("test-hostname-controller");
+    	gateway.setIpAddr("127.0.0.1");
+    	gateway.setPort(4242);
+    	gateway = routingController.registerGateway(gateway);
+    	
+    	EquipmentRoutingRecord routing = new EquipmentRoutingRecord();
+    	routing.setCustomerId((int) testSequence.incrementAndGet());
+    	routing.setEquipmentId(testSequence.incrementAndGet());
 
-        Routing ret = routingController.create(routing);
+    	routing.setGatewayId(gateway.getId());
+
+        //create
+        EquipmentRoutingRecord ret = routingController.create(routing);
         assertNotNull(ret);
 
         ret = routingController.get(ret.getId());
@@ -72,10 +89,10 @@ public class RoutingControllerTest {
     }
         
     private void assertEqualRoutings(
-            Routing expected,
-            Routing actual) {
+            EquipmentRoutingRecord expected,
+            EquipmentRoutingRecord actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getEquipmentId(), actual.getEquipmentId());
         //TODO: add more fields to check here
     }
 
