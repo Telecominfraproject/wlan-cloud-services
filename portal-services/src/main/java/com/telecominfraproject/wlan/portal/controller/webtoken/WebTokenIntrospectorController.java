@@ -156,6 +156,18 @@ public class WebTokenIntrospectorController {
         return decodedToken.substring(startPos, endPos);
     }
 
+    
+    private static long extractUserId(String decodedToken) {
+        int startPos = decodedToken.indexOf("\"userId\":") + "\"userId\":".length();
+        int endPos = decodedToken.indexOf(',',startPos+1);
+        if(endPos<0){
+            endPos = decodedToken.indexOf('}',startPos+1);
+        }
+
+        long userId = Long.parseLong(decodedToken.substring(startPos, endPos));
+        return userId;
+	}
+
     private static boolean verifyPassword(String incomingPassword, String storedPassword) {
         if(incomingPassword==null || incomingPassword.isEmpty()) {
         	return false;
@@ -215,6 +227,7 @@ public class WebTokenIntrospectorController {
         PortalUser portalUser = new PortalUser();
 	   	portalUser.setUsername(superUserName);
 	   	portalUser.setRole(PortalUserRole.SuperUser);
+	   	portalUser.setId(42);
 
         String token = createAccessToken(portalUser);
 
@@ -226,9 +239,10 @@ public class WebTokenIntrospectorController {
 
         System.out.println("User name: " + extractUserName(decodedToken));
         System.out.println("User role: " + extractUserRole(decodedToken));
+        System.out.println("User id: " + extractUserId(decodedToken));
 
-        String externalToken = "eyJpc3MiOiJ0aXAiLCJqdGkiOiIzOGQ0OTY3MS03YTQ4LTRkNDQtYWRiYS0yMzc0YzMyYjZhNDQiLCJleHBpcnlUaW1lIjoxNTg4Nzk5NjI0MDAzLCJjdXN0b21lcklkIjoyLCJ1c2VyTmFtZSI6InN1cHBvcnRAZXhhbXBsZS5jb20iLCJ1c2VyUm9sZSI6IlN1cGVyVXNlciJ9.OSpdigipiJIR2Hs/5UNQeCZNHMI1yJp/GXL3wv2YP58S0liScXU6xdeBn7idnY.zh2pawr8ZRlTAphk.jo9RS/";
-        System.out.println(decodeAndVerify(externalToken));
+        String externalToken = "eyJpc3MiOiJ0aXAiLCJqdGkiOiI0MTBjMDQ0Mi1kZTI3LTRhZTQtODNmZi1hNWFmNDZhNzY2OWEiLCJleHBpcnlUaW1lIjoxNTg5MjE0MjU2NjQwLCJjdXN0b21lcklkIjoyLCJ1c2VyTmFtZSI6InN1cHBvcnRAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjAsInVzZXJSb2xlIjoiU3VwZXJVc2VyIn0=.EZpL05pY3U8rj2PvkYiRXl7MLY9LdF9BQGmUXD/b6iKrh.PangHsJBt6kAXJywW2BLw2yt4P34WuRaDcmUfnY0";
+        System.out.println("External token: " + decodeAndVerify(externalToken));
 
         //Now check refresh token
         String refreshToken = createRefreshToken(portalUser);
@@ -241,6 +255,7 @@ public class WebTokenIntrospectorController {
 
         System.out.println("Refresh User name: " + extractUserName(decodedRefreshToken));
         System.out.println("Refresh User role: " + extractUserRole(decodedRefreshToken));
+        System.out.println("Refresh User id: " + extractUserId(decodedRefreshToken));
         
         //pasword handling
         String incomingPassword = "mypassword";
@@ -269,8 +284,10 @@ public class WebTokenIntrospectorController {
 
         String userName = extractUserName(decodedToken);
         String userRole = extractUserRole(decodedToken);
+        long userId = extractUserId(decodedToken);
         PortalUser portalUser = new PortalUser();
         portalUser.setUsername(userName);
+        portalUser.setId(userId);
         portalUser.setRole(PortalUserRole.valueOf(userRole));
         
         //create new accessToken and refreshToken
@@ -289,12 +306,13 @@ public class WebTokenIntrospectorController {
 
         return ret;
     }
-    
-    private static String createAccessToken(PortalUser portalUser) {
+
+	private static String createAccessToken(PortalUser portalUser) {
         String accessToken = encodeAndSign("{\"iss\":\"tip\",\"jti\":\""+UUID.randomUUID()
         	+"\",\"expiryTime\":"+(System.currentTimeMillis() + accessTokenExpiryMs)
         	+",\"customerId\":"+customerIdForWebToken
         	+",\"userName\":\""+portalUser.getUsername()+"\""        	
+        	+",\"userId\":"+portalUser.getId()        	
         	+",\"userRole\":\""+portalUser.getRole()+"\""        	
         	+"}" );
         return accessToken;
@@ -305,6 +323,7 @@ public class WebTokenIntrospectorController {
         	+"\",\"expiryTime\":"+(System.currentTimeMillis() + refreshTokenExpiryMs)
         	+",\"customerId\":"+customerIdForWebToken
         	+",\"userName\":\""+portalUser.getUsername()+"\""        	
+        	+",\"userId\":"+portalUser.getId()        	
         	+",\"userRole\":\""+portalUser.getRole()+"\""        	
         	+",\"refresh\":true}");
         return refreshToken;
