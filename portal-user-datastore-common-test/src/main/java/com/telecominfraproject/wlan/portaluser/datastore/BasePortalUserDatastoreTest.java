@@ -60,7 +60,7 @@ public abstract class BasePortalUserDatastoreTest {
         assertNotNull(updated);
         assertEquals(created.getUsername(), updated.getUsername());
         
-        if(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
+        while(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
         	//update again to make the timestamps different      	
             created.setUsername(created.getUsername()+"_updated_1");
             updated = testInterface.update(created);
