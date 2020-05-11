@@ -43,6 +43,13 @@ public interface EquipmentServiceInterface {
     Equipment getOrNull(long equipmentId );
 
     /**
+     * Retrieves Equipment by inventory id
+     * @param inventory Id
+     * @return Equipment for the supplied id
+     */
+    Equipment getByInventoryIdOrNull(String inventoryId );
+
+    /**
      * Retrieves a list of Equipment records that which have their Id in the provided set.
      * 
      * @param equipmentIdSet

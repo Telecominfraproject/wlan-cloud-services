@@ -47,6 +47,12 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
     }
     
     @Override
+    public Equipment getByInventoryIdOrNull(String inventoryId) {
+        LOG.debug("calling equipmentController.getByInventoryIdOrNull {} ", inventoryId);
+        return equipmentController.getByInventoryIdOrNull(inventoryId);
+    }
+    
+    @Override
     public List<Equipment> get(Set<Long> equipmentIdSet) {
         LOG.debug("calling equipmentController.getAllInSet {} ", equipmentIdSet);
         return equipmentController.getAllInSet(equipmentIdSet);

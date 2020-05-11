@@ -119,6 +119,23 @@ public class EquipmentController {
         return ret;
     }
 
+    /**
+     * Retrieves Equipment by inventory id
+     * @param inventory Id
+     * @return Equipment for the supplied id
+     */
+    @RequestMapping(value = "/byInventoryIdOrNull", method=RequestMethod.GET)
+    public Equipment getByInventoryIdOrNull(@RequestParam String inventoryId ) {
+        
+        LOG.debug("Retrieving Equipment {}", inventoryId);
+        
+        Equipment ret = equipmentDatastore.getByInventoryIdOrNull(inventoryId);
+
+        LOG.debug("Retrieved Equipment {}", ret);
+
+        return ret;
+    }
+
     @RequestMapping(value = "/inSet", method = RequestMethod.GET)
     public ListOfEquipments getAllInSet(@RequestParam Set<Long> equipmentIdSet) {
         LOG.debug("getAllInSet({})", equipmentIdSet);

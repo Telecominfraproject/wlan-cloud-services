@@ -95,6 +95,22 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         
         return ret;
     }
+    
+    @Override
+    public Equipment getByInventoryIdOrNull(String inventoryId) {
+        LOG.debug("calling getByInventoryIdOrNull {} ", inventoryId);
+
+        ResponseEntity<Equipment> responseEntity = restTemplate.getForEntity(
+                getBaseUrl()
+                +"/byInventoryIdOrNull?inventoryId={inventoryId}",
+                Equipment.class, inventoryId);
+        
+        Equipment ret = responseEntity.getBody();
+        
+        LOG.debug("completed getByInventoryIdOrNull {} ", ret);
+        
+        return ret;
+    }
 
     @Override
     public EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType) {

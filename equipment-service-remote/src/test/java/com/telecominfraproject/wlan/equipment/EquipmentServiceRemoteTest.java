@@ -59,7 +59,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         
         //Create new Equipment - success
         Equipment equipment = new Equipment();
-        equipment.setName("test");
+        equipment.setName("testName-"+getNextEquipmentId());
+        equipment.setInventoryId("test-inv-"+getNextEquipmentId());
         equipment.setEquipmentType(EquipmentType.AP);
 
         Equipment ret = remoteInterface.create(equipment);
@@ -71,8 +72,13 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
         ret = remoteInterface.getOrNull(ret.getId());
         assertEqualEquipments(equipment, ret);
+
+        ret = remoteInterface.getByInventoryIdOrNull(ret.getInventoryId());
+        assertEqualEquipments(equipment, ret);
         
         assertNull(remoteInterface.getOrNull(-1));
+        
+        assertNull(remoteInterface.getByInventoryIdOrNull("inventoryId-non-existent"));
 
         //Update success
         ret.setName(ret.getName()+"_modified");

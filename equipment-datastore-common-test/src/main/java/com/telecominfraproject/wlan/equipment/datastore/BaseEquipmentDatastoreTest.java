@@ -91,7 +91,11 @@ public abstract class BaseEquipmentDatastoreTest {
         retrieved = testInterface.getOrNull(created.getId());
         assertNotNull(retrieved);
         assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
-        
+
+        retrieved = testInterface.getByInventoryIdOrNull(created.getInventoryId());
+        assertNotNull(retrieved);
+        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+
         //retrieve non-existent
         try {
         	testInterface.get(-1);
@@ -101,7 +105,9 @@ public abstract class BaseEquipmentDatastoreTest {
         }
         
         assertNull(testInterface.getOrNull(-1));
-        
+
+        assertNull(testInterface.getByInventoryIdOrNull("inventoryId-non-existent"));
+
         //delete
         retrieved = testInterface.delete(created.getId());
         assertNotNull(retrieved);

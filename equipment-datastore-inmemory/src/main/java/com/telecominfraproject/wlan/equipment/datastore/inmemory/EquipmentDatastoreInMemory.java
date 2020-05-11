@@ -151,6 +151,18 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
     }
 
     @Override
+    public Equipment getByInventoryIdOrNull(String inventoryId) {
+    	
+    	for(Equipment eq: idToEquipmentMap.values()) {
+    		if(eq.getInventoryId()!=null && eq.getInventoryId().equals(inventoryId)) {
+    			return eq.clone();
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    @Override
     public PaginationResponse<Equipment> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 

@@ -64,4 +64,9 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     		Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
     	return equipmentDAO.getForCustomer( customerId, equipmentType, locationIds, sortBy, context);
     }
+    
+    @Override
+    public Equipment getByInventoryIdOrNull(String inventoryId) {
+    	return equipmentDAO.getByInventoryIdOrNull(inventoryId);
+    }
 }

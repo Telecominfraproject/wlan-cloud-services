@@ -132,7 +132,12 @@ public class EquipmentDAO extends BaseJdbcDao {
         "select " + ALL_COLUMNS +
         " from "+TABLE_NAME+" " +
         " where " + COL_ID + " = ?";
-    
+
+    private static final String SQL_GET_BY_INVENTORY_ID =
+            "select " + ALL_COLUMNS +
+            " from "+TABLE_NAME+" " +
+            " where inventoryId = ?";
+
     private static final String SQL_GET_BY_CUSTOMER_ID = 
     		"select " + ALL_COLUMNS +
     		" from " + TABLE_NAME + " " + 
@@ -576,5 +581,24 @@ public class EquipmentDAO extends BaseJdbcDao {
 
         return ret;
     }
-	
+
+
+    @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
+	public Equipment getByInventoryIdOrNull(String inventoryId) {
+        LOG.debug("Looking up Equipment for inventoryId {}", inventoryId);
+
+        try{
+            Equipment equipment = this.jdbcTemplate.queryForObject(
+                    SQL_GET_BY_INVENTORY_ID,
+                    equipmentRowMapper, inventoryId);
+            
+            LOG.debug("Found Equipment {}", equipment);
+            
+            return equipment;
+        }catch (EmptyResultDataAccessException e) {
+            LOG.debug("Could not find Equipment for inventoryId {}", inventoryId);
+            return null;
+        }
+    }
+
 }
