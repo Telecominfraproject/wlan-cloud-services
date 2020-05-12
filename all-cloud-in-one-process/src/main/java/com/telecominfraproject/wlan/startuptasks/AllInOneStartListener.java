@@ -1,8 +1,10 @@
 package com.telecominfraproject.wlan.startuptasks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,12 +15,22 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
+import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.DeviceMode;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.GettingDNS;
+import com.telecominfraproject.wlan.equipment.models.GettingIP;
+import com.telecominfraproject.wlan.equipment.models.NetworkForwardMode;
+import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
+import com.telecominfraproject.wlan.equipment.models.StateSetting;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.LocationType;
@@ -125,7 +137,13 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileSsid.setCustomerId(customer.getId());
 		profileSsid.setProfileType(ProfileType.ssid);
 		profileSsid.setName("Connectus-cloud");
-		profileSsid.setDetails(SsidConfiguration.createWithDefaults());
+		SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
+		Set<RadioType> appliedRadios = new HashSet<RadioType>();
+		appliedRadios.add(RadioType.is2dot4GHz);
+		appliedRadios.add(RadioType.is5GHzL);
+		appliedRadios.add(RadioType.is5GHzU);
+		ssidConfig.setAppliedRadios(appliedRadios);
+		profileSsid.setDetails(ssidConfig);
 		profileSsid = profileServiceInterface.create(profileSsid);
 
 		Profile profileAp = new Profile();
@@ -160,17 +178,76 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		equipment_2 = equipmentServiceInterface.create(equipment_2);
 
+//		Test_Client_OSE60B4F7FC2EA6
+		// Use an actual AP for validation of configuration setting
+		Equipment equipment_Plume = new Equipment();
+		equipment_Plume.setCustomerId(customer.getId());
+		equipment_Plume.setEquipmentType(EquipmentType.AP);
+		equipment_Plume.setLocationId(location_2.getId());
+		equipment_Plume.setProfileId(profileAp.getId());
+		equipment_Plume.setInventoryId("Test_Client_OSE60B4F7FC2EA6");
+		equipment_Plume.setName("Test Client AP");
+		equipment_Plume.setSerial("OSE60B4F7FC2EA6");
+		equipment_Plume.setDetails(ApElementConfiguration.createWithDefaults());
+		ApElementConfiguration apElementConfig = (ApElementConfiguration) equipment_Plume.getDetails();
+		apElementConfig.setDeviceName("OSE60B4F7FC2EA6");
+		apElementConfig.setAntennaType(AntennaType.OMNI);
+		apElementConfig.setDeviceMode(DeviceMode.standaloneAP);
+		apElementConfig.setDeploymentType(DeploymentType.DESK);
+		apElementConfig.setGettingDNS(GettingDNS.manual);
+		apElementConfig.setEquipmentType(EquipmentType.AP);
+		apElementConfig.setGettingIP(GettingIP.manual);
+		apElementConfig.setLocationData(location_2.toString());
+
+		Map<RadioType, ElementRadioConfiguration> radioMap = new HashMap<RadioType, ElementRadioConfiguration>();
+
+		ElementRadioConfiguration elementRadioConfig = ElementRadioConfiguration
+				.createWithDefaults(RadioType.is2dot4GHz);
+		elementRadioConfig.setBestApEnabled(true);
+		radioMap.put(RadioType.is2dot4GHz, elementRadioConfig);
+
+		elementRadioConfig = ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL);
+		elementRadioConfig.setBestApEnabled(true);
+		radioMap.put(RadioType.is5GHzL, elementRadioConfig);
+
+		elementRadioConfig = ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU);
+		elementRadioConfig.setBestApEnabled(true);
+		radioMap.put(RadioType.is5GHzU, elementRadioConfig);
+
+		apElementConfig.setRadioMap(radioMap);
+
+		Map<RadioType, RadioConfiguration> advancedRadioMap = new HashMap<RadioType, RadioConfiguration>();
+		RadioConfiguration radioConfig = RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz);
+		radioConfig.setAutoChannelSelection(StateSetting.enabled);
+		advancedRadioMap.put(RadioType.is2dot4GHz, radioConfig);
+		radioConfig = RadioConfiguration.createWithDefaults(RadioType.is5GHzL);
+		radioConfig.setAutoChannelSelection(StateSetting.enabled);
+		advancedRadioMap.put(RadioType.is5GHzL, radioConfig);
+
+		radioConfig = RadioConfiguration.createWithDefaults(RadioType.is5GHzU);
+		radioConfig.setAutoChannelSelection(StateSetting.enabled);
+		advancedRadioMap.put(RadioType.is5GHzU, radioConfig);
+
+		apElementConfig.setAdvancedRadioMap(advancedRadioMap);
+
+		apElementConfig.setForwardMode(NetworkForwardMode.BRIDGE);
+		apElementConfig.setLocallyConfiguredMgmtVlan(0);
+		apElementConfig.setFrameReportThrottleEnabled(false);
+
+		equipment_Plume.setDetails(apElementConfig);
+		equipment_Plume = equipmentServiceInterface.create(equipment_Plume);
 
 		LOG.info("Done creating initial objects");
-		
-		//print out SSID configurations used by ap-1
-		ProfileContainer profileContainer = new ProfileContainer(profileServiceInterface.getProfileWithChildren(equipment_1.getProfileId()));
-		
+
+		// print out SSID configurations used by ap-1
+		ProfileContainer profileContainer = new ProfileContainer(
+				profileServiceInterface.getProfileWithChildren(equipment_1.getProfileId()));
+
 		List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipment_1.getProfileId(), ProfileType.ssid);
 		List<SsidConfiguration> ssidConfigs = new ArrayList<>();
-		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration)p.getDetails()));
+		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
 		LOG.info("SSID configs: {}", ssidConfigs);
-		
+
 	}
 
 }
