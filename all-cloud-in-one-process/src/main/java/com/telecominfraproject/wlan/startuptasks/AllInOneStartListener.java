@@ -23,6 +23,7 @@ import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.DeviceMode;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -177,65 +178,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 		equipment_2.setDetails(ApElementConfiguration.createWithDefaults());
 
 		equipment_2 = equipmentServiceInterface.create(equipment_2);
-
-//		Test_Client_OSE60B4F7FC2EA6
-		// Use an actual AP for validation of configuration setting
-		Equipment equipment_Plume = new Equipment();
-		equipment_Plume.setCustomerId(customer.getId());
-		equipment_Plume.setEquipmentType(EquipmentType.AP);
-		equipment_Plume.setLocationId(location_2.getId());
-		equipment_Plume.setProfileId(profileAp.getId());
-		equipment_Plume.setInventoryId("Test_Client_OSE60B4F7FC2EA6");
-		equipment_Plume.setName("Test Client AP");
-		equipment_Plume.setSerial("OSE60B4F7FC2EA6");
-		equipment_Plume.setDetails(ApElementConfiguration.createWithDefaults());
-		ApElementConfiguration apElementConfig = (ApElementConfiguration) equipment_Plume.getDetails();
-		apElementConfig.setDeviceName("OSE60B4F7FC2EA6");
-		apElementConfig.setAntennaType(AntennaType.OMNI);
-		apElementConfig.setDeviceMode(DeviceMode.standaloneAP);
-		apElementConfig.setDeploymentType(DeploymentType.DESK);
-		apElementConfig.setGettingDNS(GettingDNS.manual);
-		apElementConfig.setEquipmentType(EquipmentType.AP);
-		apElementConfig.setGettingIP(GettingIP.manual);
-		apElementConfig.setLocationData(location_2.toString());
-
-		Map<RadioType, ElementRadioConfiguration> radioMap = new HashMap<RadioType, ElementRadioConfiguration>();
-
-		ElementRadioConfiguration elementRadioConfig = ElementRadioConfiguration
-				.createWithDefaults(RadioType.is2dot4GHz);
-		elementRadioConfig.setBestApEnabled(true);
-		radioMap.put(RadioType.is2dot4GHz, elementRadioConfig);
-
-		elementRadioConfig = ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL);
-		elementRadioConfig.setBestApEnabled(true);
-		radioMap.put(RadioType.is5GHzL, elementRadioConfig);
-
-		elementRadioConfig = ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU);
-		elementRadioConfig.setBestApEnabled(true);
-		radioMap.put(RadioType.is5GHzU, elementRadioConfig);
-
-		apElementConfig.setRadioMap(radioMap);
-
-		Map<RadioType, RadioConfiguration> advancedRadioMap = new HashMap<RadioType, RadioConfiguration>();
-		RadioConfiguration radioConfig = RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz);
-		radioConfig.setAutoChannelSelection(StateSetting.enabled);
-		advancedRadioMap.put(RadioType.is2dot4GHz, radioConfig);
-		radioConfig = RadioConfiguration.createWithDefaults(RadioType.is5GHzL);
-		radioConfig.setAutoChannelSelection(StateSetting.enabled);
-		advancedRadioMap.put(RadioType.is5GHzL, radioConfig);
-
-		radioConfig = RadioConfiguration.createWithDefaults(RadioType.is5GHzU);
-		radioConfig.setAutoChannelSelection(StateSetting.enabled);
-		advancedRadioMap.put(RadioType.is5GHzU, radioConfig);
-
-		apElementConfig.setAdvancedRadioMap(advancedRadioMap);
-
-		apElementConfig.setForwardMode(NetworkForwardMode.BRIDGE);
-		apElementConfig.setLocallyConfiguredMgmtVlan(0);
-		apElementConfig.setFrameReportThrottleEnabled(false);
-
-		equipment_Plume.setDetails(apElementConfig);
-		equipment_Plume = equipmentServiceInterface.create(equipment_Plume);
 
 		LOG.info("Done creating initial objects");
 
