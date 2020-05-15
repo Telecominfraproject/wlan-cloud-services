@@ -24,9 +24,10 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.models.Status;
-import com.telecominfraproject.wlan.status.models.StatusDetails;
+import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -46,27 +47,27 @@ public abstract class BaseStatusDatastoreTest {
     	Status created = testInterface.create(status);
         assertNotNull(created);
         assertTrue(created.getId() > 0);
-        assertEquals(status.getSampleStr(), created.getSampleStr());
+        assertEquals(status.getEquipmentId(), created.getEquipmentId());
         assertEquals(status.getCustomerId(), created.getCustomerId());
         assertNotNull(created.getDetails());
         assertEquals(status.getDetails(), created.getDetails());
                 
         // update
-        created.setSampleStr(created.getSampleStr()+"_updated");
+        ((EquipmentAdminStatusData) created.getDetails()).setStatusMessage("updated");
         Status updated = testInterface.update(created);
         assertNotNull(updated);
-        assertEquals(created.getSampleStr(), updated.getSampleStr());
+        assertEquals(created.getDetails(), updated.getDetails());
         
         while(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
         	//update again to make the timestamps different      	
-            created.setSampleStr(created.getSampleStr()+"_updated_1");
+            ((EquipmentAdminStatusData) created.getDetails()).setStatusMessage("updated_1");
             updated = testInterface.update(created);
         }
 
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Status modelConcurrentUpdate = created.clone();
-        	modelConcurrentUpdate.setSampleStr("not important");
+            ((EquipmentAdminStatusData) modelConcurrentUpdate.getDetails()).setStatusMessage("updated");
         	testInterface.update(modelConcurrentUpdate);
         	fail("failed to detect concurrent modification");
         }catch (DsConcurrentModificationException e) {
@@ -120,12 +121,12 @@ public abstract class BaseStatusDatastoreTest {
         Set<Status> createdTestSet = new HashSet<>();
 
         //Create test Statuss
-        Status status = new Status();
+    	Status status = createStatusObject();
 
         for (int i = 0; i < 10; i++) {
-            status.setSampleStr("test_" + i);
-            status.setCustomerId(i);
-
+        	
+        	((EquipmentAdminStatusData) status.getDetails()).setStatusMessage("updated " + i);
+        	
             Status ret = testInterface.create(status);
 
             // Only keep track of half of the created ones for testing
@@ -149,7 +150,7 @@ public abstract class BaseStatusDatastoreTest {
             assertTrue(createdTestSet.contains(c));
         }
 
-        // Make sure the statuss from the non-test set are not in the list
+        // Make sure the statuses from the non-test set are not in the list
         for (Status c : statussRetrievedByIdSet) {
             assertTrue(!createdSet.contains(c));
         }
@@ -175,25 +176,27 @@ public abstract class BaseStatusDatastoreTest {
        int apNameIdx = 0;
        
        for(int i = 0; i< 50; i++){
-           mdl = new Status();
+           mdl = createStatusObject();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
 
        for(int i = 0; i< 50; i++){
-           mdl = new Status();
+           mdl = createStatusObject();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
+
            apNameIdx++;
            testInterface.create(mdl);
        }
 
-       //paginate over Statuss
+       //paginate over Statuses
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
        
        PaginationContext<Status> context = new PaginationContext<>(10);
        PaginationResponse<Status> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
@@ -229,9 +232,9 @@ public abstract class BaseStatusDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
+       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -249,7 +252,7 @@ public abstract class BaseStatusDatastoreTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -259,18 +262,18 @@ public abstract class BaseStatusDatastoreTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Status> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       //test first page of the results with sort descending order by a equipmentId property 
+       PaginationResponse<Status> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
+       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
@@ -280,9 +283,11 @@ public abstract class BaseStatusDatastoreTest {
     	Status result = new Status();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);
-        result.setSampleStr("test-" + nextId); 
-        StatusDetails details = new StatusDetails();
-        details.setSampleDetailsStr("test-details-" + nextId);
+        result.setEquipmentId(testSequence.getAndIncrement()); 
+        //TODO: dtop: have the statusDataType automatically populated from the class of the details
+        result.setStatusDataType(StatusDataType.EQUIPMENT_ADMIN);
+        EquipmentAdminStatusData details = new EquipmentAdminStatusData();
+        details.setStatusCode(StatusCode.normal);
 		result.setDetails(details );
         return result;
     }

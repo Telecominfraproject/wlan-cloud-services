@@ -4,20 +4,22 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
 
 /**
  * @author dtoptygin
  *
  */
-public class Status extends BaseJsonModel implements HasCustomerId {
+public class Status extends BaseJsonModel implements HasCustomerId, HasEquipmentId {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
 	private long id;
     private int customerId;
+    private long equipmentId;
 
     //TODO: put more fields here, generate getters/setters for them
-    private String sampleStr;
+    private StatusDataType statusDataType;
     private StatusDetails details;
     
     private long createdTimestamp;
@@ -55,20 +57,28 @@ public class Status extends BaseJsonModel implements HasCustomerId {
         this.lastModifiedTimestamp = lastModifiedTimestamp;
     }
 
-    public void setSampleStr(String sampleStr) {
-        this.sampleStr = sampleStr;
-    }
-
-    public String getSampleStr() {
-        return sampleStr;
-    }
-
 	public StatusDetails getDetails() {
 		return details;
 	}
 
 	public void setDetails(StatusDetails details) {
 		this.details = details;
+	}
+	
+	public long getEquipmentId() {
+		return equipmentId;
+	}
+
+	public void setEquipmentId(long equipmentId) {
+		this.equipmentId = equipmentId;
+	}
+
+	public StatusDataType getStatusDataType() {
+		return statusDataType;
+	}
+
+	public void setStatusDataType(StatusDataType statusDataType) {
+		this.statusDataType = statusDataType;
 	}
 
 	@Override
@@ -80,7 +90,11 @@ public class Status extends BaseJsonModel implements HasCustomerId {
 		if(details!=null && details.hasUnsupportedValue()) {
 			return true;
 		}
-		
+
+		if(statusDataType!=null && StatusDataType.isUnsupported(statusDataType)) {
+			return true;
+		}
+
 		return false;
 	}
 	
@@ -96,7 +110,8 @@ public class Status extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, sampleStr, details);
+		return Objects.hash(createdTimestamp, customerId, details, equipmentId, id, lastModifiedTimestamp,
+				statusDataType);
 	}
 
 	@Override
@@ -108,10 +123,10 @@ public class Status extends BaseJsonModel implements HasCustomerId {
 			return false;
 		}
 		Status other = (Status) obj;
-		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
-				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(sampleStr, other.sampleStr)
-				&& Objects.equals(details, other.details);
+		return createdTimestamp == other.createdTimestamp && customerId == other.customerId
+				&& Objects.equals(details, other.details) && equipmentId == other.equipmentId && id == other.id
+				&& lastModifiedTimestamp == other.lastModifiedTimestamp && statusDataType == other.statusDataType;
 	}
+
     
 }

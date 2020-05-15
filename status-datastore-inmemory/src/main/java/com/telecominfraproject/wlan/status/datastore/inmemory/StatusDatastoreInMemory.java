@@ -182,8 +182,11 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
                         case "id":
                             cmp = Long.compare(o1.getId(), o2.getId());
                             break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
+                        case "customerId":                        	
+                            cmp = Integer.compare(o1.getCustomerId(), o2.getCustomerId());
+                            break;
+                        case "equipmentId":
+                            cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
                             break;
                         default:
                             // skip unknown column

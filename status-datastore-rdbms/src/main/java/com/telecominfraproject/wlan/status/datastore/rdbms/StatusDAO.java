@@ -55,7 +55,8 @@ public class StatusDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties Status in here
         "customerId",
-        "sampleStr",
+        "equipmentId",
+        "statusDataType",
         "details",
         //make sure the order of properties matches this list and list in StatusRowMapper and list in create/update methods
         
@@ -178,7 +179,8 @@ public class StatusDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from Status here 
                         ps.setInt(colIdx++, status.getCustomerId());
-                        ps.setString(colIdx++, status.getSampleStr());
+                        ps.setLong(colIdx++, status.getEquipmentId());
+                        ps.setInt(colIdx++, status.getStatusDataType().getId());
                       	ps.setBytes(colIdx++, (status.getDetails()!=null)?status.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -248,7 +250,8 @@ public class StatusDAO extends BaseJdbcDao {
 
                 //TODO: add remaining properties from Status here
         		status.getCustomerId(),
-                status.getSampleStr(),
+                status.getEquipmentId(),
+                status.getStatusDataType().getId(),
                 (status.getDetails()!=null)?status.getDetails().toZippedBytes():null ,
                                 
                 //status.getCreatedTimestamp(), - not updating this one

@@ -27,8 +27,10 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
-
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -53,27 +55,26 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
     public void testStatusCRUD() throws Exception {
         
         //Create new Status - success
-        Status status = new Status();
-        status.setSampleStr("test");
+        Status status = createStatusObject();
 
         Status ret = remoteInterface.create(status);
         assertNotNull(ret);
         
 
         ret = remoteInterface.get(ret.getId());
-        assertEqualStatuss(status, ret);
+        assertEqualStatuses(status, ret);
 
         ret = remoteInterface.getOrNull(ret.getId());
-        assertEqualStatuss(status, ret);
+        assertEqualStatuses(status, ret);
         
         assertNull(remoteInterface.getOrNull(-1));
 
         //Update success
-        ret.setSampleStr(ret.getSampleStr()+"_modified");
+        ((EquipmentAdminStatusData) ret.getDetails()).setStatusMessage("updated");
         //TODO: add more Status fields to modify here
         
         Status updatedStatus = remoteInterface.update(ret);
-        assertEqualStatuss(ret, updatedStatus);
+        assertEqualStatuses(ret, updatedStatus);
 
         //Update - failure because of concurrent modification
         try{
@@ -120,13 +121,10 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
         Set<Status> createdTestSet = new HashSet<>();
 
         //Create test Statuss
-        Status status = new Status();
+    	Status status = createStatusObject();
 
-        int customerId = getNextCustomerId();
-        
         for (int i = 0; i < 10; i++) {
-            status.setSampleStr("test_" + i);
-            status.setCustomerId(customerId);
+        	((EquipmentAdminStatusData) status.getDetails()).setStatusMessage("updated " + i);
 
             Status ret = remoteInterface.create(status);
 
@@ -177,17 +175,19 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
        int apNameIdx = 0;
        
        for(int i = 0; i< 50; i++){
-           mdl = new Status();
+           mdl = createStatusObject();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
+           
            apNameIdx++;
            remoteInterface.create(mdl);
        }
 
        for(int i = 0; i< 50; i++){
-           mdl = new Status();
+           mdl = createStatusObject();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
+
            apNameIdx++;
            remoteInterface.create(mdl);
        }
@@ -195,7 +195,7 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
        //paginate over Statuss
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
        
        PaginationContext<Status> context = new PaginationContext<>(10);
        PaginationResponse<Status> page1 = remoteInterface.getForCustomer(customerId_1, sortBy, context);
@@ -231,9 +231,10 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
+       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
@@ -251,7 +252,7 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
@@ -261,30 +262,43 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Status> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       //test first page of the results with sort descending order by a equipmentId property 
+       PaginationResponse<Status> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
+       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
     }
 
     
-    private void assertEqualStatuss(
+    private void assertEqualStatuses(
             Status expected,
             Status actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getDetails(), actual.getDetails());
         //TODO: add more fields to check here
+    }
+
+    private Status createStatusObject() {
+    	Status result = new Status();
+        result.setCustomerId(getNextCustomerId());
+        result.setEquipmentId(getNextEquipmentId()); 
+        //TODO: dtop: have the statusDataType automatically populated from the class of the details
+        result.setStatusDataType(StatusDataType.EQUIPMENT_ADMIN);
+        EquipmentAdminStatusData details = new EquipmentAdminStatusData();
+        details.setStatusCode(StatusCode.normal);
+		result.setDetails(details );
+        return result;
     }
 
 }

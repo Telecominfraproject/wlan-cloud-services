@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -29,7 +30,8 @@ public class StatusRowMapper implements RowMapper<Status> {
         //TODO: add columns from properties Status in here. 
         //make sure order of fields is the same as defined in Status
         status.setCustomerId(rs.getInt(colIdx++));
-        status.setSampleStr(rs.getString(colIdx++));
+        status.setEquipmentId(rs.getLong(colIdx++));
+        status.setStatusDataType(StatusDataType.getById(rs.getInt(colIdx++)));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {

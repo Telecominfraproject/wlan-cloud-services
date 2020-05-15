@@ -1,14 +1,16 @@
 insert into status (
     id,
     customerId,     
-    sampleStr,
+    equipmentId,
+    statusDataType,
     details,
     createdTimestamp,
     lastModifiedTimestamp
 ) values (
     1,
     1,
-    'test',
+    1,
+    1,
     null,
     0,0
 );
