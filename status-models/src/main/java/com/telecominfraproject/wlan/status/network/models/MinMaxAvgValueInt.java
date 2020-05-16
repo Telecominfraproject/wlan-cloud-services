@@ -16,6 +16,16 @@ public class MinMaxAvgValueInt extends BaseJsonModel {
     private int maxValue;
     private int avgValue;
     
+    public MinMaxAvgValueInt() {
+		//for serialization
+	}
+
+    public MinMaxAvgValueInt(int minValue, int maxValue, int avgValue) {
+    	this.minValue = minValue;
+    	this.maxValue = maxValue;
+    	this.avgValue = avgValue;
+	}
+
 	public int getMinValue() {
 		return minValue;
 	}

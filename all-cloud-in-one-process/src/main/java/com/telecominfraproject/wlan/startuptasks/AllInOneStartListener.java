@@ -1,7 +1,9 @@
 package com.telecominfraproject.wlan.startuptasks;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,23 +17,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
-import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
-import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
-import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
-import com.telecominfraproject.wlan.equipment.models.DeviceMode;
-import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
-import com.telecominfraproject.wlan.equipment.models.GettingDNS;
-import com.telecominfraproject.wlan.equipment.models.GettingIP;
-import com.telecominfraproject.wlan.equipment.models.NetworkForwardMode;
-import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
-import com.telecominfraproject.wlan.equipment.models.StateSetting;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.LocationType;
@@ -42,6 +35,17 @@ import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
+import com.telecominfraproject.wlan.status.StatusServiceInterface;
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolState;
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolStatusData;
+import com.telecominfraproject.wlan.status.equipment.report.models.EquipmentCapacityDetails;
+import com.telecominfraproject.wlan.status.equipment.report.models.EquipmentPerRadioUtilizationDetails;
+import com.telecominfraproject.wlan.status.equipment.report.models.OperatingSystemPerformance;
+import com.telecominfraproject.wlan.status.equipment.report.models.RadioUtilizationReport;
+import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.network.models.MinMaxAvgValueInt;
 
 /**
  * Listen for context started event so that we can populate initial dataset in
@@ -63,6 +67,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private ProfileServiceInterface profileServiceInterface;
+
+	@Autowired
+	private StatusServiceInterface statusServiceInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -155,41 +162,176 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileAp.getChildProfileIds().add(profileSsid.getId());
 		profileAp = profileServiceInterface.create(profileAp);
 
-		Equipment equipment_1 = new Equipment();
-		equipment_1.setCustomerId(customer.getId());
-		equipment_1.setEquipmentType(EquipmentType.AP);
-		equipment_1.setLocationId(location_2.getId());
-		equipment_1.setProfileId(profileAp.getId());
-		equipment_1.setInventoryId("ap-1");
-		equipment_1.setName("First AP");
-		equipment_1.setSerial("serial-ap-1");
-		equipment_1.setDetails(ApElementConfiguration.createWithDefaults());
-
-		equipment_1 = equipmentServiceInterface.create(equipment_1);
-
-		Equipment equipment_2 = new Equipment();
-		equipment_2.setCustomerId(customer.getId());
-		equipment_2.setEquipmentType(EquipmentType.AP);
-		equipment_2.setLocationId(location_2.getId());
-		equipment_2.setProfileId(profileAp.getId());
-		equipment_2.setInventoryId("ap-2");
-		equipment_2.setName("Second AP");
-		equipment_2.setSerial("serial-ap-2");
-		equipment_2.setDetails(ApElementConfiguration.createWithDefaults());
-
-		equipment_2 = equipmentServiceInterface.create(equipment_2);
-
+		List<Equipment> equipmentList = new ArrayList<>();
+		int numEquipment = 50;
+		for(int i = 1; i<=numEquipment; i++) {
+			Equipment equipment = new Equipment();
+			equipment.setCustomerId(customer.getId());
+			equipment.setEquipmentType(EquipmentType.AP);
+			
+			// spread APs across locations
+			if(i<=12) {
+				equipment.setLocationId(location_1_1_1.getId());
+			} else if(i<=15) {
+				equipment.setLocationId(location_1_1_2.getId());				
+			} else if(i<=21) {
+				equipment.setLocationId(location_1_1_3.getId());				
+			} else if(i<=32) {
+				equipment.setLocationId(location_1_2.getId());				
+			} else {
+				equipment.setLocationId(location_2.getId());
+			}
+			
+			equipment.setProfileId(profileAp.getId());
+			equipment.setInventoryId("ap-" + i );
+			equipment.setName("AP "+ i );
+			equipment.setSerial("serial-ap-" + i );
+			equipment.setDetails(ApElementConfiguration.createWithDefaults());
+	
+			equipment = equipmentServiceInterface.create(equipment);
+			equipmentList.add(equipment);
+			
+			createStatusForEquipment(equipment);
+		}
+		
 		LOG.info("Done creating initial objects");
 
 		// print out SSID configurations used by ap-1
 		ProfileContainer profileContainer = new ProfileContainer(
-				profileServiceInterface.getProfileWithChildren(equipment_1.getProfileId()));
+				profileServiceInterface.getProfileWithChildren(equipmentList.get(0).getProfileId()));
 
-		List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipment_1.getProfileId(), ProfileType.ssid);
+		List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(0).getProfileId(), ProfileType.ssid);
 		List<SsidConfiguration> ssidConfigs = new ArrayList<>();
 		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
 		LOG.info("SSID configs: {}", ssidConfigs);
 
+	}
+
+	private void createStatusForEquipment(Equipment equipment) {
+		List<Status> statusList = new ArrayList<>();
+//		StatusDataType.EQUIPMENT_ADMIN	
+//		StatusDataType.OS_PERFORMANCE
+//		StatusDataType.PROTOCOL
+//		StatusDataType.RADIO_UTILIZATION
+		
+		Status status = new Status();
+		status.setCustomerId(equipment.getCustomerId());
+		status.setEquipmentId(equipment.getId());
+		EquipmentAdminStatusData eqAdminStatusData = new EquipmentAdminStatusData();
+		eqAdminStatusData.setStatusCode(StatusCode.normal);
+		status.setDetails(eqAdminStatusData);
+		statusList.add(status);
+		
+		status = new Status();
+		status.setCustomerId(equipment.getCustomerId());
+		status.setEquipmentId(equipment.getId());
+		OperatingSystemPerformance eqOsPerformance = new OperatingSystemPerformance();
+		eqOsPerformance.setUptimeInSeconds(getRandomLong(10,10000));
+		eqOsPerformance.setAvgCpuTemperature(getRandomFloat(25, 80));
+		eqOsPerformance.setAvgCpuUtilization(getRandomFloat(5, 100));
+		eqOsPerformance.setAvgCpuPerCore(new float[] {getRandomFloat(5, 100), getRandomFloat(5, 100)});
+		eqOsPerformance.setAvgFreeMemory(getRandomInt(10000000, 50000000));
+		status.setDetails(eqOsPerformance);
+		statusList.add(status);
+
+		status = new Status();
+		status.setCustomerId(equipment.getCustomerId());
+		status.setEquipmentId(equipment.getId());
+		EquipmentProtocolStatusData eqProtocolStatus = new EquipmentProtocolStatusData();
+		eqProtocolStatus.setBaseMacAddress(new MacAddress(new byte[] {0x74, (byte) 0x9C, (byte) 0xE3, getRandomByte(),  getRandomByte(),  getRandomByte()} ) );
+		eqProtocolStatus.setPoweredOn(true);
+		eqProtocolStatus.setProtocolState(EquipmentProtocolState.ready);
+		try {
+			eqProtocolStatus.setReportedIpV4Addr(Inet4Address.getByAddress(new byte[] {(byte)192, (byte)168, 1, getRandomByte()}));
+			eqProtocolStatus.setReportedIpV6Addr(Inet6Address.getByAddress(
+				new byte[] { (byte)0xfe, (byte)0x80, 0, 0, 0, 0, 0, 0, 2, 24, (byte)0xb4, (byte)0xff, (byte)0xfe, 
+						getRandomByte(), getRandomByte(), getRandomByte()} ) );
+		}catch (Exception e) {
+			// nothing to do here
+		}
+		eqProtocolStatus.setReportedMacAddr(eqProtocolStatus.getBaseMacAddress().getAddress());
+		eqProtocolStatus.setSerialNumber(equipment.getSerial());		
+		status.setDetails(eqProtocolStatus);
+		statusList.add(status);
+
+		//now prepare radio utilization status
+		status = new Status();
+		status.setCustomerId(equipment.getCustomerId());
+		status.setEquipmentId(equipment.getId());
+		RadioUtilizationReport eqRadioUtilReport = new RadioUtilizationReport();
+		
+		Map<RadioType, Integer> avgNoiseFloor = new EnumMap<>(RadioType.class);
+		avgNoiseFloor.put(RadioType.is2dot4GHz, getRandomInt(-95, -40));
+		avgNoiseFloor.put(RadioType.is5GHzL, getRandomInt(-95, -40));
+		avgNoiseFloor.put(RadioType.is5GHzU, getRandomInt(-95, -40));
+		eqRadioUtilReport.setAvgNoiseFloor(avgNoiseFloor);
+		
+		Map<RadioType, EquipmentCapacityDetails> capacityDetails =  new EnumMap<>(RadioType.class);
+		EquipmentCapacityDetails cap = new EquipmentCapacityDetails();
+		cap.setTotalCapacity(getRandomInt(70, 100));
+		cap.setUnavailableCapacity(getRandomInt(0, 30));
+		cap.setAvailableCapacity(cap.getTotalCapacity() - cap.getUnavailableCapacity());
+		cap.setUsedCapacity(getRandomInt(5, cap.getAvailableCapacity()));
+		cap.setUnusedCapacity(cap.getAvailableCapacity() - cap.getUsedCapacity());		
+		capacityDetails.put(RadioType.is2dot4GHz, cap);
+		
+		cap = new EquipmentCapacityDetails();
+		cap.setTotalCapacity(getRandomInt(70, 100));
+		cap.setUnavailableCapacity(getRandomInt(0, 30));
+		cap.setAvailableCapacity(cap.getTotalCapacity() - cap.getUnavailableCapacity());
+		cap.setUsedCapacity(getRandomInt(5, cap.getAvailableCapacity()));
+		cap.setUnusedCapacity(cap.getAvailableCapacity() - cap.getUsedCapacity());		
+		capacityDetails.put(RadioType.is5GHzL, cap);
+		
+		cap = new EquipmentCapacityDetails();
+		cap.setTotalCapacity(getRandomInt(70, 100));
+		cap.setUnavailableCapacity(getRandomInt(0, 30));
+		cap.setAvailableCapacity(cap.getTotalCapacity() - cap.getUnavailableCapacity());
+		cap.setUsedCapacity(getRandomInt(5, cap.getAvailableCapacity()));
+		cap.setUnusedCapacity(cap.getAvailableCapacity() - cap.getUsedCapacity());		
+		capacityDetails.put(RadioType.is5GHzU, cap);
+		
+		eqRadioUtilReport.setCapacityDetails(capacityDetails );
+		
+		Map<RadioType, EquipmentPerRadioUtilizationDetails> radioUtilization = new EnumMap<>(RadioType.class);
+		EquipmentPerRadioUtilizationDetails ut = new EquipmentPerRadioUtilizationDetails();
+		ut.setWifiFromOtherBss(new MinMaxAvgValueInt(getRandomInt(0, 5), getRandomInt(5, 10), getRandomInt(5, 10)));
+		radioUtilization.put(RadioType.is2dot4GHz, ut);
+		
+		ut = new EquipmentPerRadioUtilizationDetails();
+		ut.setWifiFromOtherBss(new MinMaxAvgValueInt(getRandomInt(0, 5), getRandomInt(5, 10), getRandomInt(5, 10)));
+		radioUtilization.put(RadioType.is5GHzL, ut);
+
+		ut = new EquipmentPerRadioUtilizationDetails();
+		ut.setWifiFromOtherBss(new MinMaxAvgValueInt(getRandomInt(0, 5), getRandomInt(5, 10), getRandomInt(5, 10)));
+		radioUtilization.put(RadioType.is5GHzU, ut);
+		
+		eqRadioUtilReport.setRadioUtilization(radioUtilization);
+		
+		status.setDetails(eqRadioUtilReport);
+		statusList.add(status);
+		
+		statusServiceInterface.update(statusList );
+	}
+
+	private static byte getRandomByte() {
+		byte ret = (byte)(225*Math.random());		
+		return ret;
+	}
+
+	private static long getRandomLong(long min, long max) {
+		long ret = min + (long)((max - min)*Math.random());		
+		return ret;
+	}
+
+	private static int getRandomInt(int min, int max) {
+		int ret = min + (int)((max - min)*Math.random());		
+		return ret;
+	}
+
+	private static float getRandomFloat(float min, float max) {
+		float ret = min + (float)((max - min)*Math.random());		
+		return ret;
 	}
 
 }
