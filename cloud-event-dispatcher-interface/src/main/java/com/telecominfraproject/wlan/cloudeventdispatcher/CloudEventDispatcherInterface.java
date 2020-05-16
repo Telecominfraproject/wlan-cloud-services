@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.cloudeventdispatcher;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
@@ -23,5 +24,13 @@ public interface CloudEventDispatcherInterface {
     default void publishEvent(SystemEvent systemEvent)  {
     	publishEvent(new SystemEventRecord(systemEvent));
     }
-    
+
+    default void publishEventsBulk(List<SystemEvent> systemEvents)  {
+    	List<SystemEventRecord> records = new ArrayList<>();
+    	if(systemEvents!=null && !systemEvents.isEmpty()) {
+    		systemEvents.forEach(e -> records.add(new SystemEventRecord(e)));
+    	}
+    	publishEvents(records);
+    }
+
 }

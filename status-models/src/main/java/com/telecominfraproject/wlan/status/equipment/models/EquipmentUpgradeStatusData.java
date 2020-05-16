@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.status.equipment.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -61,7 +62,11 @@ public class EquipmentUpgradeStatusData extends StatusDetails {
         // nothing to do for serialization
     }
     
-    
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.FIRMWARE;
+    }    
+
     public String getActiveSwVersion() {
         return activeSwVersion;
     }

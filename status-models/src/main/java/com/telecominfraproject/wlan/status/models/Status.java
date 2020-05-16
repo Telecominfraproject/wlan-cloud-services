@@ -14,7 +14,6 @@ public class Status extends BaseJsonModel implements HasCustomerId, HasEquipment
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
-	private long id;
     private int customerId;
     private long equipmentId;
 
@@ -25,14 +24,6 @@ public class Status extends BaseJsonModel implements HasCustomerId, HasEquipment
     private long createdTimestamp;
     private long lastModifiedTimestamp;
     
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
 	public int getCustomerId() {
 		return customerId;
 	}
@@ -63,6 +54,10 @@ public class Status extends BaseJsonModel implements HasCustomerId, HasEquipment
 
 	public void setDetails(StatusDetails details) {
 		this.details = details;
+		//automatically set the status data type based on status details
+		if(details!=null) {
+			setStatusDataType(details.getStatusDataType());
+		}
 	}
 	
 	public long getEquipmentId() {
@@ -110,7 +105,7 @@ public class Status extends BaseJsonModel implements HasCustomerId, HasEquipment
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, details, equipmentId, id, lastModifiedTimestamp,
+		return Objects.hash(createdTimestamp, customerId, details, equipmentId, lastModifiedTimestamp,
 				statusDataType);
 	}
 
@@ -124,7 +119,7 @@ public class Status extends BaseJsonModel implements HasCustomerId, HasEquipment
 		}
 		Status other = (Status) obj;
 		return createdTimestamp == other.createdTimestamp && customerId == other.customerId
-				&& Objects.equals(details, other.details) && equipmentId == other.equipmentId && id == other.id
+				&& Objects.equals(details, other.details) && equipmentId == other.equipmentId 
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp && statusDataType == other.statusDataType;
 	}
 

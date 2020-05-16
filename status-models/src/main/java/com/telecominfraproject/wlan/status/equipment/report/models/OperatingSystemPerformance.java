@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.status.equipment.report.models;
 import java.util.Arrays;
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -19,6 +20,11 @@ public class OperatingSystemPerformance extends StatusDetails {
     private int avgFreeMemory;
     private float avgCpuTemperature;
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.OS_PERFORMANCE;
+    }
+    
     public int getNumCamiCrashes() {
         return numCamiCrashes;
     }

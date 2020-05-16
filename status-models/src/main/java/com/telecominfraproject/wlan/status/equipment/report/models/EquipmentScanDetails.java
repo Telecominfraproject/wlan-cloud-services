@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -34,6 +35,11 @@ public class EquipmentScanDetails extends StatusDetails
     // Neighbouring APs that are not managed by A2W
     private List<UnmanagedNeighbourEquipmentInfo> unmanagedNeighbours;
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.NEIGHBOUR_SCAN;
+    }
+    
     public Map<Integer, List<ManagedNeighbourEquipmentInfo>> getManagedNeighbours() {
         return managedNeighbours;
     }

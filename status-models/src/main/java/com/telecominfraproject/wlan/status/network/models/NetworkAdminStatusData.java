@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -24,6 +25,11 @@ public class NetworkAdminStatusData extends StatusDetails {
     private Map<RadioType, Integer> averageCoveragePerRadio = new EnumMap<>(RadioType.class);   
     private Map<StatusCode, Integer> equipmentCountsBySeverity = new EnumMap<>(StatusCode.class);
         
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.NETWORK_ADMIN;
+    }    
+
     public StatusCode getDhcpStatus() {
         return dhcpStatus;
     }

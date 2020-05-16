@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -35,6 +36,11 @@ public class EquipmentAdminStatusData extends StatusDetails {
 
     }
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.EQUIPMENT_ADMIN;
+    }
+    
     public EquipmentAdminStatusData(EquipmentAdminStatusData data) {
         this.statusCode = data.statusCode;
         this.statusMessage = data.statusMessage;

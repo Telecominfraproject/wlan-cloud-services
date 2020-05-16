@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 public class ClientConnectionDetails extends StatusDetails 
@@ -17,6 +18,11 @@ public class ClientConnectionDetails extends StatusDetails
         // serial
     }
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.CLIENT_DETAILS;
+    }
+    
 	public Map<RadioType, Integer> getNumClientsPerRadio() {
 		return numClientsPerRadio;
 	}

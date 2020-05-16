@@ -25,7 +25,6 @@ public class StatusRowMapper implements RowMapper<Status> {
     public Status mapRow(ResultSet rs, int rowNum) throws SQLException {
         Status status = new Status();
         int colIdx=1;
-        status.setId(rs.getLong(colIdx++));
 
         //TODO: add columns from properties Status in here. 
         //make sure order of fields is the same as defined in Status
@@ -39,7 +38,7 @@ public class StatusRowMapper implements RowMapper<Status> {
             	StatusDetails details = BaseJsonModel.fromZippedBytes(zippedBytes, StatusDetails.class);
                 status.setDetails(details);
             } catch (RuntimeException exp) {
-                LOG.error("Failed to decode StatusDetails from database for id = {}", status.getId());
+                LOG.error("Failed to decode StatusDetails from database for {}:{}:{}", status.getCustomerId(), status.getEquipmentId(), status.getStatusDataType());
             }
         }
 

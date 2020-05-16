@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.status.datastore.rdbms;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -14,6 +15,7 @@ import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
 
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -42,11 +44,11 @@ public class StatusDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
         if(db!=null){
             //this is a simple test to see if embedded db is working in test environment
             JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
-            Long ret = jdbcTemplate.queryForObject(
-                    "select id from status where id = ?", 
-                    Long.class, 1);               
+            Integer ret = jdbcTemplate.queryForObject(
+                    "select customerId from status where customerid = ? and equipmentid = ? and statusDataType = ?", 
+                    Integer.class, 1, 1L, 1);
             
-            assertEquals((Long)1L, ret);
+            assertEquals(1, ret.intValue());
         }
     }
 
@@ -55,17 +57,12 @@ public class StatusDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     public void testCreateUpdateDeleteStatus() {
                 
         //GET by Id test
-        Status ret = statusDatastore.get(1L);        
+        Status ret = statusDatastore.getOrNull(1,1L, StatusDataType.getById(1));        
 
         //DELETE Test
-        statusDAO.delete(ret.getId());
+        statusDAO.delete(ret.getCustomerId(), ret.getEquipmentId());
         
-        try{
-            statusDatastore.get(ret.getId());
-            fail("failed to delete Status");
-        }catch (Exception e) {
-            // expected it
-        }
+       	assertNull(statusDatastore.getOrNull(1,1L, StatusDataType.getById(1)));
                 
     }
     

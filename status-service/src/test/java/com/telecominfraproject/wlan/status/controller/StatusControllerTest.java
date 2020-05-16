@@ -2,7 +2,6 @@ package com.telecominfraproject.wlan.status.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,12 +16,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
 import com.telecominfraproject.wlan.status.datastore.inmemory.StatusDatastoreInMemory;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
-import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -62,24 +59,18 @@ public class StatusControllerTest {
         long nextId = testSequence.getAndIncrement();
         status.setCustomerId((int) nextId);
         status.setEquipmentId(testSequence.getAndIncrement()); 
-        status.setStatusDataType(StatusDataType.EQUIPMENT_ADMIN);
         EquipmentAdminStatusData details = new EquipmentAdminStatusData();
         details.setStatusCode(StatusCode.normal);
         status.setDetails(details );
 
-        Status ret = statusController.create(status);
+        Status ret = statusController.update(status);
         assertNotNull(ret);
 
-        ret = statusController.get(ret.getId());
-        assertEqualStatuss(status, ret);
-
-        ret = statusController.getOrNull(ret.getId());
+        ret = statusController.getOrNull(ret.getCustomerId(), ret.getEquipmentId(), ret.getStatusDataType());
         assertEqualStatuss(status, ret);
         
-        assertNull(statusController.getOrNull(-1));
-
         //Delete - success
-        statusController.delete(ret.getId());
+        statusController.delete(ret.getCustomerId(), ret.getEquipmentId());
         
     }
         

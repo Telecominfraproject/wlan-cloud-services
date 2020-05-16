@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.status.network.models;
 
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -37,6 +38,11 @@ public class NetworkAggregateStatusData extends StatusDetails {
     private int handoff;
     private int wlanLatency;
     
+    
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.NETWORK_AGGREGATE;
+    }
     
     public EquipmentPerformanceDetails getEquipmentPerformanceDetails() {
 		return equipmentPerformanceDetails;

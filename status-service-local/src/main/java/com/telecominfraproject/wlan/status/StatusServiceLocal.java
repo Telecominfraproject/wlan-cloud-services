@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
 import com.telecominfraproject.wlan.status.controller.StatusController;
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -23,50 +23,53 @@ import com.telecominfraproject.wlan.status.models.Status;
 public class StatusServiceLocal implements StatusServiceInterface {
 
     @Autowired private StatusController statusController;
-    private static final Logger LOG = LoggerFactory.getLogger(StatusServiceLocal.class);
-
     
-    @Override
-    public Status create(Status status) {
-        LOG.debug("calling statusController.create {} ", status);
-        return statusController.create(status);
-    }
+    @SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(StatusServiceLocal.class);
 
     @Override
-    public Status get(long statusId) {
-        LOG.debug("calling statusController.get {} ", statusId);
-        return statusController.get(statusId);
-    }
-    
-    @Override
-    public Status getOrNull(long statusId) {
-        LOG.debug("calling statusController.getOrNull {} ", statusId);
-        return statusController.getOrNull(statusId);
-    }
-    
-    @Override
-    public List<Status> get(Set<Long> statusIdSet) {
-        LOG.debug("calling statusController.getAllInSet {} ", statusIdSet);
-        return statusController.getAllInSet(statusIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Status> context) {
-        LOG.debug("calling statusController.getForCustomer {} ", customerId);
-        return statusController.getForCustomer(customerId, sortBy, context);
-    }
+	public Status getOrNull(int customerId, long equipmentId, StatusDataType statusDataType) {
+		return statusController.getOrNull(customerId, equipmentId, statusDataType);
+	}
+
 
     @Override
-    public Status update(Status status) {
-        LOG.debug("calling statusController.update {} ", status);
-        return statusController.update(status);
-    }
+	public List<Status> get(int customerId, long equipmentId) {
+		return statusController.getForEquipment(customerId, equipmentId);
+	}
+
 
     @Override
-    public Status delete(long statusId) {
-        LOG.debug("calling statusController.delete {} ", statusId);
-        return statusController.delete(statusId);
-    }
+	public PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+			PaginationContext<Status> paginationContext) {
+		return statusController.getForCustomer(customerId, sortBy, paginationContext);
+	}
+
+
+    @Override
+	public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
+			Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy,
+			PaginationContext<Status> paginationContext) {
+		return statusController.getForCustomerWithFilter(customerId, equipmentIds, statusDataTypes, sortBy,
+				paginationContext);
+	}
+
+
+    @Override
+	public Status update(Status status) {
+		return statusController.update(status);
+	}
+
+
+    @Override
+	public List<Status> update(List<Status> statusList) {
+		return statusController.updateBulk(statusList);
+	}
+
+
+    @Override
+	public List<Status> delete(int customerId, long equipmentId) {
+		return statusController.delete(customerId, equipmentId);
+	}
 
 }

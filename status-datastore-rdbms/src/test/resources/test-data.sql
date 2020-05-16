@@ -1,5 +1,4 @@
 insert into status (
-    id,
     customerId,     
     equipmentId,
     statusDataType,
@@ -7,7 +6,6 @@ insert into status (
     createdTimestamp,
     lastModifiedTimestamp
 ) values (
-    1,
     1,
     1,
     1,

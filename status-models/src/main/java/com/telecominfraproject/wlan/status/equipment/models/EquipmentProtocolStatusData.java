@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -15,9 +16,6 @@ import com.telecominfraproject.wlan.status.models.StatusDetails;
  *
  */
 public class EquipmentProtocolStatusData extends StatusDetails {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1193955685155400122L;
 
     /**
@@ -149,6 +147,11 @@ public class EquipmentProtocolStatusData extends StatusDetails {
     public EquipmentProtocolStatusData() {
     }
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.PROTOCOL;
+    }
+    
     public EquipmentProtocolStatusData(EquipmentProtocolStatusData other) {
         // super(other);
         this.poweredOn = other.poweredOn;

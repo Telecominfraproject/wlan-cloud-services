@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.status.equipment.report.models;
 import java.util.List;
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -21,6 +22,11 @@ public class ActiveBSSIDs extends StatusDetails
         //serial
     }
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.ACTIVE_BSSIDS;
+    }
+    
     public List<ActiveBSSID> getActiveBSSIDs() {
         return activeBSSIDs;
     }

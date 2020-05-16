@@ -20,6 +20,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -38,54 +39,14 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
     private String baseUrl;
             
     @Override
-    public Status create(Status status) {
+    public Status getOrNull(int customerId, long equipmentId, StatusDataType statusDataType) {
         
-        LOG.debug("calling status.create {} ", status);
-
-        if (BaseJsonModel.hasUnsupportedValue(status)) {
-            LOG.error("Failed to create Status, unsupported value in {}", status);
-            throw new DsDataValidationException("Status contains unsupported value");
-        }
-
-        HttpEntity<String> request = new HttpEntity<String>( status.toString(), headers );
-
-        ResponseEntity<Status> responseEntity = restTemplate.postForEntity(
-                getBaseUrl(),
-                request, Status.class);
-        
-        Status ret = responseEntity.getBody();
-        
-        LOG.debug("completed status.create {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public Status get(long statusId) {
-        
-        LOG.debug("calling status.get {} ", statusId);
+        LOG.debug("calling status.getOrNull {} {} {} ", customerId, equipmentId, statusDataType);
 
         ResponseEntity<Status> responseEntity = restTemplate.getForEntity(
                 getBaseUrl()
-                +"?statusId={statusId}",
-                Status.class, statusId);
-        
-        Status ret = responseEntity.getBody();
-        
-        LOG.debug("completed status.get {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public Status getOrNull(long statusId) {
-        
-        LOG.debug("calling status.getOrNull {} ", statusId);
-
-        ResponseEntity<Status> responseEntity = restTemplate.getForEntity(
-                getBaseUrl()
-                +"/orNull?statusId={statusId}",
-                Status.class, statusId);
+                +"/orNull?customerId={customerId}&equipmentId={equipmentId}&statusDataType={statusDataType}",
+                Status.class, customerId, equipmentId, statusDataType);
         
         Status ret = responseEntity.getBody();
         
@@ -94,30 +55,25 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
         return ret;
     }
 
-	@Override
-	public List<Status> get(Set<Long> statusIdSet) {
+    @Override
+    public List<Status> get(int customerId, long equipmentId) {
 		
-        LOG.debug("get({})", statusIdSet);
+        LOG.debug("get({}, {})", customerId, equipmentId);
 
-        if (statusIdSet == null || statusIdSet.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        String setString = statusIdSet.toString().substring(1, statusIdSet.toString().length() - 1);
         
         try {
             ResponseEntity<List<Status>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/inSet?statusIdSet={statusIdSet}", HttpMethod.GET,
-                    null, Status_LIST_CLASS_TOKEN, setString);
+                    getBaseUrl() + "/forEquipment?customerId={customerId}&equipmentId={equipmentId}", HttpMethod.GET,
+                    null, Status_LIST_CLASS_TOKEN, customerId, equipmentId);
 
             List<Status> result = responseEntity.getBody();
             if (null == result) {
                 result = Collections.emptyList();
             }
-            LOG.debug("get({}) return {} entries", statusIdSet, result.size());
+            LOG.debug("get({}, {}) returns {} entries", customerId, equipmentId, result.size());
             return result;
         } catch (Exception exp) {
-            LOG.error("getAllInSet({}) exception ", statusIdSet, exp);
+            LOG.error("get({}, {}) exception ", customerId, equipmentId, exp);
             throw exp;
         }
 
@@ -132,12 +88,53 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
         ResponseEntity<PaginationResponse<Status>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
                         + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, Status_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                HttpMethod.GET, null, Status_PAGINATION_RESPONSE_CLASS_TOKEN, 
+                customerId, sortBy, context);
 
         PaginationResponse<Status> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
 
         return ret;
+	}
+	
+	@Override
+	public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
+			Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
+
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {} )", customerId, equipmentIds, statusDataTypes, sortBy, context);
+
+        String equipmentIdsStr = null;
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            equipmentIdsStr = equipmentIds.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            equipmentIdsStr = equipmentIdsStr.substring(1, equipmentIdsStr.length() - 1);
+        }
+
+        String statusDataTypesStr = null;
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+        	statusDataTypesStr = statusDataTypes.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	statusDataTypesStr = statusDataTypesStr.substring(1, statusDataTypesStr.length() - 1);
+        }
+
+        ResponseEntity<PaginationResponse<Status>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                        + "/forCustomerWithFilter?customerId={customerId}&equipmentIds={equipmentIdsStr}&statusDataTypes={statusDataTypesStr}"
+                        + "&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, Status_PAGINATION_RESPONSE_CLASS_TOKEN, 
+                customerId, equipmentIdsStr, statusDataTypesStr, sortBy, context);
+
+        PaginationResponse<Status> ret = responseEntity.getBody();
+        LOG.debug("completed getForCustomer( {}, {}, {}, {}, {} ) {} ", customerId, equipmentIds, statusDataTypes, sortBy, context, ret.getItems().size());
+
+        return ret;
+
 	}
 	
     @Override
@@ -164,21 +161,51 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
     }
 
     @Override
-    public Status delete(long statusId) {
-        
-        LOG.debug("calling status.delete {} ", statusId);
+    public List<Status> update(List<Status> statusList) {
+        LOG.debug("calling status.update {} ", statusList);
 
-        ResponseEntity<Status> responseEntity =  restTemplate.exchange(
-                getBaseUrl()
-                +"?statusId={statusId}", HttpMethod.DELETE,
-                null, Status.class, statusId);
+        if (BaseJsonModel.hasUnsupportedValue(statusList)) {
+            LOG.error("Failed to update Status, unsupported value in  {}", statusList);
+            throw new DsDataValidationException("Status contains unsupported value");
+        }
         
-        Status ret = responseEntity.getBody();
-        LOG.debug("completed status.delete {} ", ret);
+        HttpEntity<String> request = new HttpEntity<String>( statusList.toString(), headers );
+
+        ResponseEntity<List<Status>> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/bulk",
+                HttpMethod.PUT, request, Status_LIST_CLASS_TOKEN);
+        
+        List<Status> ret = responseEntity.getBody();
+        
+        LOG.debug("completed status.update {} ", ret);
         
         return ret;
-    }    
+    }
+    
+    @Override
+    public List<Status> delete(int customerId, long equipmentId) {
+		
+        LOG.debug("delete({}, {})", customerId, equipmentId);
 
+        
+        try {
+            ResponseEntity<List<Status>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "?customerId={customerId}&equipmentId={equipmentId}", HttpMethod.DELETE,
+                    null, Status_LIST_CLASS_TOKEN, customerId, equipmentId);
+
+            List<Status> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("delete({}, {}) returns {} entries", customerId, equipmentId, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("delete({}, {}) exception ", customerId, equipmentId, exp);
+            throw exp;
+        }
+
+	}
+    
     public String getBaseUrl() {
         if(baseUrl==null) {
             baseUrl = environment.getProperty("tip.wlan.statusServiceBaseUrl").trim()+"/api/status";

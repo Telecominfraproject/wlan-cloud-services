@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -18,6 +19,11 @@ public class RadioUtilizationReport extends StatusDetails {
     private Map<RadioType, EquipmentCapacityDetails> capacityDetails = new EnumMap<>(RadioType.class);
     private Map<RadioType, Integer> avgNoiseFloor = new EnumMap<>(RadioType.class);
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.RADIO_UTILIZATION;
+    }
+    
     public Map<RadioType, EquipmentPerRadioUtilizationDetails> getRadioUtilization() {
 		return radioUtilization;
 	}

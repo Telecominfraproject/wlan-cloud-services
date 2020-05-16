@@ -6,7 +6,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  * @author dtoptygin
  *
  */
-public class StatusDetails extends BaseJsonModel {
+public abstract class StatusDetails extends BaseJsonModel {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
@@ -24,4 +24,5 @@ public class StatusDetails extends BaseJsonModel {
         return (StatusDetails) super.clone();
     }
     
+    public abstract StatusDataType getStatusDataType();
 }

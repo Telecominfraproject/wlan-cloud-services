@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.status.datastore.StatusDatastore;
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -23,18 +24,8 @@ public class StatusDatastoreRdbms implements StatusDatastore {
     @Autowired StatusDAO statusDAO;
 
     @Override
-    public Status create(Status status) {
-        return statusDAO.create(status);
-    }
-
-    @Override
-    public Status get(long statusId) {
-        return statusDAO.get(statusId);
-    }
-
-    @Override
-    public Status getOrNull(long statusId) {
-        return statusDAO.getOrNull(statusId);
+    public Status getOrNull(int customerId, long equipmentId, StatusDataType statusDataType) {
+        return statusDAO.getOrNull(customerId, equipmentId, statusDataType);
     }
     
     @Override
@@ -43,18 +34,29 @@ public class StatusDatastoreRdbms implements StatusDatastore {
     }
 
     @Override
-    public Status delete(long statusId) {
-        return statusDAO.delete(statusId);
+    public List<Status> update(List<Status> statusList) {
+        return statusDAO.update(statusList);
     }
     
     @Override
-    public List<Status> get(Set<Long> statusIdSet) {
-    	return statusDAO.get(statusIdSet);
+    public List<Status> delete(int customerId, long equipmentId) {
+        return statusDAO.delete(customerId, equipmentId);
+    }
+    
+    @Override
+    public List<Status> get(int customerId, long equipmentId) {
+    	return statusDAO.get(customerId, equipmentId);
     }
     
     @Override
     public PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Status> context) {
     	return statusDAO.getForCustomer( customerId, sortBy, context);
+    }
+    
+    @Override
+    public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
+    		Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
+    	return statusDAO.getForCustomer( customerId, equipmentIds, statusDataTypes, sortBy, context);
     }
 }

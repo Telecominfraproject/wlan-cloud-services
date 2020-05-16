@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -24,6 +25,11 @@ public class EquipmentNeighbouringStatusData extends StatusDetails
     public EquipmentNeighbouringStatusData()
     {
         // serial
+    }
+    
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.NEIGHBOURINGINFO;
     }
     
     protected EquipmentNeighbouringStatusData(EquipmentNeighbouringStatusData data)

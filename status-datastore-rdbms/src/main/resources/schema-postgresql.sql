@@ -1,15 +1,14 @@
 create table status (
     -- postgresql     
-    id BIGSERIAL PRIMARY KEY,
-
     customerId int not null,
-    equipmentId bigint,
+    equipmentId bigint not null,
     statusDataType int not null,
     details bytea,
     
     createdTimestamp bigint not null,
-    lastModifiedTimestamp bigint not null
-  
+    lastModifiedTimestamp bigint not null,
+    
+    primary key (customerId, equipmentId, statusDataType)
 );
 
 create index status_customerId on status (customerId);

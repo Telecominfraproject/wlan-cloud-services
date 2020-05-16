@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.telecominfraproject.wlan.equipment.models.PeerInfo;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -18,6 +19,11 @@ public class EquipmentPeerStatusData extends StatusDetails {
      */
     private List<PeerInfo> peers;
 
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.PEERINFO;
+    }
+    
     public EquipmentPeerStatusData clone() {
         EquipmentPeerStatusData result = (EquipmentPeerStatusData) super.clone();
         if (null != getPeers()) {

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 
 /**
@@ -31,6 +32,11 @@ public class EquipmentLANStatusData extends StatusDetails {
         
         // We'll just populate an empty one
         this.vlanStatusDataMap = new HashMap<>();
+    }
+    
+    @Override
+    public StatusDataType getStatusDataType() {
+    	return StatusDataType.LANINFO;
     }
     
     public EquipmentLANStatusData(EquipmentLANStatusData data)

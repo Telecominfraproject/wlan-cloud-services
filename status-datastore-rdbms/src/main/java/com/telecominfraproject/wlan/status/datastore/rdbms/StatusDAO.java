@@ -5,11 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -19,8 +19,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +31,8 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
 import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 /**
  * @author dtoptygin
@@ -46,12 +44,9 @@ public class StatusDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusDatastoreRdbms.class);
     
-    private static final String COL_ID = "id";
-    
-    private static final String[] GENERATED_KEY_COLS = { COL_ID };
+    private static final String[] GENERATED_KEY_COLS = { };
     
     private static final String[] ALL_COLUMNS_LIST = {        
-        COL_ID,
         
         //TODO: add colums from properties Status in here
         "customerId",
@@ -64,8 +59,8 @@ public class StatusDAO extends BaseJdbcDao {
         "lastModifiedTimestamp"
     };
     
-    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
+    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList("createdTimestamp"));
     
     private static final String TABLE_NAME = "status";
     private static final String TABLE_PREFIX = "s.";
@@ -123,7 +118,7 @@ public class StatusDAO extends BaseJdbcDao {
     private static final String SQL_GET_BY_ID =
         "select " + ALL_COLUMNS +
         " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
+        " where customerId = ? and equipmentId = ? and statusDataType = ? ";
     
     private static final String SQL_GET_BY_CUSTOMER_ID = 
     		"select " + ALL_COLUMNS +
@@ -133,7 +128,7 @@ public class StatusDAO extends BaseJdbcDao {
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
         " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
+        " where customerId = ? and equipmentId = ? and statusDataType = ? ";
 
     private static final String SQL_INSERT =
         "insert into "+TABLE_NAME+" ( " 
@@ -141,16 +136,14 @@ public class StatusDAO extends BaseJdbcDao {
         + " ) values ( "+BIND_VARS_FOR_INSERT+" ) ";
 
     private static final String SQL_DELETE =
-        "delete from "+TABLE_NAME+" where " + COL_ID + " = ? ";
+        "delete from "+TABLE_NAME+" where customerId = ? and equipmentId = ? ";
 
     private static final String SQL_UPDATE =
         "update "+TABLE_NAME+" set "
         + ALL_COLUMNS_UPDATE +
-        " where " + COL_ID + " = ? "
+        " where customerId = ? and equipmentId = ? and statusDataType = ?  "
         + " and ( lastModifiedTimestamp = ? or ? = true) " //last parameter will allow us to skip check for concurrent modification, if necessary
         ;
-
-    private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -164,17 +157,20 @@ public class StatusDAO extends BaseJdbcDao {
         setDataSource((DataSource)dataSource);        
     }
 
-
+    @PostConstruct
+    void afterPropertiesSet(){
+    	setSkipCheckForConcurrentUpdates(true);
+    }
+    
     public Status create(final Status status) {
         
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         final long ts = System.currentTimeMillis();
 
         try{
             jdbcTemplate.update(
                 new PreparedStatementCreator() {
                     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT, keyColumnConverter.getKeyColumnName(GENERATED_KEY_COLS) );
+                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT );
                         int colIdx = 1;
                         
                         //TODO: add remaining properties from Status here 
@@ -188,14 +184,11 @@ public class StatusDAO extends BaseJdbcDao {
                         
                         return ps;
                     }
-                },
-                keyHolder);
+                });
         }catch (DuplicateKeyException e) {
             throw new DsDuplicateEntityException(e);
         }
         
-        // keyHolder.getKey() now contains the generated key   
-        status.setId(((Long)keyHolder.getKeys().get(COL_ID)));
         status.setCreatedTimestamp(ts);
         status.setLastModifiedTimestamp(ts);
 
@@ -206,47 +199,33 @@ public class StatusDAO extends BaseJdbcDao {
     }
 
     
-    public Status get(long statusId) {
-        LOG.debug("Looking up Status for id {}", statusId);
-
-        try{
-            Status status = this.jdbcTemplate.queryForObject(
-                    SQL_GET_BY_ID,
-                    statusRowMapper, statusId);
-            
-            LOG.debug("Found Status {}", status);
-            
-            return status;
-        }catch (EmptyResultDataAccessException e) {
-            throw new DsEntityNotFoundException(e);
-        }
-    }
-
     @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
-    public Status getOrNull(long statusId) {
-        LOG.debug("Looking up Status for id {}", statusId);
+    public Status getOrNull(int customerId, long equipmentId, StatusDataType statusDataType) {
+        LOG.debug("Looking up Status for id {}:{}:{}", customerId, equipmentId, statusDataType);
 
         try{
-            Status status = this.jdbcTemplate.queryForObject(
-                    SQL_GET_BY_ID,
-                    statusRowMapper, statusId);
+			Status status = this.jdbcTemplate.queryForObject(SQL_GET_BY_ID, statusRowMapper, 
+					customerId, 
+					equipmentId,
+					statusDataType != null ? statusDataType.getId() : -1
+				);
             
             LOG.debug("Found Status {}", status);
             
             return status;
         }catch (EmptyResultDataAccessException e) {
-            LOG.debug("Could not find Status for id {}", statusId);
+            LOG.debug("Could not find Status for id {}:{}:{}", customerId, equipmentId, statusDataType);
             return null;
         }
     }
 
+    @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
     public Status update(Status status) {
 
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = status.getLastModifiedTimestamp();
         
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //status.getId(), - not updating this one
 
                 //TODO: add remaining properties from Status here
         		status.getCustomerId(),
@@ -258,7 +237,9 @@ public class StatusDAO extends BaseJdbcDao {
                 newLastModifiedTs,
                 
                 // use id for update operation
-                status.getId(),
+        		status.getCustomerId(),
+                status.getEquipmentId(),
+                status.getStatusDataType().getId(),
                 // use lastModifiedTimestamp for data protection against concurrent modifications
                 incomingLastModifiedTs,
                 isSkipCheckForConcurrentUpdates()
@@ -268,32 +249,38 @@ public class StatusDAO extends BaseJdbcDao {
             
             try{
                 
-                if(isSkipCheckForConcurrentUpdates()){
-                    //in this case we did not request protection against concurrent updates,
-                    //so the updateCount is 0 because record in db was not found
-                    throw new EmptyResultDataAccessException(1);
-                }
-                
                 //find out if record could not be updated because it does not exist or because it was modified concurrently
                 long recordTimestamp = this.jdbcTemplate.queryForObject(
                     SQL_GET_LASTMOD_BY_ID,
                     Long.class,
-                    status.getId()
+                    status.getCustomerId(), status.getEquipmentId(), status.getStatusDataType().getId()
                     );
                 
-                LOG.debug("Concurrent modification detected for Status with id {} expected version is {} but version in db was {}", 
-                        status.getId(),
-                        incomingLastModifiedTs,
-                        recordTimestamp
-                        );
-                throw new DsConcurrentModificationException("Concurrent modification detected for Status with id " + status.getId()
-                        +" expected version is " + incomingLastModifiedTs
-                        +" but version in db was " + recordTimestamp
-                        );
+                if(!isSkipCheckForConcurrentUpdates()){
+	                LOG.debug("Concurrent modification detected for Status with id {}:{}:{} expected version is {} but version in db was {}", 
+	                		status.getCustomerId(), status.getEquipmentId(), status.getStatusDataType(),
+	                        incomingLastModifiedTs,
+	                        recordTimestamp
+	                        );
+	                throw new DsConcurrentModificationException("Concurrent modification detected for Status with id " 
+	                        + status.getCustomerId() + ":" + status.getEquipmentId() + ":" + status.getStatusDataType()
+	                        +" expected version is " + incomingLastModifiedTs
+	                        +" but version in db was " + recordTimestamp
+	                        );
+                }
                 
             }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find Status for {}", status.getId());
-                throw new DsEntityNotFoundException("Status not found " + status.getId());
+                LOG.debug("Could not find Status for id {}:{}:{}", status.getCustomerId(), status.getEquipmentId(), status.getStatusDataType());
+
+                if(isSkipCheckForConcurrentUpdates()){
+                    //in this case we did not request protection against concurrent updates,
+                    //so the updateCount is 0 because record in db was not found
+                	//we'll create a new record 
+                	return create(status);
+                } else {
+					throw new DsEntityNotFoundException("Status not found " + status.getCustomerId() + ":"
+							+ status.getEquipmentId() + ":" + status.getStatusDataType());
+                }
             }
         }
 
@@ -306,13 +293,20 @@ public class StatusDAO extends BaseJdbcDao {
         return statusCopy;
     }
 
+    public List<Status> update(List<Status> statusList) {
+    	 List<Status>ret = new ArrayList<>();
+    	 if(statusList!=null) {
+    		 statusList.forEach(s -> ret.add(update(s)) ); 
+    	 }
+    	 return ret;
+    }
     
-    public Status delete(long statusId) {
-        Status ret = get(statusId);
+    public List<Status> delete(int customerId, long equipmentId) {
+    	List<Status> ret = get(customerId, equipmentId);
         
-        this.jdbcTemplate.update(SQL_DELETE, statusId);
+        this.jdbcTemplate.update(SQL_DELETE, customerId, equipmentId);
                 
-        LOG.debug("Deleted Status {}", ret);
+        LOG.debug("Deleted Statuses {}", ret);
         
         return ret;
     }
@@ -332,26 +326,13 @@ public class StatusDAO extends BaseJdbcDao {
         return ret;
     }
 
-    public List<Status> get(Set<Long> statusIdSet) {
-        LOG.debug("calling get({})", statusIdSet);
+    public List<Status> get(int customerId, long equipmentId) {
+        LOG.debug("calling get({},{})", customerId, equipmentId);
 
-        if (statusIdSet == null || statusIdSet.isEmpty()) {
-            return Collections.emptyList();
-        }
+        String query = SQL_GET_BY_CUSTOMER_ID + " and equipmentId = ? ";
+        List<Status> results = this.jdbcTemplate.query(query, new Object[] {customerId, equipmentId} , statusRowMapper);
 
-        StringBuilder set = new StringBuilder(256);
-        set.append("(");
-        for(int i =0; i< statusIdSet.size(); i++) {
-        		set.append("?,");
-        }
-        //remove last comma
-        set.deleteCharAt(set.length()-1);
-        set.append(")");
-        
-        String query = SQL_GET_ALL_IN_SET + set;
-        List<Status> results = this.jdbcTemplate.query(query, statusIdSet.toArray(), statusRowMapper);
-
-        LOG.debug("get({}) returns {} record(s)", statusIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({},{}) returns {} record(s)", customerId, equipmentId, (null == results) ? 0 : results.size());
         return results;
     }
 
@@ -365,7 +346,7 @@ public class StatusDAO extends BaseJdbcDao {
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Statuss for customer {} with last returned page number {}",
+                    "No more pages available when looking up Statuses for customer {} with last returned page number {}",
                     customerId, context.getLastReturnedPageNumber());
             return ret;
         }
@@ -407,7 +388,7 @@ public class StatusDAO extends BaseJdbcDao {
         } else {
             // no sort order was specified - sort by id to have consistent
             // paging
-            strbSort.append(COL_ID);
+            strbSort.append("equipmentId");
         }
 
         query += strbSort.toString();
@@ -444,5 +425,128 @@ public class StatusDAO extends BaseJdbcDao {
         ret.getContext().setStartAfterItem(null);
 
         return ret;
+    }
+	
+    public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
+    		Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
+        PaginationResponse<Status> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Statuses for customer {} equipment {} types {} with last returned page number {}",
+                    customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Statuses for customer {} equipment {} types {} with last returned page number {}", 
+                customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
+
+        String query = SQL_GET_BY_CUSTOMER_ID;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+        //add statusDataType filters
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+        	statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and statusDataType in (");
+            for (int i = 0; i < statusDataTypes.size(); i++) {
+                strb.append("?");
+                if (i < statusDataTypes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }        
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append("equipmentId");
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX ;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Status> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                statusRowMapper);
+
+        if (pageItems == null) {
+            LOG.debug("Cannot find Statuses for customer {} equipment {} types {} with last returned page number {}",
+                    customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
+        } else {
+            LOG.debug("Found {} Statuses for customer {} equipment {} types {} with last returned page number {}",
+                    pageItems.size(), customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
+        }
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;    	
     }
 }
