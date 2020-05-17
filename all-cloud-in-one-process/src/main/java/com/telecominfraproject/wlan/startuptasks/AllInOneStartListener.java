@@ -143,7 +143,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		Profile profileSsid = new Profile();
 		profileSsid.setCustomerId(customer.getId());
-		profileSsid.setProfileType(ProfileType.ssid);
 		profileSsid.setName("Connectus-cloud");
 		SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
 		Set<RadioType> appliedRadios = new HashSet<RadioType>();
@@ -157,7 +156,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 		Profile profileAp = new Profile();
 		profileAp.setCustomerId(customer.getId());
 		profileAp.setName("ApProfile");
-		profileAp.setProfileType(ProfileType.equipment_ap);
 		profileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
 		profileAp.getChildProfileIds().add(profileSsid.getId());
 		profileAp = profileServiceInterface.create(profileAp);
@@ -249,7 +247,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 		}catch (Exception e) {
 			// nothing to do here
 		}
-		eqProtocolStatus.setReportedMacAddr(eqProtocolStatus.getBaseMacAddress().getAddress());
+		eqProtocolStatus.setReportedMacAddr(eqProtocolStatus.getBaseMacAddress());
 		eqProtocolStatus.setSerialNumber(equipment.getSerial());		
 		status.setDetails(eqProtocolStatus);
 		statusList.add(status);

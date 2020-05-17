@@ -1,7 +1,6 @@
 package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.net.InetAddress;
-import java.util.Arrays;
 
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -55,7 +54,7 @@ public class EquipmentProtocolStatusData extends StatusDetails {
     /**
      * MAC address
      */
-    private byte[] reportedMacAddr;
+    private MacAddress reportedMacAddr;
     /**
      * Country code
      */
@@ -317,9 +316,15 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         } else if (!this.reportedIpV6Addr.equals(other.reportedIpV6Addr)) {
             return false;
         }
-        if (!Arrays.equals(this.reportedMacAddr, other.reportedMacAddr)) {
+
+        if (this.reportedMacAddr == null) {
+            if (other.reportedMacAddr != null) {
+                return false;
+            }
+        } else if (!this.reportedMacAddr.equals(other.reportedMacAddr)) {
             return false;
-        }
+        }        
+        
         if (this.reportedSku == null) {
             if (other.reportedSku != null) {
                 return false;
@@ -443,7 +448,7 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         return reportedIpV6Addr;
     }
 
-    public byte[] getReportedMacAddr() {
+    public MacAddress getReportedMacAddr() {
         return reportedMacAddr;
     }
 
@@ -498,7 +503,7 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         result = prime * result + ((this.reportedHwVersion == null) ? 0 : this.reportedHwVersion.hashCode());
         result = prime * result + ((this.reportedIpV4Addr == null) ? 0 : this.reportedIpV4Addr.hashCode());
         result = prime * result + ((this.reportedIpV6Addr == null) ? 0 : this.reportedIpV6Addr.hashCode());
-        result = prime * result + Arrays.hashCode(this.reportedMacAddr);
+        result = prime * result + ((this.reportedMacAddr == null) ? 0 : this.reportedMacAddr.hashCode());
         result = prime * result + ((this.reportedSku == null) ? 0 : this.reportedSku.hashCode());
         result = prime * result + ((this.reportedSwAltVersion == null) ? 0 : this.reportedSwAltVersion.hashCode());
         result = prime * result + ((this.reportedSwVersion == null) ? 0 : this.reportedSwVersion.hashCode());
@@ -583,7 +588,7 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         this.reportedIpV6Addr = reportedIpV6Addr;
     }
 
-    public void setReportedMacAddr(byte[] reportedMacAddr) {
+    public void setReportedMacAddr(MacAddress reportedMacAddr) {
         this.reportedMacAddr = reportedMacAddr;
     }
 
