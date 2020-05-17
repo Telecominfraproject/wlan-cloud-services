@@ -7,6 +7,7 @@ import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualString;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 
 /**
@@ -54,6 +55,12 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration implement
             radioMap.put(type, RadioProfileConfiguration.createWithDefaults(type));
         }
     }
+    
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.equipment_ap;
+    }
+
     
     @Override
     public ApNetworkConfiguration clone() {

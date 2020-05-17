@@ -29,6 +29,7 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 
 /**
@@ -338,9 +339,8 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
         result.setName("test-" + customerId); 
-        result.setProfileType(ProfileType.equipment_ap);
-        ProfileDetails details = new ProfileDetails();
-        details.setSampleDetailsStr("test-details-" + customerId);
+        SsidConfiguration details = SsidConfiguration.createWithDefaults();
+        details.setSsid("test-details-" + customerId);
 		result.setDetails(details );
         return result;
     }

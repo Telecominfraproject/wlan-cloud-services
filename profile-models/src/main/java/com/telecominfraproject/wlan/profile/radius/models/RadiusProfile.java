@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 /**
@@ -30,6 +31,11 @@ public class RadiusProfile extends ProfileDetails {
     private static final long serialVersionUID = 5489888031341902764L;
 
     public static final String DEFALUT_PROFILE_NAME = "Default";
+
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.radius;
+    }
 
     /**
      * Check if an IP address is in the subnet/prefix

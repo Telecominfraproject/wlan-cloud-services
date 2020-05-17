@@ -17,6 +17,7 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 import com.telecominfraproject.wlan.equipment.models.NetworkForwardMode;
 import com.telecominfraproject.wlan.equipment.models.StateSetting;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -105,6 +106,11 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setVideoTrafficOnly(false);
     }
         
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.ssid;
+    }
+
     public String getSsid() {
         return ssid;
     }
@@ -385,115 +391,39 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
 
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof SsidConfiguration)) {
-            return false;
-        }
-        SsidConfiguration other = (SsidConfiguration) obj;
-        if (appliedRadios == null) {
-            if (other.appliedRadios != null) {
-                return false;
-            }
-        } else if (!appliedRadios.equals(other.appliedRadios)) {
-            return false;
-        }
 
-        if (broadcastSsid != other.broadcastSsid) {
-            return false;
-        }
-        if (keyRefresh == null) {
-            if (other.keyRefresh != null) {
-                return false;
-            }
-        } else if (!keyRefresh.equals(other.keyRefresh)) {
-            return false;
-        }
-        if (keyStr == null) {
-            if (other.keyStr != null) {
-                return false;
-            }
-        } else if (!keyStr.equals(other.keyStr)) {
-            return false;
-        }
-        if (noLocalSubnets == null) {
-            if (other.noLocalSubnets != null) {
-                return false;
-            }
-        } else if (!noLocalSubnets.equals(other.noLocalSubnets)) {
-            return false;
-        }
-        if (secureMode != other.secureMode) {
-            return false;
-        }
-        if (ssid == null) {
-            if (other.ssid != null) {
-                return false;
-            }
-        } else if (!ssid.equals(other.ssid)) {
-            return false;
-        }
-        if (ssidAdminState != other.ssidAdminState) {
-            return false;
-        }
-        if (vlanId == null) {
-            if (other.vlanId != null) {
-                return false;
-            }
-        } else if (!vlanId.equals(other.vlanId)) {
-            return false;
-        }
-        if (radiusServiceName == null) {
-            if (other.radiusServiceName != null) {
-                return false;
-            }
-        } else if (!radiusServiceName.equals(other.radiusServiceName)) {
-            return false;
-        }
-        if (captivePortalId == null) {
-            if (other.captivePortalId != null) {
-                return false;
-            }
-        } else if (!captivePortalId.equals(other.captivePortalId)) {
-            return false;
-        }
-        if (bandwidthLimitDown == null) {
-            if (other.bandwidthLimitDown != null) {
-                return false;
-            }
-        } else if (!bandwidthLimitDown.equals(other.bandwidthLimitDown)) {
-            return false;
-        }
-        if (bandwidthLimitUp == null) {
-            if (other.bandwidthLimitUp != null) {
-                return false;
-            }
-        } else if (!bandwidthLimitUp.equals(other.bandwidthLimitUp)) {
-            return false;
-        } 
-        else if(!Objects.equals(this.radioBasedConfigs, other.radioBasedConfigs))
-        {
-            return false;
-        }
-        
-        if (!Objects.equals(this.wepConfig, other.wepConfig)) {
-            return false;
-        }
-        
-        if(!Objects.equals(this.videoTrafficOnly, other.videoTrafficOnly))
-        {
-            return false;
-        }
-        
-        return true;
-    }
-    
     @Override
+	public int hashCode() {
+		return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
+				captivePortalId, enable80211w, forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs,
+				radiusServiceName, secureMode, ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof SsidConfiguration)) {
+			return false;
+		}
+		SsidConfiguration other = (SsidConfiguration) obj;
+		return Objects.equals(appliedRadios, other.appliedRadios)
+				&& Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
+				&& Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
+				&& Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
+				&& broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
+				&& Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
+				&& Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
+				&& Objects.equals(noLocalSubnets, other.noLocalSubnets)
+				&& Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
+				&& Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
+				&& Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
+				&& Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
+				&& Objects.equals(wepConfig, other.wepConfig);
+	}
+
+	@Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
         

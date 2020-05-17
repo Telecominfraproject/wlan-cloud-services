@@ -7,6 +7,7 @@ import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 
 /**
@@ -21,6 +22,11 @@ public class MeshGroup extends ProfileDetails implements PushableConfiguration<M
      */
     private List<MeshGroupMember> members;
 
+
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.mesh;
+    }
 
     @Override
     public MeshGroup clone() {

@@ -13,6 +13,7 @@ import com.telecominfraproject.wlan.core.model.entity.InetAddressConstants;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 /**
@@ -119,6 +120,11 @@ public class CaptivePortalConfiguration extends ProfileDetails
        setExpiryType(SessionExpiryType.time_limited);
     }
     
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.captive_portal;
+    }
+
     public String getBrowserTitle() {
         return browserTitle;
     }

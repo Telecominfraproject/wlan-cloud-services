@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * Bonjour Gateway Profile. Contains configuration of set of Bonjour service(s)
@@ -33,6 +34,11 @@ public class BonjourGatewayProfile extends ProfileDetails implements PushableCon
      */
     private Map<Short, BonjourServiceSet> vlanServiceMap;
 
+    @Override
+    public ProfileType getProfileType() {
+    	return ProfileType.bonjour;
+    }
+    
     /**
      * Add a BonjourServiceSet into the profile. Merge it with existing entry if
      * found by VLAN Id.

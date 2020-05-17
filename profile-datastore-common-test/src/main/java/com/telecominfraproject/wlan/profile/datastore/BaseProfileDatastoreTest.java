@@ -28,6 +28,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 
 /**
  * @author dtoptygin
@@ -392,9 +393,8 @@ public abstract class BaseProfileDatastoreTest {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
         result.setName("test-" + customerId); 
-        result.setProfileType(ProfileType.equipment_ap);
-        ProfileDetails details = new ProfileDetails();
-        details.setSampleDetailsStr("test-details-" + customerId);
+        SsidConfiguration details = SsidConfiguration.createWithDefaults();
+        details.setSsid("test-details-" + customerId);
 		result.setDetails(details );
         return result;
     }

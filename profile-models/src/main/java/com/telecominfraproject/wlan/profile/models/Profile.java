@@ -66,6 +66,9 @@ public class Profile extends BaseJsonModel implements HasCustomerId {
 
 	public void setDetails(ProfileDetails details) {
 		this.details = details;
+		if(details!=null) {
+			this.profileType = details.getProfileType();
+		}
 	}
 
 	public ProfileType getProfileType() {
