@@ -46,10 +46,8 @@ public class NeighbourRadioInfo extends BaseJsonModel {
     public NeighbourRadioInfo clone() {
     	NeighbourRadioInfo ret = (NeighbourRadioInfo)super.clone();
     	if(this.bssIds != null) {
-    		ret.bssIds = new ArrayList<>();
-    		for(NeighbourBssidInfo b: this.bssIds) {
-    			ret.bssIds.add(b.clone());
-    		}
+    		ret.bssIds = new ArrayList<>(this.bssIds.size());
+    		this.bssIds.forEach(b -> ret.bssIds.add(b.clone()));
     	}
     	return ret;
     }

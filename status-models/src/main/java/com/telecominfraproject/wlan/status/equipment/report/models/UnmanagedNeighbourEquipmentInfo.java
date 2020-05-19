@@ -127,10 +127,8 @@ public class UnmanagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
     public UnmanagedNeighbourEquipmentInfo clone() {
         UnmanagedNeighbourEquipmentInfo ret = (UnmanagedNeighbourEquipmentInfo) super.clone();
         if (this.radios != null) {
-            ret.radios = new ArrayList<>();
-            for (NeighbourRadioInfo r : this.radios) {
-                ret.radios.add(r.clone());
-            }
+            ret.radios = new ArrayList<>(this.radios.size());
+            this.radios.forEach(r -> ret.radios.add(r.clone()));
         }
         return ret;
     }

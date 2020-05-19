@@ -68,6 +68,15 @@ public class BSSIDDetails extends BaseJsonModel
         return true;
     }
     
-    
+    @Override
+    public BSSIDDetails clone() {
+    	BSSIDDetails ret = (BSSIDDetails) super.clone();
+    	
+    	if(this.bssid!=null) {
+    		ret.bssid = this.bssid.clone();
+    	}
+    	
+    	return ret;
+    }
 
 }

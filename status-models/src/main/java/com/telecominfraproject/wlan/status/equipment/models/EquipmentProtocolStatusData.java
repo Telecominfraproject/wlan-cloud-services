@@ -187,6 +187,9 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         if (reportedMacAddr != null) {
             result.reportedMacAddr = reportedMacAddr.clone();
         }
+        if (baseMacAddress != null) {
+            result.baseMacAddress = baseMacAddress.clone();
+        }
         return result;
     }
 

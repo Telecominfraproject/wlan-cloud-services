@@ -1,7 +1,7 @@
 package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import com.telecominfraproject.wlan.status.models.StatusDetails;
 public class EquipmentNeighbouringStatusData extends StatusDetails 
 {
     static final long serialVersionUID = 489508020460226356L;
-    private Map<RadioType, List<RoamingCandidate>> neighbours = new HashMap<>();
+    private Map<RadioType, List<RoamingCandidate>> neighbours = new EnumMap<>(RadioType.class);
 
     public EquipmentNeighbouringStatusData()
     {
@@ -126,5 +126,23 @@ public class EquipmentNeighbouringStatusData extends StatusDetails
 		EquipmentNeighbouringStatusData other = (EquipmentNeighbouringStatusData) obj;
 		return Objects.equals(neighbours, other.neighbours);
 	}
-    
+
+	@Override
+	public EquipmentNeighbouringStatusData clone() {
+
+		EquipmentNeighbouringStatusData ret = (EquipmentNeighbouringStatusData) super.clone();
+		
+        if (this.neighbours != null) {
+            ret.neighbours = new EnumMap<>(RadioType.class);
+            
+			this.neighbours.forEach( (k,v) -> {
+				List<RoamingCandidate> newList = new ArrayList<>();
+				v.forEach(rc -> newList.add(rc.clone()));
+				ret.neighbours.put(k, newList );
+			});
+        }
+
+		
+		return ret;
+	}
 }

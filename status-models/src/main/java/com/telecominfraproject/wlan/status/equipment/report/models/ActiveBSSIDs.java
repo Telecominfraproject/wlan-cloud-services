@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.status.equipment.report.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,4 +59,14 @@ public class ActiveBSSIDs extends StatusDetails
 		return Objects.equals(activeBSSIDs, other.activeBSSIDs);
 	}
 
+	@Override
+	public ActiveBSSIDs clone() {
+		ActiveBSSIDs ret = (ActiveBSSIDs) super.clone();
+		if(activeBSSIDs!=null) {
+			ret.activeBSSIDs = new ArrayList<>(activeBSSIDs.size());
+			
+			activeBSSIDs.forEach(a -> ret.activeBSSIDs.add(a.clone()));
+		}
+		return ret;
+	}
 }

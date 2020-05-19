@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -255,4 +256,19 @@ public class RoamingCandidate extends BaseJsonModel {
         return false;
     }
 
+    @Override
+    public RoamingCandidate clone() {
+    	RoamingCandidate ret = (RoamingCandidate) super.clone();
+    	
+    	if(mac!=null) {
+    		ret.mac = mac.clone();
+    	}
+    		
+    	if(bssids!=null) {
+    		ret.bssids = new ArrayList<>(bssids.size());
+    		bssids.forEach(b -> ret.bssids.add(b.clone()));    		
+    	}
+    	
+    	return ret;
+    }
 }

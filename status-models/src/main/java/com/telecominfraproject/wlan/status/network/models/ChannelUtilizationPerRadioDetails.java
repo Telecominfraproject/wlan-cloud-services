@@ -53,7 +53,7 @@ public class ChannelUtilizationPerRadioDetails extends BaseJsonModel {
     public ChannelUtilizationPerRadioDetails clone() {
         ChannelUtilizationPerRadioDetails ret = (ChannelUtilizationPerRadioDetails) super.clone();
         
-        if(ret.channelUtilization!=null){
+        if(this.channelUtilization!=null){
             ret.channelUtilization = this.channelUtilization.clone();
         }
 

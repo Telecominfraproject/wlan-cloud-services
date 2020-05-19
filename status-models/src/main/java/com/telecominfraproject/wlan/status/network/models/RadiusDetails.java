@@ -39,11 +39,9 @@ public class RadiusDetails extends BaseJsonModel {
         
         if(radiusServerDetails!=null && !radiusServerDetails.isEmpty()){
             ret.radiusServerDetails = new ArrayList<>(radiusServerDetails.size());
-            
-            for(RadiusServerDetails rsd: radiusServerDetails){
-                ret.radiusServerDetails.add(rsd.clone());
-            }
+            radiusServerDetails.forEach(rsd -> ret.radiusServerDetails.add(rsd.clone()));
         }
+        
 		return ret;
 	}
 

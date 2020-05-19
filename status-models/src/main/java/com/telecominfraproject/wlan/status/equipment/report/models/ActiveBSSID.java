@@ -91,4 +91,9 @@ public class ActiveBSSID extends BaseJsonModel
         return RadioType.isUnsupported(radioType);
     }
 
+    @Override
+    public ActiveBSSID clone() {
+    	ActiveBSSID ret  = (ActiveBSSID) super.clone();
+    	return ret;
+    }
 }

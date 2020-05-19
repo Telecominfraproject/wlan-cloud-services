@@ -163,7 +163,13 @@ public class NeighbourBssidInfo extends BaseJsonModel {
 
     @Override
     public NeighbourBssidInfo clone() {
-        return (NeighbourBssidInfo) super.clone();
+    	NeighbourBssidInfo ret =  (NeighbourBssidInfo) super.clone();
+    	
+    	if(macAddress!=null) {
+    		ret.macAddress = macAddress.clone();
+    	}
+    	
+    	return ret;
     }
 
 

@@ -53,7 +53,7 @@ public class NoiseFloorPerRadioDetails extends BaseJsonModel {
     public NoiseFloorPerRadioDetails clone() {
         NoiseFloorPerRadioDetails ret = (NoiseFloorPerRadioDetails) super.clone();
         
-        if(ret.noiseFloor!=null){
+        if(this.noiseFloor!=null){
             ret.noiseFloor = this.noiseFloor.clone();
         }
 

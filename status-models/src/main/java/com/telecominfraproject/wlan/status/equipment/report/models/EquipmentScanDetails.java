@@ -30,10 +30,10 @@ public class EquipmentScanDetails extends StatusDetails
 
     // Neighbouring APs that belong to a different customer that is managed by
     // A2W
-    private Map<Integer, List<ManagedNeighbourEquipmentInfo>> managedNeighbours;
+    private Map<Integer, List<ManagedNeighbourEquipmentInfo>> managedNeighbours = new HashMap<>();
 
     // Neighbouring APs that are not managed by A2W
-    private List<UnmanagedNeighbourEquipmentInfo> unmanagedNeighbours;
+    private List<UnmanagedNeighbourEquipmentInfo> unmanagedNeighbours = new ArrayList<>();
 
     @Override
     public StatusDataType getStatusDataType() {
@@ -213,22 +213,20 @@ public class EquipmentScanDetails extends StatusDetails
 
         if (this.managedNeighbours != null) {
             ret.managedNeighbours = new HashMap<>();
-            for (Entry<Integer, List<ManagedNeighbourEquipmentInfo>> e : this.managedNeighbours.entrySet()) {
-                List<ManagedNeighbourEquipmentInfo> apList = null;
-                if (e.getValue() != null) {
-                    apList = new ArrayList<>();
-                    for (ManagedNeighbourEquipmentInfo p : e.getValue()) {
-                        apList.add(p.clone());
-                    }
+            this.managedNeighbours.forEach((k, v) -> {
+                if (v != null) {
+                	List<ManagedNeighbourEquipmentInfo> apList = new ArrayList<>(v.size());
+                    v.forEach( p -> apList.add(p.clone()));
+                    ret.managedNeighbours.put(k, apList);
+                } else {
+                	ret.managedNeighbours.put(k, null);
                 }
-                ret.managedNeighbours.put(e.getKey(), apList);
-            }
+            });
         }
+        
         if (this.unmanagedNeighbours != null) {
-            ret.unmanagedNeighbours = new ArrayList<>();
-            for (UnmanagedNeighbourEquipmentInfo p : this.unmanagedNeighbours) {
-                ret.unmanagedNeighbours.add(p.clone());
-            }
+            ret.unmanagedNeighbours = new ArrayList<>(this.unmanagedNeighbours.size());
+            this.unmanagedNeighbours.forEach(p -> ret.unmanagedNeighbours.add(p.clone()));
         }
         return ret;
     }

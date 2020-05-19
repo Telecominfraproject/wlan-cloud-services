@@ -26,11 +26,9 @@ public class EquipmentPeerStatusData extends StatusDetails {
     
     public EquipmentPeerStatusData clone() {
         EquipmentPeerStatusData result = (EquipmentPeerStatusData) super.clone();
-        if (null != getPeers()) {
-            result.setPeers(new ArrayList<>(getPeers().size()));
-            for (PeerInfo p : getPeers()) {
-                result.getPeers().add(p.clone());
-            }
+        if (peers != null) {
+            result.peers = new ArrayList<>(getPeers().size());
+            peers.forEach(p -> result.peers.add(p.clone()));
         }
         return result;
     }
