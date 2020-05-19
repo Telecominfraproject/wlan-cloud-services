@@ -82,11 +82,19 @@ public class NetworkAdminStatusData extends StatusDetails {
     public NetworkAdminStatusData clone() {
         NetworkAdminStatusData ret = (NetworkAdminStatusData) super.clone();
         if (this.equipmentCountsBySeverity != null) {
-            ret.equipmentCountsBySeverity = new EnumMap<>(this.equipmentCountsBySeverity);
+            ret.equipmentCountsBySeverity = new EnumMap<>(StatusCode.class);
+            
+            if(!this.equipmentCountsBySeverity.isEmpty()) {
+            	ret.equipmentCountsBySeverity.putAll(this.equipmentCountsBySeverity);
+            }
         }
 
         if (this.averageCoveragePerRadio != null) {
-            ret.averageCoveragePerRadio = new EnumMap<>(this.averageCoveragePerRadio);
+            ret.averageCoveragePerRadio = new EnumMap<>(RadioType.class);
+            
+            if(!this.averageCoveragePerRadio.isEmpty()) {
+            	ret.averageCoveragePerRadio.putAll(this.averageCoveragePerRadio);
+            }
         }
 
         return ret;

@@ -581,7 +581,10 @@ public class ClientMetrics extends BaseClientMetrics {
         ClientMetrics ret = (ClientMetrics) super.clone();
 
         if (this.wmmQueueStats != null) {
-            ret.wmmQueueStats = new EnumMap<>(this.wmmQueueStats);
+            ret.wmmQueueStats = new EnumMap<>(WmmQueueType.class);
+            if(!this.wmmQueueStats.isEmpty()) {
+            	ret.wmmQueueStats.putAll(this.wmmQueueStats);
+            }
         }
         if (this.mcsStats != null) {
             ret.mcsStats = new ArrayList<>(this.mcsStats);

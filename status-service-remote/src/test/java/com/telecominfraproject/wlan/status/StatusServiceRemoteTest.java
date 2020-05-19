@@ -33,6 +33,7 @@ import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
+import com.telecominfraproject.wlan.status.network.models.NetworkAdminStatusData;
 
 /**
  * @author dtoptygin
@@ -67,6 +68,52 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
                 
         // update
         ((EquipmentAdminStatusData) created.getDetails()).setStatusMessage("updated");
+        Status updated = remoteInterface.update(created);
+        assertNotNull(updated);
+        assertEquals(created.getDetails(), updated.getDetails());
+               
+        //retrieve
+        Status retrieved = remoteInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getStatusDataType());
+        assertNotNull(retrieved);
+        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+
+        retrieved = remoteInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getStatusDataType());
+        assertNotNull(retrieved);
+        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+        
+        //retrieve non-existent    
+        assertNull(remoteInterface.getOrNull(-1, -1, null));
+        
+        //delete
+        List<Status> retrievedList = remoteInterface.delete(created.getCustomerId(), created.getEquipmentId());
+        assertNotNull(retrievedList);
+        assertEquals(1, retrievedList.size());
+        
+        //delete non-existent
+    	retrievedList = remoteInterface.delete(-1, -1);
+    	assertTrue(retrievedList.isEmpty());
+
+    }
+    
+    @Test
+    public void testNetworkAdminStatusDataCRUD() {
+    	Status status = new Status();
+    	status.setCustomerId(getNextCustomerId());
+    	status.setEquipmentId(getNextEquipmentId()); 
+    	NetworkAdminStatusData details = new NetworkAdminStatusData();
+        details.setDhcpStatus(StatusCode.normal);
+        status.setDetails(details );
+        
+        //create
+    	Status created = remoteInterface.update(status);
+        assertNotNull(created);
+        assertEquals(status.getEquipmentId(), created.getEquipmentId());
+        assertEquals(status.getCustomerId(), created.getCustomerId());
+        assertNotNull(created.getDetails());
+        assertEquals(status.getDetails(), created.getDetails());
+                
+        // update
+        ((NetworkAdminStatusData) created.getDetails()).setDnsStatus(StatusCode.normal);
         Status updated = remoteInterface.update(created);
         assertNotNull(updated);
         assertEquals(created.getDetails(), updated.getDetails());
