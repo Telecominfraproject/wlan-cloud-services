@@ -32,7 +32,7 @@ public class EquipmentElementConfigurationTests
       assertEquals(2, generated.getRadioMap().size());
 
       assertNotNull(generated.getAdvancedRadioMap());
-      assertEquals(2, generated.getAdvancedRadioMap().size());
+      assertEquals(3, generated.getAdvancedRadioMap().size());
    }
  
    @Test
@@ -62,7 +62,7 @@ public class EquipmentElementConfigurationTests
    public void testOutdoorChannels()
    {
        ApElementConfiguration apElemConfig = ApElementConfiguration.createWithDefaults("xxx", ApModel.OUTDOOR);
-       ElementRadioConfiguration radioConfig = apElemConfig.getRadioMap().get(RadioType.is5GHz);
+       ElementRadioConfiguration radioConfig = apElemConfig.getRadioMap().get(RadioType.is5GHzU);
        assertTrue(radioConfig.getActiveChannel() >= 149);
        assertTrue(radioConfig.getChannelNumber() >= 149);
        assertTrue(radioConfig.getBackupChannelNumber() >= 149);

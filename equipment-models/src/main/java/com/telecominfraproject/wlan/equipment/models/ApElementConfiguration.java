@@ -10,200 +10,200 @@ import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 
-
 /**
  * @author dtoptygin
  *
  */
 public class ApElementConfiguration extends CommonElementConfiguration {
-	
-    public static enum ApModel {
-        INDOOR, OUTDOOR
-    }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -5866232445606459196L;
+	public static enum ApModel {
+		INDOOR, OUTDOOR
+	}
 
-    public static final String DEFAULT_VERSION = "AP-V1";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5866232445606459196L;
 
-    /**
-     * These are the radio indexes in the radio map.
-     */
-    public static final int FIVE_GHZ_RADIO_INDEX = 0;
-    public static final int TWO_POINT_FOUR_GHZ_RADIO_INDEX = 1;
+	public static final String DEFAULT_VERSION = "AP-V1";
 
-    public static ApElementConfiguration createWithDefaults() {
-        return createWithDefaults(DEFAULT_VERSION, ApModel.INDOOR);
-    }
+	/**
+	 * These are the radio indexes in the radio map.
+	 */
+	public static final int FIVE_GHZ_RADIO_INDEX = 0;
+	public static final int TWO_POINT_FOUR_GHZ_RADIO_INDEX = 1;
 
-    public static ApElementConfiguration createWithDefaults(String elementVersion) {
-        return createWithDefaults(elementVersion, ApModel.INDOOR);
-    }
+	public static ApElementConfiguration createWithDefaults() {
+		return createWithDefaults(DEFAULT_VERSION, ApModel.INDOOR);
+	}
 
-    private Map<RadioType, ElementRadioConfiguration> radioMap;
+	public static ApElementConfiguration createWithDefaults(String elementVersion) {
+		return createWithDefaults(elementVersion, ApModel.INDOOR);
+	}
 
-    /*
-     * These are the "advanced" radio configuration. They can be redefined via
-     * the associated AP Profile or through tweaking the global defaults.
-     * 
-     */
-    private Map<RadioType, RadioConfiguration> advancedRadioMap;
+	private Map<RadioType, ElementRadioConfiguration> radioMap;
 
-    /*
-     * NOTE: Please use the static creator
-     */
-    private ApElementConfiguration() {
-        super(EquipmentType.AP);
+	/*
+	 * These are the "advanced" radio configuration. They can be redefined via the
+	 * associated AP Profile or through tweaking the global defaults.
+	 * 
+	 */
+	private Map<RadioType, RadioConfiguration> advancedRadioMap;
 
-        /* We populate the radio map */
-        radioMap = new HashMap<>();
-        radioMap.put(RadioType.is5GHz,
-                ElementRadioConfiguration.createWithDefaults(RadioType.is5GHz));
-        radioMap.put(RadioType.is2dot4GHz,
-                ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+	/*
+	 * NOTE: Please use the static creator
+	 */
+	private ApElementConfiguration() {
+		super(EquipmentType.AP);
 
-        /* We populate the advanced radio map */
-        advancedRadioMap = new EnumMap<>(RadioType.class);
-        advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
-        advancedRadioMap.put(RadioType.is5GHz, RadioConfiguration.createWithDefaults(RadioType.is5GHz));
-    }
+		/* We populate the radio map */
+		radioMap = new EnumMap<>(RadioType.class);
+		radioMap.put(RadioType.is5GHzL, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL));
+		radioMap.put(RadioType.is5GHzU, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU));
+		radioMap.put(RadioType.is2dot4GHz, ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
 
-    @Override
-    public ApElementConfiguration clone() {
-        ApElementConfiguration ret = (ApElementConfiguration) super.clone();
+		/* We populate the advanced radio map */
+		advancedRadioMap = new EnumMap<>(RadioType.class);
+		advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+		advancedRadioMap.put(RadioType.is5GHzL, RadioConfiguration.createWithDefaults(RadioType.is5GHzL));
+		advancedRadioMap.put(RadioType.is5GHzU, RadioConfiguration.createWithDefaults(RadioType.is5GHzU));
 
-        if (radioMap != null) {
-            ret.radioMap = new HashMap<>();
+	}
 
-            for (Map.Entry<RadioType, ElementRadioConfiguration> entry : radioMap.entrySet()) {
-                ret.radioMap.put(entry.getKey(), entry.getValue().clone());
-            }
-        }
+	@Override
+	public ApElementConfiguration clone() {
+		ApElementConfiguration ret = (ApElementConfiguration) super.clone();
 
-        if (advancedRadioMap != null) {
-            ret.advancedRadioMap = new EnumMap<>(RadioType.class);
+		if (radioMap != null) {
+			ret.radioMap = new HashMap<>();
 
-            for (Map.Entry<RadioType, RadioConfiguration> entry : advancedRadioMap.entrySet()) {
-                ret.advancedRadioMap.put(entry.getKey(), entry.getValue().clone());
-            }
-        }
+			for (Map.Entry<RadioType, ElementRadioConfiguration> entry : radioMap.entrySet()) {
+				ret.radioMap.put(entry.getKey(), entry.getValue().clone());
+			}
+		}
 
-        return ret;
-    }
+		if (advancedRadioMap != null) {
+			ret.advancedRadioMap = new EnumMap<>(RadioType.class);
 
-    public Map<RadioType, RadioConfiguration> getAdvancedRadioMap() {
-        return this.advancedRadioMap;
-    }
+			for (Map.Entry<RadioType, RadioConfiguration> entry : advancedRadioMap.entrySet()) {
+				ret.advancedRadioMap.put(entry.getKey(), entry.getValue().clone());
+			}
+		}
 
-    /**
-     * BIG ASS NOTE: The first element in the map is the 5ghz radio (ie: get(0))
-     * and 2.4ghz is the second element (ie: get(1))
-     * 
-     * @return
-     */
+		return ret;
+	}
 
-    public Map<RadioType, ElementRadioConfiguration> getRadioMap() {
-        return radioMap;
-    }
+	public Map<RadioType, RadioConfiguration> getAdvancedRadioMap() {
+		return this.advancedRadioMap;
+	}
 
-    public static ApElementConfiguration createWithDefaults(String elementVersion, ApModel model) {
+	/**
+	 * BIG ASS NOTE: The first element in the map is the 5ghz radio (ie: get(0)) and
+	 * 2.4ghz is the second element (ie: get(1))
+	 * 
+	 * @return
+	 */
 
-        // The constructor will populate the radio maps
-        ApElementConfiguration returnValue = new ApElementConfiguration();
-        returnValue.setElementConfigVersion(elementVersion);
-        returnValue.setEquipmentType(EquipmentType.AP);
+	public Map<RadioType, ElementRadioConfiguration> getRadioMap() {
+		return radioMap;
+	}
 
-        returnValue.setGettingDNS(GettingDNS.dhcp);
-        returnValue.setGettingIP(GettingIP.dhcp);
-        returnValue.setDeviceMode(DeviceMode.standaloneAP);
-        returnValue.setDeploymentType(DeploymentType.CEILING);
-        returnValue.setSyntheticClientEnabled(null);
-        returnValue.setFrameReportThrottleEnabled(true);
-        returnValue.setAntennaType(AntennaType.OMNI);
-        returnValue.setCostSavingEventsEnabled(true);
+	public static ApElementConfiguration createWithDefaults(String elementVersion, ApModel model) {
 
-        if (model == ApModel.OUTDOOR) {
-            returnValue.getRadioMap().get(RadioType.is5GHz).setBackupChannelNumber(157);
-            returnValue.getRadioMap().get(RadioType.is5GHz).setChannelNumber(149);
-            // NAAS-8919 change mimo for outdoor to 3x3
-            for (Entry<RadioType, RadioConfiguration> entry : returnValue.getAdvancedRadioMap().entrySet()) {
-                entry.getValue().setMimoMode(MimoMode.threeByThree);
-            }
-        }
+		// The constructor will populate the radio maps
+		ApElementConfiguration returnValue = new ApElementConfiguration();
+		returnValue.setElementConfigVersion(elementVersion);
+		returnValue.setEquipmentType(EquipmentType.AP);
 
-        returnValue.setForwardMode(NetworkForwardMode.BRIDGE);
-        return returnValue;
-    }
+		returnValue.setGettingDNS(GettingDNS.dhcp);
+		returnValue.setGettingIP(GettingIP.dhcp);
+		returnValue.setDeviceMode(DeviceMode.standaloneAP);
+		returnValue.setDeploymentType(DeploymentType.CEILING);
+		returnValue.setSyntheticClientEnabled(null);
+		returnValue.setFrameReportThrottleEnabled(true);
+		returnValue.setAntennaType(AntennaType.OMNI);
+		returnValue.setCostSavingEventsEnabled(true);
 
-    @Override
-    public boolean hasUnsupportedValue() {
-        if (super.hasUnsupportedValue()) {
-            return true;
-        }
+		// TODO: MikeH Do we have outdoor AP, if so, need U/L Band channels for defaults?
+		if (model == ApModel.OUTDOOR) {
+			returnValue.getRadioMap().get(RadioType.is5GHzU).setBackupChannelNumber(157);
+			returnValue.getRadioMap().get(RadioType.is5GHzU).setChannelNumber(149);
+			// NAAS-8919 change mimo for outdoor to 3x3
+			for (Entry<RadioType, RadioConfiguration> entry : returnValue.getAdvancedRadioMap().entrySet()) {
+				entry.getValue().setMimoMode(MimoMode.threeByThree);
+			}
+		}
 
-        if (hasUnsupportedValue(radioMap.values())) {
-            return true;
-        }
+		returnValue.setForwardMode(NetworkForwardMode.BRIDGE);
+		return returnValue;
+	}
 
-        /*
-         * These are the "advanced" radio configuration. They can be redefined
-         * via the associated AP Profile or through tweaking the global
-         * defaults.
-         * 
-         */
-        if (null != advancedRadioMap) {
-            for (Entry<RadioType, RadioConfiguration> entry : advancedRadioMap.entrySet()) {
-                if (RadioType.isUnsupported(entry.getKey()) || hasUnsupportedValue(entry.getValue())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean hasUnsupportedValue() {
+		if (super.hasUnsupportedValue()) {
+			return true;
+		}
 
-    @Override
-    public boolean needsToBeUpdatedOnDevice(Object previousVersion) {
-        if (previousVersion instanceof ApElementConfiguration) {
-            ApElementConfiguration casted = (ApElementConfiguration) previousVersion;
-            return !Objects.equals(this, casted);
-        }
-        return true;
-    }
+		if (hasUnsupportedValue(radioMap.values())) {
+			return true;
+		}
 
-    public void setAdvancedRadioMap(Map<RadioType, RadioConfiguration> advancedRadioMap) {
-        this.advancedRadioMap = advancedRadioMap;
-    }
+		/*
+		 * These are the "advanced" radio configuration. They can be redefined via the
+		 * associated AP Profile or through tweaking the global defaults.
+		 * 
+		 */
+		if (null != advancedRadioMap) {
+			for (Entry<RadioType, RadioConfiguration> entry : advancedRadioMap.entrySet()) {
+				if (RadioType.isUnsupported(entry.getKey()) || hasUnsupportedValue(entry.getValue())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-    public void setRadioMap(Map<RadioType, ElementRadioConfiguration> radioMap) {
-        this.radioMap = radioMap;
-    }
+	@Override
+	public boolean needsToBeUpdatedOnDevice(Object previousVersion) {
+		if (previousVersion instanceof ApElementConfiguration) {
+			ApElementConfiguration casted = (ApElementConfiguration) previousVersion;
+			return !Objects.equals(this, casted);
+		}
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + Objects.hash(advancedRadioMap, radioMap);
-        return result;
-    }
+	public void setAdvancedRadioMap(Map<RadioType, RadioConfiguration> advancedRadioMap) {
+		this.advancedRadioMap = advancedRadioMap;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof ApElementConfiguration)) {
-            return false;
-        }
-        ApElementConfiguration other = (ApElementConfiguration) obj;
-        return Objects.equals(advancedRadioMap, other.advancedRadioMap) && Objects.equals(radioMap, other.radioMap);
-    }
-    
-    public static void main(String[] args) {
+	public void setRadioMap(Map<RadioType, ElementRadioConfiguration> radioMap) {
+		this.radioMap = radioMap;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(advancedRadioMap, radioMap);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ApElementConfiguration)) {
+			return false;
+		}
+		ApElementConfiguration other = (ApElementConfiguration) obj;
+		return Objects.equals(advancedRadioMap, other.advancedRadioMap) && Objects.equals(radioMap, other.radioMap);
+	}
+
+	public static void main(String[] args) {
 		System.out.println(createWithDefaults());
 	}
 
