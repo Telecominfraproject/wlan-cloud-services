@@ -26,10 +26,13 @@ public interface CloudEventDispatcherInterface {
     }
 
     default void publishEventsBulk(List<SystemEvent> systemEvents)  {
-    	List<SystemEventRecord> records = new ArrayList<>();
-    	if(systemEvents!=null && !systemEvents.isEmpty()) {
-    		systemEvents.forEach(e -> records.add(new SystemEventRecord(e)));
+    	if(systemEvents==null || systemEvents.isEmpty()) {
+    		return;
     	}
+    	
+    	List<SystemEventRecord> records = new ArrayList<>();
+    	systemEvents.forEach(e -> records.add(new SystemEventRecord(e)));
+
     	publishEvents(records);
     }
 

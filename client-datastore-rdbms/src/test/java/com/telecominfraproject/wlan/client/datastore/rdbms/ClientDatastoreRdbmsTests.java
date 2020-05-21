@@ -22,7 +22,7 @@ import com.telecominfraproject.wlan.client.datastore.BaseClientDatastoreTest;
 @Rollback(value = true)
 @Transactional
 @Import(value = { ClientDatastoreRdbms.class, ClientDataSourceConfig.class,
-        ClientDAO.class, BaseJdbcTest.Config.class })
+        ClientDAO.class, ClientSessionDAO.class, BaseJdbcTest.Config.class })
 @TestWithEmbeddedDB
 public class ClientDatastoreRdbmsTests extends BaseClientDatastoreTest {
 

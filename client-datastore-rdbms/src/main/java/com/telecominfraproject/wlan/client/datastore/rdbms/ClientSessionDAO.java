@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -40,7 +41,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
  */
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-public class ClientDAO extends BaseJdbcDao {
+public class ClientSessionDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientDatastoreRdbms.class);
     
@@ -51,19 +52,19 @@ public class ClientDAO extends BaseJdbcDao {
     private static final String[] ALL_COLUMNS_LIST = {        
         COL_ID,
         
-        //TODO: add colums from properties Client in here
+        //TODO: add colums from properties ClientSession in here
         "customerId",
+        "equipmentId",
         "details",
-        //make sure the order of properties matches this list and list in ClientRowMapper and list in create/update methods
+        //make sure the order of properties matches this list and list in ClientSessionRowMapper and list in create/update methods
         
-        "createdTimestamp",
         "lastModifiedTimestamp"
     };
     
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp", "customerId"));
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "customerId", "equipmentId"));
     
-    private static final String TABLE_NAME = "client";
+    private static final String TABLE_NAME = "client_session";
     private static final String TABLE_PREFIX = "s.";
     private static final String ALL_COLUMNS;
 
@@ -119,7 +120,7 @@ public class ClientDAO extends BaseJdbcDao {
     private static final String SQL_GET_BY_ID =
         "select " + ALL_COLUMNS +
         " from "+TABLE_NAME+" " +
-        " where customerId = ? and " + COL_ID + " = ?";
+        " where customerId = ? and equipmentId = ? and " + COL_ID + " = ?";
     
     private static final String SQL_GET_BY_CUSTOMER_ID = 
     		"select " + ALL_COLUMNS +
@@ -129,7 +130,7 @@ public class ClientDAO extends BaseJdbcDao {
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
         " from "+TABLE_NAME+" " +
-        " where customerId = ? and  " + COL_ID + " = ?";
+        " where customerId = ? and equipmentId = ? and  " + COL_ID + " = ?";
 
     private static final String SQL_INSERT =
         "insert into "+TABLE_NAME+" ( " 
@@ -137,12 +138,12 @@ public class ClientDAO extends BaseJdbcDao {
         + " ) values ( "+BIND_VARS_FOR_INSERT+" ) ";
 
     private static final String SQL_DELETE =
-        "delete from "+TABLE_NAME+" where customerId = ? and  " + COL_ID + " = ? ";
+        "delete from "+TABLE_NAME+" where customerId = ? and equipmentId = ? and  " + COL_ID + " = ? ";
 
     private static final String SQL_UPDATE =
         "update "+TABLE_NAME+" set "
         + ALL_COLUMNS_UPDATE +
-        " where  customerId = ? and " + COL_ID + " = ? "
+        " where  customerId = ? and equipmentId = ? and " + COL_ID + " = ? "
         + " and ( lastModifiedTimestamp = ? or ? = true) " //last parameter will allow us to skip check for concurrent modification, if necessary
         ;
 
@@ -152,7 +153,7 @@ public class ClientDAO extends BaseJdbcDao {
     private static final String SORT_SUFFIX = "";
 
 
-    private static final RowMapper<Client> clientRowMapper = new ClientRowMapper();
+    private static final RowMapper<ClientSession> clientRowMapper = new ClientSessionRowMapper();
 
 
     @Autowired(required=false)
@@ -161,7 +162,12 @@ public class ClientDAO extends BaseJdbcDao {
     }
 
 
-    public Client create(final Client client) {
+    @PostConstruct
+    void afterPropertiesSet(){
+    	setSkipCheckForConcurrentUpdates(true);
+    }
+
+    public ClientSession create(final ClientSession clientSession) {
         
         final long ts = System.currentTimeMillis();
 
@@ -173,11 +179,11 @@ public class ClientDAO extends BaseJdbcDao {
                         int colIdx = 1;
                         
                         //TODO: add remaining properties from Client here 
-                        ps.setLong(colIdx++, client.getMacAddress().getAddressAsLong());
-                        ps.setInt(colIdx++, client.getCustomerId());
-                      	ps.setBytes(colIdx++, (client.getDetails()!=null)?client.getDetails().toZippedBytes():null);
+                        ps.setLong(colIdx++, clientSession.getMacAddress().getAddressAsLong());
+                        ps.setInt(colIdx++, clientSession.getCustomerId());
+                        ps.setLong(colIdx++, clientSession.getEquipmentId());
+                      	ps.setBytes(colIdx++, (clientSession.getDetails()!=null)?clientSession.getDetails().toZippedBytes():null);
                         
-                        ps.setLong(colIdx++, ts);
                         ps.setLong(colIdx++, ts);
                         
                         return ps;
@@ -187,26 +193,25 @@ public class ClientDAO extends BaseJdbcDao {
             throw new DsDuplicateEntityException(e);
         }
         
-        client.setCreatedTimestamp(ts);
-        client.setLastModifiedTimestamp(ts);
+        clientSession.setLastModifiedTimestamp(ts);
 
 
-        LOG.debug("Stored Client {}", client);
+        LOG.debug("Stored Client session {}", clientSession);
         
-        return client.clone();
+        return clientSession.clone();
     }
 
     
     @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
-    public Client getOrNull(int customerId, MacAddress clientMac) {
-        LOG.debug("Looking up Client for id {} {}", customerId, clientMac);
+    public ClientSession getSessionOrNull(int customerId, long equipmentId, MacAddress clientMac) {
+        LOG.debug("Looking up Client session for id {} {} {}", customerId, equipmentId, clientMac);
 
         try{
-            Client client = this.jdbcTemplate.queryForObject(
+            ClientSession client = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_ID,
-                    clientRowMapper, customerId, clientMac.getAddressAsLong());
+                    clientRowMapper, customerId, equipmentId, clientMac.getAddressAsLong());
             
-            LOG.debug("Found Client {}", client);
+            LOG.debug("Found Client session {}", client);
             
             return client;
         }catch (EmptyResultDataAccessException e) {
@@ -215,21 +220,21 @@ public class ClientDAO extends BaseJdbcDao {
         }
     }
 
-    public Client update(Client client) {
+    public ClientSession updateSession(ClientSession clientSession) {
 
         long newLastModifiedTs = System.currentTimeMillis();
-        long incomingLastModifiedTs = client.getLastModifiedTimestamp();
+        long incomingLastModifiedTs = clientSession.getLastModifiedTimestamp();
         
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //TODO: add remaining properties from Client here
-                (client.getDetails()!=null)?client.getDetails().toZippedBytes():null ,
+                //TODO: add remaining properties from Client session here
+                (clientSession.getDetails()!=null)?clientSession.getDetails().toZippedBytes():null ,
                                 
-                //client.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,
                 
                 // use id for update operation
-        		client.getCustomerId(),
-                client.getMacAddress().getAddressAsLong(),
+        		clientSession.getCustomerId(),
+        		clientSession.getEquipmentId(),
+                clientSession.getMacAddress().getAddressAsLong(),
                 // use lastModifiedTimestamp for data protection against concurrent modifications
                 incomingLastModifiedTs,
                 isSkipCheckForConcurrentUpdates()
@@ -239,78 +244,73 @@ public class ClientDAO extends BaseJdbcDao {
             
             try{
                 
-                if(isSkipCheckForConcurrentUpdates()){
-                    //in this case we did not request protection against concurrent updates,
-                    //so the updateCount is 0 because record in db was not found
-                    throw new EmptyResultDataAccessException(1);
-                }
-                
                 //find out if record could not be updated because it does not exist or because it was modified concurrently
                 long recordTimestamp = this.jdbcTemplate.queryForObject(
                     SQL_GET_LASTMOD_BY_ID,
                     Long.class,
-                    client.getCustomerId(),
-                    client.getMacAddress().getAddressAsLong()
+                    clientSession.getCustomerId(), clientSession.getEquipmentId(), clientSession.getMacAddress().getAddressAsLong()
                     );
                 
-                LOG.debug("Concurrent modification detected for Client with id {} {} expected version is {} but version in db was {}", 
-                        client.getCustomerId(),
-                        client.getMacAddress().getAddressAsLong(),
-                        incomingLastModifiedTs,
-                        recordTimestamp
-                        );
-                throw new DsConcurrentModificationException("Concurrent modification detected for Client with id " 
-                        + client.getCustomerId() + " " + client.getMacAddress()
-                        +" expected version is " + incomingLastModifiedTs
-                        +" but version in db was " + recordTimestamp
-                        );
+                if(!isSkipCheckForConcurrentUpdates()){
+	                LOG.debug("Concurrent modification detected for Client session with id {}:{}:{} expected version is {} but version in db was {}", 
+	                		clientSession.getCustomerId(), clientSession.getEquipmentId(), clientSession.getMacAddress(),
+	                        incomingLastModifiedTs,
+	                        recordTimestamp
+	                        );
+	                throw new DsConcurrentModificationException("Concurrent modification detected for Client session with id " 
+	                        + clientSession.getCustomerId() + ":" + clientSession.getEquipmentId() + ":" + clientSession.getMacAddress()
+	                        +" expected version is " + incomingLastModifiedTs
+	                        +" but version in db was " + recordTimestamp
+	                        );
+                }
                 
             }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
-                throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
+                LOG.debug("Could not find Client for id {}:{}:{}", clientSession.getCustomerId(), clientSession.getEquipmentId(), clientSession.getMacAddress());
+
+                if(isSkipCheckForConcurrentUpdates()){
+                    //in this case we did not request protection against concurrent updates,
+                    //so the updateCount is 0 because record in db was not found
+                	//we'll create a new record 
+                	return create(clientSession);
+                } else {
+					throw new DsEntityNotFoundException("Client session not found " + clientSession.getCustomerId() + ":"
+							+ clientSession.getEquipmentId() + ":" + clientSession.getMacAddress());
+                }
             }
         }
 
         //make a copy so that we don't accidentally update caller's version by reference
-        Client clientCopy = client.clone();
-        clientCopy.setLastModifiedTimestamp(newLastModifiedTs);
+        ClientSession clientSessionCopy = clientSession.clone();
+        clientSessionCopy.setLastModifiedTimestamp(newLastModifiedTs);
 
-        LOG.debug("Updated Client {}", clientCopy);
+        LOG.debug("Updated Client session {}", clientSessionCopy);
         
-        return clientCopy;
+        return clientSessionCopy;
     }
 
-    
-    public Client delete(int customerId, MacAddress clientMac) {
-        Client client = getOrNull(customerId, clientMac);
+	public List<ClientSession> updateSessions(List<ClientSession> sessionList) {
+		List<ClientSession> ret = new ArrayList<>();
+		if (sessionList != null) {
+			sessionList.forEach(s -> ret.add(updateSession(s)));
+		}
+		return ret;
+	}
+
+    public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
+        ClientSession client = getSessionOrNull(customerId, equipmentId, clientMac);
         if(client!=null) {
-            this.jdbcTemplate.update(SQL_DELETE, customerId, clientMac.getAddressAsLong());
+            this.jdbcTemplate.update(SQL_DELETE, customerId, equipmentId, clientMac.getAddressAsLong());
         } else {
-        	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + clientMac);
+        	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + equipmentId+ " " + clientMac);
         }
 
-        LOG.debug("Deleted Client {} {}", customerId, clientMac);
+        LOG.debug("Deleted Client session {} {} {}", customerId, equipmentId, clientMac);
 
         return client;
     }
 
-    public List<Client> getAllForCustomer(int customerId) {
-        LOG.debug("Looking up Clients for customer {}", customerId);
-
-        List<Client> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
-                clientRowMapper, customerId);
-
-        if (ret == null) {
-            LOG.debug("Cannot find Clients for customer {}", customerId);
-        } else {
-            LOG.debug("Found Clients for customer {} : {}", customerId, ret);
-        }
-
-        return ret;
-    }
-
-    public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
-        LOG.debug("calling get({}, {})", customerId, clientMacSet);
+    public List<ClientSession> getSessions(int customerId, Set<MacAddress> clientMacSet) {
+        LOG.debug("calling getSessions({}, {})", customerId, clientMacSet);
 
         if (clientMacSet == null || clientMacSet.isEmpty()) {
             return Collections.emptyList();
@@ -330,28 +330,28 @@ public class ClientDAO extends BaseJdbcDao {
         bindVars.add(customerId);
         clientMacSet.forEach(m -> bindVars.add(m.getAddressAsLong()) );
         
-        List<Client> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientRowMapper);
+        List<ClientSession> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientRowMapper);
 
-        LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, (null == results) ? 0 : results.size());
+        LOG.debug("getSessions({}, {}) returns {} record(s)", customerId, clientMacSet, (null == results) ? 0 : results.size());
         return results;
     }
 
 
-	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Client> context) {
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, List<ColumnAndSort> sortBy,
+			PaginationContext<ClientSession> context) {
 
-        PaginationResponse<Client> ret = new PaginationResponse<>();
+        PaginationResponse<ClientSession> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Clients for customer {} with last returned page number {}",
+                    "No more pages available when looking up Client sessions for customer {} with last returned page number {}",
                     customerId, context.getLastReturnedPageNumber());
             return ret;
         }
 
-        LOG.debug("Looking up Clients for customer {} with last returned page number {}", 
+        LOG.debug("Looking up Client sessions for customer {} with last returned page number {}", 
                 customerId, context.getLastReturnedPageNumber());
 
         String query = SQL_GET_BY_CUSTOMER_ID;
@@ -359,6 +359,24 @@ public class ClientDAO extends BaseJdbcDao {
         // add filters for the query
         ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
+
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
@@ -405,14 +423,14 @@ public class ClientDAO extends BaseJdbcDao {
          * time. Once offset=5,000,000 the cost goes up to 92734 and execution
          * time is 758.484 ms. - DT: still acceptable for our use case
          */
-        List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+        List<ClientSession> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 clientRowMapper);
 
         if (pageItems == null) {
-            LOG.debug("Cannot find Clients for customer {} with last returned page number {}",
+            LOG.debug("Cannot find Client sessions for customer {} with last returned page number {}",
                     customerId, context.getLastReturnedPageNumber());
         } else {
-            LOG.debug("Found {} Clients for customer {} with last returned page number {}",
+            LOG.debug("Found {} Client sessions for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
         }
 

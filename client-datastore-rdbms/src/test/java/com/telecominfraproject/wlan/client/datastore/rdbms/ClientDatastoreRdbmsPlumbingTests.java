@@ -1,7 +1,7 @@
 package com.telecominfraproject.wlan.client.datastore.rdbms;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 
+import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
-
-import com.telecominfraproject.wlan.client.models.Client;
 
 /**
  * @author dtoptygin
@@ -23,6 +23,7 @@ import com.telecominfraproject.wlan.client.models.Client;
         ClientDatastoreRdbms.class,
         ClientDataSourceConfig.class,
         ClientDAO.class,
+        ClientSessionDAO.class,
         BaseJdbcTest.Config.class
         })
 @TestWithEmbeddedDB
@@ -43,8 +44,8 @@ public class ClientDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
             //this is a simple test to see if embedded db is working in test environment
             JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
             Long ret = jdbcTemplate.queryForObject(
-                    "select id from client where id = ?", 
-                    Long.class, 1);               
+                    "select macAddress from client where customerId = ? and macAddress = ?", 
+                    Long.class, 1, 1);               
             
             assertEquals((Long)1L, ret);
         }
@@ -55,17 +56,12 @@ public class ClientDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     public void testCreateUpdateDeleteClient() {
                 
         //GET by Id test
-        Client ret = clientDatastore.get(1L);        
+        Client ret = clientDatastore.getOrNull(1, new MacAddress(1L));        
 
         //DELETE Test
-        clientDAO.delete(ret.getId());
-        
-        try{
-            clientDatastore.get(ret.getId());
-            fail("failed to delete Client");
-        }catch (Exception e) {
-            // expected it
-        }
+        clientDAO.delete(ret.getCustomerId(), ret.getMacAddress());
+      
+        assertNull(clientDatastore.getOrNull(ret.getCustomerId(), ret.getMacAddress()));
                 
     }
     

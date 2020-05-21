@@ -12,14 +12,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-
-import com.telecominfraproject.wlan.client.models.Client;
 
 /**
  * @author dtoptygin
@@ -31,8 +32,10 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
     private static final Logger LOG = LoggerFactory.getLogger(ClientServiceRemote.class);
     
     private static final ParameterizedTypeReference<List<Client>> Client_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Client>>() {};
+    private static final ParameterizedTypeReference<List<ClientSession>> ClientSession_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<ClientSession>>() {};
 
     private static final ParameterizedTypeReference<PaginationResponse<Client>> Client_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<Client>>() {};
+    private static final ParameterizedTypeReference<PaginationResponse<ClientSession>> ClientSession_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<ClientSession>>() {};
 
 
     private String baseUrl;
@@ -61,31 +64,14 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
     }
 
     @Override
-    public Client get(long clientId) {
+    public Client getOrNull(int customerId, MacAddress clientMac) {
         
-        LOG.debug("calling client.get {} ", clientId);
+        LOG.debug("calling client.getOrNull {} {}", customerId, clientMac);
 
         ResponseEntity<Client> responseEntity = restTemplate.getForEntity(
                 getBaseUrl()
-                +"?clientId={clientId}",
-                Client.class, clientId);
-        
-        Client ret = responseEntity.getBody();
-        
-        LOG.debug("completed client.get {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public Client getOrNull(long clientId) {
-        
-        LOG.debug("calling client.getOrNull {} ", clientId);
-
-        ResponseEntity<Client> responseEntity = restTemplate.getForEntity(
-                getBaseUrl()
-                +"/orNull?clientId={clientId}",
-                Client.class, clientId);
+                +"/orNull?customerId={customerId}&macAddress={clientMac}",
+                Client.class, customerId, clientMac);
         
         Client ret = responseEntity.getBody();
         
@@ -94,30 +80,28 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
         return ret;
     }
 
-	@Override
-	public List<Client> get(Set<Long> clientIdSet) {
+    @Override
+    public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
 		
-        LOG.debug("get({})", clientIdSet);
+        LOG.debug("get({} {})", customerId, clientMacSet);
 
-        if (clientIdSet == null || clientIdSet.isEmpty()) {
+        if (clientMacSet == null || clientMacSet.isEmpty()) {
             return Collections.emptyList();
         }
 
-        String setString = clientIdSet.toString().substring(1, clientIdSet.toString().length() - 1);
-        
         try {
             ResponseEntity<List<Client>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/inSet?clientIdSet={clientIdSet}", HttpMethod.GET,
-                    null, Client_LIST_CLASS_TOKEN, setString);
+                    getBaseUrl() + "/inSet?customerId={customerId}&clientMacSet={clientMacSet}", HttpMethod.GET,
+                    null, Client_LIST_CLASS_TOKEN, customerId, clientMacSet);
 
             List<Client> result = responseEntity.getBody();
             if (null == result) {
                 result = Collections.emptyList();
             }
-            LOG.debug("get({}) return {} entries", clientIdSet, result.size());
+            LOG.debug("get({} {}) return {} entries", customerId, clientMacSet, result.size());
             return result;
         } catch (Exception exp) {
-            LOG.error("getAllInSet({}) exception ", clientIdSet, exp);
+            LOG.error("get({} {}) exception ", customerId, clientMacSet, exp);
             throw exp;
         }
 
@@ -164,14 +148,14 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
     }
 
     @Override
-    public Client delete(long clientId) {
+    public Client delete(int customerId, MacAddress clientMac) {
         
-        LOG.debug("calling client.delete {} ", clientId);
+        LOG.debug("calling client.delete {} {}", customerId, clientMac);
 
         ResponseEntity<Client> responseEntity =  restTemplate.exchange(
                 getBaseUrl()
-                +"?clientId={clientId}", HttpMethod.DELETE,
-                null, Client.class, clientId);
+                +"?customerId={customerId}&macAddress={clientMac}", HttpMethod.DELETE,
+                null, Client.class, customerId, clientMac);
         
         Client ret = responseEntity.getBody();
         LOG.debug("completed client.delete {} ", ret);
@@ -179,6 +163,142 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
         return ret;
     }    
 
+    //
+    // Methods for managing client sessions
+    //
+    
+    @Override
+    public ClientSession getSessionOrNull(int customerId, long equipmentId, MacAddress clientMac) {
+        
+        LOG.debug("calling client.getSessionOrNull {} {} {}", customerId, equipmentId, clientMac);
+
+        ResponseEntity<ClientSession> responseEntity = restTemplate.getForEntity(
+                getBaseUrl()
+                +"/session/orNull?customerId={customerId}&equipmentId={equipmentId}&macAddress={clientMac}",
+                ClientSession.class, customerId, equipmentId, clientMac);
+        
+        ClientSession ret = responseEntity.getBody();
+        
+        LOG.debug("completed client.getSessionOrNull {} ", ret);
+        
+        return ret;
+    }
+
+    @Override
+    public List<ClientSession> getSessions(int customerId, Set<MacAddress> clientMacSet) {
+		
+        LOG.debug("getSessions({} {})", customerId, clientMacSet);
+
+        if (clientMacSet == null || clientMacSet.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        try {
+            ResponseEntity<List<ClientSession>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/session/inSet?customerId={customerId}&clientMacSet={clientMacSet}", HttpMethod.GET,
+                    null, ClientSession_LIST_CLASS_TOKEN, customerId, clientMacSet);
+
+            List<ClientSession> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getSessions({} {}) return {} entries", customerId, clientMacSet, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getSessions({} {}) exception ", customerId, clientMacSet, exp);
+            throw exp;
+        }
+
+	}
+
+    @Override
+    public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds,
+    		List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+		
+        LOG.debug("calling getSessionsForCustomer( {}, {}, {}, {} )", equipmentIds, customerId, sortBy, context);
+
+        String equipmentIdsStr = null;
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            equipmentIdsStr = equipmentIds.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            equipmentIdsStr = equipmentIdsStr.substring(1, equipmentIdsStr.length() - 1);
+        }
+
+        ResponseEntity<PaginationResponse<ClientSession>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                        + "/session/forCustomer?customerId={customerId}&equipmentIds={equipmentIdsStr}&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, ClientSession_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdsStr, sortBy, context);
+
+        PaginationResponse<ClientSession> ret = responseEntity.getBody();
+        LOG.debug("completed getSessionsForCustomer {} ", ret.getItems().size());
+
+        return ret;
+	}
+	
+    @Override
+    public ClientSession updateSession(ClientSession clientSession) {
+        
+        LOG.debug("calling client.updateSession {} ", clientSession);
+
+        if (BaseJsonModel.hasUnsupportedValue(clientSession)) {
+            LOG.error("Failed to update Client session, unsupported value in  {}", clientSession);
+            throw new DsDataValidationException("Client session contains unsupported value");
+        }
+        
+        HttpEntity<String> request = new HttpEntity<String>( clientSession.toString(), headers );
+
+        ResponseEntity<ClientSession> responseEntity = restTemplate.exchange(
+                getBaseUrl()+ "/session",
+                HttpMethod.PUT, request, ClientSession.class);
+        
+        ClientSession ret = responseEntity.getBody();
+        
+        LOG.debug("completed client.updateSession {} ", ret);
+        
+        return ret;
+    }
+
+    @Override
+    public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
+        
+        LOG.debug("calling client.deleteSession {} {} {}", customerId, equipmentId, clientMac);
+
+        ResponseEntity<ClientSession> responseEntity =  restTemplate.exchange(
+                getBaseUrl() + "/session"
+                +"?customerId={customerId}&equipmentId={equipmentId}&macAddress={clientMac}", HttpMethod.DELETE,
+                null, ClientSession.class, customerId, equipmentId, clientMac);
+        
+        ClientSession ret = responseEntity.getBody();
+        LOG.debug("completed client.deleteSession {} ", ret);
+        
+        return ret;
+    }    
+    
+    @Override
+    public List<ClientSession> updateSessions(List<ClientSession> clientSessions) {
+        LOG.debug("calling session.update {} ", clientSessions);
+
+        if (BaseJsonModel.hasUnsupportedValue(clientSessions)) {
+            LOG.error("Failed to update Client sessions, unsupported value in  {}", clientSessions);
+            throw new DsDataValidationException("Client session contains unsupported value");
+        }
+        
+        HttpEntity<String> request = new HttpEntity<String>( clientSessions.toString(), headers );
+
+        ResponseEntity<List<ClientSession>> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/session/bulk",
+                HttpMethod.PUT, request, ClientSession_LIST_CLASS_TOKEN);
+        
+        List<ClientSession> ret = responseEntity.getBody();
+        
+        LOG.debug("completed status.update {} ", ret);
+        
+        return ret;
+    }
+    
     public String getBaseUrl() {
         if(baseUrl==null) {
             baseUrl = environment.getProperty("tip.wlan.clientServiceBaseUrl").trim()+"/api/client";

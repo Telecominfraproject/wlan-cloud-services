@@ -6,12 +6,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.client.datastore.ClientDatastore;
 import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.client.session.models.ClientSession;
 
 /**
  * @author dtoptygin
@@ -21,6 +23,7 @@ import com.telecominfraproject.wlan.client.models.Client;
 public class ClientDatastoreRdbms implements ClientDatastore {
 
     @Autowired ClientDAO clientDAO;
+    @Autowired ClientSessionDAO clientSessionDAO;
 
     @Override
     public Client create(Client client) {
@@ -28,13 +31,8 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     }
 
     @Override
-    public Client get(long clientId) {
-        return clientDAO.get(clientId);
-    }
-
-    @Override
-    public Client getOrNull(long clientId) {
-        return clientDAO.getOrNull(clientId);
+    public Client getOrNull(int customerId, MacAddress clientMac) {
+        return clientDAO.getOrNull(customerId, clientMac);
     }
     
     @Override
@@ -43,13 +41,13 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     }
 
     @Override
-    public Client delete(long clientId) {
-        return clientDAO.delete(clientId);
+    public Client delete(int customerId, MacAddress clientMac) {
+        return clientDAO.delete(customerId, clientMac);
     }
     
     @Override
-    public List<Client> get(Set<Long> clientIdSet) {
-    	return clientDAO.get(clientIdSet);
+    public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
+    	return clientDAO.get(customerId, clientMacSet);
     }
     
     @Override
@@ -57,4 +55,37 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     		PaginationContext<Client> context) {
     	return clientDAO.getForCustomer( customerId, sortBy, context);
     }
+
+	@Override
+	public ClientSession getSessionOrNull(int customerId, long equipmentId, MacAddress clientMac) {
+		return clientSessionDAO.getSessionOrNull(customerId, equipmentId, clientMac);
+	}
+
+	@Override
+	public ClientSession updateSession(ClientSession clientSession) {
+		return clientSessionDAO.updateSession(clientSession);
+	}
+
+	@Override
+	public List<ClientSession> updateSessions(List<ClientSession> clientSessions) {
+		return clientSessionDAO.updateSessions(clientSessions);
+	}
+
+	@Override
+	public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
+		return clientSessionDAO.deleteSession(customerId, equipmentId, clientMac);
+	}
+
+	@Override
+	public List<ClientSession> getSessions(int customerId, Set<MacAddress> clientMacSet) {
+		return clientSessionDAO.getSessions(customerId, clientMacSet);
+	}
+
+	@Override
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds,
+			List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, sortBy, context);
+	}
+    
+    
 }

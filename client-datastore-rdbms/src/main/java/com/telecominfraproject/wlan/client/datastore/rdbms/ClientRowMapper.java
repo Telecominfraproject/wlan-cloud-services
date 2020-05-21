@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 import com.telecominfraproject.wlan.client.models.Client;
@@ -24,12 +25,11 @@ public class ClientRowMapper implements RowMapper<Client> {
     public Client mapRow(ResultSet rs, int rowNum) throws SQLException {
         Client client = new Client();
         int colIdx=1;
-        client.setId(rs.getLong(colIdx++));
+        client.setMacAddress(new MacAddress(rs.getLong(colIdx++)));
 
         //TODO: add columns from properties Client in here. 
         //make sure order of fields is the same as defined in Client
         client.setCustomerId(rs.getInt(colIdx++));
-        client.setSampleStr(rs.getString(colIdx++));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {
@@ -37,7 +37,7 @@ public class ClientRowMapper implements RowMapper<Client> {
             	ClientDetails details = BaseJsonModel.fromZippedBytes(zippedBytes, ClientDetails.class);
                 client.setDetails(details);
             } catch (RuntimeException exp) {
-                LOG.error("Failed to decode ClientDetails from database for id = {}", client.getId());
+                LOG.error("Failed to decode ClientDetails from database for id {} {}", client.getCustomerId(), client.getMacAddress());
             }
         }
 

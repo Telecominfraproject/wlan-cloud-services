@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.client.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
@@ -13,23 +14,22 @@ public class Client extends BaseJsonModel implements HasCustomerId {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
-	private long id;
+	private MacAddress macAddress;
     private int customerId;
 
     //TODO: put more fields here, generate getters/setters for them
-    private String sampleStr;
     private ClientDetails details;
     
     private long createdTimestamp;
     private long lastModifiedTimestamp;
     
-    public long getId() {
-        return id;
-    }
+	public MacAddress getMacAddress() {
+		return macAddress;
+	}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public void setMacAddress(MacAddress macAddress) {
+		this.macAddress = macAddress;
+	}
 
 	public int getCustomerId() {
 		return customerId;
@@ -53,14 +53,6 @@ public class Client extends BaseJsonModel implements HasCustomerId {
 
     public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
         this.lastModifiedTimestamp = lastModifiedTimestamp;
-    }
-
-    public void setSampleStr(String sampleStr) {
-        this.sampleStr = sampleStr;
-    }
-
-    public String getSampleStr() {
-        return sampleStr;
     }
 
 	public ClientDetails getDetails() {
@@ -96,7 +88,7 @@ public class Client extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, sampleStr, details);
+		return Objects.hash(createdTimestamp, customerId, macAddress, lastModifiedTimestamp, details);
 	}
 
 	@Override
@@ -108,9 +100,9 @@ public class Client extends BaseJsonModel implements HasCustomerId {
 			return false;
 		}
 		Client other = (Client) obj;
-		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
+		return createdTimestamp == other.createdTimestamp && customerId == other.customerId 
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(sampleStr, other.sampleStr)
+				&& Objects.equals(macAddress, other.macAddress)
 				&& Objects.equals(details, other.details);
 	}
     
