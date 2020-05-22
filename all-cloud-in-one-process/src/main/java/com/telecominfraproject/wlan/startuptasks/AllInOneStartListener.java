@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.startuptasks;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -16,10 +17,18 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.client.ClientServiceInterface;
+import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
+import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.client.models.ClientDetails;
+import com.telecominfraproject.wlan.client.session.models.ClientSession;
+import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
+import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
@@ -70,6 +79,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private StatusServiceInterface statusServiceInterface;
+
+	@Autowired
+	private ClientServiceInterface clientServiceInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -190,6 +202,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 			equipmentList.add(equipment);
 
 			createStatusForEquipment(equipment);
+			
+			createClientSessions(equipment, ssidConfig);
 
 		}
 
@@ -205,6 +219,80 @@ public class AllInOneStartListener implements ApplicationRunner {
 		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
 		LOG.info("SSID configs: {}", ssidConfigs);
 
+	}
+
+	private void createClientSessions(Equipment equipment, SsidConfiguration ssidConfig) {
+		int numClientsPerAp = 20;
+		Client client;
+		ClientSession clientSession;
+		MacAddress macAddress;
+		
+		for(int i=0; i< numClientsPerAp; i++) {
+			client = new Client();
+			client.setCustomerId(equipment.getCustomerId());
+			macAddress = new MacAddress(
+					new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(), getRandomByte(), getRandomByte() });
+			
+			client.setMacAddress(macAddress);
+			ClientInfoDetails details = new ClientInfoDetails();
+			details.setAlias("alias "+ macAddress.getAddressAsLong());
+			details.setApFingerprint("fp "+ macAddress.getAddressAsString());
+			details.setHostName("hostName-"+ macAddress.getAddressAsLong());
+			details.setUserName("user-"+ macAddress.getAddressAsLong());
+			client.setDetails(details );
+			this.clientServiceInterface.create(client);
+			
+			RadioType radioType	;
+			
+			int idx = (int) (macAddress.getAddressAsLong() %  3) ;
+			switch(idx) {
+				case 0:
+					radioType = RadioType.is2dot4GHz;
+					break;
+				case 1:
+					radioType = RadioType.is5GHzL;
+					break;
+				case 2:
+					radioType = RadioType.is5GHzU;
+					break;
+				default: 
+					radioType = RadioType.is5GHzL;
+			}
+			
+			clientSession = new ClientSession();
+			clientSession.setMacAddress(macAddress);
+			clientSession.setCustomerId(equipment.getCustomerId());
+			clientSession.setEquipmentId(equipment.getId());
+			
+			ClientSessionDetails sessionDetails = new ClientSessionDetails();
+			sessionDetails.setApFingerprint(details.getApFingerprint());
+			sessionDetails.setHostname(details.getHostName());
+			try {
+				sessionDetails.setIpAddress(Inet4Address.getByAddress(new byte[] { (byte) 192, (byte) 168, 10, getRandomByte() }));
+			} catch (UnknownHostException e) {
+				//nothing to do here
+			}			
+			sessionDetails.setRadioType(radioType);
+			sessionDetails.setSecurityType(SecurityType.PSK);
+			sessionDetails.setSsid(ssidConfig.getSsid());
+			sessionDetails.setSessionId(System.currentTimeMillis());
+			sessionDetails.setAssocTimestamp(System.currentTimeMillis()- getRandomLong(10000,1000000));
+			
+			ClientSessionMetricDetails metricDetails = new ClientSessionMetricDetails();
+			metricDetails.setRssi(getRandomInt(-60, -40));
+			metricDetails.setRxBytes(getRandomLong(10000, 10000000));
+			metricDetails.setTxBytes(getRandomLong(10000, 10000000));
+			metricDetails.setRxMbps(getRandomFloat(50,100));
+			metricDetails.setTxMbps(getRandomFloat(50,100));
+			metricDetails.setSnr(getRandomInt(-90, -50));
+			
+			sessionDetails.setMetricDetails(metricDetails );
+			
+			clientSession.setDetails(sessionDetails );
+			
+			this.clientServiceInterface.updateSession(clientSession);
+			
+		}
 	}
 
 	private void createStatusForEquipment(Equipment equipment) {
