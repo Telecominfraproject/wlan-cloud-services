@@ -4,32 +4,30 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 
 /**
  * @author dtoptygin
  *
  */
-public class Alarm extends BaseJsonModel implements HasCustomerId {
+public class Alarm extends BaseJsonModel implements HasCustomerId, HasEquipmentId, Comparable<Alarm> {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
-	private long id;
     private int customerId;
-
-    //TODO: put more fields here, generate getters/setters for them
-    private String sampleStr;
-    private AlarmDetails details;
-    
+    private long equipmentId;
+    private AlarmCode alarmCode;
     private long createdTimestamp;
-    private long lastModifiedTimestamp;
     
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+    private OriginatorType originatorType = OriginatorType.AP;
+    private StatusCode severity = StatusCode.error;
+    private AlarmScopeType scopeType = AlarmScopeType.EQUIPMENT;
+    private String scopeId = "-1";
+    private AlarmDetails details;
+    private boolean acknowledged;
+    
+    private long lastModifiedTimestamp;
 
 	public int getCustomerId() {
 		return customerId;
@@ -39,29 +37,61 @@ public class Alarm extends BaseJsonModel implements HasCustomerId {
 		this.customerId = customerId;
 	}
 
-    public long getCreatedTimestamp() {
-        return createdTimestamp;
-    }
+	public long getEquipmentId() {
+		return equipmentId;
+	}
 
-    public void setCreatedTimestamp(long createdTimestamp) {
-        this.createdTimestamp = createdTimestamp;
-    }
+	public void setEquipmentId(long equipmentId) {
+		this.equipmentId = equipmentId;
+	}
 
-    public long getLastModifiedTimestamp() {
-        return lastModifiedTimestamp;
-    }
+	public AlarmCode getAlarmCode() {
+		return alarmCode;
+	}
 
-    public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
-        this.lastModifiedTimestamp = lastModifiedTimestamp;
-    }
+	public void setAlarmCode(AlarmCode alarmCode) {
+		this.alarmCode = alarmCode;
+	}
 
-    public void setSampleStr(String sampleStr) {
-        this.sampleStr = sampleStr;
-    }
+	public long getCreatedTimestamp() {
+		return createdTimestamp;
+	}
 
-    public String getSampleStr() {
-        return sampleStr;
-    }
+	public void setCreatedTimestamp(long createdTimestamp) {
+		this.createdTimestamp = createdTimestamp;
+	}
+
+	public OriginatorType getOriginatorType() {
+		return originatorType;
+	}
+
+	public void setOriginatorType(OriginatorType originatorType) {
+		this.originatorType = originatorType;
+	}
+
+	public StatusCode getSeverity() {
+		return severity;
+	}
+
+	public void setSeverity(StatusCode severity) {
+		this.severity = severity;
+	}
+
+	public AlarmScopeType getScopeType() {
+		return scopeType;
+	}
+
+	public void setScopeType(AlarmScopeType scopeType) {
+		this.scopeType = scopeType;
+	}
+
+	public String getScopeId() {
+		return scopeId;
+	}
+
+	public void setScopeId(String scopeId) {
+		this.scopeId = scopeId;
+	}
 
 	public AlarmDetails getDetails() {
 		return details;
@@ -69,6 +99,44 @@ public class Alarm extends BaseJsonModel implements HasCustomerId {
 
 	public void setDetails(AlarmDetails details) {
 		this.details = details;
+	}
+
+	public boolean isAcknowledged() {
+		return acknowledged;
+	}
+
+	public void setAcknowledged(boolean acknowledged) {
+		this.acknowledged = acknowledged;
+	}
+
+	public long getLastModifiedTimestamp() {
+		return lastModifiedTimestamp;
+	}
+
+	public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
+		this.lastModifiedTimestamp = lastModifiedTimestamp;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(acknowledged, alarmCode, details, createdTimestamp, customerId, equipmentId,
+				lastModifiedTimestamp, originatorType, scopeId, scopeType, severity);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Alarm)) {
+			return false;
+		}
+		Alarm other = (Alarm) obj;
+		return acknowledged == other.acknowledged && alarmCode == other.alarmCode
+				&& Objects.equals(details, other.details) && createdTimestamp == other.createdTimestamp
+				&& customerId == other.customerId && equipmentId == other.equipmentId
+				&& lastModifiedTimestamp == other.lastModifiedTimestamp && originatorType == other.originatorType
+				&& Objects.equals(scopeId, other.scopeId) && scopeType == other.scopeType && severity == other.severity;
 	}
 
 	@Override
@@ -94,24 +162,19 @@ public class Alarm extends BaseJsonModel implements HasCustomerId {
     	return ret;
     }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, sampleStr, details);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Alarm)) {
-			return false;
-		}
-		Alarm other = (Alarm) obj;
-		return createdTimestamp == other.createdTimestamp && customerId == other.customerId && id == other.id
-				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
-				&& Objects.equals(sampleStr, other.sampleStr)
-				&& Objects.equals(details, other.details);
-	}
-    
+    @Override
+    public int compareTo(Alarm o) {
+    	int ret = Integer.compare(customerId, o.customerId);
+    	if(ret == 0) {
+    			ret = Long.compare(equipmentId, o.equipmentId);
+    	    	if(ret == 0) {
+        			ret = Integer.compare(alarmCode.getId(), o.alarmCode.getId());
+        	    	if(ret == 0) {
+            			ret = Long.compare(createdTimestamp, o.createdTimestamp);
+        	    	}
+    	    	}    	    	
+    	}
+    	
+    	return ret;
+    }
 }

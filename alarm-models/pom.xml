@@ -20,6 +20,11 @@
         </dependency>
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
+            <artifactId>status-models</artifactId>
+            <version>${tip-wlan-cloud.release.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>tip-wlan-cloud-system-event-models</artifactId>
             <version>${tip-wlan-cloud.release.version}</version>
         </dependency>

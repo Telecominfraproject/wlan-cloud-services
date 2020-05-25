@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificatio
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 
 /**
@@ -45,28 +46,29 @@ public abstract class BaseAlarmDatastoreTest {
         //create
     	Alarm created = testInterface.create(alarm);
         assertNotNull(created);
-        assertTrue(created.getId() > 0);
-        assertEquals(alarm.getSampleStr(), created.getSampleStr());
         assertEquals(alarm.getCustomerId(), created.getCustomerId());
+        assertEquals(alarm.getEquipmentId(), created.getEquipmentId());
+        assertEquals(alarm.getAlarmCode(), created.getAlarmCode());
+        assertEquals(alarm.getCreatedTimestamp(), created.getCreatedTimestamp());
         assertNotNull(created.getDetails());
         assertEquals(alarm.getDetails(), created.getDetails());
                 
         // update
-        created.setSampleStr(created.getSampleStr()+"_updated");
+        created.setScopeId("scope_updated");
         Alarm updated = testInterface.update(created);
         assertNotNull(updated);
-        assertEquals(created.getSampleStr(), updated.getSampleStr());
+        assertEquals(created.getScopeId(), updated.getScopeId());
         
         while(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
         	//update again to make the timestamps different      	
-            created.setSampleStr(created.getSampleStr()+"_updated_1");
+            created.setScopeId(created.getScopeId()+"_updated_1");
             updated = testInterface.update(created);
         }
 
         //UPDATE test - fail because of concurrent modification exception
         try{
         	Alarm modelConcurrentUpdate = created.clone();
-        	modelConcurrentUpdate.setSampleStr("not important");
+        	modelConcurrentUpdate.setScopeId("not important");
         	testInterface.update(modelConcurrentUpdate);
         	fail("failed to detect concurrent modification");
         }catch (DsConcurrentModificationException e) {
@@ -74,31 +76,23 @@ public abstract class BaseAlarmDatastoreTest {
         }
         
         //retrieve
-        Alarm retrieved = testInterface.get(created.getId());
-        assertNotNull(retrieved);
-        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
-
-        retrieved = testInterface.getOrNull(created.getId());
+        Alarm retrieved = testInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
         assertNotNull(retrieved);
         assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
         
         //retrieve non-existent
-        try {
-        	testInterface.get(-1);
-        	fail("retrieve non-existing record");
-        }catch(DsEntityNotFoundException e ){
-        	//expected it
-        }
         
-        assertNull(testInterface.getOrNull(-1));
+        assertNull(testInterface.getOrNull(-1, -1, AlarmCode.AssocFailure, -1));
         
         //delete
-        retrieved = testInterface.delete(created.getId());
+        retrieved = testInterface.delete(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
         assertNotNull(retrieved);
+        retrieved = testInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
+        assertNull(retrieved);
         
         //delete non-existent
         try {
-        	testInterface.delete(-1);
+        	testInterface.delete(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
         	fail("delete non-existing record");
         }catch(DsEntityNotFoundException e ){
         	//expected it
@@ -106,7 +100,7 @@ public abstract class BaseAlarmDatastoreTest {
 
         //update non-existent
         try {
-        	testInterface.update(retrieved);
+        	testInterface.update(updated);
         	fail("update non-existing record");
         }catch(DsEntityNotFoundException e ){
         	//expected it
@@ -115,16 +109,24 @@ public abstract class BaseAlarmDatastoreTest {
     }
     
     @Test
-    public void testGetAllInSet() {
+    public void testGetAllForEquipment() {
         Set<Alarm> createdSet = new HashSet<>();
         Set<Alarm> createdTestSet = new HashSet<>();
 
+        int customerId = (int) testSequence.incrementAndGet();
+        long pastTimestamp = 0;
+        
         //Create test Alarms
-        Alarm alarm = new Alarm();
-
         for (int i = 0; i < 10; i++) {
-            alarm.setSampleStr("test_" + i);
-            alarm.setCustomerId(i);
+        	Alarm alarm = createAlarmObject();
+            alarm.setScopeId("test_" + i);
+            alarm.setCustomerId(customerId);
+            
+            if(i == 8) {
+            	//create one record for the time of 10 sec ago
+            	alarm.setCreatedTimestamp(alarm.getCreatedTimestamp() - 10000);
+            	pastTimestamp = alarm.getCreatedTimestamp();
+            }
 
             Alarm ret = testInterface.create(alarm);
 
@@ -139,11 +141,11 @@ public abstract class BaseAlarmDatastoreTest {
         // Use only the IDs from the test set to retrieve records.
         Set<Long> testSetIds = new HashSet<>();
         for (Alarm c : createdTestSet) {
-            testSetIds.add(c.getId());
+            testSetIds.add(c.getEquipmentId());
         }
         assertEquals(5, testSetIds.size());
 
-        List<Alarm> alarmsRetrievedByIdSet = testInterface.get(testSetIds);
+        List<Alarm> alarmsRetrievedByIdSet = testInterface.get(customerId, testSetIds, Collections.singleton(AlarmCode.AccessPointIsUnreachable));
         assertEquals(5, alarmsRetrievedByIdSet.size());
         for (Alarm c : alarmsRetrievedByIdSet) {
             assertTrue(createdTestSet.contains(c));
@@ -153,13 +155,41 @@ public abstract class BaseAlarmDatastoreTest {
         for (Alarm c : alarmsRetrievedByIdSet) {
             assertTrue(!createdSet.contains(c));
         }
-		
+
+        List<Alarm> alarmsRetrievedByNullAlarmCodeSet = testInterface.get(customerId, testSetIds, null);
+        Collections.sort(alarmsRetrievedByIdSet);
+        Collections.sort(alarmsRetrievedByNullAlarmCodeSet);
+        assertEquals(alarmsRetrievedByIdSet, alarmsRetrievedByNullAlarmCodeSet);
+
+        List<Alarm> alarmsRetrievedByManyAlarmCodeSet = testInterface.get(customerId, testSetIds, new HashSet<AlarmCode>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.AssocFailure)));
+        Collections.sort(alarmsRetrievedByManyAlarmCodeSet);
+        assertEquals(alarmsRetrievedByIdSet, alarmsRetrievedByManyAlarmCodeSet);
+        
+        try {
+        	testInterface.get(customerId, null, null);
+        	fail("equipmentIds must not be null");
+        } catch (IllegalArgumentException e) {
+        	//expected it
+        }
+
+        try {
+        	testInterface.get(customerId, Collections.emptySet(), null);
+        	fail("equipmentIds must not be empty");
+        } catch (IllegalArgumentException e) {
+        	//expected it
+        }
+
+        //test retrieve after specified time stamp
+        List<Alarm> alarmsRetrievedAfterTs = testInterface.get(customerId, testSetIds, null, pastTimestamp + 10 );
+        assertEquals(4, alarmsRetrievedAfterTs.size());
+        alarmsRetrievedAfterTs.forEach(c -> assertTrue(createdTestSet.contains(c)) );
+
         // Clean up after test
         for (Alarm c : createdSet) {
-        	testInterface.delete(c.getId());
+        	testInterface.delete(c.getCustomerId(), c.getEquipmentId());
         }
         for (Alarm c : createdTestSet) {
-        	testInterface.delete(c.getId());
+        	testInterface.delete(c.getCustomerId(), c.getEquipmentId());
         }
 
     }
@@ -173,19 +203,30 @@ public abstract class BaseAlarmDatastoreTest {
        int customerId_2 = (int) testSequence.incrementAndGet();
        
        int apNameIdx = 0;
+       Set<Long> equipmentIds = new HashSet<>();
+       Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.AssocFailure));
+       long pastTimestamp = 0;
        
        for(int i = 0; i< 50; i++){
-           mdl = new Alarm();
+           mdl = createAlarmObject();
            mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setScopeId("qr_"+apNameIdx);
+           equipmentIds.add(mdl.getEquipmentId());
+           
+           if(i == 8) {
+           	//create one record for the time of 10 sec ago
+           	mdl.setCreatedTimestamp(mdl.getCreatedTimestamp() - 10000);
+           	pastTimestamp = mdl.getCreatedTimestamp();
+           }
+
            apNameIdx++;
            testInterface.create(mdl);
        }
 
        for(int i = 0; i< 50; i++){
-           mdl = new Alarm();
+           mdl = createAlarmObject();
            mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
+           mdl.setScopeId("qr_"+apNameIdx);           
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -193,16 +234,17 @@ public abstract class BaseAlarmDatastoreTest {
        //paginate over Alarms
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
        
+       //get active alarms for all equipment and all alarmCodes for the customer since the beginning of time
        PaginationContext<Alarm> context = new PaginationContext<>(10);
-       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
-       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, sortBy, page1.getContext());
-       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, sortBy, page2.getContext());
-       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, sortBy, page3.getContext());
-       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, sortBy, page4.getContext());
-       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, sortBy, page5.getContext());
-       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, sortBy, page6.getContext());
+       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, context);
+       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page1.getContext());
+       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page2.getContext());
+       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page3.getContext());
+       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page4.getContext());
+       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page5.getContext());
+       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -229,60 +271,87 @@ public abstract class BaseAlarmDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
+       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
        List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
+       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getScopeId()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
-//       System.out.println("================================");
-//       for(Alarm pmdl: page3.getItems()){
-//           System.out.println(pmdl);
-//       }
-//       System.out.println("================================");
-//       System.out.println("Context: "+ page3.getContext());
-//       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
+       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
+       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getScopeId()) );
 
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
+       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
        List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
+       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getScopeId()) );
 
        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
        
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
+       //test first page of the results with sort descending order by a equipmentId property 
+       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
+       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
+       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getScopeId()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
+       
+       //test with explicit list of equipmentIds and explicit list of AlarmCodes
+       long createdAfterTs = pastTimestamp + 10;
+       context = new PaginationContext<>(10);
+       page1 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, context);
+       page2 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page2.getContext());
+       page4 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page3.getContext());
+       page5 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page4.getContext());
+       page6 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page5.getContext());
+       page7 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page6.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1.getItems().size());
+       assertEquals(10, page2.getItems().size());
+       assertEquals(10, page3.getItems().size());
+       assertEquals(10, page4.getItems().size());
+       assertEquals(9, page5.getItems().size());
+       assertEquals(0, page6.getItems().size());
+       
+       page1.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+       page2.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+       page3.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+       page4.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+       page5.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+       
+       //test with explicit list of equipmentIds of one element and explicit list of AlarmCodes of one element
+       context = new PaginationContext<>(10);
+       page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
+       assertEquals(1, page1.getItems().size());
 
     }
     
     private Alarm createAlarmObject() {
     	Alarm result = new Alarm();
-        long nextId = testSequence.getAndIncrement();
-        result.setCustomerId((int) nextId);
-        result.setSampleStr("test-" + nextId); 
+        result.setCustomerId((int) testSequence.getAndIncrement());
+        result.setEquipmentId(testSequence.getAndIncrement());
+        result.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
+        result.setCreatedTimestamp(System.currentTimeMillis());
+        
+        result.setScopeId("test-scope-"  + result.getEquipmentId());
+        
         AlarmDetails details = new AlarmDetails();
-        details.setSampleDetailsStr("test-details-" + nextId);
+        details.setMessage("test-details-" + result.getEquipmentId());
 		result.setDetails(details );
         return result;
     }

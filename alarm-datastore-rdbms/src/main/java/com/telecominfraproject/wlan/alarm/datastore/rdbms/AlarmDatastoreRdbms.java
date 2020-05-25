@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 
 /**
  * @author dtoptygin
@@ -27,34 +28,39 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
         return alarmDAO.create(alarm);
     }
 
-    @Override
-    public Alarm get(long alarmId) {
-        return alarmDAO.get(alarmId);
-    }
+	@Override
+	public Alarm getOrNull(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+		return alarmDAO.getOrNull(customerId, equipmentId, alarmCode, createdTimestamp);
+	}
 
-    @Override
-    public Alarm getOrNull(long alarmId) {
-        return alarmDAO.getOrNull(alarmId);
-    }
-    
-    @Override
-    public Alarm update(Alarm alarm) {
+	@Override
+	public Alarm update(Alarm alarm) {
         return alarmDAO.update(alarm);
-    }
+	}
 
-    @Override
-    public Alarm delete(long alarmId) {
-        return alarmDAO.delete(alarmId);
-    }
-    
-    @Override
-    public List<Alarm> get(Set<Long> alarmIdSet) {
-    	return alarmDAO.get(alarmIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<Alarm> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Alarm> context) {
-    	return alarmDAO.getForCustomer( customerId, sortBy, context);
-    }
+	@Override
+	public Alarm delete(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+		return alarmDAO.delete(customerId, equipmentId, alarmCode, createdTimestamp);
+	}
+
+	@Override
+	public List<Alarm> delete(int customerId, long equipmentId) {
+		return alarmDAO.delete(customerId, equipmentId);
+	}
+
+	@Override
+	public List<Alarm> get(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
+			long createdAfterTimestamp) {
+		return alarmDAO.get(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
+	}
+
+	@Override
+	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
+			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+			PaginationContext<Alarm> context) {
+		return alarmDAO.getForCustomer(customerId, equipmentIdSet,
+				alarmCodeSet, createdAfterTimestamp, sortBy,
+				context);
+	}
+
 }

@@ -12,14 +12,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-
-import com.telecominfraproject.wlan.alarm.models.Alarm;
 
 /**
  * @author dtoptygin
@@ -60,32 +60,16 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         return ret;
     }
 
+
     @Override
-    public Alarm get(long alarmId) {
-        
-        LOG.debug("calling alarm.get {} ", alarmId);
+    public Alarm getOrNull(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+    	
+        LOG.debug("calling alarm.getOrNull  {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
 
         ResponseEntity<Alarm> responseEntity = restTemplate.getForEntity(
                 getBaseUrl()
-                +"?alarmId={alarmId}",
-                Alarm.class, alarmId);
-        
-        Alarm ret = responseEntity.getBody();
-        
-        LOG.debug("completed alarm.get {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public Alarm getOrNull(long alarmId) {
-        
-        LOG.debug("calling alarm.getOrNull {} ", alarmId);
-
-        ResponseEntity<Alarm> responseEntity = restTemplate.getForEntity(
-                getBaseUrl()
-                +"/orNull?alarmId={alarmId}",
-                Alarm.class, alarmId);
+                +"/orNull?customerId={customerId}&equipmentId={equipmentId}&alarmCode={alarmCode}&createdTimestamp={createdTimestamp}",
+                Alarm.class, customerId, equipmentId, alarmCode, createdTimestamp);
         
         Alarm ret = responseEntity.getBody();
         
@@ -94,45 +78,75 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         return ret;
     }
 
-	@Override
-	public List<Alarm> get(Set<Long> alarmIdSet) {
+    @Override
+    	public List<Alarm> get(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
+    			long createdAfterTimestamp) {
 		
-        LOG.debug("get({})", alarmIdSet);
+		LOG.debug("get({}, {}, {},{})", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
 
-        if (alarmIdSet == null || alarmIdSet.isEmpty()) {
-            return Collections.emptyList();
+        if (equipmentIdSet == null || equipmentIdSet.isEmpty()) {
+            throw new IllegalArgumentException("equipmentIdSet must be provided");
         }
 
-        String setString = alarmIdSet.toString().substring(1, alarmIdSet.toString().length() - 1);
+        String equipmentIdSetStr = equipmentIdSet.toString();
+        equipmentIdSetStr = equipmentIdSetStr.substring(1, equipmentIdSetStr.length() - 1);
+
+        String alarmCodeSetStr = null;
+        if (alarmCodeSet != null && !alarmCodeSet.isEmpty()) {
+        	alarmCodeSetStr = alarmCodeSet.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	alarmCodeSetStr = alarmCodeSetStr.substring(1, alarmCodeSetStr.length() - 1);
+        }
         
         try {
             ResponseEntity<List<Alarm>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/inSet?alarmIdSet={alarmIdSet}", HttpMethod.GET,
-                    null, Alarm_LIST_CLASS_TOKEN, setString);
+                    getBaseUrl() + "/forEquipment?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}", HttpMethod.GET,
+                    null, Alarm_LIST_CLASS_TOKEN, customerId, equipmentIdSetStr, alarmCodeSetStr, createdAfterTimestamp);
 
             List<Alarm> result = responseEntity.getBody();
             if (null == result) {
                 result = Collections.emptyList();
             }
-            LOG.debug("get({}) return {} entries", alarmIdSet, result.size());
+            LOG.debug("get({}, {}, {},{}) return {} entries", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, result.size());
             return result;
         } catch (Exception exp) {
-            LOG.error("getAllInSet({}) exception ", alarmIdSet, exp);
+            LOG.error("getAllInSet({}, {}, {},{}) exception ", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, exp);
             throw exp;
         }
 
 	}
 
-	@Override
-	public PaginationResponse<Alarm> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Alarm> context) {
+    @Override
+    public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
+    		Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+    		PaginationContext<Alarm> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {} )", customerId, sortBy, context);
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {} )", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, sortBy, context);
+
+        String equipmentIdSetStr = null;
+        if (equipmentIdSet != null && !equipmentIdSet.isEmpty()) {
+            equipmentIdSetStr = equipmentIdSet.toString();
+            equipmentIdSetStr = equipmentIdSetStr.substring(1, equipmentIdSetStr.length() - 1);
+        }
+        
+        String alarmCodeSetStr = null;
+        if (alarmCodeSet != null && !alarmCodeSet.isEmpty()) {
+        	alarmCodeSetStr = alarmCodeSet.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	alarmCodeSetStr = alarmCodeSetStr.substring(1, alarmCodeSetStr.length() - 1);
+        }
 
         ResponseEntity<PaginationResponse<Alarm>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, Alarm_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                		+ "/forCustomer?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}&sortBy={sortBy}&paginationContext={paginationContext}", 
+                		HttpMethod.GET,
+                null, Alarm_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdSetStr, alarmCodeSetStr, createdAfterTimestamp, sortBy, context);
 
         PaginationResponse<Alarm> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
@@ -164,14 +178,15 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
     }
 
     @Override
-    public Alarm delete(long alarmId) {
+    public Alarm delete(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
         
-        LOG.debug("calling alarm.delete {} ", alarmId);
+        LOG.debug("calling alarm.delete {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
 
         ResponseEntity<Alarm> responseEntity =  restTemplate.exchange(
                 getBaseUrl()
-                +"?alarmId={alarmId}", HttpMethod.DELETE,
-                null, Alarm.class, alarmId);
+                +"?customerId={customerId}&equipmentId={equipmentId}&alarmCode={alarmCode}&createdTimestamp={createdTimestamp}",
+                HttpMethod.DELETE, null,
+                Alarm.class, customerId, equipmentId, alarmCode, createdTimestamp);
         
         Alarm ret = responseEntity.getBody();
         LOG.debug("completed alarm.delete {} ", ret);
@@ -179,6 +194,22 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         return ret;
     }    
 
+    @Override
+    public List<Alarm> delete(int customerId, long equipmentId) {
+        LOG.debug("calling alarm.delete {} {} ", customerId, equipmentId);
+
+        ResponseEntity<List<Alarm>> responseEntity =  restTemplate.exchange(
+                getBaseUrl()
+                +"/forEquipment?customerId={customerId}&equipmentId={equipmentId}",
+                HttpMethod.DELETE, null,
+                Alarm_LIST_CLASS_TOKEN, customerId, equipmentId);
+        
+        List<Alarm> ret = responseEntity.getBody();
+        LOG.debug("completed alarm.delete {} ", ret.size());
+        
+        return ret;
+    }
+    
     public String getBaseUrl() {
         if(baseUrl==null) {
             baseUrl = environment.getProperty("tip.wlan.alarmServiceBaseUrl").trim()+"/api/alarm";
