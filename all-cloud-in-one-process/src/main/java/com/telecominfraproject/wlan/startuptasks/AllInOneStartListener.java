@@ -32,6 +32,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
@@ -41,6 +42,8 @@ import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.LocationType;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
+import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
+import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
@@ -88,16 +91,29 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private AlarmServiceInterface alarmServiceInterface;
+	
+	@Autowired
+	private PortalUserServiceInterface portalUserServiceInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
 		LOG.info("Creating initial objects");
-
+		
 		Customer customer = new Customer();
 		customer.setEmail("test@example.com");
 		customer.setName("Test Customer");
 
 		customer = customerServiceInterface.create(customer);
+
+		for(int i = 0; i<20; i++) {
+			PortalUser portalUser = new PortalUser();
+			portalUser.setCustomerId(customer.getId());
+			portalUser.setRole(PortalUserRole.CustomerIT);
+			portalUser.setPassword("pwd"+i);
+			portalUser.setUsername("user-"+i);
+			portalUserServiceInterface.create(portalUser);
+		}
+		
 
 		Location location_1 = new Location();
 		location_1.setParentId(0);
