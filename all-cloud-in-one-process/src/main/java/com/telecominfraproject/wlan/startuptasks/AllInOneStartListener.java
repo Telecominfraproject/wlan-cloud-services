@@ -17,10 +17,13 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 import com.telecominfraproject.wlan.client.ClientServiceInterface;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
-import com.telecominfraproject.wlan.client.models.ClientDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
@@ -82,6 +85,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private ClientServiceInterface clientServiceInterface;
+
+	@Autowired
+	private AlarmServiceInterface alarmServiceInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -202,6 +208,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 			equipmentList.add(equipment);
 
 			createStatusForEquipment(equipment);
+			
+			createAlarmsForEquipment(equipment);
 			
 			createClientSessions(equipment, ssidConfig);
 
@@ -404,6 +412,26 @@ public class AllInOneStartListener implements ApplicationRunner {
 		statusServiceInterface.update(statusList);
 	}
 
+	private void createAlarmsForEquipment(Equipment equipment) {
+ 
+		if(equipment.getId() % 7 !=0) {
+			//only some APs will have an alarm
+			return;
+		}
+		
+		Alarm alarm = new Alarm();
+        alarm.setCustomerId(equipment.getCustomerId());
+        alarm.setEquipmentId(equipment.getId());
+        alarm.setAlarmCode(AlarmCode.MemoryUtilization);
+        alarm.setCreatedTimestamp(System.currentTimeMillis());
+        
+        AlarmDetails details = new AlarmDetails();
+        details.setMessage("Available memory is too low");
+		alarm.setDetails(details );
+
+		alarmServiceInterface.create(alarm);
+	}
+	
 	private static byte getRandomByte() {
 		byte ret = (byte) (225 * Math.random());
 		return ret;
