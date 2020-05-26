@@ -68,13 +68,13 @@ components:
 #
           
     Location:
-      type: "object"
+      type: object
       properties:
         id:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
         locationType:
-          type: "string"
+          type: string
           enum:
             - COUNTRY
             - SITE
@@ -82,22 +82,22 @@ components:
             - FLOOR
             - UNSUPPORTED
         customerId:
-          type: "integer"
-          format: "int32"
+          type: integer
+          format: int32
         name:
-          type: "string"
+          type: string
         parentId:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
         details:
-          $ref: "#/components/schemas/LocationDetails"
+          $ref: '#/components/schemas/LocationDetails'
         createdTimestamp:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
         lastModifiedTimestamp:
           description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
       example:
         customerId: 2
         locationType: COUNTRY
@@ -112,47 +112,47 @@ components:
       - UNSUPPORTED
       
     LocationDetails:
-      type: "object"
+      type: object
       properties:
         model_type:
           type: string
           enum:
             - LocationDetails
         countryCode:
-           $ref: "#/components/schemas/CountryCode"
+           $ref: '#/components/schemas/CountryCode'
         dailyActivityDetails:
-           $ref: "#/components/schemas/LocationActivityDetailsMap"
+           $ref: '#/components/schemas/LocationActivityDetailsMap'
         maintenanceWindow:
-           $ref: "#/components/schemas/DaysOfWeekTimeRangeSchedule"
+           $ref: '#/components/schemas/DaysOfWeekTimeRangeSchedule'
         rrmEnabled:
-          type: "boolean"
+          type: boolean
     LocationActivityDetailsMap:
       properties:
         SUNDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         MONDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         TUESDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         WEDNESDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         THURSDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         FRIDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
         SATURDAY:
-          $ref: "#/components/schemas/LocationActivityDetails"
+          $ref: '#/components/schemas/LocationActivityDetails'
     LocationActivityDetails:
       properties:
         busyTime:
-          type: "string"
+          type: string
         quietTime:
-          type: "string"
+          type: string
         timezone:
-          type: "string"
+          type: string
         lastBusySnapshot:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
 
     DaysOfWeekTimeRangeSchedule:
       type: object
@@ -326,7 +326,7 @@ paths:
     get:
       tags:
       - Location Data
-      summary: Get profile using locationId
+      summary: Get location using locationId
       operationId: getLocationById
       parameters:
       - name: locationId
@@ -455,46 +455,33 @@ paths:
   /api/location/forCustomer:
     get:
       tags:
-      - "Location Data"
-      summary: "Get Locations By customerId"
-      operationId: "getLocationsByCustomerId"
+      - Location Data
+      summary: Get Locations By customerId
+      operationId: getLocationsByCustomerId
       parameters:
-      - name: "customerId"
-        in: "query"
-        description: "customer id"
+      - name: customerId
+        in: query
+        description: customer id
         required: true
         schema:
           type: integer
           format: int32
-      - name: "sortBy"
-        in: "query"
-        description: "sort options"
+      - name: sortBy
+        in: query
+        description: sort options
         required: true
         schema:
           type: array
           items:
-            $ref: "#/components/schemas/SortColumnsLocation"
-#        content:
-#          application/json:
-#            schema:
-#              type: "array"
-#              items:
-#                $ref: "#/components/schemas/SortColumnsLocation"
-#            examples: 
-#              nameAsc:
-#                summary: An example of a sort by name ascending
-#                value:
-#                  model_type: ColumnAndSort
-#                  columnName: name
-#                  sortOrder: asc
-      - name: "paginationContext"
-        in: "query"
-        description: "pagination context"
+            $ref: '#/components/schemas/SortColumnsLocation'
+      - name: paginationContext
+        in: query
+        description: pagination context
         required: true
         content:
           application/json:
             schema:
-                $ref: "#/components/schemas/PaginationContextLocation"
+                $ref: '#/components/schemas/PaginationContextLocation'
             examples:
               initialPginationContext:
                 value:
@@ -502,11 +489,11 @@ paths:
                   maxItemsPerPage: 10
       responses:
         200:
-          description: "successful operation"
+          description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginationResponseLocation"
+                $ref: '#/components/schemas/PaginationResponseLocation'
         500:
           $ref: '#/components/responses/GenericApiError'
   
