@@ -14,6 +14,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.alarm.controller.AlarmController;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 
 /**
  * @author dtoptygin
@@ -32,41 +33,45 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
         return alarmController.create(alarm);
     }
 
-    @Override
-    public Alarm get(long alarmId) {
-        LOG.debug("calling alarmController.get {} ", alarmId);
-        return alarmController.get(alarmId);
-    }
-    
-    @Override
-    public Alarm getOrNull(long alarmId) {
-        LOG.debug("calling alarmController.getOrNull {} ", alarmId);
-        return alarmController.getOrNull(alarmId);
-    }
-    
-    @Override
-    public List<Alarm> get(Set<Long> alarmIdSet) {
-        LOG.debug("calling alarmController.getAllInSet {} ", alarmIdSet);
-        return alarmController.getAllInSet(alarmIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<Alarm> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Alarm> context) {
-        LOG.debug("calling alarmController.getForCustomer {} ", customerId);
-        return alarmController.getForCustomer(customerId, sortBy, context);
-    }
 
-    @Override
-    public Alarm update(Alarm alarm) {
-        LOG.debug("calling alarmController.update {} ", alarm);
-        return alarmController.update(alarm);
-    }
+	@Override
+	public Alarm getOrNull(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+		return alarmController.getOrNull(customerId, equipmentId, alarmCode, createdTimestamp);
+	}
 
-    @Override
-    public Alarm delete(long alarmId) {
-        LOG.debug("calling alarmController.delete {} ", alarmId);
-        return alarmController.delete(alarmId);
-    }
+
+	@Override
+	public List<Alarm> get(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
+			long createdAfterTimestamp) {
+		return alarmController.getAllForEquipment(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
+	}
+
+
+	@Override
+	public Alarm update(Alarm alarm) {
+		return alarmController.update(alarm);
+	}
+
+
+	@Override
+	public Alarm delete(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+		return alarmController.delete(customerId, equipmentId, alarmCode, createdTimestamp);
+	}
+
+
+	@Override
+	public List<Alarm> delete(int customerId, long equipmentId) {
+		return alarmController.deleteForEquipment(customerId, equipmentId);
+	}
+
+
+	@Override
+	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
+			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+			PaginationContext<Alarm> context) {
+		
+		return alarmController.getForCustomer(customerId, equipmentIdSet,
+				alarmCodeSet, createdAfterTimestamp, sortBy, context);
+	}
 
 }

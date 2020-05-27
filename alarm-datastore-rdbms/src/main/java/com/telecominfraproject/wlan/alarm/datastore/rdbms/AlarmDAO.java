@@ -19,12 +19,12 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -33,8 +33,6 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
-import com.telecominfraproject.wlan.alarm.models.Alarm;
 
 /**
  * @author dtoptygin
@@ -46,25 +44,32 @@ public class AlarmDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlarmDatastoreRdbms.class);
     
-    private static final String COL_ID = "id";
-    
-    private static final String[] GENERATED_KEY_COLS = { COL_ID };
+    private static final String[] GENERATED_KEY_COLS = { };
     
     private static final String[] ALL_COLUMNS_LIST = {        
-        COL_ID,
         
         //TODO: add colums from properties Alarm in here
         "customerId",
-        "sampleStr",
+        "equipmentId",
+        "alarmCode",
+        "createdTimestamp",
+        "originatorType",
+        "severity",
+        "scopeType",
+        "scopeId",
         "details",
+        "acknowledged",
         //make sure the order of properties matches this list and list in AlarmRowMapper and list in create/update methods
         
-        "createdTimestamp",
         "lastModifiedTimestamp"
     };
     
-    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
+    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList( 
+    		"customerId",
+            "equipmentId",
+            "alarmCode",
+            "createdTimestamp"));
     
     private static final String TABLE_NAME = "alarm";
     private static final String TABLE_PREFIX = "s.";
@@ -122,7 +127,7 @@ public class AlarmDAO extends BaseJdbcDao {
     private static final String SQL_GET_BY_ID =
         "select " + ALL_COLUMNS +
         " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
+        " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?";
     
     private static final String SQL_GET_BY_CUSTOMER_ID = 
     		"select " + ALL_COLUMNS +
@@ -132,7 +137,7 @@ public class AlarmDAO extends BaseJdbcDao {
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
         " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
+        " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?";
 
     private static final String SQL_INSERT =
         "insert into "+TABLE_NAME+" ( " 
@@ -140,16 +145,19 @@ public class AlarmDAO extends BaseJdbcDao {
         + " ) values ( "+BIND_VARS_FOR_INSERT+" ) ";
 
     private static final String SQL_DELETE =
-        "delete from "+TABLE_NAME+" where " + COL_ID + " = ? ";
+        "delete from "+TABLE_NAME+
+        " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?";
+
+    private static final String SQL_DELETE_BY_EQUIPMENT =
+            "delete from "+TABLE_NAME+
+            " where  customerId = ? and equipmentId = ? ";
 
     private static final String SQL_UPDATE =
         "update "+TABLE_NAME+" set "
         + ALL_COLUMNS_UPDATE +
-        " where " + COL_ID + " = ? "
+        " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?"
         + " and ( lastModifiedTimestamp = ? or ? = true) " //last parameter will allow us to skip check for concurrent modification, if necessary
         ;
-
-    private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -166,74 +174,79 @@ public class AlarmDAO extends BaseJdbcDao {
 
     public Alarm create(final Alarm alarm) {
         
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         final long ts = System.currentTimeMillis();
+        if(alarm.getCreatedTimestamp()<=0) {
+        	alarm.setCreatedTimestamp(ts);
+        }
+        
+        alarm.setLastModifiedTimestamp(ts);
 
         try{
             jdbcTemplate.update(
                 new PreparedStatementCreator() {
                     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT, keyColumnConverter.getKeyColumnName(GENERATED_KEY_COLS) );
+                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT );
                         int colIdx = 1;
                         
                         //TODO: add remaining properties from Alarm here 
                         ps.setInt(colIdx++, alarm.getCustomerId());
-                        ps.setString(colIdx++, alarm.getSampleStr());
-                      	ps.setBytes(colIdx++, (alarm.getDetails()!=null)?alarm.getDetails().toZippedBytes():null);
+                        ps.setLong(colIdx++, alarm.getEquipmentId());
+                        ps.setInt(colIdx++, alarm.getAlarmCode().getId());
+                        ps.setLong(colIdx++, alarm.getCreatedTimestamp());
                         
-                        ps.setLong(colIdx++, ts);
-                        ps.setLong(colIdx++, ts);
+                        ps.setInt(colIdx++, alarm.getOriginatorType().getId());
+                        ps.setInt(colIdx++, alarm.getSeverity().getId());
+                        ps.setInt(colIdx++, alarm.getScopeType().getId());                        
+                        ps.setString(colIdx++, alarm.getScopeId());
+                        
+                      	ps.setBytes(colIdx++, (alarm.getDetails()!=null)?alarm.getDetails().toZippedBytes():null);
+                      	
+                      	ps.setBoolean(colIdx++, alarm.isAcknowledged());                        
+                        ps.setLong(colIdx++, alarm.getLastModifiedTimestamp());
                         
                         return ps;
                     }
-                },
-                keyHolder);
+                });
         }catch (DuplicateKeyException e) {
             throw new DsDuplicateEntityException(e);
-        }
-        
-        // keyHolder.getKey() now contains the generated key   
-        alarm.setId(((Long)keyHolder.getKeys().get(COL_ID)));
-        alarm.setCreatedTimestamp(ts);
-        alarm.setLastModifiedTimestamp(ts);
-
+        }        
 
         LOG.debug("Stored Alarm {}", alarm);
         
         return alarm.clone();
     }
 
-    
-    public Alarm get(long alarmId) {
-        LOG.debug("Looking up Alarm for id {}", alarmId);
+    public Alarm get(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        LOG.debug("Looking up Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
 
-        try{
-            Alarm alarm = this.jdbcTemplate.queryForObject(
-                    SQL_GET_BY_ID,
-                    alarmRowMapper, alarmId);
-            
-            LOG.debug("Found Alarm {}", alarm);
-            
-            return alarm;
+        try {
+	        Alarm alarm = this.jdbcTemplate.queryForObject(
+	                SQL_GET_BY_ID,
+	                alarmRowMapper, customerId, equipmentId, alarmCode.getId(), createdTimestamp);
+	        
+	        LOG.debug("Found Alarm {}", alarm);
+	        
+	        return alarm;
         }catch (EmptyResultDataAccessException e) {
-            throw new DsEntityNotFoundException(e);
+        	throw new DsEntityNotFoundException(e);
         }
     }
 
+    
     @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
-    public Alarm getOrNull(long alarmId) {
-        LOG.debug("Looking up Alarm for id {}", alarmId);
+    public Alarm getOrNull(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        LOG.debug("Looking up Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
 
         try{
             Alarm alarm = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_ID,
-                    alarmRowMapper, alarmId);
+                    alarmRowMapper, customerId, equipmentId, alarmCode.getId(), createdTimestamp);
             
             LOG.debug("Found Alarm {}", alarm);
             
             return alarm;
         }catch (EmptyResultDataAccessException e) {
-            LOG.debug("Could not find Alarm for id {}", alarmId);
+            LOG.debug("Could not find Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
             return null;
         }
     }
@@ -244,18 +257,22 @@ public class AlarmDAO extends BaseJdbcDao {
         long incomingLastModifiedTs = alarm.getLastModifiedTimestamp();
         
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //alarm.getId(), - not updating this one
 
                 //TODO: add remaining properties from Alarm here
-        		alarm.getCustomerId(),
-                alarm.getSampleStr(),
+        		alarm.getOriginatorType().getId(),
+                alarm.getSeverity().getId(),
+                alarm.getScopeType().getId(),
+                alarm.getScopeId(),
                 (alarm.getDetails()!=null)?alarm.getDetails().toZippedBytes():null ,
+                alarm.isAcknowledged(),
                                 
-                //alarm.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,
                 
                 // use id for update operation
-                alarm.getId(),
+                alarm.getCustomerId(),
+                alarm.getEquipmentId(),
+                alarm.getAlarmCode().getId(),
+                alarm.getCreatedTimestamp(),
                 // use lastModifiedTimestamp for data protection against concurrent modifications
                 incomingLastModifiedTs,
                 isSkipCheckForConcurrentUpdates()
@@ -275,22 +292,39 @@ public class AlarmDAO extends BaseJdbcDao {
                 long recordTimestamp = this.jdbcTemplate.queryForObject(
                     SQL_GET_LASTMOD_BY_ID,
                     Long.class,
-                    alarm.getId()
+                    alarm.getCustomerId(),
+                    alarm.getEquipmentId(),
+                    alarm.getAlarmCode().getId(),
+                    alarm.getCreatedTimestamp()
                     );
                 
-                LOG.debug("Concurrent modification detected for Alarm with id {} expected version is {} but version in db was {}", 
-                        alarm.getId(),
+                LOG.debug("Concurrent modification detected for Alarm with id {} {} {} {} expected version is {} but version in db was {}", 
+                		alarm.getCustomerId(),
+                        alarm.getEquipmentId(),
+                        alarm.getAlarmCode().getId(),
+                        alarm.getCreatedTimestamp(),
                         incomingLastModifiedTs,
                         recordTimestamp
                         );
-                throw new DsConcurrentModificationException("Concurrent modification detected for Alarm with id " + alarm.getId()
+                throw new DsConcurrentModificationException("Concurrent modification detected for Alarm with id " + 
+                        alarm.getCustomerId() + " " +
+                        alarm.getEquipmentId() + " " +
+                        alarm.getAlarmCode().getId() + " " +
+                        alarm.getCreatedTimestamp() + " " 
                         +" expected version is " + incomingLastModifiedTs
                         +" but version in db was " + recordTimestamp
                         );
                 
             }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find Alarm for {}", alarm.getId());
-                throw new DsEntityNotFoundException("Alarm not found " + alarm.getId());
+                LOG.debug("Cannot find Alarm for {} {} {} {} ", alarm.getCustomerId(),
+                        alarm.getEquipmentId(),
+                        alarm.getAlarmCode().getId(),
+                        alarm.getCreatedTimestamp());
+                throw new DsEntityNotFoundException("Alarm not found " +  
+                        alarm.getCustomerId() + " " +
+                        alarm.getEquipmentId() + " " +
+                        alarm.getAlarmCode().getId() + " " +
+                        alarm.getCreatedTimestamp());
             }
         }
 
@@ -304,16 +338,91 @@ public class AlarmDAO extends BaseJdbcDao {
     }
 
     
-    public Alarm delete(long alarmId) {
-        Alarm ret = get(alarmId);
+    public Alarm delete(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        Alarm ret = get(customerId, equipmentId, alarmCode, createdTimestamp);
         
-        this.jdbcTemplate.update(SQL_DELETE, alarmId);
+        this.jdbcTemplate.update(SQL_DELETE, customerId, equipmentId, alarmCode.getId(), createdTimestamp);
                 
         LOG.debug("Deleted Alarm {}", ret);
         
         return ret;
     }
 
+    public List<Alarm> delete(int customerId, long equipmentId) {
+        List<Alarm> ret = get(customerId, Collections.singleton(equipmentId), null, -1);
+                
+        this.jdbcTemplate.update(SQL_DELETE_BY_EQUIPMENT, customerId, equipmentId);
+                
+        LOG.debug("Deleted Alarms {}", ret);
+        
+        return ret;
+    }
+
+	public List<Alarm> get(int customerId, Set<Long> equipmentIds, Set<AlarmCode> alarmCodes,
+			long createdAfterTimestamp) {
+
+    	if(equipmentIds == null || equipmentIds.isEmpty()) {
+    		throw new IllegalArgumentException("equipmentIds must be provided");
+    	}
+
+        LOG.debug("Looking up Alarms for customer {} equipment {} codes {} createdAfter {}", 
+        		customerId, equipmentIds, alarmCodes, createdAfterTimestamp);
+
+        String query = SQL_GET_BY_CUSTOMER_ID;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+        //add alarmCodes filters
+        if (alarmCodes != null && !alarmCodes.isEmpty()) {
+        	alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and alarmCode in (");
+            for (int i = 0; i < alarmCodes.size(); i++) {
+                strb.append("?");
+                if (i < alarmCodes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }        
+
+        if(createdAfterTimestamp > 0) {
+        	query += " and createdTimestamp > ?" ;
+        	queryArgs.add(createdAfterTimestamp);
+        }
+
+        List<Alarm> ret = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                alarmRowMapper);
+        
+        LOG.debug("Found {} Alarms for customer {} equipment {} codes {} createdAfter {}",
+        		ret.size(),
+        		customerId, equipmentIds, alarmCodes, createdAfterTimestamp);
+
+        return ret;
+	}
+	
     public List<Alarm> getAllForCustomer(int customerId) {
         LOG.debug("Looking up Alarms for customer {}", customerId);
 
@@ -329,32 +438,11 @@ public class AlarmDAO extends BaseJdbcDao {
         return ret;
     }
 
-    public List<Alarm> get(Set<Long> alarmIdSet) {
-        LOG.debug("calling get({})", alarmIdSet);
-
-        if (alarmIdSet == null || alarmIdSet.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        StringBuilder set = new StringBuilder(256);
-        set.append("(");
-        for(int i =0; i< alarmIdSet.size(); i++) {
-        		set.append("?,");
-        }
-        //remove last comma
-        set.deleteCharAt(set.length()-1);
-        set.append(")");
-        
-        String query = SQL_GET_ALL_IN_SET + set;
-        List<Alarm> results = this.jdbcTemplate.query(query, alarmIdSet.toArray(), alarmRowMapper);
-
-        LOG.debug("get({}) returns {} record(s)", alarmIdSet, (null == results) ? 0 : results.size());
-        return results;
-    }
 
 
-	public PaginationResponse<Alarm> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Alarm> context) {
+	public PaginationResponse<Alarm> getForCustomer(int customerId, 
+			Set<Long> equipmentIds, Set<AlarmCode> alarmCodes, long createdAfterTimestamp, 
+			List<ColumnAndSort> sortBy, PaginationContext<Alarm> context) {
 
         PaginationResponse<Alarm> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -376,6 +464,45 @@ public class AlarmDAO extends BaseJdbcDao {
         ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
 
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+        //add alarmCodes filters
+        if (alarmCodes != null && !alarmCodes.isEmpty()) {
+        	alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and alarmCode in (");
+            for (int i = 0; i < alarmCodes.size(); i++) {
+                strb.append("?");
+                if (i < alarmCodes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }        
+
+        if(createdAfterTimestamp > 0) {
+        	query += " and createdTimestamp > ?" ;
+        	queryArgs.add(createdAfterTimestamp);
+        }
+        
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
         strbSort.append(" order by ");
@@ -404,7 +531,7 @@ public class AlarmDAO extends BaseJdbcDao {
         } else {
             // no sort order was specified - sort by id to have consistent
             // paging
-            strbSort.append(COL_ID);
+            strbSort.append(" equipmentId, createdTimestamp");
         }
 
         query += strbSort.toString();

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmp
 
 import com.telecominfraproject.wlan.alarm.datastore.inmemory.AlarmDatastoreInMemory;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 
 /**
  * @author dtoptygin
@@ -48,34 +52,43 @@ public class AlarmControllerTest {
         
     }
     
+    private static final AtomicLong testSequence = new AtomicLong(1000);
+
     @Test
     public void testAlarmCRUD() throws Exception {
         
         //Create new Alarm - success
         Alarm alarm = new Alarm();
-        alarm.setSampleStr("test");
+        alarm.setCustomerId((int) testSequence.getAndIncrement());
+        alarm.setEquipmentId(testSequence.getAndIncrement());
+        alarm.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
+        alarm.setCreatedTimestamp(System.currentTimeMillis());
+        
+        alarm.setScopeId("test-scope-"  + alarm.getEquipmentId());
+        
+        AlarmDetails details = new AlarmDetails();
+        details.setMessage("test-details-" + alarm.getEquipmentId());
+        alarm.setDetails(details );
 
         Alarm ret = alarmController.create(alarm);
         assertNotNull(ret);
 
-        ret = alarmController.get(ret.getId());
-        assertEqualAlarms(alarm, ret);
-
-        ret = alarmController.getOrNull(ret.getId());
+        ret = alarmController.getOrNull(ret.getCustomerId(), ret.getEquipmentId(), ret.getAlarmCode(), ret.getCreatedTimestamp());
         assertEqualAlarms(alarm, ret);
         
-        assertNull(alarmController.getOrNull(-1));
+        assertNull(alarmController.getOrNull(-1, -1, AlarmCode.AccessPointIsUnreachable, -1));
 
         //Delete - success
-        alarmController.delete(ret.getId());
-        
+        alarmController.delete(ret.getCustomerId(), ret.getEquipmentId(), ret.getAlarmCode(), ret.getCreatedTimestamp());
+        ret = alarmController.getOrNull(ret.getCustomerId(), ret.getEquipmentId(), ret.getAlarmCode(), ret.getCreatedTimestamp());
+        assertNull(ret);
     }
         
     private void assertEqualAlarms(
             Alarm expected,
             Alarm actual) {
         
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
+        assertEquals(expected.getDetails(), actual.getDetails());
         //TODO: add more fields to check here
     }
 

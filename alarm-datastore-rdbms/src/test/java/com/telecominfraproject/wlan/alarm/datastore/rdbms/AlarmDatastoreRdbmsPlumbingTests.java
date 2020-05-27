@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.alarm.datastore.rdbms;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -14,6 +16,7 @@ import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
 
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 
 /**
  * @author dtoptygin
@@ -43,8 +46,8 @@ public class AlarmDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
             //this is a simple test to see if embedded db is working in test environment
             JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
             Long ret = jdbcTemplate.queryForObject(
-                    "select id from alarm where id = ?", 
-                    Long.class, 1);               
+                    "select equipmentId from alarm where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?", 
+                    Long.class, 1, 1L, 4, 1L);
             
             assertEquals((Long)1L, ret);
         }
@@ -55,17 +58,12 @@ public class AlarmDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     public void testCreateUpdateDeleteAlarm() {
                 
         //GET by Id test
-        Alarm ret = alarmDatastore.get(1L);        
+        assertNotNull(alarmDatastore.getOrNull(1, 1L, AlarmCode.AccessPointIsUnreachable, 1L));        
 
         //DELETE Test
-        alarmDAO.delete(ret.getId());
+        alarmDatastore.delete(1, 1L, AlarmCode.AccessPointIsUnreachable, 1L);
         
-        try{
-            alarmDatastore.get(ret.getId());
-            fail("failed to delete Alarm");
-        }catch (Exception e) {
-            // expected it
-        }
+        assertNull(alarmDatastore.getOrNull(1, 1L, AlarmCode.AccessPointIsUnreachable, 1L));
                 
     }
     

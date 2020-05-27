@@ -6,14 +6,17 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -21,9 +24,6 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
-
-import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
-import com.telecominfraproject.wlan.alarm.models.Alarm;
 
 /**
  * @author dtoptygin
@@ -34,20 +34,57 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
 
     private static final Logger LOG = LoggerFactory.getLogger(AlarmDatastoreInMemory.class);
 
-    private static final Map<Long, Alarm> idToAlarmMap = new ConcurrentHashMap<Long, Alarm>();
+    private static final Map<AlarmKey, Alarm> idToAlarmMap = new ConcurrentHashMap<>();
     
-    private static final AtomicLong alarmIdCounter = new AtomicLong();    
+    private static class AlarmKey {
+        public int customerId;
+        public long equipmentId;
+        public AlarmCode alarmCode;
+        public long createdTimestamp;
+        
+        public AlarmKey(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        	this.customerId = customerId;
+        	this.equipmentId = equipmentId;
+        	this.alarmCode = alarmCode;
+        	this.createdTimestamp = createdTimestamp;
+		}
 
+        public AlarmKey(Alarm alarm) {
+        	this.customerId = alarm.getCustomerId();
+        	this.equipmentId = alarm.getEquipmentId();
+        	this.alarmCode = alarm.getAlarmCode();
+        	this.createdTimestamp = alarm.getCreatedTimestamp();
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(alarmCode, createdTimestamp, customerId, equipmentId);
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof AlarmKey)) {
+				return false;
+			}
+			AlarmKey other = (AlarmKey) obj;
+			return alarmCode == other.alarmCode && createdTimestamp == other.createdTimestamp
+					&& customerId == other.customerId && equipmentId == other.equipmentId;
+		}
+        
+    }
+    
     @Override
     public Alarm create(Alarm alarm) {
         
         Alarm alarmCopy = alarm.clone();
         
-        long id = alarmIdCounter.incrementAndGet();
-        alarmCopy.setId(id);
-        alarmCopy.setCreatedTimestamp(System.currentTimeMillis());
+        if(alarmCopy.getCreatedTimestamp()<=0) {
+        	alarmCopy.setCreatedTimestamp(System.currentTimeMillis());
+        }
         alarmCopy.setLastModifiedTimestamp(alarmCopy.getCreatedTimestamp());
-        idToAlarmMap.put(id, alarmCopy);
+        idToAlarmMap.put(new AlarmKey(alarmCopy), alarmCopy);
         
         LOG.debug("Stored Alarm {}", alarmCopy);
         
@@ -55,15 +92,14 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     }
 
 
-    @Override
-    public Alarm get(long alarmId) {
-        LOG.debug("Looking up Alarm for id {}", alarmId);
+    public Alarm get(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        LOG.debug("Looking up Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
         
-        Alarm alarm = idToAlarmMap.get(alarmId);
+        Alarm alarm = idToAlarmMap.get(new AlarmKey(customerId, equipmentId, alarmCode, createdTimestamp));
         
         if(alarm==null){
-            LOG.debug("Cannot find Alarm for id {}", alarmId);
-            throw new DsEntityNotFoundException("Cannot find Alarm for id " + alarmId);
+            LOG.debug("Cannot find Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
+            throw new DsEntityNotFoundException("Cannot find Alarm for id " + customerId + " " + equipmentId + " " + alarmCode + " " + createdTimestamp);
         } else {
             LOG.debug("Found Alarm {}", alarm);
         }
@@ -72,13 +108,13 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     }
 
     @Override
-    public Alarm getOrNull(long alarmId) {
-        LOG.debug("Looking up Alarm for id {}", alarmId);
+    public Alarm getOrNull(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        LOG.debug("Looking up Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
         
-        Alarm alarm = idToAlarmMap.get(alarmId);
+        Alarm alarm = idToAlarmMap.get(new AlarmKey(customerId, equipmentId, alarmCode, createdTimestamp));
         
         if(alarm==null){
-            LOG.debug("Cannot find Alarm for id {}", alarmId);
+            LOG.debug("Cannot find Alarm for id {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
             return null;
         } else {
             LOG.debug("Found Alarm {}", alarm);
@@ -89,15 +125,16 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     
     @Override
     public Alarm update(Alarm alarm) {
-        Alarm existingAlarm = get(alarm.getId());
+        Alarm existingAlarm = get(alarm.getCustomerId(), alarm.getEquipmentId(), alarm.getAlarmCode(), alarm.getCreatedTimestamp());
         
         if(existingAlarm.getLastModifiedTimestamp()!=alarm.getLastModifiedTimestamp()){
-            LOG.debug("Concurrent modification detected for Alarm with id {} expected version is {} but version in db was {}", 
-                    alarm.getId(),
+            LOG.debug("Concurrent modification detected for Alarm with id {} {} {} {} expected version is {} but version in db was {}", 
+            		alarm.getCustomerId(), alarm.getEquipmentId(), alarm.getAlarmCode(), alarm.getCreatedTimestamp(),
                     alarm.getLastModifiedTimestamp(),
                     existingAlarm.getLastModifiedTimestamp()
                     );
-            throw new DsConcurrentModificationException("Concurrent modification detected for Alarm with id " + alarm.getId()
+            throw new DsConcurrentModificationException("Concurrent modification detected for Alarm with id "  
+            		+ alarm.getCustomerId() + " " + alarm.getEquipmentId() + " " + alarm.getAlarmCode() + " " + alarm.getCreatedTimestamp()
                     +" expected version is " + alarm.getLastModifiedTimestamp()
                     +" but version in db was " + existingAlarm.getLastModifiedTimestamp()
                     );
@@ -107,7 +144,7 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         Alarm alarmCopy = alarm.clone();
         alarmCopy.setLastModifiedTimestamp(getNewLastModTs(alarm.getLastModifiedTimestamp()));
 
-        idToAlarmMap.put(alarmCopy.getId(), alarmCopy);
+        idToAlarmMap.put(new AlarmKey(alarmCopy), alarmCopy);
         
         LOG.debug("Updated Alarm {}", alarmCopy);
         
@@ -115,9 +152,9 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     }
 
     @Override
-    public Alarm delete(long alarmId) {
-        Alarm alarm = get(alarmId);
-        idToAlarmMap.remove(alarm.getId());
+    public Alarm delete(int customerId, long equipmentId, AlarmCode alarmCode, long createdTimestamp) {
+        Alarm alarm = get(customerId, equipmentId, alarmCode, createdTimestamp);
+        idToAlarmMap.remove(new AlarmKey(alarm));
         
         LOG.debug("Deleted Alarm {}", alarm);
         
@@ -125,28 +162,48 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     }
 
     @Override
-    public List<Alarm> get(Set<Long> alarmIdSet) {
+    public List<Alarm> delete(int customerId, long equipmentId) {
+        List<Alarm> ret = new ArrayList<>();
+        idToAlarmMap.values().forEach(a -> {
+        	if(a.getCustomerId() == customerId && a.getEquipmentId() == equipmentId) {
+        		ret.add(a.clone());
+        	}
+        });
+        
+        ret.forEach(a -> idToAlarmMap.remove(new AlarmKey(a)));
+        
+        LOG.debug("Deleted Alarms {}", ret);
+        
+        return ret;
+    }
+
+    @Override
+    public List<Alarm> get(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp) {
+    	
+    	if(equipmentIdSet == null || equipmentIdSet.isEmpty()) {
+    		throw new IllegalArgumentException("equipmentIdSet must be provided");
+    	}
 
     	List<Alarm> ret = new ArrayList<>();
     	
-    	if(alarmIdSet!=null && !alarmIdSet.isEmpty()) {	    	
-	    	idToAlarmMap.forEach(
-	        		(id, c) -> {
-	        			if(alarmIdSet.contains(id)) {
-				        	ret.add(c.clone());
-				        } }
-	        		);
-    	}
+        idToAlarmMap.values().forEach(a -> {
+        	if(a.getCustomerId() == customerId && equipmentIdSet.contains(a.getEquipmentId())
+        			&& (alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()))
+        			&& a.getCreatedTimestamp() > createdAfterTimestamp
+        			) {
+        		ret.add(a.clone());
+        	}
+        });
 
-        LOG.debug("Found Alarms by ids {}", ret);
+        LOG.debug("Found Alarms {}", ret);
 
         return ret;
     
     }
 
     @Override
-    public PaginationResponse<Alarm> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<Alarm> context) {
+	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
+			long createdAfterTimestamp, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context)  {
 
         PaginationResponse<Alarm> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -159,31 +216,42 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         List<Alarm> items = new LinkedList<>();
 
         // apply filters and build the full result list first - inefficient, but ok for testing
-        for (Alarm mdl : idToAlarmMap.values()) {
+        idToAlarmMap.values().forEach(a -> {
+        	if(a.getCustomerId() == customerId 
+        			&& ( equipmentIdSet == null || equipmentIdSet.isEmpty() || equipmentIdSet.contains(a.getEquipmentId()) )
+        			&& ( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) )
+        			&& a.getCreatedTimestamp() > createdAfterTimestamp
+        			) {
+        		items.add(a.clone());
+        	}
+        });
 
-            if (mdl.getCustomerId() != customerId) {
-                continue;
-            }
-
-            items.add(mdl);
-        }
 
         // apply sortBy columns
         Collections.sort(items, new Comparator<Alarm>() {
             @Override
             public int compare(Alarm o1, Alarm o2) {
+                int cmp;
                 if (sortBy == null || sortBy.isEmpty()) {
-                    // sort ascending by id by default
-                    return Long.compare(o1.getId(), o2.getId());
+                    // sort ascending by equipmentId and createdTimestamp by default
+                    cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
+                    if(cmp == 0 ) {
+                    	cmp = Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp());
+                    }
+                    
+                    return cmp;
+                    
                 } else {
-                    int cmp;
                     for (ColumnAndSort column : sortBy) {
                         switch (column.getColumnName()) {
-                        case "id":
-                            cmp = Long.compare(o1.getId(), o2.getId());
+                        case "customerId":
+                            cmp = Long.compare(o1.getCustomerId(), o2.getCustomerId());
                             break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
+                        case "equipmentId":
+                            cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
+                            break;
+                        case "createdTimestamp":
+                            cmp = Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp());
                             break;
                         default:
                             // skip unknown column
@@ -204,9 +272,13 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         // find first item to add
         int fromIndex = 0;
         if (context.getStartAfterItem() != null) {
+        	Alarm startAfter = context.getStartAfterItem(); 
             for (Alarm mdl : items) {
                 fromIndex++;
-                if (mdl.getId() == context.getStartAfterItem().getId()) {
+                if ( mdl.getCustomerId() == startAfter.getCustomerId()
+                		&& mdl.getEquipmentId() == startAfter.getEquipmentId()
+                		&& mdl.getAlarmCode() == startAfter.getAlarmCode()
+                		&& mdl.getCreatedTimestamp() == startAfter.getCreatedTimestamp() ) {
                     break;
                 }
             }
@@ -232,7 +304,11 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         if(ret.getContext().getStartAfterItem()!=null) {
         	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
         	Alarm newStartAfterItem = new Alarm();
-        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	newStartAfterItem.setCustomerId(ret.getContext().getStartAfterItem().getCustomerId());
+        	newStartAfterItem.setEquipmentId(ret.getContext().getStartAfterItem().getEquipmentId());
+        	newStartAfterItem.setAlarmCode(ret.getContext().getStartAfterItem().getAlarmCode());
+        	newStartAfterItem.setCreatedTimestamp(ret.getContext().getStartAfterItem().getCreatedTimestamp());
+
         	ret.getContext().setStartAfterItem(newStartAfterItem);
         }
 

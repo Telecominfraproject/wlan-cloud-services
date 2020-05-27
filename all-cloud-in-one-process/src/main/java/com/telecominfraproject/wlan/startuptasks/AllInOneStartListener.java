@@ -17,10 +17,13 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 import com.telecominfraproject.wlan.client.ClientServiceInterface;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
-import com.telecominfraproject.wlan.client.models.ClientDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
@@ -29,6 +32,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
+import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
@@ -38,6 +42,8 @@ import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.LocationType;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
+import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
+import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
@@ -83,15 +89,31 @@ public class AllInOneStartListener implements ApplicationRunner {
 	@Autowired
 	private ClientServiceInterface clientServiceInterface;
 
+	@Autowired
+	private AlarmServiceInterface alarmServiceInterface;
+	
+	@Autowired
+	private PortalUserServiceInterface portalUserServiceInterface;
+
 	@Override
 	public void run(ApplicationArguments args) {
 		LOG.info("Creating initial objects");
-
+		
 		Customer customer = new Customer();
 		customer.setEmail("test@example.com");
 		customer.setName("Test Customer");
 
 		customer = customerServiceInterface.create(customer);
+
+		for(int i = 0; i<20; i++) {
+			PortalUser portalUser = new PortalUser();
+			portalUser.setCustomerId(customer.getId());
+			portalUser.setRole(PortalUserRole.CustomerIT);
+			portalUser.setPassword("pwd"+i);
+			portalUser.setUsername("user-"+i);
+			portalUserServiceInterface.create(portalUser);
+		}
+		
 
 		Location location_1 = new Location();
 		location_1.setParentId(0);
@@ -202,6 +224,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 			equipmentList.add(equipment);
 
 			createStatusForEquipment(equipment);
+			
+			createAlarmsForEquipment(equipment);
 			
 			createClientSessions(equipment, ssidConfig);
 
@@ -404,6 +428,26 @@ public class AllInOneStartListener implements ApplicationRunner {
 		statusServiceInterface.update(statusList);
 	}
 
+	private void createAlarmsForEquipment(Equipment equipment) {
+ 
+		if(equipment.getId() % 7 !=0) {
+			//only some APs will have an alarm
+			return;
+		}
+		
+		Alarm alarm = new Alarm();
+        alarm.setCustomerId(equipment.getCustomerId());
+        alarm.setEquipmentId(equipment.getId());
+        alarm.setAlarmCode(AlarmCode.MemoryUtilization);
+        alarm.setCreatedTimestamp(System.currentTimeMillis());
+        
+        AlarmDetails details = new AlarmDetails();
+        details.setMessage("Available memory is too low");
+		alarm.setDetails(details );
+
+		alarmServiceInterface.create(alarm);
+	}
+	
 	private static byte getRandomByte() {
 		byte ret = (byte) (225 * Math.random());
 		return ret;
