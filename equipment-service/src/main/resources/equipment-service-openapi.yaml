@@ -688,7 +688,7 @@ paths:
       tags:
       - Equipment Data
       summary: Deletes Equipment record
-      operationId: deleteLocationById
+      operationId: deleteEquipmentById
       parameters:
       - name: equipmentId
         in: query
