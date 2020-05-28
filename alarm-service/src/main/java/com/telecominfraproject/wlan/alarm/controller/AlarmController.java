@@ -24,6 +24,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmAddedEvent;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmChangedEvent;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmRemovedEvent;
@@ -87,52 +88,42 @@ public class AlarmController {
      * @param alarmId
      * @return Alarm for the supplied id
      */
-    @RequestMapping(method=RequestMethod.GET)
-    public Alarm get(@RequestParam long alarmId ) {
-        
-        LOG.debug("Retrieving Alarm {}", alarmId);
-        
-        Alarm ret = alarmDatastore.get(alarmId);
-
-        LOG.debug("Retrieved Alarm {}", ret);
-
-        return ret;
-    }
-
-    /**
-     * Retrieves Alarm by id
-     * @param alarmId
-     * @return Alarm for the supplied id
-     */
     @RequestMapping(value = "/orNull", method=RequestMethod.GET)
-    public Alarm getOrNull(@RequestParam long alarmId ) {
+	public Alarm getOrNull(@RequestParam int customerId, @RequestParam long equipmentId, 
+			@RequestParam AlarmCode alarmCode, @RequestParam long createdTimestamp) {
         
-        LOG.debug("Retrieving Alarm {}", alarmId);
+        LOG.debug("Retrieving Alarm {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
         
-        Alarm ret = alarmDatastore.getOrNull(alarmId);
+        Alarm ret = alarmDatastore.getOrNull(customerId, equipmentId, alarmCode, createdTimestamp);
 
         LOG.debug("Retrieved Alarm {}", ret);
 
         return ret;
     }
 
-    @RequestMapping(value = "/inSet", method = RequestMethod.GET)
-    public ListOfAlarms getAllInSet(@RequestParam Set<Long> alarmIdSet) {
-        LOG.debug("getAllInSet({})", alarmIdSet);
+    @RequestMapping(value = "/forEquipment", method = RequestMethod.GET)
+    public ListOfAlarms getAllForEquipment(@RequestParam int customerId, 
+    		@RequestParam Set<Long> equipmentIdSet, 
+    		@RequestParam Set<AlarmCode> alarmCodeSet,
+    		@RequestParam long createdAfterTimestamp) {
+        LOG.debug("getAllForEquipment({}, {}, {},{})", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
         try {
-            List<Alarm> result = alarmDatastore.get(alarmIdSet);
-            LOG.debug("getAllInSet({}) return {} entries", alarmIdSet, result.size());
+            List<Alarm> result = alarmDatastore.get(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
+            LOG.debug("getAllForEquipment({},{},{},{}) return {} entries", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, result.size());
             ListOfAlarms ret = new ListOfAlarms();
             ret.addAll(result);
             return ret;
         } catch (Exception exp) {
-             LOG.error("getAllInSet({}) exception ", alarmIdSet, exp);
+             LOG.error("getAllForEquipment({},{},{},{}) exception ", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, exp);
              throw exp;
         }
     }
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Alarm> getForCustomer(@RequestParam int customerId,
+    		@RequestParam Set<Long> equipmentIdSet,
+    		@RequestParam Set<AlarmCode> alarmCodeSet,
+    		@RequestParam  long createdAfterTimestamp,
             @RequestParam List<ColumnAndSort> sortBy,
             @RequestParam PaginationContext<Alarm> paginationContext) {
 
@@ -151,7 +142,7 @@ public class AlarmController {
         }
 
         PaginationResponse<Alarm> onePage = this.alarmDatastore
-                .getForCustomer(customerId,  sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp,  sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
@@ -195,16 +186,40 @@ public class AlarmController {
      * @return deleted Alarm object
      */
     @RequestMapping(method=RequestMethod.DELETE)
-    public Alarm delete(@RequestParam long alarmId ) {
+    public Alarm delete(@RequestParam int customerId, @RequestParam long equipmentId, 
+			@RequestParam AlarmCode alarmCode, @RequestParam long createdTimestamp) {
         
-        LOG.debug("Deleting Alarm {}", alarmId);
+        LOG.debug("Deleting Alarm {} {} {} {}", customerId, equipmentId, alarmCode, createdTimestamp);
         
-        Alarm ret = alarmDatastore.delete(alarmId);
+        Alarm ret = alarmDatastore.delete(customerId, equipmentId, alarmCode, createdTimestamp);
 
         LOG.debug("Deleted Alarm {}", ret);
         
         AlarmRemovedEvent event = new AlarmRemovedEvent(ret);
         publishEvent(event);
+
+        return ret;
+    }
+
+    /**
+     * Deletes Alarm records for customer equipment
+     * 
+     * @param customerId
+     * @param equipmentId
+     * @return deleted Alarm objects
+     */
+    @RequestMapping(value = "/forEquipment", method=RequestMethod.DELETE)
+    public List<Alarm> deleteForEquipment(@RequestParam int customerId, @RequestParam long equipmentId) {
+        
+        LOG.debug("Deleting Alarms for {} {}", customerId, equipmentId);
+        
+        List<Alarm> ret = alarmDatastore.delete(customerId, equipmentId);
+
+        LOG.debug("Deleted Alarms {}", ret);
+        
+        List<SystemEvent> events = new ArrayList<>();
+        ret.forEach(a -> events.add(new AlarmRemovedEvent(a)));
+        publishEvents(events);
 
         return ret;
     }
@@ -221,5 +236,12 @@ public class AlarmController {
         }
     }
 
+    private void publishEvents(List<SystemEvent> events) {
+        try {
+            cloudEventDispatcher.publishEventsBulk(events);
+        } catch (Exception e) {
+            LOG.error("Failed to publish events : {}", events, e);
+        }
+    }
     
 }

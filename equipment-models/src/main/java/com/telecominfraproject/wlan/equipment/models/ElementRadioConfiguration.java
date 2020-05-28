@@ -73,8 +73,8 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else if (radioType == RadioType.is5GHzU) {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
-			returnValue.setChannelNumber(108);
-			returnValue.setBackupChannelNumber(116);
+			returnValue.setChannelNumber(149);
+			returnValue.setBackupChannelNumber(154);
 			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is20MHz);

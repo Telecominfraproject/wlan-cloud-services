@@ -1,15 +1,23 @@
 insert into alarm (
-    id,
     customerId,     
-    sampleStr,
-    details,
+    equipmentId,
+    alarmCode,
     createdTimestamp,
+    
+    originatorType,
+    severity,
+    scopeType,
+    scopeId,
+    
+    details,
+    acknowledged,
     lastModifiedTimestamp
 ) values (
-    1,
-    1,
-    'test',
+    1,1,4,1,
+    
+    1,1,1, '-1',
+    
     null,
-    0,0
+    false,0
 );
 
