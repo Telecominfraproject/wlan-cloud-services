@@ -237,7 +237,7 @@ components:
         totalItemsReturned:
           type: integer
           format: int32
-        isLastPage:
+        lastPage:
           type: boolean
       example: 
         model_type: PaginationContext
@@ -439,7 +439,7 @@ paths:
               type: array
               items:
                 type: integer
-                format: int32
+                format: int64
       responses:
         200:
           description: Successful operation
