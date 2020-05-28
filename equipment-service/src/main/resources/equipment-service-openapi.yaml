@@ -600,8 +600,10 @@ components:
         totalItemsReturned:
           type: integer
           format: int32
-        isLastPage:
+        lastPage:
           type: boolean
+        cursor:
+          type: string
       example: 
         model_type: PaginationContext
         maxItemsPerPage: 10
