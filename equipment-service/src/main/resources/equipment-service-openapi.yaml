@@ -555,26 +555,6 @@ components:
       enum:
       - asc
       - desc
-    
-    SortColumnsLocation:
-      type: object
-      required:
-      - model_type
-      - columnName
-      - sortOrder
-      properties: 
-        model_type:
-          type: string
-          enum:
-          - ColumnAndSort
-        columnName:
-          type: string
-          default: id
-          enum: 
-          - id
-          - name
-        sortOrder:
-          $ref: '#/components/schemas/SortOrder'
 
     SortColumnsEquipment:
       type: object
@@ -620,8 +600,10 @@ components:
         totalItemsReturned:
           type: integer
           format: int32
-        isLastPage:
+        lastPage:
           type: boolean
+        cursor:
+          type: string
       example: 
         model_type: PaginationContext
         maxItemsPerPage: 10
@@ -890,7 +872,7 @@ paths:
         schema:
           type: array
           items:
-            $ref: '#/components/schemas/SortColumnsLocation'
+            $ref: '#/components/schemas/SortColumnsEquipment'
       - name: paginationContext
         in: query
         description: pagination context
