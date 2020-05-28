@@ -229,14 +229,14 @@ components:
           - PaginationContext
         maxItemsPerPage:
           type: integer
-          format: int32
+          format: int64
           default: 20
         lastReturnedPageNumber:
           type: integer
-          format: int32
+          format: int64
         totalItemsReturned:
           type: integer
-          format: int32
+          format: int64
         isLastPage:
           type: boolean
       example: 
@@ -439,7 +439,7 @@ paths:
               type: array
               items:
                 type: integer
-                format: int32
+                format: int64
       responses:
         200:
           description: Successful operation

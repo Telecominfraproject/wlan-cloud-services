@@ -555,26 +555,6 @@ components:
       enum:
       - asc
       - desc
-    
-    SortColumnsLocation:
-      type: object
-      required:
-      - model_type
-      - columnName
-      - sortOrder
-      properties: 
-        model_type:
-          type: string
-          enum:
-          - ColumnAndSort
-        columnName:
-          type: string
-          default: id
-          enum: 
-          - id
-          - name
-        sortOrder:
-          $ref: '#/components/schemas/SortOrder'
 
     SortColumnsEquipment:
       type: object
@@ -890,7 +870,7 @@ paths:
         schema:
           type: array
           items:
-            $ref: '#/components/schemas/SortColumnsLocation'
+            $ref: '#/components/schemas/SortColumnsEquipment'
       - name: paginationContext
         in: query
         description: pagination context
