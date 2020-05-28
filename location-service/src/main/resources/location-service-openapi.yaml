@@ -229,15 +229,15 @@ components:
           - PaginationContext
         maxItemsPerPage:
           type: integer
-          format: int64
+          format: int32
           default: 20
         lastReturnedPageNumber:
           type: integer
-          format: int64
+          format: int32
         totalItemsReturned:
           type: integer
-          format: int64
-        isLastPage:
+          format: int32
+        lastPage:
           type: boolean
       example: 
         model_type: PaginationContext
