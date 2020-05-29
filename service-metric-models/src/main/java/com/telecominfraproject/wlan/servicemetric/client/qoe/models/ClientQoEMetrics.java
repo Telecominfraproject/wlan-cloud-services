@@ -1,6 +1,10 @@
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.client.qoe.models;
+
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
 
 /**
  * QoE related metrics which is independent of RadioType
@@ -9,9 +13,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClientQoEMetrics extends BaseClientMetrics {
+public class ClientQoEMetrics extends ServiceMetricDetails {
 
     private static final long serialVersionUID = 5242617221447159480L;
+
+    /**
+     * How many seconds the AP measured for the metric
+     */
+    private Integer periodLengthSec = 5;
+    private Integer secondsSinceLastRecv;
+
 
     // Connectivity QoE stats.
     private Long qoeEventualSuccessTimeTaken;
@@ -23,86 +34,51 @@ public class ClientQoEMetrics extends BaseClientMetrics {
     private Long qoeNumRepeatedAttempts;
     private Long qoeUserError;
 
-    public ClientQoEMetrics() {
+    @Override
+    public ServiceMetricDataType getDataType() {
+    	return ServiceMetricDataType.ClientQoE;
     }
-
+    
     @Override
     public ClientQoEMetrics clone() {
         return (ClientQoEMetrics) super.clone();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof ClientQoEMetrics)) {
-            return false;
-        }
-        ClientQoEMetrics other = (ClientQoEMetrics) obj;
-        if (this.qoeAssociatedDuration == null) {
-            if (other.qoeAssociatedDuration != null) {
-                return false;
-            }
-        } else if (!this.qoeAssociatedDuration.equals(other.qoeAssociatedDuration)) {
-            return false;
-        }
-        if (this.qoeAttemptDuration == null) {
-            if (other.qoeAttemptDuration != null) {
-                return false;
-            }
-        } else if (!this.qoeAttemptDuration.equals(other.qoeAttemptDuration)) {
-            return false;
-        }
-        if (this.qoeDeltaDuration == null) {
-            if (other.qoeDeltaDuration != null) {
-                return false;
-            }
-        } else if (!this.qoeDeltaDuration.equals(other.qoeDeltaDuration)) {
-            return false;
-        }
-        if (this.qoeEventualSuccessTimeTaken == null) {
-            if (other.qoeEventualSuccessTimeTaken != null) {
-                return false;
-            }
-        } else if (!this.qoeEventualSuccessTimeTaken.equals(other.qoeEventualSuccessTimeTaken)) {
-            return false;
-        }
-        if (this.qoeNumOfAttempts == null) {
-            if (other.qoeNumOfAttempts != null) {
-                return false;
-            }
-        } else if (!this.qoeNumOfAttempts.equals(other.qoeNumOfAttempts)) {
-            return false;
-        }
-        if (this.qoeNumOfSuccess == null) {
-            if (other.qoeNumOfSuccess != null) {
-                return false;
-            }
-        } else if (!this.qoeNumOfSuccess.equals(other.qoeNumOfSuccess)) {
-            return false;
-        }
-        if (this.qoeNumRepeatedAttempts == null) {
-            if (other.qoeNumRepeatedAttempts != null) {
-                return false;
-            }
-        } else if (!this.qoeNumRepeatedAttempts.equals(other.qoeNumRepeatedAttempts)) {
-            return false;
-        }
-        if (this.qoeUserError == null) {
-            if (other.qoeUserError != null) {
-                return false;
-            }
-        } else if (!this.qoeUserError.equals(other.qoeUserError)) {
-            return false;
-        }
-        return true;
-    }
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(periodLengthSec, qoeAssociatedDuration, qoeAttemptDuration,
+				qoeDeltaDuration, qoeEventualSuccessTimeTaken, qoeNumOfAttempts, qoeNumOfSuccess,
+				qoeNumRepeatedAttempts, qoeUserError, secondsSinceLastRecv);
+		return result;
+	}
 
-    public Long getQoeAssociatedDuration() {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ClientQoEMetrics)) {
+			return false;
+		}
+		ClientQoEMetrics other = (ClientQoEMetrics) obj;
+		return Objects.equals(periodLengthSec, other.periodLengthSec)
+				&& Objects.equals(qoeAssociatedDuration, other.qoeAssociatedDuration)
+				&& Objects.equals(qoeAttemptDuration, other.qoeAttemptDuration)
+				&& Objects.equals(qoeDeltaDuration, other.qoeDeltaDuration)
+				&& Objects.equals(qoeEventualSuccessTimeTaken, other.qoeEventualSuccessTimeTaken)
+				&& Objects.equals(qoeNumOfAttempts, other.qoeNumOfAttempts)
+				&& Objects.equals(qoeNumOfSuccess, other.qoeNumOfSuccess)
+				&& Objects.equals(qoeNumRepeatedAttempts, other.qoeNumRepeatedAttempts)
+				&& Objects.equals(qoeUserError, other.qoeUserError)
+				&& Objects.equals(secondsSinceLastRecv, other.secondsSinceLastRecv);
+	}
+
+	public Long getQoeAssociatedDuration() {
         return qoeAssociatedDuration;
     }
 
@@ -132,22 +108,6 @@ public class ClientQoEMetrics extends BaseClientMetrics {
 
     public Long getQoeUserError() {
         return qoeUserError;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((this.qoeAssociatedDuration == null) ? 0 : this.qoeAssociatedDuration.hashCode());
-        result = prime * result + ((this.qoeAttemptDuration == null) ? 0 : this.qoeAttemptDuration.hashCode());
-        result = prime * result + ((this.qoeDeltaDuration == null) ? 0 : this.qoeDeltaDuration.hashCode());
-        result = prime * result
-                + ((this.qoeEventualSuccessTimeTaken == null) ? 0 : this.qoeEventualSuccessTimeTaken.hashCode());
-        result = prime * result + ((this.qoeNumOfAttempts == null) ? 0 : this.qoeNumOfAttempts.hashCode());
-        result = prime * result + ((this.qoeNumOfSuccess == null) ? 0 : this.qoeNumOfSuccess.hashCode());
-        result = prime * result + ((this.qoeNumRepeatedAttempts == null) ? 0 : this.qoeNumRepeatedAttempts.hashCode());
-        result = prime * result + ((this.qoeUserError == null) ? 0 : this.qoeUserError.hashCode());
-        return result;
     }
 
     public void setQoeAssociatedDuration(Long qoeAssociatedDuration) {
@@ -181,4 +141,20 @@ public class ClientQoEMetrics extends BaseClientMetrics {
     public void setQoeUserError(Long qoeUserError) {
         this.qoeUserError = qoeUserError;
     }
+
+	public Integer getPeriodLengthSec() {
+		return periodLengthSec;
+	}
+
+	public void setPeriodLengthSec(Integer periodLengthSec) {
+		this.periodLengthSec = periodLengthSec;
+	}
+
+	public Integer getSecondsSinceLastRecv() {
+		return secondsSinceLastRecv;
+	}
+
+	public void setSecondsSinceLastRecv(Integer secondsSinceLastRecv) {
+		this.secondsSinceLastRecv = secondsSinceLastRecv;
+	}
 }

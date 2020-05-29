@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.apssid.models;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -8,28 +8,25 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
 
 /**
  * Ssid metrics for the AP
  * @author ekeddy
  *
  */
-public class ApSsidMetrics extends MetricData {
+public class ApSsidMetrics extends ServiceMetricDetails {
 
     private static final long serialVersionUID = 6334213644766085284L;
 
-    public static final String TYPE_NAME = ApSsidMetrics.class.getSimpleName();
-
     private Map<RadioType, List<SsidStatistics>> ssidStats = new EnumMap<>(RadioType.class);
 
-    /* (non-Javadoc)
-     * @see com.whizcontrol.servicemetrics.models.MetricData#getType()
-     */
     @Override
-    public String getType() {
-        return TYPE_NAME;
+    public ServiceMetricDataType getDataType() {
+    	return ServiceMetricDataType.ApSsid;
     }
-
+    
     @JsonIgnore
     public long getSsidStatsCount(RadioType radioType) {
     	List<SsidStatistics> sList = ssidStats.get(radioType);

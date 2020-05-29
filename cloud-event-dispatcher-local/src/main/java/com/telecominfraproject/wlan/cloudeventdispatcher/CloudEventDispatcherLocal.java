@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 @Component
@@ -14,12 +14,12 @@ public class CloudEventDispatcherLocal implements CloudEventDispatcherInterface 
     @Autowired private CloudEventDispatcherController cloudEventDispatcherController;
 
 	@Override
-	public void publishMetric(SingleMetricRecord metricRecord) {
+	public void publishMetric(ServiceMetric metricRecord) {
 		cloudEventDispatcherController.publishMetric(metricRecord);
 	}
 
 	@Override
-	public void publishMetrics(List<SingleMetricRecord> metricRecordList) {
+	public void publishMetrics(List<ServiceMetric> metricRecordList) {
 		cloudEventDispatcherController.publishMetrics(metricRecordList);
 	}
 

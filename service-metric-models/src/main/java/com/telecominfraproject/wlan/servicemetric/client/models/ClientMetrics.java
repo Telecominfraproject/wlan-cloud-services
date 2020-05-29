@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.client.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,20 +9,26 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;
-import com.telecominfraproject.wlan.servicemetrics.models.WmmQueueStats.WmmQueueType;
-import com.telecominfraproject.wlan.servicemetrics.models.utils.ClientRadioUtils;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.models.McsStats;
+import com.telecominfraproject.wlan.servicemetric.models.McsType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
 
 /**
  * @author ekeddy
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClientMetrics extends BaseClientMetrics {
+public class ClientMetrics extends ServiceMetricDetails {
 
     private static final long serialVersionUID = 7242365268669169773L;
+
+    private Integer secondsSinceLastRecv;
 
     private Long numRxPackets;
     private Long numTxPackets;
@@ -576,6 +582,16 @@ public class ClientMetrics extends BaseClientMetrics {
      */
     private RadioType radioType;
 
+    /**
+     * How many seconds the AP measured for the metric
+     */
+    private Integer periodLengthSec = 5;
+
+    @Override
+    public ServiceMetricDataType getDataType() {
+    	return ServiceMetricDataType.Client;
+    }
+    
     @Override
     public ClientMetrics clone() {
         ClientMetrics ret = (ClientMetrics) super.clone();
@@ -4006,4 +4022,20 @@ public class ClientMetrics extends BaseClientMetrics {
     public void setAverageRxRate(Double averageRxRate) {
         this.averageRxRate = averageRxRate;
     }
+
+	public Integer getSecondsSinceLastRecv() {
+		return secondsSinceLastRecv;
+	}
+
+	public void setSecondsSinceLastRecv(Integer secondsSinceLastRecv) {
+		this.secondsSinceLastRecv = secondsSinceLastRecv;
+	}
+
+	public Integer getPeriodLengthSec() {
+		return periodLengthSec;
+	}
+
+	public void setPeriodLengthSec(Integer periodLengthSec) {
+		this.periodLengthSec = periodLengthSec;
+	}
 }

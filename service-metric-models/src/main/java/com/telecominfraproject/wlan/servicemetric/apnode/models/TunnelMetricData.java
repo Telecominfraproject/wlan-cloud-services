@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
 import java.net.InetAddress;
 

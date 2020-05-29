@@ -1,19 +1,25 @@
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
-import com.telecominfraproject.wlan.servicemetrics.models.WmmQueueStats.WmmQueueType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.models.McsStats;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
 
 /**
  * Node-level metric data from the Access Point.
@@ -21,12 +27,10 @@ import com.telecominfraproject.wlan.servicemetrics.models.WmmQueueStats.WmmQueue
  * @author yongli
  *
  */
-public class ApNodeMetrics extends MetricData implements ClientMetricsInterface 
+public class ApNodeMetrics extends ServiceMetricDetails 
 {
     private static final long serialVersionUID = 3133201391801512954L;
     
-    public static final String TYPE_NAME = ApNodeMetrics.class.getSimpleName();
-
     /**
      * How many seconds the AP measured for the metric
      */
@@ -35,41 +39,21 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
     /**
      * Client MAC addresses seen during the period
      */
-    private List<byte[]> clientMacAddresses = new ArrayList<>();
+    private Map<RadioType, List<MacAddress>> clientMacAddressesPerRadio = new EnumMap<>(RadioType.class);
     
     /**
-     * Total number the bytes transmitted on 2.4GHz radio
+     * Total number the bytes transmitted on radio
      */
-    private Long txBytes2G;
+    private Map<RadioType, Long> txBytesPerRadio = new EnumMap<>(RadioType.class);
 
     /**
-     * Total number of byte received on 2.4GHz radio
+     * Total number of bytes received on radio
      */
-    private Long rxBytes2G;
+    private Map<RadioType, Long> rxBytesPerRadio = new EnumMap<>(RadioType.class);
 
-    /**
-     * Total number the bytes transmitted on 5GHz radio
-     */
-    private Long txBytes5G;
 
-    /**
-     * Total number of byte received on 5GHz radio
-     */
-    private Long rxBytes5G;
+    private Map<RadioType, Integer> noiseFloorPerRadio = new EnumMap<>(RadioType.class);
 
-    /**
-     * The noise floor for 2.4G radio
-     */
-    private Integer noiseFloor2G;
-
-    /**
-     * The noise floor for 5G radio
-     */
-    private Integer noiseFloor5G;
-
-    /**
-     * Tunnel metrics
-     */
     private List<TunnelMetricData> tunnelMetrics = new ArrayList<>();
 
     private List<NetworkProbeMetrics> networkProbeMetrics = new ArrayList<>();
@@ -85,38 +69,23 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
     private Long cloudLinkLatencyInMs;
 
     /**
-     * The channel utilization for 2.4G radio
+     * The channel utilization for radio
      */
-    private Integer channelUtilization2G;
-
-    /**
-     * The channel utilization for 5G radio
-     */
-    private Integer channelUtilization5G;
+    private Map<RadioType, Integer> channelUtilizationPerRadio = new EnumMap<>(RadioType.class);
 
     private ApPerformance apPerformance;
 
     private List<VlanSubnet> vlanSubnet;
 
-    private List<RadioUtilization> radioUtilization2G;
+    private Map<RadioType, List<RadioUtilization>> radioUtilizationPerRadio = new EnumMap<>(RadioType.class);
 
-    private List<RadioUtilization> radioUtilization5G;
 
-    private RadioStatistics radioStats2G;
-    private RadioStatistics radioStats5G;
+    private Map<RadioType, RadioStatistics> radioStatsPerRadio = new EnumMap<>(RadioType.class);
     
-    private List<McsStats> mcsStats2G;
-    private List<McsStats> mcsStats5G;
+    private Map<RadioType, List<McsStats>> mcsStatsPerRadio = new EnumMap<>(RadioType.class);
     
-    /**
-     * Our wmm queues
-     */
-    Map<WmmQueueType, WmmQueueStats> twoGWmmQueue;
-    Map<WmmQueueType, WmmQueueStats> fiveGWmmQueue;
+    private Map<RadioType, Map<WmmQueueType, WmmQueueStats>> wmmQueuesPerRadio = new EnumMap<>(RadioType.class);
     
-    public String getType() {
-        return TYPE_NAME;
-    }
 
     public Integer getPeriodLengthSec() {
         return periodLengthSec;
@@ -131,18 +100,31 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
      * @return total
      */
     public long getClientCount() {
-        return clientMacAddresses != null ? clientMacAddresses.size() : 0;
+    	Set<MacAddress> distinctMacs = new HashSet<>();
+    	if(clientMacAddressesPerRadio!=null) {
+    		clientMacAddressesPerRadio.values().forEach(macList -> macList.forEach(mac -> distinctMacs.add(mac) ) );
+    	}
+    	
+        return distinctMacs.size();
     }
 
-    public List<byte[]> getClientMacAddresses() {
-        return clientMacAddresses;
+    public List<MacAddress> getClientMacAddresses(RadioType radioType) {
+        return clientMacAddressesPerRadio.get(radioType);
     }
 
-    public void setClientMacAddresses(List<byte[]> clientMacAddresses) {
-        this.clientMacAddresses = clientMacAddresses;
+    public void setClientMacAddresses(RadioType radioType, List<MacAddress> clientMacAddresses) {
+        this.clientMacAddressesPerRadio.put(radioType, clientMacAddresses);
     }
+    
+    public Map<RadioType, List<MacAddress>> getClientMacAddressesPerRadio() {
+		return clientMacAddressesPerRadio;
+	}
 
-    public List<TunnelMetricData> getTunnelMetrics() {
+	public void setClientMacAddressesPerRadio(Map<RadioType, List<MacAddress>> clientMacAddressesPerRadio) {
+		this.clientMacAddressesPerRadio = clientMacAddressesPerRadio;
+	}
+
+	public List<TunnelMetricData> getTunnelMetrics() {
         return tunnelMetrics;
     }
 
@@ -158,20 +140,20 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
         this.networkProbeMetrics = networkProbeMetrics;
     }
 
-    public Integer getNoiseFloor2G() {
-        return noiseFloor2G;
+    public Integer getNoiseFloor(RadioType radioType) {
+        return noiseFloorPerRadio.get(radioType);
     }
 
     /**
-     * Return the last actual cell size which is measure at the same time as noise floor.
+     * Return the last actual cell size which is measured at the same time as noise floor.
      * @return cell size
      */
-    public Integer getCellSize2G() {
-        if (null == this.radioStats2G) {
+    public Integer getCellSize(RadioType radioType) {
+        if (radioStatsPerRadio == null || radioStatsPerRadio.get(radioType) == null) {
             return null;
         }
-        List<Integer> values = this.radioStats2G.getActualCellSize();
-        if (null == values || values.isEmpty()) {
+        List<Integer> values = this.radioStatsPerRadio.get(radioType).getActualCellSize();
+        if (values == null || values.isEmpty()) {
             return null;
         }
         return values.get(values.size()-1);
@@ -182,59 +164,21 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
      * 
      * @return cell size.
      */
-    public Integer getMinCellSize2G() {
-        if (null == this.radioStats2G) {
+    public Integer getMinCellSize(RadioType radioType) {
+        if (radioStatsPerRadio == null || radioStatsPerRadio.get(radioType) == null) {
             return null;
         }
-        List<Integer> values = this.radioStats2G.getActualCellSize();
+        List<Integer> values = this.radioStatsPerRadio.get(radioType).getActualCellSize();
         if (null == values || values.isEmpty()) {
             return null;
         }
         return Collections.max(values);
     }
     
-    public void setNoiseFloor2G(Integer noiseFloor2G) {
-        this.noiseFloor2G = noiseFloor2G;
+    public void setNoiseFloor(RadioType radioType, Integer noiseFloor) {
+        this.noiseFloorPerRadio.put(radioType, noiseFloor);
     }
 
-    public Integer getNoiseFloor5G() {
-        return noiseFloor5G;
-    }
-
-    /**
-     * Return the last actual cell size which is measure at the same time as noise floor.
-     * @return cell size
-     */
-    public Integer getCellSize5G() {
-        if (null == this.radioStats5G) {
-            return null;
-        }
-        List<Integer> values = this.radioStats5G.getActualCellSize();
-        if (null == values || values.isEmpty()) {
-            return null;
-        }
-        return values.get(values.size()-1);
-    }
-    
-    /**
-     * Grab the minimum cell size (largest value) from all the actual cell size.
-     * 
-     * @return cell size.
-     */
-    public Integer getMinCellSize5G() {
-        if (null == this.radioStats5G) {
-            return null;
-        }
-        List<Integer> values = this.radioStats5G.getActualCellSize();
-        if (null == values || values.isEmpty()) {
-            return null;
-        }
-        return Collections.max(values);
-    }
-    
-    public void setNoiseFloor5G(Integer noiseFloor5G) {
-        this.noiseFloor5G = noiseFloor5G;
-    }
 
     public Integer getCloudLinkAvailability() {
         return this.cloudLinkAvailability;
@@ -252,53 +196,31 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
         this.cloudLinkLatencyInMs = cloudLatency;
     }
 
-    public Integer getChannelUtilization2G() {
-        return channelUtilization2G;
+    public Integer getChannelUtilization(RadioType radioType) {
+        return channelUtilizationPerRadio.get(radioType);
     }
 
-    public void setChannelUtilization2G(Integer channelUtilization2G) {
-        this.channelUtilization2G = channelUtilization2G;
+    public void setChannelUtilization(RadioType radioType, Integer channelUtilization) {
+    	channelUtilizationPerRadio.put(radioType, channelUtilization);
     }
 
-    public Integer getChannelUtilization5G() {
-        return channelUtilization5G;
+
+    public Long getTxBytes(RadioType radioType) {
+        return txBytesPerRadio.get(radioType);
     }
 
-    public void setChannelUtilization5G(Integer channelUtilization5G) {
-        this.channelUtilization5G = channelUtilization5G;
+    public void setTxBytes(RadioType radioType, Long txBytes) {
+    	txBytesPerRadio.put(radioType, txBytes);
     }
 
-    public Long getTxBytes2G() {
-        return txBytes2G;
+    public Long getRxBytes(RadioType radioType) {
+        return rxBytesPerRadio.get(radioType);
     }
 
-    public void setTxBytes2G(Long txBytes2G) {
-        this.txBytes2G = txBytes2G;
+    public void setRxBytes(RadioType radioType, Long rxBytes) {
+        this.rxBytesPerRadio.put(radioType,  rxBytes);
     }
 
-    public Long getRxBytes2G() {
-        return rxBytes2G;
-    }
-
-    public void setRxBytes2G(Long rxBytes2G) {
-        this.rxBytes2G = rxBytes2G;
-    }
-
-    public Long getTxBytes5G() {
-        return txBytes5G;
-    }
-
-    public void setTxBytes5G(Long txBytes5G) {
-        this.txBytes5G = txBytes5G;
-    }
-
-    public Long getRxBytes5G() {
-        return rxBytes5G;
-    }
-
-    public void setRxBytes5G(Long rxBytes5G) {
-        this.rxBytes5G = rxBytes5G;
-    }
 
     public List<RadiusMetrics> getRadiusMetrics() {
         return radiusMetrics;
@@ -324,73 +246,43 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
       this.vlanSubnet = vlanSubnet;
    }
  
-   public List<RadioUtilization> getRadioUtilization2G() {
-       return radioUtilization2G;
+   public List<RadioUtilization> getRadioUtilization(RadioType radioType) {
+       return radioUtilizationPerRadio.get(radioType);
    }
 
-   public void setRadioUtilization2G(List<RadioUtilization> radioUtilization2G) {
-       this.radioUtilization2G = radioUtilization2G;
+   public void setRadioUtilization(RadioType radioType, List<RadioUtilization> radioUtilization) {
+       this.radioUtilizationPerRadio.put(radioType,  radioUtilization);
    }
 
-   public List<RadioUtilization> getRadioUtilization5G() {
-       return radioUtilization5G;
+   public RadioStatistics getRadioStats(RadioType radioType) {
+       return radioStatsPerRadio.get(radioType);
    }
 
-   public void setRadioUtilization5G(List<RadioUtilization> radioUtilization5G) {
-       this.radioUtilization5G = radioUtilization5G;
-   }
-   public RadioStatistics getRadioStats2G() {
-       return radioStats2G;
+   public void setRadioStats(RadioType radioType, RadioStatistics radioStats) {
+       this.radioStatsPerRadio.put(radioType, radioStats);
    }
 
-   public void setRadioStats2G(RadioStatistics radioStats2G) {
-       this.radioStats2G = radioStats2G;
+   public List<McsStats> getMcsStats(RadioType radioType) {
+       return mcsStatsPerRadio.get(radioType);
    }
 
-   public List<McsStats> getMcsStats2G() {
-       return mcsStats2G;
-   }
-
-   public void setMcsStats2G(List<McsStats> mcsStats2G) {
-       this.mcsStats2G = mcsStats2G;
-   }
-
-   public List<McsStats> getMcsStats5G() {
-       return mcsStats5G;
-   }
-
-   public void setMcsStats5G(List<McsStats> mcsStats5G) {
-       this.mcsStats5G = mcsStats5G;
-   }
-
-   public RadioStatistics getRadioStats5G() {
-       return radioStats5G;
-   }
-
-   public void setRadioStats5G(RadioStatistics radioStats5G) {
-       this.radioStats5G = radioStats5G;
+   public void setMcsStats(RadioType radioType, List<McsStats> mcsStats) {
+       this.mcsStatsPerRadio.put(radioType, mcsStats);
    }
 
 
-   public Map<WmmQueueType, WmmQueueStats> getTwoGWmmQueue() {
-       return twoGWmmQueue;
+   public Map<WmmQueueType, WmmQueueStats> getWmmQueue(RadioType radioType) {
+       return wmmQueuesPerRadio.get(radioType);
    }
 
-   public void setTwoGWmmQueue(Map<WmmQueueType, WmmQueueStats> twoGWmmQueue) {
-      this.twoGWmmQueue = twoGWmmQueue;
+   public void setWmmQueue(RadioType radioType, Map<WmmQueueType, WmmQueueStats> wmmQueue) {
+      this.wmmQueuesPerRadio.put(radioType, wmmQueue);
    }
 
-   public Map<WmmQueueType, WmmQueueStats> getFiveGWmmQueue() {
-      return fiveGWmmQueue;
-   }
-
-   public void setFiveGWmmQueue(Map<WmmQueueType, WmmQueueStats> fiveGWmmQueue) {
-      this.fiveGWmmQueue = fiveGWmmQueue;
-   }
 
 
    //
-   // Functions for use in rule engine
+   // Utility Functions 
    //
 
    public boolean aggregateIsDhcpReachable() {
@@ -464,211 +356,114 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
         return RadiusMetricsUtil.getMinRadiusLatency(radiusMetrics);
     }
 
+	public Map<RadioType, Long> getTxBytesPerRadio() {
+		return txBytesPerRadio;
+	}
 
-    //
+	public void setTxBytesPerRadio(Map<RadioType, Long> txBytesPerRadio) {
+		this.txBytesPerRadio = txBytesPerRadio;
+	}
 
-   @Override
-   public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result
-            + ((apPerformance == null) ? 0 : apPerformance.hashCode());
-      result = prime
-            * result
-            + ((channelUtilization2G == null) ? 0 : channelUtilization2G
-                  .hashCode());
-      result = prime
-            * result
-            + ((channelUtilization5G == null) ? 0 : channelUtilization5G
-                  .hashCode());
-      result = prime
-            * result
-            + ((clientMacAddresses == null) ? 0 : clientMacAddresses.hashCode());
-      result = prime
-            * result
-            + ((cloudLinkAvailability == null) ? 0 : cloudLinkAvailability
-                  .hashCode());
-      result = prime
-            * result
-            + ((cloudLinkLatencyInMs == null) ? 0 : cloudLinkLatencyInMs
-                  .hashCode());
-      result = prime
-            * result
-            + ((networkProbeMetrics == null) ? 0 : networkProbeMetrics
-                  .hashCode());
-      result = prime * result
-            + ((noiseFloor2G == null) ? 0 : noiseFloor2G.hashCode());
-      result = prime * result
-            + ((noiseFloor5G == null) ? 0 : noiseFloor5G.hashCode());
-      result = prime * result
-            + ((periodLengthSec == null) ? 0 : periodLengthSec.hashCode());
-      result = prime * result
-            + ((radiusMetrics == null) ? 0 : radiusMetrics.hashCode());
-      result = prime * result
-            + ((rxBytes2G == null) ? 0 : rxBytes2G.hashCode());
-      result = prime * result
-            + ((rxBytes5G == null) ? 0 : rxBytes5G.hashCode());
-      result = prime * result
-            + ((tunnelMetrics == null) ? 0 : tunnelMetrics.hashCode());
-      result = prime * result
-            + ((txBytes2G == null) ? 0 : txBytes2G.hashCode());
-      result = prime * result
-            + ((txBytes5G == null) ? 0 : txBytes5G.hashCode());
-      result = prime * result
-            + ((vlanSubnet == null) ? 0 : vlanSubnet.hashCode());
-      result = prime * result
-              + ((radioUtilization2G == null) ? 0 : radioUtilization2G.hashCode());
-      result = prime * result
-              + ((radioUtilization5G == null) ? 0 : radioUtilization5G.hashCode());
-      result = prime * result
-              + ((radioStats2G == null) ? 0 : radioStats2G.hashCode());
-      result = prime * result
-              + ((radioStats5G == null) ? 0 : radioStats5G.hashCode());
-      result = prime * result
-              + ((mcsStats2G == null) ? 0 : mcsStats2G.hashCode());
-      result = prime * result
-              + ((mcsStats5G == null) ? 0 : mcsStats5G.hashCode());
-      return result;
-   }
+	public Map<RadioType, Long> getRxBytesPerRadio() {
+		return rxBytesPerRadio;
+	}
 
-    @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      ApNodeMetrics other = (ApNodeMetrics) obj;
-      if (apPerformance == null) {
-         if (other.apPerformance != null)
-            return false;
-      } else if (!apPerformance.equals(other.apPerformance))
-         return false;
-      if (channelUtilization2G == null) {
-         if (other.channelUtilization2G != null)
-            return false;
-      } else if (!channelUtilization2G.equals(other.channelUtilization2G))
-         return false;
-      if (channelUtilization5G == null) {
-         if (other.channelUtilization5G != null)
-            return false;
-      } else if (!channelUtilization5G.equals(other.channelUtilization5G))
-         return false;
-      if (clientMacAddresses == null) {
-         if (other.clientMacAddresses != null)
-            return false;
-      } 
-      else 
-      {
-         for (int i = 0; i < clientMacAddresses.size(); i++) 
-         {
-            if (!Arrays.equals(clientMacAddresses.get(i), other.clientMacAddresses.get(i))) 
-            {
-               return false;
-            }
-         }
-      }
+	public void setRxBytesPerRadio(Map<RadioType, Long> rxBytesPerRadio) {
+		this.rxBytesPerRadio = rxBytesPerRadio;
+	}
 
-      if (cloudLinkAvailability == null) {
-         if (other.cloudLinkAvailability != null)
-            return false;
-      } else if (!cloudLinkAvailability.equals(other.cloudLinkAvailability))
-         return false;
-      if (cloudLinkLatencyInMs == null) {
-         if (other.cloudLinkLatencyInMs != null)
-            return false;
-      } else if (!cloudLinkLatencyInMs.equals(other.cloudLinkLatencyInMs))
-         return false;
-      if (networkProbeMetrics == null) {
-         if (other.networkProbeMetrics != null)
-            return false;
-      } else if (!networkProbeMetrics.equals(other.networkProbeMetrics))
-         return false;
-      if (noiseFloor2G == null) {
-         if (other.noiseFloor2G != null)
-            return false;
-      } else if (!noiseFloor2G.equals(other.noiseFloor2G))
-         return false;
-      if (noiseFloor5G == null) {
-         if (other.noiseFloor5G != null)
-            return false;
-      } else if (!noiseFloor5G.equals(other.noiseFloor5G))
-         return false;
-      if (periodLengthSec == null) {
-         if (other.periodLengthSec != null)
-            return false;
-      } else if (!periodLengthSec.equals(other.periodLengthSec))
-         return false;
-      if (radiusMetrics == null) {
-         if (other.radiusMetrics != null)
-            return false;
-      } else if (!radiusMetrics.equals(other.radiusMetrics))
-         return false;
-      if (rxBytes2G == null) {
-         if (other.rxBytes2G != null)
-            return false;
-      } else if (!rxBytes2G.equals(other.rxBytes2G))
-         return false;
-      if (rxBytes5G == null) {
-         if (other.rxBytes5G != null)
-            return false;
-      } else if (!rxBytes5G.equals(other.rxBytes5G))
-         return false;
-      if (tunnelMetrics == null) {
-         if (other.tunnelMetrics != null)
-            return false;
-      } else if (!tunnelMetrics.equals(other.tunnelMetrics))
-         return false;
-      if (txBytes2G == null) {
-         if (other.txBytes2G != null)
-            return false;
-      } else if (!txBytes2G.equals(other.txBytes2G))
-         return false;
-      if (txBytes5G == null) {
-         if (other.txBytes5G != null)
-            return false;
-      } else if (!txBytes5G.equals(other.txBytes5G))
-         return false;
-      if (vlanSubnet == null) {
-         if (other.vlanSubnet != null)
-            return false;
-      } else if (!vlanSubnet.equals(other.vlanSubnet))
-         return false;
-      if (radioUtilization2G == null) {
-          if (other.radioUtilization2G != null)
-             return false;
-       } else if (!radioUtilization2G.equals(other.radioUtilization2G))
-          return false;
-      if (radioUtilization5G == null) {
-          if (other.radioUtilization5G != null)
-             return false;
-       } else if (!radioUtilization5G.equals(other.radioUtilization5G))
-          return false;
-      if (radioStats2G == null) {
-          if (other.radioStats2G != null)
-             return false;
-       } else if (!radioStats2G.equals(other.radioStats2G))
-          return false;
-      if (radioStats5G == null) {
-          if (other.radioStats5G != null)
-             return false;
-       } else if (!radioStats5G.equals(other.radioStats5G))
-          return false;
-      if (mcsStats2G == null) {
-          if (other.mcsStats2G != null)
-             return false;
-       } else if (!mcsStats2G.equals(other.mcsStats2G))
-          return false;
-      if (mcsStats5G == null) {
-          if (other.mcsStats5G != null)
-             return false;
-       } else if (!mcsStats5G.equals(other.mcsStats5G))
-          return false;
-      return true;
-   }
+	public Map<RadioType, Integer> getNoiseFloorPerRadio() {
+		return noiseFloorPerRadio;
+	}
 
-    @Override
+	public void setNoiseFloorPerRadio(Map<RadioType, Integer> noiseFloorPerRadio) {
+		this.noiseFloorPerRadio = noiseFloorPerRadio;
+	}
+
+	public Map<RadioType, Integer> getChannelUtilizationPerRadio() {
+		return channelUtilizationPerRadio;
+	}
+
+	public void setChannelUtilizationPerRadio(Map<RadioType, Integer> channelUtilizationPerRadio) {
+		this.channelUtilizationPerRadio = channelUtilizationPerRadio;
+	}
+
+	public Map<RadioType, List<RadioUtilization>> getRadioUtilizationPerRadio() {
+		return radioUtilizationPerRadio;
+	}
+
+	public void setRadioUtilizationPerRadio(Map<RadioType, List<RadioUtilization>> radioUtilizationPerRadio) {
+		this.radioUtilizationPerRadio = radioUtilizationPerRadio;
+	}
+
+	public Map<RadioType, RadioStatistics> getRadioStatsPerRadio() {
+		return radioStatsPerRadio;
+	}
+
+	public void setRadioStatsPerRadio(Map<RadioType, RadioStatistics> radioStatsPerRadio) {
+		this.radioStatsPerRadio = radioStatsPerRadio;
+	}
+
+	public Map<RadioType, List<McsStats>> getMcsStatsPerRadio() {
+		return mcsStatsPerRadio;
+	}
+
+	public void setMcsStatsPerRadio(Map<RadioType, List<McsStats>> mcsStatsPerRadio) {
+		this.mcsStatsPerRadio = mcsStatsPerRadio;
+	}
+
+	public Map<RadioType, Map<WmmQueueType, WmmQueueStats>> getWmmQueuesPerRadio() {
+		return wmmQueuesPerRadio;
+	}
+
+	public void setWmmQueuesPerRadio(Map<RadioType, Map<WmmQueueType, WmmQueueStats>> wmmQueuesPerRadio) {
+		this.wmmQueuesPerRadio = wmmQueuesPerRadio;
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(apPerformance, channelUtilizationPerRadio, clientMacAddressesPerRadio,
+				cloudLinkAvailability, cloudLinkLatencyInMs, mcsStatsPerRadio, networkProbeMetrics, noiseFloorPerRadio,
+				periodLengthSec, radioStatsPerRadio, radioUtilizationPerRadio, radiusMetrics, rxBytesPerRadio,
+				tunnelMetrics, txBytesPerRadio, vlanSubnet, wmmQueuesPerRadio);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ApNodeMetrics)) {
+			return false;
+		}
+		ApNodeMetrics other = (ApNodeMetrics) obj;
+		return Objects.equals(apPerformance, other.apPerformance)
+				&& Objects.equals(channelUtilizationPerRadio, other.channelUtilizationPerRadio)
+				&& Objects.equals(clientMacAddressesPerRadio, other.clientMacAddressesPerRadio)
+				&& Objects.equals(cloudLinkAvailability, other.cloudLinkAvailability)
+				&& Objects.equals(cloudLinkLatencyInMs, other.cloudLinkLatencyInMs)
+				&& Objects.equals(mcsStatsPerRadio, other.mcsStatsPerRadio)
+				&& Objects.equals(networkProbeMetrics, other.networkProbeMetrics)
+				&& Objects.equals(noiseFloorPerRadio, other.noiseFloorPerRadio)
+				&& Objects.equals(periodLengthSec, other.periodLengthSec)
+				&& Objects.equals(radioStatsPerRadio, other.radioStatsPerRadio)
+				&& Objects.equals(radioUtilizationPerRadio, other.radioUtilizationPerRadio)
+				&& Objects.equals(radiusMetrics, other.radiusMetrics)
+				&& Objects.equals(rxBytesPerRadio, other.rxBytesPerRadio)
+				&& Objects.equals(tunnelMetrics, other.tunnelMetrics)
+				&& Objects.equals(txBytesPerRadio, other.txBytesPerRadio)
+				&& Objects.equals(vlanSubnet, other.vlanSubnet)
+				&& Objects.equals(wmmQueuesPerRadio, other.wmmQueuesPerRadio);
+	}
+
+	@Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
@@ -676,13 +471,31 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
 
         if (hasUnsupportedValue(tunnelMetrics) || hasUnsupportedValue(networkProbeMetrics)
                 || hasUnsupportedValue(radiusMetrics) || hasUnsupportedValue(apPerformance)
-                || hasUnsupportedValue(vlanSubnet) || hasUnsupportedValue(radioUtilization2G)
-                || hasUnsupportedValue(radioUtilization5G) || hasUnsupportedValue(radioStats2G)
-                || hasUnsupportedValue(radioStats5G) || hasUnsupportedValue(mcsStats2G)
-                || hasUnsupportedValue(mcsStats5G) || hasUnsupportedValue(twoGWmmQueue)
-                || hasUnsupportedValue(fiveGWmmQueue)) {
+                || hasUnsupportedValue(vlanSubnet) ) {
             return true;
         }
+        
+        AtomicInteger ai = new AtomicInteger(0);
+        if(radioUtilizationPerRadio!=null) {
+        	radioUtilizationPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(radioStatsPerRadio!=null) {
+        	radioStatsPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(mcsStatsPerRadio!=null) {
+        	mcsStatsPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(wmmQueuesPerRadio!=null) {
+        	wmmQueuesPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(ai.get()>0) {
+        	return true;
+        }
+        
         return false;
     }
     
@@ -694,33 +507,35 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
             ret.apPerformance = this.apPerformance.clone();
         }
         
-        if(this.clientMacAddresses !=null) {
-            ret.clientMacAddresses = new ArrayList<>();
-            for(byte[]cMac: this.clientMacAddresses){
-                ret.clientMacAddresses.add(cMac.clone());
-            }
+        if(this.clientMacAddressesPerRadio !=null) {
+            ret.clientMacAddressesPerRadio = new EnumMap<>(RadioType.class);
+            
+			clientMacAddressesPerRadio.forEach((key, macList) -> {
+				List<MacAddress> newList = new ArrayList<>();
+				macList.forEach(m -> newList.add(m.clone()));
+				ret.clientMacAddressesPerRadio.put(key, newList);
+			});
+
         }
         
-        if(this.fiveGWmmQueue !=null) {
-            ret.fiveGWmmQueue = new EnumMap<>(WmmQueueType.class);
-            for(Map.Entry<WmmQueueStats.WmmQueueType, WmmQueueStats> mapEntry: this.fiveGWmmQueue.entrySet()){
-                ret.fiveGWmmQueue.put(mapEntry.getKey(), mapEntry.getValue().clone());
-            }
+        if(this.wmmQueuesPerRadio!=null) {
+        	ret.wmmQueuesPerRadio = new EnumMap<>(RadioType.class);
+        	this.wmmQueuesPerRadio.forEach((rt,  wq) -> {
+        		Map<WmmQueueStats.WmmQueueType, WmmQueueStats> newWm = new EnumMap<>(WmmQueueType.class);
+        		ret.wmmQueuesPerRadio.put(rt, newWm);
+        		wq.forEach((k, v) -> newWm.put(k, v.clone()));
+        	});
         }
-        
-        if(this.mcsStats2G !=null) {
-            ret.mcsStats2G = new ArrayList<>();
-            for(McsStats ms: this.mcsStats2G){
-                ret.mcsStats2G.add(ms.clone());
-            }
+               
+        if(this.mcsStatsPerRadio !=null) {
+            ret.mcsStatsPerRadio = new EnumMap<>(RadioType.class);
+			this.mcsStatsPerRadio.forEach((k, listV) -> {
+				List<McsStats> newList = new ArrayList<>();
+				ret.mcsStatsPerRadio.put(k, newList);
+				listV.forEach(mcs -> newList.add(mcs.clone()));
+			});
         }
-        
-        if(this.mcsStats5G !=null) {
-            ret.mcsStats5G = new ArrayList<>();
-            for(McsStats ms: this.mcsStats5G){
-                ret.mcsStats5G.add(ms.clone());
-            }
-        }
+
         
         if(this.networkProbeMetrics !=null) {
             ret.networkProbeMetrics = new ArrayList<>();
@@ -729,27 +544,20 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
             }
         }
         
-        if(this.radioStats2G !=null) {
-            ret.radioStats2G = this.radioStats2G.clone();
+        if(this.radioStatsPerRadio !=null) {
+            ret.radioStatsPerRadio = new EnumMap<>(RadioType.class);
+            this.radioStatsPerRadio.forEach((k, v) -> ret.radioStatsPerRadio.put(k, v.clone()));
         }
-        
-        if(this.radioStats5G !=null) {
-            ret.radioStats5G = this.radioStats5G.clone();
+
+        if(this.radioUtilizationPerRadio !=null) {
+            ret.radioUtilizationPerRadio = new EnumMap<>(RadioType.class);
+			this.radioUtilizationPerRadio.forEach((k, listV) -> {
+				List<RadioUtilization> newList = new ArrayList<>();
+				ret.radioUtilizationPerRadio.put(k, newList);
+				listV.forEach(ru -> newList.add(ru.clone()));
+			});
         }
-        
-        if(this.radioUtilization2G !=null) {
-            ret.radioUtilization2G = new ArrayList<>();
-            for(RadioUtilization ru: this.radioUtilization2G){
-                ret.radioUtilization2G.add(ru.clone());
-            }
-        }
-        
-        if(this.radioUtilization5G !=null) {
-            ret.radioUtilization5G = new ArrayList<>();
-            for(RadioUtilization ru: this.radioUtilization5G){
-                ret.radioUtilization5G.add(ru.clone());
-            }
-        }
+                
         
         if(this.radiusMetrics !=null) {
             ret.radiusMetrics = new ArrayList<>();
@@ -765,14 +573,6 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
             }
         }
         
-        if(this.twoGWmmQueue !=null) {
-          ret.twoGWmmQueue = new EnumMap<>(WmmQueueType.class);
-          for(Map.Entry<WmmQueueStats.WmmQueueType, WmmQueueStats> mapEntry: this.twoGWmmQueue.entrySet()){
-              ret.twoGWmmQueue.put(mapEntry.getKey(), mapEntry.getValue().clone());
-          }
-
-        }
-        
         if(this.vlanSubnet !=null) {
           ret.vlanSubnet = new ArrayList<>();
           for(VlanSubnet vs: this.vlanSubnet){
@@ -784,31 +584,7 @@ public class ApNodeMetrics extends MetricData implements ClientMetricsInterface
     }
 
     @Override
-    public Set<MacAddress> getDeviceMacAddresses() 
-    {
-        if(clientMacAddresses != null)
-        {
-            Set<MacAddress> returnValue = new HashSet<>();
-            
-            for(byte[] mac : clientMacAddresses)
-            {
-                returnValue.add(new MacAddress(mac));
-            }
-            
-            return returnValue;
-            
-        }
-
-        return Collections.emptySet();
-    }
-
-    @Override
-    public boolean containsClientMac(MacAddress clientMac) 
-    {
-        return getDeviceMacAddresses().contains(clientMac);
-    }
-
-    public static boolean isDataType(String dataType) {
-        return TYPE_NAME.equals(dataType);
+    public ServiceMetricDataType getDataType() {
+    	return ServiceMetricDataType.ApNode;
     }
 }

@@ -1,12 +1,12 @@
-package com.telecominfraproject.wlan.servicemetrics.models.utils;
+package com.telecominfraproject.wlan.servicemetric.client.models;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.models.McsType;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;
-import com.telecominfraproject.wlan.servicemetrics.models.McsType;
 
 /**
  * Utility Routines for Client Radio

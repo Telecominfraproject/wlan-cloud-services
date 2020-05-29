@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.telecominfraproject.wlan.servicemetrics.models;
+package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +14,13 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
  *
  */
 public enum EthernetLinkState {
-    DOWN(0, 0, false), UP1000_FULL_DUPLEX(1, 1000, true), UP1000_HALF_DUPLEX(2, 1000, false), UP100_FULL_DUPLEX(3, 100,
-            true), UP100_HALF_DUPLEX(4, 100, false), UP10_FULL_DUPLEX(5, 10, true), UP10_HALF_DUPLEX(6, 10, false),
+	DOWN(0, 0, false), 
+	UP1000_FULL_DUPLEX(1, 1000, true), 
+	UP1000_HALF_DUPLEX(2, 1000, false),
+	UP100_FULL_DUPLEX(3, 100, true), 
+	UP100_HALF_DUPLEX(4, 100, false), 
+	UP10_FULL_DUPLEX(5, 10, true),
+	UP10_HALF_DUPLEX(6, 10, false),
 
     UNSUPPORTED(-1, 0, false);
 
