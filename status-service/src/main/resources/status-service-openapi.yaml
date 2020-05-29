@@ -151,7 +151,7 @@ components:
           $ref: '#/components/schemas/RadioType'
         numDevicesConnected:
           type: integer
-          format: int64
+          format: int32
           
 
     ClientConnectionDetails:
@@ -172,16 +172,16 @@ components:
       properties:
         is5GHz:
           type: integer
-          format: int64
+          format: int32
         is5GHzU:
           type: integer
-          format: int64
+          format: int32
         is5GHzL:
           type: integer
-          format: int64
+          format: int32
         is2dot4GHz:
           type: integer
-          format: int64
+          format: int32
     
 
     EquipmentAdminStatusData:
@@ -384,7 +384,7 @@ components:
           type: string
         retries:
           type: integer
-          format: int64
+          format: int32
         upgradeState:
           $ref: '#/components/schemas/EquipmentUpgradeState'
         reason:
@@ -460,16 +460,16 @@ components:
       properties:
         normal:
           type: integer
-          format: int64
+          format: int32
         requiresAttention:
           type: integer
-          format: int64
+          format: int32
         error:
           type: integer
-          format: int64
+          format: int32
         disabled:
           type: integer
-          format: int64
+          format: int32
         
 
     MinMaxAvgValueInt:
@@ -477,13 +477,13 @@ components:
       properties:
         minValue:
           type: integer
-          format: int64
+          format: int32
         maxValue:
           type: integer
-          format: int64
+          format: int32
         avgValue:
           type: integer
-          format: int64
+          format: int32
     
     CommonProbeDetails:
       type: object
@@ -492,10 +492,10 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         numSuccessProbeRequests:
           type: integer
-          format: int64
+          format: int32
         numFailedProbeRequests:
           type: integer
-          format: int64
+          format: int32
         status:
           $ref: '#/components/schemas/StatusCode'
         
@@ -535,10 +535,10 @@ components:
           $ref: '#/components/schemas/CapacityDetails'
         numberOfReportingEquipment:
           type: integer
-          format: int64
+          format: int32
         numberOfTotalEquipment:
           type: integer
-          format: int64
+          format: int32
         beginGenerationTsMs:
           type: integer
           format: int64
@@ -553,19 +553,19 @@ components:
           format: int64
         numMetricsAggregated:
           type: integer
-          format: int64
+          format: int32
         coverage:
           type: integer
-          format: int64
+          format: int32
         behavior:
           type: integer
-          format: int64
+          format: int32
         handoff:
           type: integer
-          format: int64
+          format: int32
         wlanLatency:
           type: integer
-          format: int64
+          format: int32
 
 
     NoiseFloorDetails:
@@ -575,7 +575,7 @@ components:
           $ref: '#/components/schemas/NoiseFloorPerRadioDetailsMap'
         indicatorValue:
           type: integer
-          format: int64
+          format: int32
     
     NoiseFloorPerRadioDetailsMap:
       properties:
@@ -594,13 +594,13 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         numGoodEquipment:
           type: integer
-          format: int64
+          format: int32
         numWarnEquipment:
           type: integer
-          format: int64
+          format: int32
         numBadEquipment:
           type: integer
-          format: int64
+          format: int32
       
     ChannelUtilizationDetails:
       type: object
@@ -609,7 +609,7 @@ components:
           $ref: '#/components/schemas/ChannelUtilizationPerRadioDetailsMap'
         indicatorValue:
           type: integer
-          format: int64
+          format: int32
     
     ChannelUtilizationPerRadioDetailsMap:
       properties:
@@ -628,13 +628,13 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         numGoodEquipment:
           type: integer
-          format: int64
+          format: int32
         numWarnEquipment:
           type: integer
-          format: int64
+          format: int32
         numBadEquipment:
           type: integer
-          format: int64
+          format: int32
 
       
     RadioUtilizationDetails:
@@ -658,19 +658,19 @@ components:
       properties:
         avgAssocClientTx:
           type: integer
-          format: int64
+          format: int32
         avgUnassocClientTx:
           type: integer
-          format: int64
+          format: int32
         avgAssocClientRx:
           type: integer
-          format: int64
+          format: int32
         avgUnassocClientRx:
           type: integer
-          format: int64
+          format: int32
         avgNonWifi:
           type: integer
-          format: int64
+          format: int32
 
     MinMaxAvgValueIntPerRadioMap:
       properties:
@@ -697,21 +697,21 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueIntPerRadioMap'
         numGoodEquipment:
           type: integer
-          format: int64
+          format: int32
         numWarnEquipment:
           type: integer
-          format: int64
+          format: int32
         numBadEquipment:
           type: integer
-          format: int64
+          format: int32
         userDevicePerManufacturerCounts:
           $ref: '#/components/schemas/IntegerValueMap'
         totalApsReported:
           type: integer
-          format: int64
+          format: int32
         indicatorValue:
           type: integer
-          format: int64
+          format: int32
         indicatorValuePerRadio:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
         linkQualityPerRadio:
@@ -736,13 +736,13 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         badClientCount:
           type: integer
-          format: int64
+          format: int32
         averageClientCount:
           type: integer
-          format: int64
+          format: int32
         goodClientCount:
           type: integer
-          format: int64
+          format: int32
       
 
     ClientActivityAggregatedStatsPerRadioTypeMap:
@@ -762,13 +762,13 @@ components:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         highClientCount:
           type: integer
-          format: int64
+          format: int32
         mediumClientCount:
           type: integer
-          format: int64
+          format: int32
         lowClientCount:
           type: integer
-          format: int64
+          format: int32
     
 
       
@@ -824,16 +824,16 @@ components:
           type: number
         numGoodEquipment:
           type: integer
-          format: int64
+          format: int32
         numWarnEquipment:
           type: integer
-          format: int64
+          format: int32
         numBadEquipment:
           type: integer
-          format: int64
+          format: int32
         totalApsReported:
           type: integer
-          format: int64
+          format: int32
 
 
           
@@ -861,16 +861,16 @@ components:
       properties:
         avgFreeMemory:
           type: integer
-          format: int64
+          format: int32
         avgCpuUtilCore1:
           type: integer
-          format: int64
+          format: int32
         avgCpuUtilCore2:
           type: integer
-          format: int64
+          format: int32
         avgCpuTemperature:
           type: integer
-          format: int64
+          format: int32
       
     CapacityDetails:
       type: object
@@ -893,7 +893,7 @@ components:
       properties:
         totalCapacity:
           type: integer
-          format: int64
+          format: int32
         availableCapacity:
           $ref: '#/components/schemas/MinMaxAvgValueInt'
         unavailableCapacity:
@@ -918,7 +918,7 @@ components:
           - OS_PERFORMANCE
         numCamiCrashes:
           type: integer
-          format: int64
+          format: int32
         uptimeInSeconds:
           type: integer
           format: int64
@@ -932,7 +932,7 @@ components:
             type: number
         avgFreeMemory:
           type: integer
-          format: int64
+          format: int32
         avgCpuTemperature:          
           #float
           type: number
@@ -992,23 +992,23 @@ components:
         totalCapacity:
           description:  A theoretical maximum based on channel bandwidth
           type: integer
-          format: int64
+          format: int32
         availableCapacity:
           description: The percentage of capacity that is available for clients.
           type: integer
-          format: int64
+          format: int32
         unavailableCapacity:
           description: The percentage of capacity that is not available for clients (e.g. beacons, noise, non-wifi)
           type: integer
-          format: int64
+          format: int32
         unusedCapacity:
           description: The percentage of the overall capacity that is not being used.
           type: integer
-          format: int64
+          format: int32
         usedCapacity:
           description: The percentage of the overall capacity that is currently being used by associated clients.
           type: integer
-          format: int64
+          format: int32
           
 #
 # Objects related to pagination
@@ -1052,14 +1052,14 @@ components:
           - PaginationContext
         maxItemsPerPage:
           type: integer
-          format: int64
+          format: int32
           default: 20
         lastReturnedPageNumber:
           type: integer
-          format: int64
+          format: int32
         totalItemsReturned:
           type: integer
-          format: int64
+          format: int32
         lastPage:
           type: boolean
         cursor:
@@ -1202,7 +1202,7 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
-  /api/equipment/forEquipment:
+  /api/status/forEquipment:
      get:
       tags:
       - Status Data
@@ -1235,7 +1235,7 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
   
-  /api/equipment/forCustomer:
+  /api/status/forCustomer:
      get:
       tags:
       - Status Data
@@ -1280,7 +1280,7 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
-  /api/equipment/forCustomerWithFilter:
+  /api/status/forCustomerWithFilter:
      get:
       tags:
       - Status Data
@@ -1346,20 +1346,20 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
-  /api/equipment/bulk:
+  /api/status/bulk:
      put:
       tags:
       - Status Data
       summary: Updates batch of status records
       operationId: updateBatchStatus
-      parameters:
-      - name: listOfStatus
-        in: query
-        description: List of Statuses
+      requestBody:
+        description: customer info
         required: true
         content:
           application/json:
             schema:
+              type: array
+              items:
                 $ref: '#/components/schemas/Status'
       responses:
         200:
@@ -1374,6 +1374,8 @@ paths:
           $ref: '#/components/responses/GenericApiError'
   
   
+
+
 
 
 
