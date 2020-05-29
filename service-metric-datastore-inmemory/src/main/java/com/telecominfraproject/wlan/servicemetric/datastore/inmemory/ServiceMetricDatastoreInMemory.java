@@ -71,7 +71,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
     }
     
     @Override
-    public ServiceMetric create(ServiceMetric serviceMetric) {
+    public void create(ServiceMetric serviceMetric) {
         
         ServiceMetric serviceMetricCopy = serviceMetric.clone();
         
@@ -83,19 +83,16 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         
         LOG.debug("Stored ServiceMetric {}", serviceMetricCopy);
         
-        return serviceMetricCopy.clone();
     }
 
     @Override
-    public List<ServiceMetric> create(List<ServiceMetric> serviceMetrics) {
+    public void create(List<ServiceMetric> serviceMetrics) {
     	if(serviceMetrics==null || serviceMetrics.isEmpty()) {
-    		return Collections.emptyList();
+    		return;
     	}
     	
-    	List<ServiceMetric> ret = new ArrayList<>(serviceMetrics.size());
-    	serviceMetrics.forEach(m -> ret.add(create(m)));
+    	serviceMetrics.forEach(m -> create(m));
     	
-    	return ret;
     }
     
 
@@ -120,6 +117,10 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
     		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

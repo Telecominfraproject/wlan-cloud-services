@@ -15,7 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.datastore.inmemory.ServiceMetricDatastoreInMemory;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 
@@ -53,30 +54,19 @@ public class ServiceMetricControllerTest {
         
         //Create new ServiceMetric - success
         ServiceMetric serviceMetric = new ServiceMetric();
-        serviceMetric.setSampleStr("test");
-
-        ServiceMetric ret = serviceMetricController.create(serviceMetric);
-        assertNotNull(ret);
-
-        ret = serviceMetricController.get(ret.getId());
-        assertEqualServiceMetrics(serviceMetric, ret);
-
-        ret = serviceMetricController.getOrNull(ret.getId());
-        assertEqualServiceMetrics(serviceMetric, ret);
+        serviceMetric.setCustomerId((int)System.currentTimeMillis());
+        serviceMetric.setEquipmentId(System.currentTimeMillis());
+        serviceMetric.setClientMac(0);
+        serviceMetric.setCreatedTimestamp(System.currentTimeMillis());
         
-        assertNull(serviceMetricController.getOrNull(-1));
+        ApNodeMetrics details = new ApNodeMetrics();
+        details.setTxBytes(RadioType.is2dot4GHz, 42L);
+        serviceMetric.setDetails(details );
+        serviceMetricController.create(serviceMetric);
 
         //Delete - success
-        serviceMetricController.delete(ret.getId());
+        serviceMetricController.delete(serviceMetric.getCustomerId(), serviceMetric.getEquipmentId(), System.currentTimeMillis() + 1);
         
     }
         
-    private void assertEqualServiceMetrics(
-            ServiceMetric expected,
-            ServiceMetric actual) {
-        
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
-        //TODO: add more fields to check here
-    }
-
 }

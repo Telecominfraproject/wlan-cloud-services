@@ -15,13 +15,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.servicemetric.datastore.ServiceMetricDatastore;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
 
 /**
@@ -47,11 +50,9 @@ public class ServiceMetricController {
      * Creates new ServiceMetric.
      *  
      * @param ServiceMetric
-     * @return stored ServiceMetric object
-     * @throws RuntimeException if ServiceMetric record already exists
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ServiceMetric create(@RequestBody ServiceMetric serviceMetric ) {
+    public GenericResponse create(@RequestBody ServiceMetric serviceMetric ) {
 
         LOG.debug("Creating ServiceMetric {}", serviceMetric);
 
@@ -64,117 +65,92 @@ public class ServiceMetricController {
         if (serviceMetric.getCreatedTimestamp() == 0) {
         	serviceMetric.setCreatedTimestamp(ts);
         }
-        serviceMetric.setLastModifiedTimestamp(ts);
 
-        ServiceMetric ret = serviceMetricDatastore.create(serviceMetric);
+        serviceMetricDatastore.create(serviceMetric);
 
-        LOG.debug("Created ServiceMetric {}", ret);
+        GenericResponse ret = new GenericResponse(true, "");
+        
+        LOG.debug("Created ServiceMetric {}", serviceMetric);
 
         return ret;
     }
+
     
     /**
-     * Retrieves ServiceMetric by id
-     * @param serviceMetricId
-     * @return ServiceMetric for the supplied id
+     * Creates batch of new ServiceMetrics.
+     *  
+     * @param ServiceMetric
      */
-    @RequestMapping(method=RequestMethod.GET)
-    public ServiceMetric get(@RequestParam long serviceMetricId ) {
-        
-        LOG.debug("Retrieving ServiceMetric {}", serviceMetricId);
-        
-        ServiceMetric ret = serviceMetricDatastore.get(serviceMetricId);
+    @RequestMapping(value = "/bulk",method=RequestMethod.POST)
+    public GenericResponse createBulk(@RequestBody List<ServiceMetric> serviceMetrics ) {
 
-        LOG.debug("Retrieved ServiceMetric {}", ret);
+    	if(serviceMetrics==null || serviceMetrics.isEmpty()) {
+    		return new GenericResponse(true, "empty metrics list");
+    	}
+    	
+        LOG.debug("Creating ServiceMetrics {}", serviceMetrics.size());
+                
 
-        return ret;
-    }
-
-    /**
-     * Retrieves ServiceMetric by id
-     * @param serviceMetricId
-     * @return ServiceMetric for the supplied id
-     */
-    @RequestMapping(value = "/orNull", method=RequestMethod.GET)
-    public ServiceMetric getOrNull(@RequestParam long serviceMetricId ) {
-        
-        LOG.debug("Retrieving ServiceMetric {}", serviceMetricId);
-        
-        ServiceMetric ret = serviceMetricDatastore.getOrNull(serviceMetricId);
-
-        LOG.debug("Retrieved ServiceMetric {}", ret);
-
-        return ret;
-    }
-
-    @RequestMapping(value = "/inSet", method = RequestMethod.GET)
-    public ListOfServiceMetrics getAllInSet(@RequestParam Set<Long> serviceMetricIdSet) {
-        LOG.debug("getAllInSet({})", serviceMetricIdSet);
-        try {
-            List<ServiceMetric> result = serviceMetricDatastore.get(serviceMetricIdSet);
-            LOG.debug("getAllInSet({}) return {} entries", serviceMetricIdSet, result.size());
-            ListOfServiceMetrics ret = new ListOfServiceMetrics();
-            ret.addAll(result);
-            return ret;
-        } catch (Exception exp) {
-             LOG.error("getAllInSet({}) exception ", serviceMetricIdSet, exp);
-             throw exp;
+        if (BaseJsonModel.hasUnsupportedValue(serviceMetrics)) {
+            LOG.error("Failed to create ServiceMetric, request contains unsupported value: {}", serviceMetrics);
+            throw new DsDataValidationException("ServiceMetric contains unsupported value");
         }
+
+        long ts = System.currentTimeMillis();
+		serviceMetrics.forEach(m -> {
+			if (m.getCreatedTimestamp() == 0) {
+				m.setCreatedTimestamp(ts);
+			}
+		});
+
+        serviceMetricDatastore.create(serviceMetrics);
+
+        GenericResponse ret = new GenericResponse(true, "");
+        
+        LOG.debug("Created ServiceMetric {}", serviceMetrics.size());
+
+        return ret;
     }
+
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
-    public PaginationResponse<ServiceMetric> getForCustomer(@RequestParam int customerId,
-            @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<ServiceMetric> paginationContext) {
+    public PaginationResponse<ServiceMetric> getForCustomer(@RequestParam long fromTime, @RequestParam long toTime, 
+    		@RequestParam int customerId,
+    		@RequestParam(required = false) Set<Long> equipmentIds, 
+    		@RequestParam(required = false) Set<MacAddress> clientMacAdresses, 
+    		@RequestParam(required = false) Set<ServiceMetricDataType> dataTypes,
+    		@RequestParam(required = false) List<ColumnAndSort> sortBy, 
+    		@RequestParam(required = false) PaginationContext<ServiceMetric> paginationContext) {    
 
-        LOG.debug("Looking up ServiceMetrics for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+    	if(paginationContext==null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+    	
+        LOG.debug("Looking up ServiceMetrics for customer {} equipment {} from {} to {} with last returned page number {}", 
+                customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up ServiceMetrics for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
+            LOG.debug("No more pages available when looking up ServiceMetrics for customer {} equipment {} from {} to {} with last returned page number {}", 
+                    customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<ServiceMetric> onePage = this.serviceMetricDatastore
-                .getForCustomer(customerId,  sortBy, paginationContext);
+                .getForCustomer(fromTime, toTime, customerId,
+                		equipmentIds, clientMacAdresses, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} ServiceMetrics for customer {} ", onePage.getItems().size(), 
-                customerId);
+        LOG.debug("Retrieved {} ServiceMetrics for customer {} equipment {} from {} to {} ", onePage.getItems().size(), 
+                customerId, equipmentIds, fromTime, toTime);
 
         return ret;
     }
     
-    /**
-     * Updates ServiceMetric record
-     * 
-     * @param ServiceMetric
-     * @return updated ServiceMetric object
-     * @throws RuntimeException if ServiceMetric record does not exist or if it was modified concurrently
-     */
-    @RequestMapping(method=RequestMethod.PUT)
-    public ServiceMetric update(@RequestBody ServiceMetric serviceMetric){
-        
-        LOG.debug("Updating ServiceMetric {}", serviceMetric);
-        
-        if (BaseJsonModel.hasUnsupportedValue(serviceMetric)) {
-            LOG.error("Failed to update ServiceMetric, request contains unsupported value: {}", serviceMetric);
-            throw new DsDataValidationException("ServiceMetric contains unsupported value");
-        }
-
-        ServiceMetric ret = serviceMetricDatastore.update(serviceMetric);
-
-        LOG.debug("Updated ServiceMetric {}", ret);
-
-        return ret;
-    }
     
     /**
      * Deletes ServiceMetric record
@@ -183,15 +159,15 @@ public class ServiceMetricController {
      * @return deleted ServiceMetric object
      */
     @RequestMapping(method=RequestMethod.DELETE)
-    public ServiceMetric delete(@RequestParam long serviceMetricId ) {
+    public GenericResponse delete(@RequestParam int customerId, @RequestParam long equipmentId, @RequestParam long createdBeforeTimestamp) {
         
-        LOG.debug("Deleting ServiceMetric {}", serviceMetricId);
+        LOG.debug("Deleting ServiceMetrics for  {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
-        ServiceMetric ret = serviceMetricDatastore.delete(serviceMetricId);
+        serviceMetricDatastore.delete(customerId, equipmentId, createdBeforeTimestamp);
 
-        LOG.debug("Deleted ServiceMetric {}", ret);
+        LOG.debug("Deleted ServiceMetrics for  {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
-        return ret;
+        return new GenericResponse(true, "");
     }
     
 }

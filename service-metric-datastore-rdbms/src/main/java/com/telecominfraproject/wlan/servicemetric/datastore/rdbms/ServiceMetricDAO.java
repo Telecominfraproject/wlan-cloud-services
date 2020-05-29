@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,25 +15,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
-import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
-import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
 /**
  * @author dtoptygin
@@ -46,25 +42,27 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceMetricDatastoreRdbms.class);
     
-    private static final String COL_ID = "id";
-    
-    private static final String[] GENERATED_KEY_COLS = { COL_ID };
+    private static final String[] GENERATED_KEY_COLS = {};
     
     private static final String[] ALL_COLUMNS_LIST = {        
-        COL_ID,
         
         //TODO: add colums from properties ServiceMetric in here
         "customerId",
-        "sampleStr",
-        "details",
-        //make sure the order of properties matches this list and list in ServiceMetricRowMapper and list in create/update methods
-        
+        "equipmentId",
+        "clientMac",
+        "dataType",
         "createdTimestamp",
-        "lastModifiedTimestamp"
+        "details"
+        //make sure the order of properties matches this list and list in ServiceMetricRowMapper and list in create/update methods
     };
     
-    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
+    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(
+    		"customerId",
+            "equipmentId",
+            "clientMac",
+            "dataType",
+            "createdTimestamp"));
     
     private static final String TABLE_NAME = "service_metric";
     private static final String TABLE_PREFIX = "s.";
@@ -119,20 +117,11 @@ public class ServiceMetricDAO extends BaseJdbcDao {
     }
     
 
-    private static final String SQL_GET_BY_ID =
-        "select " + ALL_COLUMNS +
-        " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
     
     private static final String SQL_GET_BY_CUSTOMER_ID = 
     		"select " + ALL_COLUMNS +
     		" from " + TABLE_NAME + " " + 
-    		" where customerId = ? ";
-
-    private static final String SQL_GET_LASTMOD_BY_ID =
-        "select lastModifiedTimestamp " +
-        " from "+TABLE_NAME+" " +
-        " where " + COL_ID + " = ?";
+    		" where customerId = ? and createdTimestamp >= ? and createdTimestamp <= ? ";
 
     private static final String SQL_INSERT =
         "insert into "+TABLE_NAME+" ( " 
@@ -140,16 +129,8 @@ public class ServiceMetricDAO extends BaseJdbcDao {
         + " ) values ( "+BIND_VARS_FOR_INSERT+" ) ";
 
     private static final String SQL_DELETE =
-        "delete from "+TABLE_NAME+" where " + COL_ID + " = ? ";
+        "delete from "+TABLE_NAME+" where customerId = ? and equipmentId = ? and createdTimestamp < ?";
 
-    private static final String SQL_UPDATE =
-        "update "+TABLE_NAME+" set "
-        + ALL_COLUMNS_UPDATE +
-        " where " + COL_ID + " = ? "
-        + " and ( lastModifiedTimestamp = ? or ? = true) " //last parameter will allow us to skip check for concurrent modification, if necessary
-        ;
-
-    private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -166,195 +147,55 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
     public ServiceMetric create(final ServiceMetric serviceMetric) {
         
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         final long ts = System.currentTimeMillis();
+        
+        if(serviceMetric.getCreatedTimestamp() == 0) {
+        	serviceMetric.setCreatedTimestamp(ts);
+        }
 
         try{
+
             jdbcTemplate.update(
                 new PreparedStatementCreator() {
                     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT, keyColumnConverter.getKeyColumnName(GENERATED_KEY_COLS) );
+                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT);
                         int colIdx = 1;
                         
                         //TODO: add remaining properties from ServiceMetric here 
                         ps.setInt(colIdx++, serviceMetric.getCustomerId());
-                        ps.setString(colIdx++, serviceMetric.getSampleStr());
+                        ps.setLong(colIdx++, serviceMetric.getEquipmentId());
+                        ps.setLong(colIdx++, serviceMetric.getClientMac());
+                        ps.setInt(colIdx++, serviceMetric.getDataType().getId());
+                        ps.setLong(colIdx++, serviceMetric.getCreatedTimestamp());
+                        
                       	ps.setBytes(colIdx++, (serviceMetric.getDetails()!=null)?serviceMetric.getDetails().toZippedBytes():null);
-                        
-                        ps.setLong(colIdx++, ts);
-                        ps.setLong(colIdx++, ts);
-                        
+                                                
                         return ps;
                     }
-                },
-                keyHolder);
+                });
         }catch (DuplicateKeyException e) {
             throw new DsDuplicateEntityException(e);
         }
         
-        // keyHolder.getKey() now contains the generated key   
-        serviceMetric.setId(((Long)keyHolder.getKeys().get(COL_ID)));
-        serviceMetric.setCreatedTimestamp(ts);
-        serviceMetric.setLastModifiedTimestamp(ts);
-
 
         LOG.debug("Stored ServiceMetric {}", serviceMetric);
         
         return serviceMetric.clone();
     }
 
-    
-    public ServiceMetric get(long serviceMetricId) {
-        LOG.debug("Looking up ServiceMetric for id {}", serviceMetricId);
-
-        try{
-            ServiceMetric serviceMetric = this.jdbcTemplate.queryForObject(
-                    SQL_GET_BY_ID,
-                    serviceMetricRowMapper, serviceMetricId);
-            
-            LOG.debug("Found ServiceMetric {}", serviceMetric);
-            
-            return serviceMetric;
-        }catch (EmptyResultDataAccessException e) {
-            throw new DsEntityNotFoundException(e);
-        }
-    }
-
-    @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
-    public ServiceMetric getOrNull(long serviceMetricId) {
-        LOG.debug("Looking up ServiceMetric for id {}", serviceMetricId);
-
-        try{
-            ServiceMetric serviceMetric = this.jdbcTemplate.queryForObject(
-                    SQL_GET_BY_ID,
-                    serviceMetricRowMapper, serviceMetricId);
-            
-            LOG.debug("Found ServiceMetric {}", serviceMetric);
-            
-            return serviceMetric;
-        }catch (EmptyResultDataAccessException e) {
-            LOG.debug("Could not find ServiceMetric for id {}", serviceMetricId);
-            return null;
-        }
-    }
-
-    public ServiceMetric update(ServiceMetric serviceMetric) {
-
-        long newLastModifiedTs = System.currentTimeMillis();
-        long incomingLastModifiedTs = serviceMetric.getLastModifiedTimestamp();
         
-        int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //serviceMetric.getId(), - not updating this one
-
-                //TODO: add remaining properties from ServiceMetric here
-        		serviceMetric.getCustomerId(),
-                serviceMetric.getSampleStr(),
-                (serviceMetric.getDetails()!=null)?serviceMetric.getDetails().toZippedBytes():null ,
-                                
-                //serviceMetric.getCreatedTimestamp(), - not updating this one
-                newLastModifiedTs,
-                
-                // use id for update operation
-                serviceMetric.getId(),
-                // use lastModifiedTimestamp for data protection against concurrent modifications
-                incomingLastModifiedTs,
-                isSkipCheckForConcurrentUpdates()
-        });
+    public void delete(int customerId, long equipmentId, long createdBeforeTimestamp) {
         
-        if(updateCount==0){
-            
-            try{
+        this.jdbcTemplate.update(SQL_DELETE, customerId, equipmentId, createdBeforeTimestamp);
                 
-                if(isSkipCheckForConcurrentUpdates()){
-                    //in this case we did not request protection against concurrent updates,
-                    //so the updateCount is 0 because record in db was not found
-                    throw new EmptyResultDataAccessException(1);
-                }
-                
-                //find out if record could not be updated because it does not exist or because it was modified concurrently
-                long recordTimestamp = this.jdbcTemplate.queryForObject(
-                    SQL_GET_LASTMOD_BY_ID,
-                    Long.class,
-                    serviceMetric.getId()
-                    );
-                
-                LOG.debug("Concurrent modification detected for ServiceMetric with id {} expected version is {} but version in db was {}", 
-                        serviceMetric.getId(),
-                        incomingLastModifiedTs,
-                        recordTimestamp
-                        );
-                throw new DsConcurrentModificationException("Concurrent modification detected for ServiceMetric with id " + serviceMetric.getId()
-                        +" expected version is " + incomingLastModifiedTs
-                        +" but version in db was " + recordTimestamp
-                        );
-                
-            }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find ServiceMetric for {}", serviceMetric.getId());
-                throw new DsEntityNotFoundException("ServiceMetric not found " + serviceMetric.getId());
-            }
-        }
-
-        //make a copy so that we don't accidentally update caller's version by reference
-        ServiceMetric serviceMetricCopy = serviceMetric.clone();
-        serviceMetricCopy.setLastModifiedTimestamp(newLastModifiedTs);
-
-        LOG.debug("Updated ServiceMetric {}", serviceMetricCopy);
+        LOG.debug("Deleted ServiceMetrics for {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
-        return serviceMetricCopy;
-    }
-
-    
-    public ServiceMetric delete(long serviceMetricId) {
-        ServiceMetric ret = get(serviceMetricId);
-        
-        this.jdbcTemplate.update(SQL_DELETE, serviceMetricId);
-                
-        LOG.debug("Deleted ServiceMetric {}", ret);
-        
-        return ret;
-    }
-
-    public List<ServiceMetric> getAllForCustomer(int customerId) {
-        LOG.debug("Looking up ServiceMetrics for customer {}", customerId);
-
-        List<ServiceMetric> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
-                serviceMetricRowMapper, customerId);
-
-        if (ret == null) {
-            LOG.debug("Cannot find ServiceMetrics for customer {}", customerId);
-        } else {
-            LOG.debug("Found ServiceMetrics for customer {} : {}", customerId, ret);
-        }
-
-        return ret;
-    }
-
-    public List<ServiceMetric> get(Set<Long> serviceMetricIdSet) {
-        LOG.debug("calling get({})", serviceMetricIdSet);
-
-        if (serviceMetricIdSet == null || serviceMetricIdSet.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        StringBuilder set = new StringBuilder(256);
-        set.append("(");
-        for(int i =0; i< serviceMetricIdSet.size(); i++) {
-        		set.append("?,");
-        }
-        //remove last comma
-        set.deleteCharAt(set.length()-1);
-        set.append(")");
-        
-        String query = SQL_GET_ALL_IN_SET + set;
-        List<ServiceMetric> results = this.jdbcTemplate.query(query, serviceMetricIdSet.toArray(), serviceMetricRowMapper);
-
-        LOG.debug("get({}) returns {} record(s)", serviceMetricIdSet, (null == results) ? 0 : results.size());
-        return results;
     }
 
 
-	public PaginationResponse<ServiceMetric> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<ServiceMetric> context) {
+    public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
+    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+    		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -375,6 +216,60 @@ public class ServiceMetricDAO extends BaseJdbcDao {
         // add filters for the query
         ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
+        queryArgs.add(fromTime);
+        queryArgs.add(toTime);
+
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+
+        //add clientMac filters
+        if (clientMacAdresses != null && !clientMacAdresses.isEmpty()) {
+        	clientMacAdresses.forEach(m -> queryArgs.add(m.getAddressAsLong()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and clientMac in (");
+            for (int i = 0; i < clientMacAdresses.size(); i++) {
+                strb.append("?");
+                if (i < clientMacAdresses.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+
+        //add ServiceMetricDataType filters
+        if (dataTypes != null && !dataTypes.isEmpty()) {
+        	dataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and dataType in (");
+            for (int i = 0; i < dataTypes.size(); i++) {
+                strb.append("?");
+                if (i < dataTypes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }        
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
@@ -402,9 +297,9 @@ public class ServiceMetricDAO extends BaseJdbcDao {
             strbSort.deleteCharAt(strbSort.length() - 1);
 
         } else {
-            // no sort order was specified - sort by id to have consistent
+            // no sort order was specified - sort by the createdTimestamp to have consistent
             // paging
-            strbSort.append(COL_ID);
+            strbSort.append("createdTimestamp");
         }
 
         query += strbSort.toString();
@@ -442,4 +337,47 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
         return ret;
     }
+
+
+	public void create(List<ServiceMetric> serviceMetrics) {
+		if(serviceMetrics == null || serviceMetrics.isEmpty()) {
+			return;
+		}
+		
+        final long ts = System.currentTimeMillis();
+        
+		serviceMetrics.forEach(m -> {
+			if (m.getCreatedTimestamp() == 0) {
+				m.setCreatedTimestamp(ts);
+			}
+		});
+
+        try{
+        	
+            this.jdbcTemplate.batchUpdate(SQL_INSERT, serviceMetrics, 100,
+                    new ParameterizedPreparedStatementSetter<ServiceMetric>() {
+                        @Override
+                        public void setValues(PreparedStatement ps, ServiceMetric serviceMetric) throws SQLException {
+
+                            int colIdx = 1;
+                            
+                            //TODO: add remaining properties from ServiceMetric here 
+                            ps.setInt(colIdx++, serviceMetric.getCustomerId());
+                            ps.setLong(colIdx++, serviceMetric.getEquipmentId());
+                            ps.setLong(colIdx++, serviceMetric.getClientMac());
+                            ps.setInt(colIdx++, serviceMetric.getDataType().getId());
+                            ps.setLong(colIdx++, serviceMetric.getCreatedTimestamp());
+                            
+                          	ps.setBytes(colIdx++, (serviceMetric.getDetails()!=null)?serviceMetric.getDetails().toZippedBytes():null);
+                        }
+                    });
+
+        }catch (DuplicateKeyException e) {
+            throw new DsDuplicateEntityException(e);
+        }
+        
+
+        LOG.debug("Stored {} ServiceMetrics", serviceMetrics.size());
+		
+	}
 }

@@ -16,8 +16,8 @@ import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
  */
 public interface ServiceMetricDatastore {
 
-    ServiceMetric create(ServiceMetric serviceMetric);
-    List<ServiceMetric> create(List<ServiceMetric> serviceMetrics);
+    void create(ServiceMetric serviceMetric);
+    void create(List<ServiceMetric> serviceMetrics);
     void delete(int customerId, long equipmentId, long createdBeforeTimestamp);
     
     /**

@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.servicemetric;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -13,13 +12,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
 /**
  * @author dtoptygin
@@ -38,7 +39,7 @@ public class ServiceMetricServiceRemote extends BaseRemoteClient implements Serv
     private String baseUrl;
             
     @Override
-    public ServiceMetric create(ServiceMetric serviceMetric) {
+    public GenericResponse create(ServiceMetric serviceMetric) {
         
         LOG.debug("calling serviceMetric.create {} ", serviceMetric);
 
@@ -49,90 +50,76 @@ public class ServiceMetricServiceRemote extends BaseRemoteClient implements Serv
 
         HttpEntity<String> request = new HttpEntity<String>( serviceMetric.toString(), headers );
 
-        ResponseEntity<ServiceMetric> responseEntity = restTemplate.postForEntity(
+        ResponseEntity<GenericResponse> responseEntity = restTemplate.postForEntity(
                 getBaseUrl(),
-                request, ServiceMetric.class);
+                request, GenericResponse.class);
         
-        ServiceMetric ret = responseEntity.getBody();
+        GenericResponse ret = responseEntity.getBody();
         
         LOG.debug("completed serviceMetric.create {} ", ret);
         
         return ret;
     }
 
-    @Override
-    public ServiceMetric get(long serviceMetricId) {
-        
-        LOG.debug("calling serviceMetric.get {} ", serviceMetricId);
 
-        ResponseEntity<ServiceMetric> responseEntity = restTemplate.getForEntity(
-                getBaseUrl()
-                +"?serviceMetricId={serviceMetricId}",
-                ServiceMetric.class, serviceMetricId);
+    @Override
+    public GenericResponse create(List<ServiceMetric> serviceMetrics) {
+        LOG.debug("calling bulk serviceMetric.create {} ", serviceMetrics.size());
+
+        if (BaseJsonModel.hasUnsupportedValue(serviceMetrics)) {
+            LOG.error("Failed to create ServiceMetric, unsupported value in {}", serviceMetrics);
+            throw new DsDataValidationException("ServiceMetric contains unsupported value");
+        }
+
+        HttpEntity<String> request = new HttpEntity<String>( serviceMetrics.toString(), headers );
+
+        ResponseEntity<GenericResponse> responseEntity = restTemplate.postForEntity(
+                getBaseUrl()+"/bulk",
+                request, GenericResponse.class);
         
-        ServiceMetric ret = responseEntity.getBody();
+        GenericResponse ret = responseEntity.getBody();
         
-        LOG.debug("completed serviceMetric.get {} ", ret);
+        LOG.debug("completed bulk serviceMetric.create {} ", serviceMetrics.size());
         
         return ret;
     }
-
+    
     @Override
-    public ServiceMetric getOrNull(long serviceMetricId) {
-        
-        LOG.debug("calling serviceMetric.getOrNull {} ", serviceMetricId);
-
-        ResponseEntity<ServiceMetric> responseEntity = restTemplate.getForEntity(
-                getBaseUrl()
-                +"/orNull?serviceMetricId={serviceMetricId}",
-                ServiceMetric.class, serviceMetricId);
-        
-        ServiceMetric ret = responseEntity.getBody();
-        
-        LOG.debug("completed serviceMetric.getOrNull {} ", ret);
-        
-        return ret;
-    }
-
-	@Override
-	public List<ServiceMetric> get(Set<Long> serviceMetricIdSet) {
+    public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
+    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+    		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 		
-        LOG.debug("get({})", serviceMetricIdSet);
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {}, {}, {} )", 
+        		fromTime, toTime, customerId, equipmentIds, 
+        		clientMacAdresses, dataTypes, sortBy, context);
 
-        if (serviceMetricIdSet == null || serviceMetricIdSet.isEmpty()) {
-            return Collections.emptyList();
+        String equipmentIdsStr = null;
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            equipmentIdsStr = equipmentIds.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            equipmentIdsStr = equipmentIdsStr.substring(1, equipmentIdsStr.length() - 1);
         }
 
-        String setString = serviceMetricIdSet.toString().substring(1, serviceMetricIdSet.toString().length() - 1);
-        
-        try {
-            ResponseEntity<List<ServiceMetric>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/inSet?serviceMetricIdSet={serviceMetricIdSet}", HttpMethod.GET,
-                    null, ServiceMetric_LIST_CLASS_TOKEN, setString);
-
-            List<ServiceMetric> result = responseEntity.getBody();
-            if (null == result) {
-                result = Collections.emptyList();
-            }
-            LOG.debug("get({}) return {} entries", serviceMetricIdSet, result.size());
-            return result;
-        } catch (Exception exp) {
-            LOG.error("getAllInSet({}) exception ", serviceMetricIdSet, exp);
-            throw exp;
+        String dataTypesStr = null;
+        if (dataTypes != null && !dataTypes.isEmpty()) {
+        	dataTypesStr = dataTypes.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	dataTypesStr = dataTypesStr.substring(1, dataTypesStr.length() - 1);
         }
-
-	}
-
-	@Override
-	public PaginationResponse<ServiceMetric> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<ServiceMetric> context) {
-		
-        LOG.debug("calling getForCustomer( {}, {}, {} )", customerId, sortBy, context);
 
         ResponseEntity<PaginationResponse<ServiceMetric>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, ServiceMetric_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                        + "/forCustomer?fromTime={fromTime}&toTime={toTime}&customerId={customerId}"
+                        + "&equipmentIds={equipmentIdsStr}&clientMacAdresses={clientMacAdresses}&dataTypes={dataTypesStr}"
+                        + "&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, ServiceMetric_PAGINATION_RESPONSE_CLASS_TOKEN, 
+                fromTime, toTime, customerId, equipmentIdsStr, clientMacAdresses, dataTypesStr, sortBy, context);
 
         PaginationResponse<ServiceMetric> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
@@ -140,41 +127,18 @@ public class ServiceMetricServiceRemote extends BaseRemoteClient implements Serv
         return ret;
 	}
 	
-    @Override
-    public ServiceMetric update(ServiceMetric serviceMetric) {
+	@Override
+	public GenericResponse delete(int customerId, long equipmentId, long createdBeforeTimestamp) {
         
-        LOG.debug("calling serviceMetric.update {} ", serviceMetric);
+        LOG.debug("calling serviceMetric.delete {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
 
-        if (BaseJsonModel.hasUnsupportedValue(serviceMetric)) {
-            LOG.error("Failed to update ServiceMetric, unsupported value in  {}", serviceMetric);
-            throw new DsDataValidationException("ServiceMetric contains unsupported value");
-        }
-        
-        HttpEntity<String> request = new HttpEntity<String>( serviceMetric.toString(), headers );
-
-        ResponseEntity<ServiceMetric> responseEntity = restTemplate.exchange(
-                getBaseUrl(),
-                HttpMethod.PUT, request, ServiceMetric.class);
-        
-        ServiceMetric ret = responseEntity.getBody();
-        
-        LOG.debug("completed serviceMetric.update {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public ServiceMetric delete(long serviceMetricId) {
-        
-        LOG.debug("calling serviceMetric.delete {} ", serviceMetricId);
-
-        ResponseEntity<ServiceMetric> responseEntity =  restTemplate.exchange(
+        ResponseEntity<GenericResponse> responseEntity =  restTemplate.exchange(
                 getBaseUrl()
-                +"?serviceMetricId={serviceMetricId}", HttpMethod.DELETE,
-                null, ServiceMetric.class, serviceMetricId);
+                +"?customerId={customerId}&equipmentId={equipmentId}&createdBeforeTimestamp={createdBeforeTimestamp}", HttpMethod.DELETE,
+                null, GenericResponse.class, customerId, equipmentId, createdBeforeTimestamp);
         
-        ServiceMetric ret = responseEntity.getBody();
-        LOG.debug("completed serviceMetric.delete {} ", ret);
+        GenericResponse ret = responseEntity.getBody();
+        LOG.debug("completed serviceMetric.delete {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
         return ret;
     }    
