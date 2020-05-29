@@ -310,6 +310,9 @@ components:
     EquipmentDetails:
       description: Place to put extended equipment properties.
       type: object
+      properties:
+        equipmentModel:
+          type: string
       oneOf:
         ## TODO: add other equipment types in here
         - $ref: '#/components/schemas/ApElementConfiguration'
@@ -1522,7 +1525,7 @@ components:
       - PEERINFO
       - LANINFO
       - NEIGHBOURINGINFO
-      -  OS_PERFORMANCE
+      - OS_PERFORMANCE
       - NEIGHBOUR_SCAN
       - RADIO_UTILIZATION
       - ACTIVE_BSSIDS
@@ -1538,6 +1541,9 @@ components:
         customerId:
           type: integer
           format: int32
+        equipmentId:
+          type: integer
+          format: int64
         statusDataType:
           $ref: '#/components/schemas/StatusDataType'
         statusDetails:

@@ -458,7 +458,7 @@ public abstract class BaseEquipmentDatastoreTest {
         result.setInventoryId("inv-" + result.getName());
         
         EquipmentDetails details = new EquipmentDetails();
-        details.setSampleDetailsStr("test-details-" + nextId);
+        details.setEquipmentModel("test-model-" + nextId);
 		result.setDetails(details );
 		result.setLatitude("42");
 		result.setLongitude("314");
