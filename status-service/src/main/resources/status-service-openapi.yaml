@@ -90,6 +90,9 @@ components:
         customerId:
           type: integer
           format: int32
+        equipmentId:
+          type: integer
+          format: int64
         statusDataType:
           $ref: '#/components/schemas/StatusDataType'
         statusDetails:
@@ -1297,7 +1300,7 @@ paths:
       - name: equipmentIds
         in: query
         description: Set of Equipment IDs
-        required: true
+        required: false
         content:
           text/plain:
             schema:
@@ -1308,7 +1311,7 @@ paths:
       - name: statusDataTypes
         in: query
         description: Status Data Types
-        required: true
+        required: false
         content:
           text/plain:
             schema:
