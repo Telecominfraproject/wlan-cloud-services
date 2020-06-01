@@ -39,7 +39,6 @@
                                 <module>../cloud-event-dispatcher-interface</module>
                                 <module>../cloud-event-dispatcher-local</module>
                                 <module>../cloud-event-dispatcher-remote</module>
-                                <module>../tip-wlan-cloud-service-metrics-models</module>
                                 <module>../tip-wlan-cloud-system-event-models</module>
                                 <module>../customer-models</module>
                                 <module>../customer-datastore-interface</module>

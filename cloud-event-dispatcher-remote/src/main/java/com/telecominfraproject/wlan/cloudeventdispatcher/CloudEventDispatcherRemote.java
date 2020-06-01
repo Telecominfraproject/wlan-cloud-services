@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
-import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 @Component
@@ -21,7 +21,7 @@ public class CloudEventDispatcherRemote extends BaseRemoteClient implements Clou
     private String baseUrl;
     
 	@Override
-	public void publishMetric(SingleMetricRecord metricRecord) {
+	public void publishMetric(ServiceMetric metricRecord) {
 		
         // @RequestMapping(value="/metric", method=RequestMethod.POST)
         LOG.debug("calling publishMetric {} ", metricRecord);
@@ -36,7 +36,7 @@ public class CloudEventDispatcherRemote extends BaseRemoteClient implements Clou
 	}
 
 	@Override
-	public void publishMetrics(List<SingleMetricRecord> metricRecordList) {
+	public void publishMetrics(List<ServiceMetric> metricRecordList) {
 		
         // @RequestMapping(value="/metrics", method=RequestMethod.POST)
         LOG.debug("calling publishMetrics {} ", metricRecordList);

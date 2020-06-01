@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.telecominfraproject.wlan.cloudmetrics.CloudMetricsTags;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
-import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
@@ -22,18 +21,14 @@ public class CloudEventDispatcherController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudEventDispatcherController.class);
 
-    @Autowired private StreamInterface<SingleMetricRecord> metricStream;
+    @Autowired private StreamInterface<ServiceMetric> metricStream;
     @Autowired private StreamInterface<SystemEventRecord> systemEventStream;
 
     @RequestMapping(value="/metric", method=RequestMethod.POST)
-    public GenericResponse publishMetric(@RequestBody SingleMetricRecord metricRecord) {
+    public GenericResponse publishMetric(@RequestBody ServiceMetric metricRecord) {
 
         LOG.debug("calling publishMetric {}", metricRecord);
         
-        if(metricRecord.getDeploymentId()==null){
-            metricRecord.setDeploymentId(CloudMetricsTags.deployment);
-        }
-
         metricStream.publish(metricRecord);
         
         GenericResponse ret = new GenericResponse();
@@ -46,18 +41,12 @@ public class CloudEventDispatcherController {
     }
     
     @RequestMapping(value="/metrics", method=RequestMethod.POST)
-    public GenericResponse publishMetrics(@RequestBody List<SingleMetricRecord> metricList) {
+    public GenericResponse publishMetrics(@RequestBody List<ServiceMetric> metricList) {
 
         LOG.debug("calling publishMetrics {}", metricList);
 
-        for (SingleMetricRecord metricRecord : metricList) {
-            
-            if(metricRecord.getDeploymentId()==null){
-                metricRecord.setDeploymentId(CloudMetricsTags.deployment);
-            }
-
+        for (ServiceMetric metricRecord : metricList) {
             metricStream.publish(metricRecord);
-
         }
         
         GenericResponse ret = new GenericResponse();

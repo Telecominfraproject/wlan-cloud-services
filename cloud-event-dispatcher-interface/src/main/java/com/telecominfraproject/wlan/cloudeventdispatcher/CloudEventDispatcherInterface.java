@@ -3,7 +3,7 @@ package com.telecominfraproject.wlan.cloudeventdispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.telecominfraproject.wlan.servicemetrics.models.SingleMetricRecord;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
@@ -13,9 +13,9 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
  */
 public interface CloudEventDispatcherInterface {
 
-	void publishMetric(SingleMetricRecord metricRecord);
+	void publishMetric(ServiceMetric serviceMetric);
 
-    void publishMetrics(List<SingleMetricRecord> metricRecordList);
+    void publishMetrics(List<ServiceMetric> serviceMetricList);
 
     void publishEvent(SystemEventRecord systemEventRecord);
 

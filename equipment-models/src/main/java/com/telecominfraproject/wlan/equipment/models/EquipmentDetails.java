@@ -13,14 +13,14 @@ public class EquipmentDetails extends BaseJsonModel {
 	private static final long serialVersionUID = 5570757656953699233L;
 	
     //TODO: put more fields here, generate getters/setters for them
-    private String sampleDetailsStr;
+    private String equipmentModel;
 
-	public String getSampleDetailsStr() {
-		return sampleDetailsStr;
+	public String getEquipmentModel() {
+		return equipmentModel;
 	}
 
-	public void setSampleDetailsStr(String sampleDetailsStr) {
-		this.sampleDetailsStr = sampleDetailsStr;
+	public void setEquipmentModel(String equipmentModel) {
+		this.equipmentModel = equipmentModel;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class EquipmentDetails extends BaseJsonModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(sampleDetailsStr);
+		return Objects.hash(equipmentModel);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class EquipmentDetails extends BaseJsonModel {
 			return false;
 		}
 		EquipmentDetails other = (EquipmentDetails) obj;
-		return Objects.equals(sampleDetailsStr, other.sampleDetailsStr);
+		return Objects.equals(equipmentModel, other.equipmentModel);
 	}
 
 	

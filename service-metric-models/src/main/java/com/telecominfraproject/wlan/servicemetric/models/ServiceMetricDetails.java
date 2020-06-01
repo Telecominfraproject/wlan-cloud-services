@@ -8,20 +8,11 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  * @author dtoptygin
  *
  */
-public class ServiceMetricDetails extends BaseJsonModel {
+public abstract class ServiceMetricDetails extends BaseJsonModel {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
-    //TODO: put more fields here, generate getters/setters for them
-    private String sampleDetailsStr;
-
-	public String getSampleDetailsStr() {
-		return sampleDetailsStr;
-	}
-
-	public void setSampleDetailsStr(String sampleDetailsStr) {
-		this.sampleDetailsStr = sampleDetailsStr;
-	}
+    public abstract ServiceMetricDataType getDataType();
 
 	@Override
 	public boolean hasUnsupportedValue() {
@@ -39,7 +30,7 @@ public class ServiceMetricDetails extends BaseJsonModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(sampleDetailsStr);
+		return Objects.hash(getDataType());
 	}
 
 	@Override
@@ -51,7 +42,7 @@ public class ServiceMetricDetails extends BaseJsonModel {
 			return false;
 		}
 		ServiceMetricDetails other = (ServiceMetricDetails) obj;
-		return Objects.equals(sampleDetailsStr, other.sampleDetailsStr);
+		return Objects.equals(getDataType(), other.getDataType());
 	}
     
 }

@@ -6,24 +6,23 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
-import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
-import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
-
 import com.telecominfraproject.wlan.servicemetric.datastore.ServiceMetricDatastore;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
 /**
  * @author dtoptygin
@@ -34,120 +33,94 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceMetricDatastoreInMemory.class);
 
-    private static final Map<Long, ServiceMetric> idToServiceMetricMap = new ConcurrentHashMap<Long, ServiceMetric>();
+    private static final Map<ServiceMetricKey, ServiceMetric> idToServiceMetricMap = new ConcurrentHashMap<ServiceMetricKey, ServiceMetric>();
     
-    private static final AtomicLong serviceMetricIdCounter = new AtomicLong();    
+    private static class ServiceMetricKey{
+        final int customerId;
+        final long equipmentId;
+        final long clientMac;
+        final ServiceMetricDataType dataType;
+        final long createdTimestamp;
+        
+		public ServiceMetricKey(ServiceMetric serviceMetric) {
+			this.customerId = serviceMetric.getCustomerId();
+			this.equipmentId = serviceMetric.getEquipmentId();
+			this.clientMac = serviceMetric.getClientMac();
+			this.dataType = serviceMetric.getDataType();
+			this.createdTimestamp = serviceMetric.getCreatedTimestamp();
+		}
 
+		@Override
+		public int hashCode() {
+			return Objects.hash(clientMac, createdTimestamp, customerId, dataType, equipmentId);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof ServiceMetricKey)) {
+				return false;
+			}
+			ServiceMetricKey other = (ServiceMetricKey) obj;
+			return clientMac == other.clientMac && createdTimestamp == other.createdTimestamp
+					&& customerId == other.customerId && dataType == other.dataType && equipmentId == other.equipmentId;
+		}    
+        
+    }
+    
     @Override
-    public ServiceMetric create(ServiceMetric serviceMetric) {
+    public void create(ServiceMetric serviceMetric) {
         
         ServiceMetric serviceMetricCopy = serviceMetric.clone();
         
-        long id = serviceMetricIdCounter.incrementAndGet();
-        serviceMetricCopy.setId(id);
-        serviceMetricCopy.setCreatedTimestamp(System.currentTimeMillis());
-        serviceMetricCopy.setLastModifiedTimestamp(serviceMetricCopy.getCreatedTimestamp());
-        idToServiceMetricMap.put(id, serviceMetricCopy);
+        if(serviceMetricCopy.getCreatedTimestamp()==0) {
+        	serviceMetricCopy.setCreatedTimestamp(System.currentTimeMillis());
+        }
+        
+        idToServiceMetricMap.put(new ServiceMetricKey(serviceMetricCopy), serviceMetricCopy);
         
         LOG.debug("Stored ServiceMetric {}", serviceMetricCopy);
         
-        return serviceMetricCopy.clone();
-    }
-
-
-    @Override
-    public ServiceMetric get(long serviceMetricId) {
-        LOG.debug("Looking up ServiceMetric for id {}", serviceMetricId);
-        
-        ServiceMetric serviceMetric = idToServiceMetricMap.get(serviceMetricId);
-        
-        if(serviceMetric==null){
-            LOG.debug("Cannot find ServiceMetric for id {}", serviceMetricId);
-            throw new DsEntityNotFoundException("Cannot find ServiceMetric for id " + serviceMetricId);
-        } else {
-            LOG.debug("Found ServiceMetric {}", serviceMetric);
-        }
-
-        return serviceMetric.clone();
     }
 
     @Override
-    public ServiceMetric getOrNull(long serviceMetricId) {
-        LOG.debug("Looking up ServiceMetric for id {}", serviceMetricId);
-        
-        ServiceMetric serviceMetric = idToServiceMetricMap.get(serviceMetricId);
-        
-        if(serviceMetric==null){
-            LOG.debug("Cannot find ServiceMetric for id {}", serviceMetricId);
-            return null;
-        } else {
-            LOG.debug("Found ServiceMetric {}", serviceMetric);
-        }
-
-        return serviceMetric.clone();
-    }
-    
-    @Override
-    public ServiceMetric update(ServiceMetric serviceMetric) {
-        ServiceMetric existingServiceMetric = get(serviceMetric.getId());
-        
-        if(existingServiceMetric.getLastModifiedTimestamp()!=serviceMetric.getLastModifiedTimestamp()){
-            LOG.debug("Concurrent modification detected for ServiceMetric with id {} expected version is {} but version in db was {}", 
-                    serviceMetric.getId(),
-                    serviceMetric.getLastModifiedTimestamp(),
-                    existingServiceMetric.getLastModifiedTimestamp()
-                    );
-            throw new DsConcurrentModificationException("Concurrent modification detected for ServiceMetric with id " + serviceMetric.getId()
-                    +" expected version is " + serviceMetric.getLastModifiedTimestamp()
-                    +" but version in db was " + existingServiceMetric.getLastModifiedTimestamp()
-                    );
-            
-        }
-        
-        ServiceMetric serviceMetricCopy = serviceMetric.clone();
-        serviceMetricCopy.setLastModifiedTimestamp(getNewLastModTs(serviceMetric.getLastModifiedTimestamp()));
-
-        idToServiceMetricMap.put(serviceMetricCopy.getId(), serviceMetricCopy);
-        
-        LOG.debug("Updated ServiceMetric {}", serviceMetricCopy);
-        
-        return serviceMetricCopy.clone();
-    }
-
-    @Override
-    public ServiceMetric delete(long serviceMetricId) {
-        ServiceMetric serviceMetric = get(serviceMetricId);
-        idToServiceMetricMap.remove(serviceMetric.getId());
-        
-        LOG.debug("Deleted ServiceMetric {}", serviceMetric);
-        
-        return serviceMetric.clone();
-    }
-
-    @Override
-    public List<ServiceMetric> get(Set<Long> serviceMetricIdSet) {
-
-    	List<ServiceMetric> ret = new ArrayList<>();
-    	
-    	if(serviceMetricIdSet!=null && !serviceMetricIdSet.isEmpty()) {	    	
-	    	idToServiceMetricMap.forEach(
-	        		(id, c) -> {
-	        			if(serviceMetricIdSet.contains(id)) {
-				        	ret.add(c.clone());
-				        } }
-	        		);
+    public void create(List<ServiceMetric> serviceMetrics) {
+    	if(serviceMetrics==null || serviceMetrics.isEmpty()) {
+    		return;
     	}
-
-        LOG.debug("Found ServiceMetrics by ids {}", ret);
-
-        return ret;
-    
+    	
+    	serviceMetrics.forEach(m -> create(m));
+    	
     }
+    
 
     @Override
-    public PaginationResponse<ServiceMetric> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
+    public void delete(int customerId, long equipmentId, long createdBeforeTimestamp) {
+    	List<ServiceMetricKey> keysToRemove = new ArrayList<>();
+    	
+        idToServiceMetricMap.keySet().forEach( k -> {
+        	if(k.customerId == customerId && k.equipmentId == equipmentId && k.createdTimestamp < createdBeforeTimestamp) {
+        		keysToRemove.add(k);
+        	}
+        });
+        
+        keysToRemove.forEach(k -> idToServiceMetricMap.remove(k) );
+        
+        LOG.debug("Deleted ServiceMetric s for customer {} equipment {} createdBefore {}", customerId, equipmentId, createdBeforeTimestamp);
+    }
 
+
+    @Override
+    public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
+    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+    		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
@@ -161,11 +134,15 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         // apply filters and build the full result list first - inefficient, but ok for testing
         for (ServiceMetric mdl : idToServiceMetricMap.values()) {
 
-            if (mdl.getCustomerId() != customerId) {
-                continue;
+            if (mdl.getCustomerId() == customerId &&
+            		(equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
+            		(clientMacAdresses==null || clientMacAdresses.isEmpty() || clientMacAdresses.contains(mdl.getClientMacAddress())) &&
+            		(dataTypes==null || dataTypes.isEmpty() || dataTypes.contains(mdl.getDataType())) &&
+            		mdl.getCreatedTimestamp() >= fromTime &&
+            		mdl.getCreatedTimestamp() <= toTime 
+            	) {
+            	items.add(mdl);
             }
-
-            items.add(mdl);
         }
 
         // apply sortBy columns
@@ -173,17 +150,23 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
             @Override
             public int compare(ServiceMetric o1, ServiceMetric o2) {
                 if (sortBy == null || sortBy.isEmpty()) {
-                    // sort ascending by id by default
-                    return Long.compare(o1.getId(), o2.getId());
+                    // sort ascending by created time stamp by default
+                    return Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp());
                 } else {
                     int cmp;
                     for (ColumnAndSort column : sortBy) {
                         switch (column.getColumnName()) {
-                        case "id":
-                            cmp = Long.compare(o1.getId(), o2.getId());
+                        case "createdTimestamp":
+                            cmp = Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp());
                             break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
+                        case "equipmentId":
+                            cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
+                            break;
+                        case "clientMac":
+                            cmp = Long.compare(o1.getClientMac(), o2.getClientMac());
+                            break;
+                        case "dataType":
+                            cmp = Integer.compare(o1.getDataType().getId(), o2.getDataType().getId());
                             break;
                         default:
                             // skip unknown column
@@ -204,9 +187,10 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         // find first item to add
         int fromIndex = 0;
         if (context.getStartAfterItem() != null) {
+        	ServiceMetricKey startAfterKey = new ServiceMetricKey(context.getStartAfterItem());
             for (ServiceMetric mdl : items) {
                 fromIndex++;
-                if (mdl.getId() == context.getStartAfterItem().getId()) {
+                if (new ServiceMetricKey(mdl).equals(startAfterKey)) {
                     break;
                 }
             }
@@ -232,7 +216,14 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         if(ret.getContext().getStartAfterItem()!=null) {
         	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
         	ServiceMetric newStartAfterItem = new ServiceMetric();
-        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ServiceMetric oldStartAfterItem = ret.getContext().getStartAfterItem();
+        	
+        	newStartAfterItem.setCustomerId(oldStartAfterItem.getCustomerId());
+        	newStartAfterItem.setEquipmentId(oldStartAfterItem.getEquipmentId());
+        	newStartAfterItem.setClientMac(oldStartAfterItem.getClientMac());
+        	newStartAfterItem.setDataType(oldStartAfterItem.getDataType());
+        	newStartAfterItem.setCreatedTimestamp(oldStartAfterItem.getCreatedTimestamp());
+        	
         	ret.getContext().setStartAfterItem(newStartAfterItem);
         }
 

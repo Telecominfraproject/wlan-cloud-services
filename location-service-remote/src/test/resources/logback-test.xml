@@ -6,7 +6,7 @@
 
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{yyyy-MM-DD HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%filteredStack%nopex</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%filteredStack%nopex</pattern>
       <!-- See http://logback.qos.ch/manual/layouts.html for details -->
       <!-- %ex{5} - add at the end to display only 5 levels of the exception stack trace -->
       <!-- %nopex - add at the end to not display any of the exception stack traces -->

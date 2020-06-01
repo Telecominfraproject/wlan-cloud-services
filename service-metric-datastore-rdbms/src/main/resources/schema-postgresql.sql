@@ -1,16 +1,19 @@
 create table service_metric (
     -- postgresql     
-    id BIGSERIAL PRIMARY KEY,
 
     customerId int,
-    sampleStr varchar(50),
+    equipmentId bigint not null,
+    clientMac bigint not null,
+    dataType int not null,
+    createdTimestamp bigint not null,
+    
     details bytea,
     
-    createdTimestamp bigint not null,
-    lastModifiedTimestamp bigint not null
+    primary key (customerId, equipmentId, clientMac, dataType, createdTimestamp)
   
 );
 
 create index service_metric_customerId on service_metric (customerId);
+create index service_metric_customerEquipmentDatatype on service_metric (customerId, equipmentId, dataType);
 
 

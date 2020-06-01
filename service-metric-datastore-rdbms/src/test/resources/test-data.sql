@@ -1,15 +1,16 @@
 insert into service_metric (
-    id,
     customerId,     
-    sampleStr,
-    details,
+    equipmentId,     
+    clientMac,
+    dataType,
     createdTimestamp,
-    lastModifiedTimestamp
+    details
 ) values (
     1,
     1,
-    'test',
-    null,
-    0,0
+    0,
+    1,
+    0,
+    null
 );
 
