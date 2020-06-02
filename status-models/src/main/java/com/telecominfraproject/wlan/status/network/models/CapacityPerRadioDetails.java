@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.status.network.models;
 
+import com.telecominfraproject.wlan.core.model.entity.MinMaxAvgValueInt;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 

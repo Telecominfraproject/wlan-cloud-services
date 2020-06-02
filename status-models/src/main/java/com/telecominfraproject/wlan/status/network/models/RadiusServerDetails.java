@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.status.network.models;
 import java.net.InetAddress;
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.entity.MinMaxAvgValueInt;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**

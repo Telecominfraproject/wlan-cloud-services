@@ -2,8 +2,8 @@ package com.telecominfraproject.wlan.status.equipment.report.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.entity.MinMaxAvgValueInt;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-import com.telecominfraproject.wlan.status.network.models.MinMaxAvgValueInt;
 
 public class EquipmentPerRadioUtilizationDetails extends BaseJsonModel {
     private static final long serialVersionUID = -3017963520011190786L;
