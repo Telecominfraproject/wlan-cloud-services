@@ -558,6 +558,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BannedChannel'
+        allowedChannels:
+          description: "allowedChannels (Not set by the customer: provided by AP on connection based on regulatory limits by country)"
+          type: array
+          items:
+            type: integer
+            format: int32            
         rxCellSizeDb:
           $ref: '#/components/schemas/AutoOrManualValue'
         probeResponseThresholdDb:
@@ -1027,6 +1033,10 @@ components:
     MacAddress:
       type: object
       properties:
+        model_type:
+          type: string
+          enum:
+          - MacAddress
         addressAsString:
           type: string
       
