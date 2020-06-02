@@ -233,6 +233,10 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
     
     private PaginationResponse<Status> getNextPage(PaginationFilter<Status> filter, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
     
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Status> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

@@ -55,6 +55,11 @@ public class ManufacturerDatastoreRdbms implements ManufacturerDatastore {
     @Override
     public PaginationResponse<Manufacturer> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Manufacturer> context) {
+    	
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
     	return manufacturerDAO.getForCustomer( customerId, sortBy, context);
     }
 }

@@ -137,6 +137,10 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     public PaginationResponse<Client> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Client> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
@@ -327,6 +331,10 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId,
     		Set<Long> equipmentIds,
     		final List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
         ret.setContext(context.clone());

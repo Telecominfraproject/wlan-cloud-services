@@ -52,6 +52,10 @@ public class ServiceMetricPortalController  {
     		@RequestParam(required = false) List<ColumnAndSort> sortBy, 
     		@RequestParam(required = false) PaginationContext<ServiceMetric> paginationContext) {    
 
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+
         LOG.debug("Looking up ServiceMetrics for customer {} equipment {} from {} to {} with last returned page number {}", 
                 customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
 

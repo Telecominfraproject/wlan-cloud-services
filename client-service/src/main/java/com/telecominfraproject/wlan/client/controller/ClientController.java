@@ -124,7 +124,11 @@ public class ClientController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Client> getForCustomer(@RequestParam int customerId,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Client> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Client> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Clients for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());
@@ -242,7 +246,11 @@ public class ClientController {
     public PaginationResponse<ClientSession> getSessionsForCustomer(@RequestParam int customerId,
     		@RequestParam Set<Long> equipmentIds,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<ClientSession> paginationContext) {
+            @RequestParam(required = false) PaginationContext<ClientSession> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Client sessions for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

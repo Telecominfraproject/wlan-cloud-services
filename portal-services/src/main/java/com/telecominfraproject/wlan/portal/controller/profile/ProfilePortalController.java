@@ -95,7 +95,11 @@ public class ProfilePortalController  {
     @RequestMapping(value = "/profile/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Profile> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

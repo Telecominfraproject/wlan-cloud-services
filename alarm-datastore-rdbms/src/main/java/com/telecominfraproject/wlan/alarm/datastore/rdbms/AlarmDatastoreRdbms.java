@@ -58,6 +58,11 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
 			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
 			PaginationContext<Alarm> context) {
+		
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
 		return alarmDAO.getForCustomer(customerId, equipmentIdSet,
 				alarmCodeSet, createdAfterTimestamp, sortBy,
 				context);

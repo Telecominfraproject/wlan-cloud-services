@@ -66,6 +66,11 @@ public class LocationDatastoreRdbms implements LocationDatastore {
     @Override
     public PaginationResponse<Location> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Location> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return locationDAO.getForCustomer( customerId, sortBy, context);
     }
 

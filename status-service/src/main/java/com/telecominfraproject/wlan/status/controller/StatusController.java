@@ -81,7 +81,11 @@ public class StatusController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Status> getForCustomer(@RequestParam int customerId,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Status> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Status> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Statuses for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());
@@ -113,7 +117,11 @@ public class StatusController {
     		@RequestParam Set<Long> equipmentIds,
     		@RequestParam Set<StatusDataType> statusDataTypes,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Status> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Status> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Statuses for customer {} equipment {} types {} with last returned page number {}", 
                 customerId, equipmentIds, statusDataTypes, paginationContext.getLastReturnedPageNumber());

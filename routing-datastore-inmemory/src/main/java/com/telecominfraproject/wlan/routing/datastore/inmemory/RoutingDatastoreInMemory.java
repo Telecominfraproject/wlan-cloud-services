@@ -153,6 +153,10 @@ public class RoutingDatastoreInMemory extends BaseInMemoryDatastore implements R
     public PaginationResponse<EquipmentRoutingRecord> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<EquipmentRoutingRecord> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<EquipmentRoutingRecord> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

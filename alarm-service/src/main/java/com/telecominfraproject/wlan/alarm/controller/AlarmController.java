@@ -125,7 +125,11 @@ public class AlarmController {
     		@RequestParam Set<AlarmCode> alarmCodeSet,
     		@RequestParam  long createdAfterTimestamp,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Alarm> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Alarm> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Alarms for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

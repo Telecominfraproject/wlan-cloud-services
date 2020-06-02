@@ -134,7 +134,11 @@ public class FirmwareController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Firmware> getForCustomer(@RequestParam int customerId,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Firmware> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Firmware> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Firmwares for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

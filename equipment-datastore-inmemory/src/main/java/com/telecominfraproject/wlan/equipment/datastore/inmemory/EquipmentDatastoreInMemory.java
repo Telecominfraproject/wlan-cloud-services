@@ -166,6 +166,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
     public PaginationResponse<Equipment> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
@@ -260,6 +264,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
     @Override
     public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
             Set<Long> locationIds, final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
 
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
         ret.setContext(context.clone());

@@ -55,6 +55,11 @@ public class ProfileDatastoreRdbms implements ProfileDatastore {
     @Override
     public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Profile> context) {
+    	
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return profileDAO.getForCustomer( customerId, sortBy, context);
     }
     

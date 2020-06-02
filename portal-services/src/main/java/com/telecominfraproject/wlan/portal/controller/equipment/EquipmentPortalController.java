@@ -99,7 +99,11 @@ public class EquipmentPortalController  {
     @RequestMapping(value = "/equipment/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Equipment> getForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Equipment> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Equipments for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());
@@ -131,7 +135,11 @@ public class EquipmentPortalController  {
             @RequestParam(required = false) EquipmentType equipmentType, 
             @RequestParam(required = false) Set<Long> locationIds,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Equipment> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up equipment {} for customer {} locations {} last returned page number {}", equipmentType,
                 customerId, locationIds, paginationContext.getLastReturnedPageNumber());

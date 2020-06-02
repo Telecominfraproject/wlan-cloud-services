@@ -121,7 +121,11 @@ public class LocationPortalController  {
     @RequestMapping(value = "/location/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Location> getForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Location> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Location> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Locations for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

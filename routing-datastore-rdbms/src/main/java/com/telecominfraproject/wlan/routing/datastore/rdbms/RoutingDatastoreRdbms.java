@@ -57,6 +57,11 @@ public class RoutingDatastoreRdbms implements RoutingDatastore {
     @Override
     public PaginationResponse<EquipmentRoutingRecord> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<EquipmentRoutingRecord> context) {
+    	
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return routingDAO.getForCustomer( customerId, sortBy, context);
     }
 

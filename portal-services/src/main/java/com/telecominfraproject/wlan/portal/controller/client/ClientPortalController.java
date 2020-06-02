@@ -115,7 +115,11 @@ public class ClientPortalController  {
     public PaginationResponse<ClientSession> getClientSessionsForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) Set<Long> equipmentIds,    		
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<ClientSession> paginationContext) {
+            @RequestParam(required = false) PaginationContext<ClientSession> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Client Sessions for customer {} equipment {} with last returned page number {}", 
                 customerId, equipmentIds, paginationContext.getLastReturnedPageNumber());

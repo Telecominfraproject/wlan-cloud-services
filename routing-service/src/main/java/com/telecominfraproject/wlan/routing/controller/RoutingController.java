@@ -143,7 +143,11 @@ public class RoutingController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<EquipmentRoutingRecord> getForCustomer(@RequestParam int customerId,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<EquipmentRoutingRecord> paginationContext) {
+            @RequestParam(required = false) PaginationContext<EquipmentRoutingRecord> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Routings for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());
