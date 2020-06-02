@@ -131,6 +131,8 @@ public class ServiceMetricDAO extends BaseJdbcDao {
     private static final String SQL_DELETE =
         "delete from "+TABLE_NAME+" where customerId = ? and equipmentId = ? and createdTimestamp < ?";
 
+    private static final String SQL_PURGE_OLD_RECORDS =
+            "delete from "+TABLE_NAME+" where createdTimestamp < ?";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -379,5 +381,13 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
         LOG.debug("Stored {} ServiceMetrics", serviceMetrics.size());
 		
+	}
+
+
+	public void delete(long createdBeforeTimestamp) {
+        this.jdbcTemplate.update(SQL_PURGE_OLD_RECORDS, createdBeforeTimestamp);
+        
+        LOG.debug("Deleted ServiceMetrics created before {}", createdBeforeTimestamp);
+        
 	}
 }

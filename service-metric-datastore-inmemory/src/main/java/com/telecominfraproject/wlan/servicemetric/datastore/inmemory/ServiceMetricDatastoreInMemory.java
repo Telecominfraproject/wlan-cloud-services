@@ -111,6 +111,20 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         LOG.debug("Deleted ServiceMetric s for customer {} equipment {} createdBefore {}", customerId, equipmentId, createdBeforeTimestamp);
     }
 
+    @Override
+    public void delete(long createdBeforeTimestamp) {
+    	List<ServiceMetricKey> keysToRemove = new ArrayList<>();
+    	
+        idToServiceMetricMap.keySet().forEach( k -> {
+        	if(k.createdTimestamp < createdBeforeTimestamp) {
+        		keysToRemove.add(k);
+        	}
+        });
+        
+        keysToRemove.forEach(k -> idToServiceMetricMap.remove(k) );
+        
+        LOG.debug("Deleted {} ServiceMetrics createdBefore {}", keysToRemove.size(), createdBeforeTimestamp);
+    }
 
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,

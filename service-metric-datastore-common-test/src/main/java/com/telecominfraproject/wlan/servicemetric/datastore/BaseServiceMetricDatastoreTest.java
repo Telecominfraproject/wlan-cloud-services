@@ -232,6 +232,7 @@ public abstract class BaseServiceMetricDatastoreTest {
         
         assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);        
 
+        testInterface.delete(System.currentTimeMillis());
      }
     
     
