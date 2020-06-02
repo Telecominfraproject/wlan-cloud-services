@@ -15,10 +15,8 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 @JsonInclude(JsonInclude.Include.NON_NULL) 
 public class NetworkProbeMetrics extends BaseJsonModel {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 7293164162279703547L;
+
     private String vlanIF;
     private StateUpDownError dhcpState;
     private long dhcpLatencyMs;

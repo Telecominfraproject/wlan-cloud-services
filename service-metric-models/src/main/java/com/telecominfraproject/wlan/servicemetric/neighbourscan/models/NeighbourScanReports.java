@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.telecominfraproject.wlan.core.model.equipment.NeighboreScanPacketType;
+import com.telecominfraproject.wlan.core.model.equipment.NeighborScanPacketType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
@@ -109,7 +109,7 @@ public class NeighbourScanReports extends ServiceMetricDetails {
     {
         if(this.neighbourReports != null)
         {
-            return this.neighbourReports.stream().anyMatch(c -> c.getPacketType() == NeighboreScanPacketType.BEACON && c.getRadioType() == radio);
+            return this.neighbourReports.stream().anyMatch(c -> c.getPacketType() == NeighborScanPacketType.BEACON && c.getRadioType() == radio);
         }
         
         return false;   

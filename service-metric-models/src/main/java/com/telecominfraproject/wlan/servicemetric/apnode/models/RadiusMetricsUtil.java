@@ -36,7 +36,10 @@ public class RadiusMetricsUtil implements Serializable {
         long runningLatency = 0;
 
         for (RadiusMetrics metrics : radiusMetrics) {
-            runningLatency += metrics.getAvgLatencyMs();
+        	if(metrics.getLatencyMs() == null) {
+        		continue;
+        	}
+            runningLatency += metrics.getLatencyMs().getAvgValue();
         }
 
         return runningLatency / radiusMetrics.size();
@@ -51,8 +54,12 @@ public class RadiusMetricsUtil implements Serializable {
         
         for(RadiusMetrics metrics : radiusMetrics)
         {
-           if (metrics.getMaxLatencyMs()>maxLatency){
-               maxLatency = metrics.getMaxLatencyMs(); 
+        	if(metrics.getLatencyMs() == null) {
+        		continue;
+        	}
+        	
+           if (metrics.getLatencyMs().getMaxValue()>maxLatency){
+               maxLatency = metrics.getLatencyMs().getMaxValue(); 
            }
         }
         
@@ -68,8 +75,12 @@ public class RadiusMetricsUtil implements Serializable {
         
         for(RadiusMetrics metrics : radiusMetrics)
         {
-           if (metrics.getMinLatencyMs()<minLatency){
-               minLatency = metrics.getMinLatencyMs(); 
+        	if(metrics.getLatencyMs() == null) {
+        		continue;
+        	}
+        	
+           if (metrics.getLatencyMs().getMinValue()<minLatency){
+               minLatency = metrics.getLatencyMs().getMinValue(); 
            }
         }
         

@@ -47,7 +47,7 @@ public interface AlarmDatastore {
      * <br>The only time when a caller should be interacting with the properties of the paginationContext is during the 
      * call to the first page by setting property maxItemsPerPage. 
      * <br>If initial context is not provided, then the maxItemsPerPage will be set to 20.
-     * <br>If sortBy is not provided, then the data will be ordered by id.
+     * <br>If sortBy is not provided, then the data will be ordered by equipmentId and createdTimestamp.
      * <ul>Allowed columns for sorting are: 
 	 *<li>  "equipmentId"
 	 *<li>  "alarmCode"
