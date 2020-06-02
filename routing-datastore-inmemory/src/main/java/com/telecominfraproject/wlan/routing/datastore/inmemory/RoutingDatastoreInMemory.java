@@ -331,7 +331,13 @@ public class RoutingDatastoreInMemory extends BaseInMemoryDatastore implements R
 		});
 
 		List<EquipmentGatewayRecord> ret = new ArrayList<>();
-		gwIds.forEach(id -> ret.add(idToGatewayMap.get(id).clone()));
+		
+		gwIds.forEach(id -> {
+			EquipmentGatewayRecord gw = idToGatewayMap.get(id);
+			if(gw!=null) {
+				ret.add(gw.clone());
+			}
+		});
 		
 		return ret;
 	}
