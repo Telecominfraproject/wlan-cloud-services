@@ -148,6 +148,10 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
     public PaginationResponse<Manufacturer> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Manufacturer> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Manufacturer> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

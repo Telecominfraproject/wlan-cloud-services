@@ -60,6 +60,11 @@ public class PortalUserDatastoreRdbms implements PortalUserDatastore {
     @Override
     public PaginationResponse<PortalUser> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<PortalUser> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return portalUserDAO.getForCustomer( customerId, sortBy, context);
     }
 }

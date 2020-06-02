@@ -148,6 +148,10 @@ public class FirmwareDatastoreInMemory extends BaseInMemoryDatastore implements 
     public PaginationResponse<Firmware> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Firmware> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Firmware> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

@@ -55,6 +55,11 @@ public class SystemEventDatastoreRdbms implements SystemEventDatastore {
     @Override
     public PaginationResponse<SystemEventContainer> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<SystemEventContainer> context) {
+    	
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return systemEventDAO.getForCustomer( customerId, sortBy, context);
     }
 }

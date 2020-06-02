@@ -53,6 +53,11 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     @Override
     public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Client> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
     	return clientDAO.getForCustomer( customerId, sortBy, context);
     }
 
@@ -84,6 +89,11 @@ public class ClientDatastoreRdbms implements ClientDatastore {
 	@Override
 	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds,
 			List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+
+		if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+		
 		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, sortBy, context);
 	}
     

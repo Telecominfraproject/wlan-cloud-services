@@ -55,6 +55,11 @@ public class FirmwareDatastoreRdbms implements FirmwareDatastore {
     @Override
     public PaginationResponse<Firmware> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Firmware> context) {
+    	
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
     	return firmwareDAO.getForCustomer( customerId, sortBy, context);
     }
 }

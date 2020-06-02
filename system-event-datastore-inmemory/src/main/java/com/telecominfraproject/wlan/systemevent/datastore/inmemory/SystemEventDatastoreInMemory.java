@@ -148,6 +148,10 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
     public PaginationResponse<SystemEventContainer> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<SystemEventContainer> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<SystemEventContainer> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

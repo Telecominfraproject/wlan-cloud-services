@@ -19,7 +19,9 @@ public interface ServiceMetricDatastore {
     void create(ServiceMetric serviceMetric);
     void create(List<ServiceMetric> serviceMetrics);
     void delete(int customerId, long equipmentId, long createdBeforeTimestamp);
-    
+
+    void delete(long createdBeforeTimestamp);
+
     /**
      * <br>Retrieves all of the ServiceMetric records that are mapped to the provided customerId.
      * Results are returned in pages.

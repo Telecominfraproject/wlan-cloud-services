@@ -152,6 +152,10 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     public PaginationResponse<Profile> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Profile> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Profile> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

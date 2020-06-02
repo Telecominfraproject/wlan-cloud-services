@@ -40,6 +40,11 @@ public class ServiceMetricDatastoreRdbms implements ServiceMetricDatastore {
     }
     
     @Override
+    public void delete(long createdBeforeTimestamp) {
+        serviceMetricDAO.delete(createdBeforeTimestamp);
+    }
+    
+    @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
     		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {

@@ -5,10 +5,9 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.DetectedAuthMode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
-import com.telecominfraproject.wlan.core.model.equipment.NeighboreScanPacketType;
+import com.telecominfraproject.wlan.core.model.equipment.NeighborScanPacketType;
 import com.telecominfraproject.wlan.core.model.equipment.NetworkType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
-import com.telecominfraproject.wlan.core.model.equipment.Toggle;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
@@ -24,29 +23,54 @@ public class NeighbourReport extends BaseJsonModel {
     private String ssid;
     private int beaconInterval;
     private NetworkType networkType;
-    private Toggle privacy;
+    private boolean privacy;
     private RadioType radioType;
     private int channel;
     private int rate;
     private int rssi;
     private int signal;
     private long scanTimeInSeconds;
-    private Toggle nMode;
-    private Toggle acMode;
-    private Toggle bMode;
-    private NeighboreScanPacketType packetType;
+    private boolean nMode;
+    private boolean acMode;
+    private boolean bMode;
+    private NeighborScanPacketType packetType;
     private DetectedAuthMode secureMode;
 
-    public Toggle getAcMode() {
-        return acMode;
-    }
 
-    public int getBeaconInterval() {
+    public boolean isPrivacy() {
+		return privacy;
+	}
+
+	public void setPrivacy(boolean privacy) {
+		this.privacy = privacy;
+	}
+
+	public boolean isnMode() {
+		return nMode;
+	}
+
+	public void setnMode(boolean nMode) {
+		this.nMode = nMode;
+	}
+
+	public boolean isAcMode() {
+		return acMode;
+	}
+
+	public void setAcMode(boolean acMode) {
+		this.acMode = acMode;
+	}
+
+	public boolean isbMode() {
+		return bMode;
+	}
+
+	public void setbMode(boolean bMode) {
+		this.bMode = bMode;
+	}
+
+	public int getBeaconInterval() {
         return beaconInterval;
-    }
-
-    public Toggle getbMode() {
-        return bMode;
     }
 
     public int getChannel() {
@@ -61,16 +85,8 @@ public class NeighbourReport extends BaseJsonModel {
         return networkType;
     }
 
-    public Toggle getnMode() {
-        return nMode;
-    }
-
-    public NeighboreScanPacketType getPacketType() {
+    public NeighborScanPacketType getPacketType() {
         return packetType;
-    }
-
-    public Toggle getPrivacy() {
-        return privacy;
     }
 
     public RadioType getRadioType() {
@@ -98,16 +114,8 @@ public class NeighbourReport extends BaseJsonModel {
     }
 
 
-    public void setAcMode(Toggle acMode) {
-        this.acMode = acMode;
-    }
-
     public void setBeaconInterval(int beaconInterval) {
         this.beaconInterval = beaconInterval;
-    }
-
-    public void setbMode(Toggle bMode) {
-        this.bMode = bMode;
     }
 
     public void setChannel(int channel) {
@@ -122,16 +130,8 @@ public class NeighbourReport extends BaseJsonModel {
         this.networkType = networkType;
     }
 
-    public void setnMode(Toggle nMode) {
-        this.nMode = nMode;
-    }
-
-    public void setPacketType(NeighboreScanPacketType packetType) {
+    public void setPacketType(NeighborScanPacketType packetType) {
         this.packetType = packetType;
-    }
-
-    public void setPrivacy(Toggle privacy) {
-        this.privacy = privacy;
     }
 
     public void setRadioType(RadioType radioType) {
@@ -171,9 +171,9 @@ public class NeighbourReport extends BaseJsonModel {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (NetworkType.isUnsupported(networkType) || Toggle.isUnsupported(privacy)
-                || RadioType.isUnsupported(radioType) || Toggle.isUnsupported(nMode) || Toggle.isUnsupported(acMode)
-                || Toggle.isUnsupported(bMode) || NeighboreScanPacketType.isUnsupported(packetType) 
+        if (NetworkType.isUnsupported(networkType) 
+                || RadioType.isUnsupported(radioType)
+                || NeighborScanPacketType.isUnsupported(packetType) 
                 || DetectedAuthMode.isUnsupported(secureMode)) { 
             return true;
         }

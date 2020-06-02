@@ -123,7 +123,11 @@ public class PortalUserPortalController  {
     @RequestMapping(value = "/portalUser/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<PortalUser> getForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<PortalUser> paginationContext) {
+            @RequestParam(required = false) PaginationContext<PortalUser> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up PortalUsers for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

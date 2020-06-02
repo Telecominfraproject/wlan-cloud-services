@@ -134,7 +134,11 @@ public class ManufacturerController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Manufacturer> getForCustomer(@RequestParam int customerId,
             @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam PaginationContext<Manufacturer> paginationContext) {
+            @RequestParam(required = false) PaginationContext<Manufacturer> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
 
         LOG.debug("Looking up Manufacturers for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());

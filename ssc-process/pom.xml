@@ -35,6 +35,12 @@
       </dependency>
 
       <dependency>
+        <artifactId>service-metric-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
         <artifactId>single-process-streams</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>

@@ -182,6 +182,10 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
     public PaginationResponse<Location> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Location> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<Location> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.DetectedAuthMode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
-import com.telecominfraproject.wlan.core.model.equipment.NeighboreScanPacketType;
+import com.telecominfraproject.wlan.core.model.equipment.NeighborScanPacketType;
 import com.telecominfraproject.wlan.core.model.equipment.NetworkType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -30,7 +30,7 @@ public class NeighbourBssidInfo extends BaseJsonModel {
     private boolean nMode;
     private boolean acMode;
     private boolean bMode;
-    private NeighboreScanPacketType scanPacketType;
+    private NeighborScanPacketType scanPacketType;
     private DetectedAuthMode detectedAuthMode;
         
     public MacAddress getMacAddress() {
@@ -145,11 +145,11 @@ public class NeighbourBssidInfo extends BaseJsonModel {
         this.signal = signal;
     }
 
-    public NeighboreScanPacketType getScanPacketType() {
+    public NeighborScanPacketType getScanPacketType() {
         return scanPacketType;
     }
 
-    public void setScanPacketType(NeighboreScanPacketType scanPacketType) {
+    public void setScanPacketType(NeighborScanPacketType scanPacketType) {
         this.scanPacketType = scanPacketType;
     }
 
@@ -179,7 +179,7 @@ public class NeighbourBssidInfo extends BaseJsonModel {
             return true;
         }
         if (NetworkType.isUnsupported(networkType) 
-                || RadioType.isUnsupported(radioType) || NeighboreScanPacketType.isUnsupported(scanPacketType)
+                || RadioType.isUnsupported(radioType) || NeighborScanPacketType.isUnsupported(scanPacketType)
                 || DetectedAuthMode.isUnsupported(detectedAuthMode)) 
         {
             return true;

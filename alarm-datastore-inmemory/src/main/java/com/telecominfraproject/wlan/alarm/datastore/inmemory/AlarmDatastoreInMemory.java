@@ -205,6 +205,10 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
 			long createdAfterTimestamp, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context)  {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
         PaginationResponse<Alarm> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

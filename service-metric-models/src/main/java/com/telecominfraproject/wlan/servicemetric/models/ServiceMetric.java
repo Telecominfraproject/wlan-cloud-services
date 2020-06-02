@@ -96,6 +96,9 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 
 	@Override
 	public MacAddress getClientMacAddress() {
+		if(clientMac==0) {
+			return null;
+		}
 		return new MacAddress(clientMac);
 	}
 	

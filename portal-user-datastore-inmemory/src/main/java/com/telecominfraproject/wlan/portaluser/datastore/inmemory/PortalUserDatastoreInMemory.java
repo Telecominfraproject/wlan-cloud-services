@@ -160,6 +160,10 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     public PaginationResponse<PortalUser> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<PortalUser> context) {
 
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
         PaginationResponse<PortalUser> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 

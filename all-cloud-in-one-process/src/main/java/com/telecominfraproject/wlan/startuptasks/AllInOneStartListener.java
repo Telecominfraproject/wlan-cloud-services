@@ -28,6 +28,7 @@ import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
+import com.telecominfraproject.wlan.core.model.entity.MinMaxAvgValueInt;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
@@ -50,6 +51,12 @@ import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
+import com.telecominfraproject.wlan.servicemetric.ServiceMetricServiceInterface;
+import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
+import com.telecominfraproject.wlan.servicemetric.apnode.models.ApPerformance;
+import com.telecominfraproject.wlan.servicemetric.apnode.models.EthernetLinkState;
+import com.telecominfraproject.wlan.servicemetric.apnode.models.RadioUtilization;
+import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolState;
@@ -60,7 +67,6 @@ import com.telecominfraproject.wlan.status.equipment.report.models.OperatingSyst
 import com.telecominfraproject.wlan.status.equipment.report.models.RadioUtilizationReport;
 import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
-import com.telecominfraproject.wlan.status.network.models.MinMaxAvgValueInt;
 
 /**
  * Listen for context started event so that we can populate initial dataset in
@@ -94,6 +100,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 	
 	@Autowired
 	private PortalUserServiceInterface portalUserServiceInterface;
+	
+	@Autowired
+	private ServiceMetricServiceInterface serviceMetricInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -228,6 +237,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 			createAlarmsForEquipment(equipment);
 			
 			createClientSessions(equipment, ssidConfig);
+			
+			createServiceMetrics(equipment);
 
 		}
 
@@ -243,6 +254,78 @@ public class AllInOneStartListener implements ApplicationRunner {
 		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
 		LOG.info("SSID configs: {}", ssidConfigs);
 
+	}
+
+	private void createServiceMetrics(Equipment equipment) {
+		List<ServiceMetric> metricRecordList = new ArrayList<>();
+		
+		ServiceMetric smr = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
+		metricRecordList.add(smr);
+
+		ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
+		smr.setDetails(apNodeMetrics);
+		ApPerformance apPerformance = new ApPerformance();
+		apNodeMetrics.setApPerformance(apPerformance);
+
+		smr.setCreatedTimestamp(System.currentTimeMillis());
+		apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
+		apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
+		apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
+
+		apPerformance.setCpuTemperature(getRandomInt(25, 90));
+		apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98)});
+
+		apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
+
+		apPerformance.setFreeMemory(getRandomInt(30000000, 70000000));
+		apPerformance.setUpTime(getRandomLong(30000000, 70000000));
+
+		apNodeMetrics.setRxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setTxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setRxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setTxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setRxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setTxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
+		apNodeMetrics.setPeriodLengthSec(60);
+
+		apNodeMetrics.setNoiseFloor(RadioType.is2dot4GHz, Integer.valueOf(-98));
+		apNodeMetrics.setNoiseFloor(RadioType.is5GHzL, Integer.valueOf(-98));
+		apNodeMetrics.setNoiseFloor(RadioType.is5GHzU, Integer.valueOf(-98));
+
+		apNodeMetrics.setRadioUtilization(RadioType.is2dot4GHz, new ArrayList<>());
+		apNodeMetrics.setRadioUtilization(RadioType.is5GHzL, new ArrayList<>());
+		apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
+
+		int numRadioUtilReports = getRandomInt(5, 10);
+		
+		for (int i = 0; i< numRadioUtilReports; i++) {
+				RadioUtilization radioUtil = new RadioUtilization();
+				int surveyDurationMs = getRandomInt(5000, 10000);
+				int busyTx = getRandomInt(0, surveyDurationMs/3);
+				int busyRx = getRandomInt(0, surveyDurationMs/3);
+				int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
+				
+				radioUtil.setTimestampSeconds( (int) ((System.currentTimeMillis() - surveyDurationMs) / 1000));
+				radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
+				radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
+				radioUtil.setNonWifi( 100 * (busy - busyTx - busyRx) / surveyDurationMs);
+				
+				switch (i%3) {
+				case 0:
+					apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
+					break;
+				case 1:
+					apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
+					break;
+				case 2:
+					apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
+					break;
+				default:
+					//do nothing
+				}
+		}
+
+		serviceMetricInterface.create(metricRecordList);
 	}
 
 	private void createClientSessions(Equipment equipment, SsidConfiguration ssidConfig) {

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
+import com.telecominfraproject.wlan.servicemetric.ServiceMetricServiceInterface;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
@@ -23,6 +24,7 @@ public class CloudEventDispatcherController {
 
     @Autowired private StreamInterface<ServiceMetric> metricStream;
     @Autowired private StreamInterface<SystemEventRecord> systemEventStream;
+    @Autowired private ServiceMetricServiceInterface serviceMetricInterface;
 
     @RequestMapping(value="/metric", method=RequestMethod.POST)
     public GenericResponse publishMetric(@RequestBody ServiceMetric metricRecord) {
@@ -30,6 +32,8 @@ public class CloudEventDispatcherController {
         LOG.debug("calling publishMetric {}", metricRecord);
         
         metricStream.publish(metricRecord);
+        
+        serviceMetricInterface.create(metricRecord);
         
         GenericResponse ret = new GenericResponse();
         ret.setMessage("");
@@ -48,6 +52,8 @@ public class CloudEventDispatcherController {
         for (ServiceMetric metricRecord : metricList) {
             metricStream.publish(metricRecord);
         }
+        
+        serviceMetricInterface.create(metricList);
         
         GenericResponse ret = new GenericResponse();
         ret.setMessage("");
