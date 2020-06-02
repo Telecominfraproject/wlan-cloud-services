@@ -36,6 +36,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private boolean autoChannelSelection;
 	private ChannelBandwidth channelBandwidth;
 	private List<BannedChannel> bannedChannels = new LinkedList<>();
+	private List<Integer> allowedChannels = new LinkedList<>();
 	private AutoOrManualValue rxCellSizeDb;
 	private AutoOrManualValue probeResponseThresholdDb;
 	private AutoOrManualValue clientDisconnectThresholdDb;
@@ -128,8 +129,11 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return Objects.equals(allowedChannelsPowerLevels, other.allowedChannelsPowerLevels)
 				&& this.autoChannelSelection == other.autoChannelSelection
 				&& Objects.equals(backupChannelNumber, other.backupChannelNumber)
-				&& Objects.equals(bannedChannels, other.bannedChannels) && this.bestAPSteerType == other.bestAPSteerType
-				&& Objects.equals(bestApEnabled, other.bestApEnabled) && this.channelBandwidth == other.channelBandwidth
+				&& Objects.equals(bannedChannels, other.bannedChannels) 
+				&& Objects.equals(allowedChannels, other.allowedChannels) 
+				&& this.bestAPSteerType == other.bestAPSteerType
+				&& Objects.equals(bestApEnabled, other.bestApEnabled) 
+				&& this.channelBandwidth == other.channelBandwidth
 				&& Objects.equals(channelNumber, other.channelNumber)
 				&& Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
 				&& Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
@@ -156,6 +160,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public List<BannedChannel> getBannedChannels() {
 		return bannedChannels;
+	}
+
+	public List<Integer> getAllowedChannels() {
+		return allowedChannels;
 	}
 
 	public ChannelBandwidth getChannelBandwidth() {
@@ -213,7 +221,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allowedChannelsPowerLevels, autoChannelSelection, backupChannelNumber, bannedChannels,
+		return Objects.hash(allowedChannelsPowerLevels, autoChannelSelection, backupChannelNumber, bannedChannels, allowedChannels,
 				bestAPSteerType, bestApEnabled, channelBandwidth, channelNumber, clientDisconnectThresholdDb,
 				deauthAttackDetection, eirpTxPower, getManualChannelNumber(), minAutoCellSize, neighbouringListApConfig,
 				perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
@@ -233,6 +241,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public void setBannedChannels(List<BannedChannel> bannedChannels) {
 		this.bannedChannels = bannedChannels;
+	}
+
+	public void setAllowedChannels(List<Integer> allowedChannels) {
+		this.allowedChannels = allowedChannels;
 	}
 
 	public void setBestApEnabled(Boolean bestApEnabled) {
