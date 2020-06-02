@@ -1,16 +1,18 @@
 create table system_event (
     -- postgresql     
-    id BIGSERIAL PRIMARY KEY,
 
     customerId int,
-    sampleStr varchar(50),
+    equipmentId bigint not null,
+    dataType varchar(100) not null,
+    eventTimestamp bigint not null,
+    
     details bytea,
     
-    createdTimestamp bigint not null,
-    lastModifiedTimestamp bigint not null
+    primary key (customerId, equipmentId, dataType, eventTimestamp)
   
 );
 
 create index system_event_customerId on system_event (customerId);
+create index system_event_customerEquipmentDatatype on system_event (customerId, equipmentId, dataType);
 
 

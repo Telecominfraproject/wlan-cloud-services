@@ -9,9 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
 import com.telecominfraproject.wlan.systemevent.datastore.SystemEventDatastore;
-import com.telecominfraproject.wlan.systemevent.models.SystemEventContainer;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
  * @author dtoptygin
@@ -21,45 +20,38 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventContainer;
 public class SystemEventDatastoreRdbms implements SystemEventDatastore {
 
     @Autowired SystemEventDAO systemEventDAO;
-
-    @Override
-    public SystemEventContainer create(SystemEventContainer systemEventRecord) {
-        return systemEventDAO.create(systemEventRecord);
-    }
-
-    @Override
-    public SystemEventContainer get(long systemEventRecordId) {
-        return systemEventDAO.get(systemEventRecordId);
-    }
-
-    @Override
-    public SystemEventContainer getOrNull(long systemEventRecordId) {
-        return systemEventDAO.getOrNull(systemEventRecordId);
-    }
     
     @Override
-    public SystemEventContainer update(SystemEventContainer systemEventRecord) {
-        return systemEventDAO.update(systemEventRecord);
-    }
+	public void create(SystemEventRecord systemEventRecord) {
+    	systemEventDAO.create(systemEventRecord);
+	}
 
-    @Override
-    public SystemEventContainer delete(long systemEventRecordId) {
-        return systemEventDAO.delete(systemEventRecordId);
-    }
-    
-    @Override
-    public List<SystemEventContainer> get(Set<Long> systemEventRecordIdSet) {
-    	return systemEventDAO.get(systemEventRecordIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<SystemEventContainer> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<SystemEventContainer> context) {
+	@Override
+	public void create(List<SystemEventRecord> systemEventRecords) {
+		systemEventDAO.create(systemEventRecords);		
+	}
+
+	@Override
+	public void delete(int customerId, long equipmentId, long createdBeforeTimestamp) {
+		systemEventDAO.delete(customerId, equipmentId, createdBeforeTimestamp);
+	}
+
+	@Override
+	public void delete(long createdBeforeTimestamp) {
+		systemEventDAO.delete(createdBeforeTimestamp);		
+	}
+
+	@Override
+	public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
+			Set<Long> equipmentIds, Set<String> dataTypes, List<ColumnAndSort> sortBy,
+			PaginationContext<SystemEventRecord> context) {
     	
     	if(context == null) {
     		context = new PaginationContext<>();
     	}
 
-    	return systemEventDAO.getForCustomer( customerId, sortBy, context);
+    	return systemEventDAO.getForCustomer( fromTime, toTime, customerId,
+    			equipmentIds, dataTypes, sortBy,
+    			context);
     }
 }

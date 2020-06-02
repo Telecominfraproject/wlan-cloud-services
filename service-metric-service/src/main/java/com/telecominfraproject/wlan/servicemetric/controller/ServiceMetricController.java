@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
@@ -43,7 +42,6 @@ public class ServiceMetricController {
     }
 
     @Autowired private ServiceMetricDatastore serviceMetricDatastore;
-    @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
 
     
     /**

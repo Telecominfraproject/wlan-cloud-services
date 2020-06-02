@@ -35,9 +35,7 @@ public class CloudEventDispatcherController {
         
         serviceMetricInterface.create(metricRecord);
         
-        GenericResponse ret = new GenericResponse();
-        ret.setMessage("");
-        ret.setSuccess(true);
+        GenericResponse ret = new GenericResponse(true, "");
         
         LOG.debug("publishMetric done");
 
@@ -55,9 +53,7 @@ public class CloudEventDispatcherController {
         
         serviceMetricInterface.create(metricList);
         
-        GenericResponse ret = new GenericResponse();
-        ret.setMessage("");
-        ret.setSuccess(true);
+        GenericResponse ret = new GenericResponse(true, "");
         
         LOG.debug("publishMetricList done");
 
@@ -67,17 +63,10 @@ public class CloudEventDispatcherController {
     @RequestMapping(value="/event", method=RequestMethod.POST)
     public GenericResponse publishEvent(@RequestBody SystemEventRecord systemEventRecord) {
         LOG.debug("calling publishEvent {}", systemEventRecord);
-               
-        if(systemEventRecord.getEventTimestamp() != 0)
-        {
-        	systemEventRecord.setCreatedTimestamp(systemEventRecord.getEventTimestamp());
-        }
-        
+                       
         systemEventStream.publish(systemEventRecord);
         
-        GenericResponse ret = new GenericResponse();
-        ret.setMessage("");
-        ret.setSuccess(true);
+        GenericResponse ret = new GenericResponse(true, "");
         
         LOG.debug("publishEvent for {} done", systemEventRecord);
         return ret;
@@ -88,20 +77,11 @@ public class CloudEventDispatcherController {
 
         LOG.debug("calling publishEvents {}", systemEventRecords.size());
 
-        for (SystemEventRecord ser : systemEventRecords) {
-            
-            if(ser.getEventTimestamp() != 0)
-            {
-            	ser.setCreatedTimestamp(ser.getEventTimestamp());
-            }
-            
+        for (SystemEventRecord ser : systemEventRecords) {            
             systemEventStream.publish(ser);
-
         }
         
-        GenericResponse ret = new GenericResponse();
-        ret.setMessage("");
-        ret.setSuccess(true);
+        GenericResponse ret = new GenericResponse(true, "");
         
         LOG.debug("publishEvents done");
 
