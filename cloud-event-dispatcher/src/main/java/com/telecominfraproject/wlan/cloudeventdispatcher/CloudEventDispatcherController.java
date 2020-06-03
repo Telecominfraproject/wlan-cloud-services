@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.cloudeventdispatcher;
+	package com.telecominfraproject.wlan.cloudeventdispatcher;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.servicemetric.ServiceMetricServiceInterface;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.stream.StreamInterface;
+import com.telecominfraproject.wlan.systemevent.SystemEventServiceInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 @RestController
@@ -25,6 +26,7 @@ public class CloudEventDispatcherController {
     @Autowired private StreamInterface<ServiceMetric> metricStream;
     @Autowired private StreamInterface<SystemEventRecord> systemEventStream;
     @Autowired private ServiceMetricServiceInterface serviceMetricInterface;
+    @Autowired private SystemEventServiceInterface systemEventInterface;
 
     @RequestMapping(value="/metric", method=RequestMethod.POST)
     public GenericResponse publishMetric(@RequestBody ServiceMetric metricRecord) {
@@ -32,7 +34,6 @@ public class CloudEventDispatcherController {
         LOG.debug("calling publishMetric {}", metricRecord);
         
         metricStream.publish(metricRecord);
-        
         serviceMetricInterface.create(metricRecord);
         
         GenericResponse ret = new GenericResponse(true, "");
@@ -47,10 +48,7 @@ public class CloudEventDispatcherController {
 
         LOG.debug("calling publishMetrics {}", metricList);
 
-        for (ServiceMetric metricRecord : metricList) {
-            metricStream.publish(metricRecord);
-        }
-        
+        metricStream.publish(metricList);
         serviceMetricInterface.create(metricList);
         
         GenericResponse ret = new GenericResponse(true, "");
@@ -65,6 +63,7 @@ public class CloudEventDispatcherController {
         LOG.debug("calling publishEvent {}", systemEventRecord);
                        
         systemEventStream.publish(systemEventRecord);
+        systemEventInterface.create(systemEventRecord);
         
         GenericResponse ret = new GenericResponse(true, "");
         
@@ -77,9 +76,8 @@ public class CloudEventDispatcherController {
 
         LOG.debug("calling publishEvents {}", systemEventRecords.size());
 
-        for (SystemEventRecord ser : systemEventRecords) {            
-            systemEventStream.publish(ser);
-        }
+        systemEventStream.publish(systemEventRecords);
+        systemEventInterface.create(systemEventRecords);
         
         GenericResponse ret = new GenericResponse(true, "");
         

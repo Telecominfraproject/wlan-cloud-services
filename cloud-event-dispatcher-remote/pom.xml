@@ -73,6 +73,27 @@
         <version>${tip-wlan-cloud.release.version}</version>
         <scope>test</scope>
       </dependency>
+
+      <dependency>
+        <artifactId>system-event-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>system-event-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>system-event-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+        <scope>test</scope>
+      </dependency>
      
     </dependencies>
 </project>
