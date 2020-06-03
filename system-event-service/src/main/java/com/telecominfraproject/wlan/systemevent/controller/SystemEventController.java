@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.systemevent.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,15 +13,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.systemevent.datastore.SystemEventDatastore;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
-import com.telecominfraproject.wlan.systemevent.models.SystemEventContainer;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 
 /**
@@ -36,179 +34,126 @@ public class SystemEventController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SystemEventController.class);
 
-    public static class ListOfSystemEventRecords extends ArrayList<SystemEventContainer> {
-        private static final long serialVersionUID = 3070319062835500930L;
-    }
-
     @Autowired private SystemEventDatastore systemEventDatastore;
-    @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
 
-    
     /**
-     * Creates new SystemEventContainer.
+     * Creates new SystemEvent.
      *  
-     * @param SystemEventContainer
-     * @return stored SystemEventContainer object
-     * @throws RuntimeException if SystemEventContainer record already exists
+     * @param SystemEvent
      */
     @RequestMapping(method=RequestMethod.POST)
-    public SystemEventContainer create(@RequestBody SystemEventContainer systemEventRecord ) {
+    public GenericResponse create(@RequestBody SystemEventRecord systemEvent ) {
 
-        LOG.debug("Creating SystemEventContainer {}", systemEventRecord);
+        LOG.debug("Creating SystemEventRecord {}", systemEvent);
 
-        if (BaseJsonModel.hasUnsupportedValue(systemEventRecord)) {
-            LOG.error("Failed to create SystemEventContainer, request contains unsupported value: {}", systemEventRecord);
-            throw new DsDataValidationException("SystemEventContainer contains unsupported value");
+        if (BaseJsonModel.hasUnsupportedValue(systemEvent)) {
+            LOG.error("Failed to create SystemEventRecord, request contains unsupported value: {}", systemEvent);
+            throw new DsDataValidationException("SystemEventRecord contains unsupported value");
         }
 
         long ts = System.currentTimeMillis();
-        if (systemEventRecord.getCreatedTimestamp() == 0) {
-        	systemEventRecord.setCreatedTimestamp(ts);
+        if (systemEvent.getEventTimestamp() == 0) {
+        	systemEvent.setEventTimestamp(ts);
         }
 
-        SystemEventContainer ret = systemEventDatastore.create(systemEventRecord);
+        systemEventDatastore.create(systemEvent);
 
-        LOG.debug("Created SystemEventContainer {}", ret);
+        GenericResponse ret = new GenericResponse(true, "");
+        
+        LOG.debug("Created SystemEventRecord {}", systemEvent);
 
         return ret;
     }
+
     
     /**
-     * Retrieves SystemEventContainer by id
-     * @param systemEventRecordId
-     * @return SystemEventContainer for the supplied id
+     * Creates batch of new SystemEventRecords.
+     *  
+     * @param SystemEventRecord
      */
-    @RequestMapping(method=RequestMethod.GET)
-    public SystemEventContainer get(@RequestParam long systemEventRecordId ) {
-        
-        LOG.debug("Retrieving SystemEventContainer {}", systemEventRecordId);
-        
-        SystemEventContainer ret = systemEventDatastore.get(systemEventRecordId);
+    @RequestMapping(value = "/bulk",method=RequestMethod.POST)
+    public GenericResponse createBulk(@RequestBody List<SystemEventRecord> systemEvents ) {
 
-        LOG.debug("Retrieved SystemEventContainer {}", ret);
+    	if(systemEvents==null || systemEvents.isEmpty()) {
+    		return new GenericResponse(true, "empty metrics list");
+    	}
+    	
+        LOG.debug("Creating SystemEventRecords {}", systemEvents.size());
+                
 
-        return ret;
-    }
-
-    /**
-     * Retrieves SystemEventContainer by id
-     * @param systemEventRecordId
-     * @return SystemEventContainer for the supplied id
-     */
-    @RequestMapping(value = "/orNull", method=RequestMethod.GET)
-    public SystemEventContainer getOrNull(@RequestParam long systemEventRecordId ) {
-        
-        LOG.debug("Retrieving SystemEventContainer {}", systemEventRecordId);
-        
-        SystemEventContainer ret = systemEventDatastore.getOrNull(systemEventRecordId);
-
-        LOG.debug("Retrieved SystemEventContainer {}", ret);
-
-        return ret;
-    }
-
-    @RequestMapping(value = "/inSet", method = RequestMethod.GET)
-    public ListOfSystemEventRecords getAllInSet(@RequestParam Set<Long> systemEventRecordIdSet) {
-        LOG.debug("getAllInSet({})", systemEventRecordIdSet);
-        try {
-            List<SystemEventContainer> result = systemEventDatastore.get(systemEventRecordIdSet);
-            LOG.debug("getAllInSet({}) return {} entries", systemEventRecordIdSet, result.size());
-            ListOfSystemEventRecords ret = new ListOfSystemEventRecords();
-            ret.addAll(result);
-            return ret;
-        } catch (Exception exp) {
-             LOG.error("getAllInSet({}) exception ", systemEventRecordIdSet, exp);
-             throw exp;
+        if (BaseJsonModel.hasUnsupportedValue(systemEvents)) {
+            LOG.error("Failed to create SystemEventRecord, request contains unsupported value: {}", systemEvents);
+            throw new DsDataValidationException("SystemEventRecord contains unsupported value");
         }
+
+        long ts = System.currentTimeMillis();
+		systemEvents.forEach(m -> {
+			if (m.getEventTimestamp() == 0) {
+				m.setEventTimestamp(ts);
+			}
+		});
+
+        systemEventDatastore.create(systemEvents);
+
+        GenericResponse ret = new GenericResponse(true, "");
+        
+        LOG.debug("Created SystemEventRecord {}", systemEvents.size());
+
+        return ret;
     }
+
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
-    public PaginationResponse<SystemEventContainer> getForCustomer(@RequestParam int customerId,
-            @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam(required = false) PaginationContext<SystemEventContainer> paginationContext) {
+    public PaginationResponse<SystemEventRecord> getForCustomer(@RequestParam long fromTime, @RequestParam long toTime, 
+    		@RequestParam int customerId,
+    		@RequestParam(required = false) Set<Long> equipmentIds, 
+    		@RequestParam(required = false) Set<String> dataTypes,
+    		@RequestParam(required = false) List<ColumnAndSort> sortBy, 
+    		@RequestParam(required = false) PaginationContext<SystemEventRecord> paginationContext) {    
 
-    	if(paginationContext == null) {
+    	if(paginationContext==null) {
     		paginationContext = new PaginationContext<>();
     	}
+    	
+        LOG.debug("Looking up SystemEventRecords for customer {} equipment {} from {} to {} with last returned page number {}", 
+                customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
 
-        LOG.debug("Looking up SystemEventRecords for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
-
-        PaginationResponse<SystemEventContainer> ret = new PaginationResponse<>();
+        PaginationResponse<SystemEventRecord> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up SystemEventRecords for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
+            LOG.debug("No more pages available when looking up SystemEventRecords for customer {} equipment {} from {} to {} with last returned page number {}", 
+                    customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
-        PaginationResponse<SystemEventContainer> onePage = this.systemEventDatastore
-                .getForCustomer(customerId,  sortBy, paginationContext);
+        PaginationResponse<SystemEventRecord> onePage = this.systemEventDatastore
+                .getForCustomer(fromTime, toTime, customerId,
+                		equipmentIds, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} SystemEventRecords for customer {} ", onePage.getItems().size(), 
-                customerId);
+        LOG.debug("Retrieved {} SystemEventRecords for customer {} equipment {} from {} to {} ", onePage.getItems().size(), 
+                customerId, equipmentIds, fromTime, toTime);
 
         return ret;
     }
     
-    /**
-     * Updates SystemEventContainer record
-     * 
-     * @param SystemEventContainer
-     * @return updated SystemEventContainer object
-     * @throws RuntimeException if SystemEventContainer record does not exist or if it was modified concurrently
-     */
-    @RequestMapping(method=RequestMethod.PUT)
-    public SystemEventContainer update(@RequestBody SystemEventContainer systemEventRecord){
-        
-        LOG.debug("Updating SystemEventContainer {}", systemEventRecord);
-        
-        if (BaseJsonModel.hasUnsupportedValue(systemEventRecord)) {
-            LOG.error("Failed to update SystemEventContainer, request contains unsupported value: {}", systemEventRecord);
-            throw new DsDataValidationException("SystemEventContainer contains unsupported value");
-        }
-
-        SystemEventContainer ret = systemEventDatastore.update(systemEventRecord);
-
-        LOG.debug("Updated SystemEventContainer {}", ret);
-
-        return ret;
-    }
     
     /**
-     * Deletes SystemEventContainer record
+     * Deletes SystemEventRecord records
      * 
-     * @param systemEventRecordId
-     * @return deleted SystemEventContainer object
      */
     @RequestMapping(method=RequestMethod.DELETE)
-    public SystemEventContainer delete(@RequestParam long systemEventRecordId ) {
+    public GenericResponse delete(@RequestParam int customerId, @RequestParam long equipmentId, @RequestParam long createdBeforeTimestamp) {
         
-        LOG.debug("Deleting SystemEventContainer {}", systemEventRecordId);
+        LOG.debug("Deleting SystemEventRecords for  {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
-        SystemEventContainer ret = systemEventDatastore.delete(systemEventRecordId);
+        systemEventDatastore.delete(customerId, equipmentId, createdBeforeTimestamp);
 
-        LOG.debug("Deleted SystemEventContainer {}", ret);
+        LOG.debug("Deleted SystemEventRecords for  {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
-        return ret;
+        return new GenericResponse(true, "");
     }
-
-    private void publishEvent(SystemEvent event) {
-        if (event == null) {
-            return;
-        }
-        
-        try {
-            cloudEventDispatcher.publishEvent(event);
-        } catch (Exception e) {
-            LOG.error("Failed to publish event : {}", event, e);
-        }
-    }
-
-    
 }

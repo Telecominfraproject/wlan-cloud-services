@@ -10,17 +10,12 @@
 
     <artifactId>system-event-models</artifactId>
     <name>system-event-models</name>
-    <description>Data structures</description>
+    <description>Data structures that define various system events.</description>
 
     <dependencies>
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>base-models</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.telecominfraproject.wlan</groupId>
-            <artifactId>tip-wlan-cloud-system-event-models</artifactId>
             <version>${tip-wlan-cloud.release.version}</version>
         </dependency>
     </dependencies>

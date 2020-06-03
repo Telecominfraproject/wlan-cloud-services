@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.systemevent.models;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
@@ -12,12 +14,10 @@ public class SystemEventRecord extends BaseJsonModel {
 
     private int customerId;
     private long equipmentId;
+    private String dataType;
     private long eventTimestamp;
 
-    private String payloadType;
-    private SystemEvent payload;
-    
-    private long createdTimestamp;
+    private SystemEvent details;
     
     public SystemEventRecord() {
         // for serialization
@@ -26,8 +26,8 @@ public class SystemEventRecord extends BaseJsonModel {
     @SuppressWarnings("rawtypes")
     public SystemEventRecord(SystemEvent systemEvent) {
         this.eventTimestamp = systemEvent.getEventTimestamp();
-        this.payloadType = systemEvent.getClass().getSimpleName();
-        this.payload = systemEvent;
+        this.dataType = systemEvent.getClass().getSimpleName();
+        this.details = systemEvent;
         
         if(systemEvent instanceof CustomerEvent){
             this.customerId = ((CustomerEvent)systemEvent).getCustomerId();
@@ -62,44 +62,38 @@ public class SystemEventRecord extends BaseJsonModel {
         this.eventTimestamp = eventTimestamp;
     }
 
-    public String getPayloadType() {
-        return payloadType;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setPayloadType(String payloadType) {
-        this.payloadType = payloadType;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
-    public SystemEvent getPayload() {
-        return payload;
+    public SystemEvent getDetails() {
+        return details;
     }
 
-    public void setPayload(SystemEvent payload) {
-        this.payload = payload;
+    public void setDetails(SystemEvent details) {
+    	if(details!=null) {
+    		dataType = details.getClass().getSimpleName();
+    	}
+        this.details = details;
     }
-
-    public long getCreatedTimestamp() {
-        return createdTimestamp;
-    }
-
-    public void setCreatedTimestamp(long createdTimestamp) {
-        this.createdTimestamp = createdTimestamp;
-    }
-
 
     @Override
     public SystemEventRecord clone() {
         SystemEventRecord ret = (SystemEventRecord) super.clone();
-        if(payload!=null){
-            ret.payload = (SystemEvent) this.payload.clone();
+        if(details!=null){
+            ret.details = this.details.clone();
         }
         
         return ret;
     }
     
     @JsonIgnore
-    public SystemEventRecordId getRecordId() {
-        return new SystemEventRecordId(customerId, equipmentId, payloadType, eventTimestamp);
+    public SystemEventRecordKey getRecordKey() {
+        return new SystemEventRecordKey(customerId, equipmentId, dataType, eventTimestamp);
     }
     
     @Override
@@ -108,10 +102,30 @@ public class SystemEventRecord extends BaseJsonModel {
             return true;
         }
         
-        if (hasUnsupportedValue(payload)) {
+        if (hasUnsupportedValue(details)) {
             return true;
         }
         return false;
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(customerId, equipmentId, eventTimestamp, details, dataType);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof SystemEventRecord)) {
+			return false;
+		}
+		SystemEventRecord other = (SystemEventRecord) obj;
+		return customerId == other.customerId && equipmentId == other.equipmentId
+				&& eventTimestamp == other.eventTimestamp && Objects.equals(details, other.details)
+				&& Objects.equals(dataType, other.dataType);
+	}
+
     
 }

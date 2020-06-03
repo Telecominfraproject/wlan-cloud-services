@@ -1,9 +1,5 @@
 package com.telecominfraproject.wlan.systemevent.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +11,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
 import com.telecominfraproject.wlan.systemevent.datastore.inmemory.SystemEventDatastoreInMemory;
-import com.telecominfraproject.wlan.systemevent.models.SystemEventContainer;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.TestSystemEvent;
 
 /**
  * @author dtoptygin
@@ -51,22 +47,18 @@ public class SystemEventControllerTest {
     @Test
     public void testSystemEventRecordCRUD() throws Exception {
         
-        //Create new SystemEventContainer - success
-        SystemEventContainer systemEventRecord = new SystemEventContainer();
-        systemEventRecord.setSampleStr("test");
+        //Create new SystemEventRecord - success
+		TestSystemEvent tse = new TestSystemEvent(
+				(int) System.currentTimeMillis(), 
+				System.currentTimeMillis(),
+				System.currentTimeMillis(), "testStr");
+    	SystemEventRecord systemEventRecord = new SystemEventRecord(tse);
 
-        SystemEventContainer ret = systemEventController.create(systemEventRecord);
-        assertNotNull(ret);
-        assertEqualSystemEventRecords(systemEventRecord, ret);
-        
+        systemEventController.create(systemEventRecord);
+
+        //Delete - success
+        systemEventController.delete(systemEventRecord.getCustomerId(), systemEventRecord.getEquipmentId(), System.currentTimeMillis() + 1);
     }
         
-    private void assertEqualSystemEventRecords(
-            SystemEventContainer expected,
-            SystemEventContainer actual) {
-        
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
-        //TODO: add more fields to check here
-    }
 
 }

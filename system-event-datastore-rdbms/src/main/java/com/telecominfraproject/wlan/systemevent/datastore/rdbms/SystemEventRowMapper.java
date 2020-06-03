@@ -8,41 +8,39 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-
-import com.telecominfraproject.wlan.systemevent.models.SystemEventContainer;
-import com.telecominfraproject.wlan.systemevent.models.SystemEventRecordDetails;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
  * @author dtoptygin
  *
  */
 
-public class SystemEventRowMapper implements RowMapper<SystemEventContainer> {
+public class SystemEventRowMapper implements RowMapper<SystemEventRecord> {
     
     private static final Logger LOG = LoggerFactory.getLogger(SystemEventRowMapper.class);
 
-    public SystemEventContainer mapRow(ResultSet rs, int rowNum) throws SQLException {
-        SystemEventContainer systemEventRecord = new SystemEventContainer();
+    public SystemEventRecord mapRow(ResultSet rs, int rowNum) throws SQLException {
+        SystemEventRecord systemEventRecord = new SystemEventRecord();
         int colIdx=1;
-        systemEventRecord.setId(rs.getLong(colIdx++));
 
-        //TODO: add columns from properties SystemEventContainer in here. 
-        //make sure order of fields is the same as defined in SystemEventContainer
         systemEventRecord.setCustomerId(rs.getInt(colIdx++));
-        systemEventRecord.setSampleStr(rs.getString(colIdx++));
+        systemEventRecord.setEquipmentId(rs.getLong(colIdx++));
+        systemEventRecord.setDataType(rs.getString(colIdx++));
+        systemEventRecord.setEventTimestamp(rs.getLong(colIdx++));
         
+        //TODO: add columns from properties SystemEventRecord in here. 
+        //make sure order of fields is the same as defined in SystemEventRecord
+
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {
             try {
-            	SystemEventRecordDetails details = BaseJsonModel.fromZippedBytes(zippedBytes, SystemEventRecordDetails.class);
+            	SystemEvent details = BaseJsonModel.fromZippedBytes(zippedBytes, SystemEvent.class);
                 systemEventRecord.setDetails(details);
             } catch (RuntimeException exp) {
-                LOG.error("Failed to decode SystemEventRecordDetails from database for id = {}", systemEventRecord.getId());
+                LOG.error("Failed to decode SystemEvent from database for {}", systemEventRecord);
             }
         }
-
-        systemEventRecord.setCreatedTimestamp(rs.getLong(colIdx++));
-        systemEventRecord.setLastModifiedTimestamp(rs.getLong(colIdx++));
         
         return systemEventRecord;
     }

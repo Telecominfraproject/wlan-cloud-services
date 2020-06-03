@@ -1,15 +1,14 @@
 insert into system_event (
-    id,
     customerId,     
-    sampleStr,
-    details,
-    createdTimestamp,
-    lastModifiedTimestamp
+    equipmentId,     
+    dataType,
+    eventTimestamp,
+    details
 ) values (
     1,
     1,
-    'test',
-    null,
-    0,0
+    'TestSystemEvent',
+    0,
+    null
 );
 
