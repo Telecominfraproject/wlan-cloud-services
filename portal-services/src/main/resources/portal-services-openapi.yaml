@@ -7925,7 +7925,7 @@ components:
           - ColumnAndSort
         columnName:
           type: string
-          default: equipmentId
+          default: createdTimestamp
           enum: 
           - equipmentId
           - clientMac
