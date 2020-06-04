@@ -10,8 +10,11 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 public class GatewayAddedEvent extends SystemEvent {
     private static final long serialVersionUID = 7142208487917559985L;
 
-    public GatewayAddedEvent(EquipmentGatewayRecord routing){
-        super(routing.getLastModifiedTimestamp());
+    private EquipmentGatewayRecord gateway;
+    
+	public GatewayAddedEvent(EquipmentGatewayRecord gateway){
+        super(gateway.getLastModifiedTimestamp());
+        this.gateway = gateway;
     }
     
     /**
@@ -20,5 +23,23 @@ public class GatewayAddedEvent extends SystemEvent {
     public GatewayAddedEvent() {
         super(0);
     }
-    
+
+    public EquipmentGatewayRecord getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(EquipmentGatewayRecord gateway) {
+		this.gateway = gateway;
+	}
+
+	@Override
+	public GatewayAddedEvent clone() {
+		GatewayAddedEvent ret = (GatewayAddedEvent) super.clone();
+		
+		if(gateway!=null) {
+			ret.gateway = gateway.clone();
+		}
+		
+		return ret;
+	}
 }

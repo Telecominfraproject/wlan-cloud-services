@@ -49,6 +49,8 @@ tags:
 - name: WLAN Service Metrics
 - name: System Events
 - name: Portal Users
+- name: Firmware Management
+- name: Manufacturer OUI
 
 components:
   securitySchemes:
@@ -6941,6 +6943,544 @@ components:
 
 
 #
+# System Event Data Models
+#
+    SystemEventDataType:
+      type: string
+      enum:
+      - GatewayAddedEvent
+      - GatewayChangedEvent
+      - GatewayRemovedEvent
+      - ClientAddedEvent
+      - ClientChangedEvent
+      - ClientRemovedEvent
+      - CustomerAddedEvent
+      - CustomerChangedEvent
+      - CustomerRemovedEvent
+      - FirmwareAddedEvent
+      - FirmwareChangedEvent
+      - FirmwareRemovedEvent
+      - LocationAddedEvent
+      - LocationChangedEvent
+      - LocationRemovedEvent
+      - PortalUserAddedEvent
+      - PortalUserChangedEvent
+      - PortalUserRemovedEvent
+      - ProfileAddedEvent
+      - ProfileChangedEvent
+      - ProfileRemovedEvent
+      - RoutingAddedEvent
+      - RoutingChangedEvent
+      - RoutingRemovedEvent
+      - AlarmAddedEvent
+      - AlarmChangedEvent
+      - AlarmRemovedEvent
+      - ClientSessionAddedEvent
+      - ClientSessionChangedEvent
+      - ClientSessionRemovedEvent
+      - EquipmentAddedEvent
+      - EquipmentChangedEvent
+      - EquipmentRemovedEvent
+      - StatusChangedEvent
+      - StatusRemovedEvent
+      - UnserializableSystemEvent
+
+    SystemEventRecord:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        dataType:
+          $ref: '#/components/schemas/SystemEventDataType'
+        eventTimestamp:
+          type: integer
+          format: int64
+        details:
+          $ref: '#/components/schemas/SystemEvent'
+        
+    SystemEvent:
+      oneOf:
+        - $ref: '#/components/schemas/GatewayAddedEvent'
+        - $ref: '#/components/schemas/GatewayChangedEvent'
+        - $ref: '#/components/schemas/GatewayRemovedEvent'
+        - $ref: '#/components/schemas/ClientAddedEvent'
+        - $ref: '#/components/schemas/ClientChangedEvent'
+        - $ref: '#/components/schemas/ClientRemovedEvent'
+        - $ref: '#/components/schemas/CustomerAddedEvent'
+        - $ref: '#/components/schemas/CustomerChangedEvent'
+        - $ref: '#/components/schemas/CustomerRemovedEvent'
+        #TODO: add this - $ref: '#/components/schemas/FirmwareAddedEvent'
+        #TODO: add this - $ref: '#/components/schemas/FirmwareChangedEvent'
+        #TODO: add this - $ref: '#/components/schemas/FirmwareRemovedEvent'
+        - $ref: '#/components/schemas/LocationAddedEvent'
+        - $ref: '#/components/schemas/LocationChangedEvent'
+        - $ref: '#/components/schemas/LocationRemovedEvent'
+        - $ref: '#/components/schemas/PortalUserAddedEvent'
+        - $ref: '#/components/schemas/PortalUserChangedEvent'
+        - $ref: '#/components/schemas/PortalUserRemovedEvent'
+        - $ref: '#/components/schemas/ProfileAddedEvent'
+        - $ref: '#/components/schemas/ProfileChangedEvent'
+        - $ref: '#/components/schemas/ProfileRemovedEvent'
+        - $ref: '#/components/schemas/RoutingAddedEvent'
+        - $ref: '#/components/schemas/RoutingChangedEvent'
+        - $ref: '#/components/schemas/RoutingRemovedEvent'
+        - $ref: '#/components/schemas/AlarmAddedEvent'
+        - $ref: '#/components/schemas/AlarmChangedEvent'
+        - $ref: '#/components/schemas/AlarmRemovedEvent'
+        - $ref: '#/components/schemas/ClientSessionChangedEvent'
+        - $ref: '#/components/schemas/ClientSessionRemovedEvent'
+        - $ref: '#/components/schemas/EquipmentAddedEvent'
+        - $ref: '#/components/schemas/EquipmentChangedEvent'
+        - $ref: '#/components/schemas/EquipmentRemovedEvent'
+        - $ref: '#/components/schemas/StatusChangedEvent'
+        - $ref: '#/components/schemas/StatusRemovedEvent'
+        - $ref: '#/components/schemas/UnserializableSystemEvent'
+      discriminator:
+        propertyName: model_type
+        
+    GatewayAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        gateway:
+          $ref: '#/components/schemas/EquipmentGatewayRecord'
+
+    GatewayChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        gateway:
+          $ref: '#/components/schemas/EquipmentGatewayRecord'
+
+    GatewayRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        gateway:
+          $ref: '#/components/schemas/EquipmentGatewayRecord'
+          
+    RoutingAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/EquipmentRoutingRecord'
+
+    RoutingChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/EquipmentRoutingRecord'
+
+    RoutingRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/EquipmentRoutingRecord'
+
+    ClientAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Client'
+
+    ClientChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Client'
+
+    ClientRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Client'
+
+    ClientSessionChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/ClientSession'
+
+    ClientSessionRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/ClientSession'
+
+    CustomerAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Customer'
+
+    CustomerChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Customer'
+
+    CustomerRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Customer'
+
+    LocationAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Location'
+
+    LocationChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Location'
+
+    LocationRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Location'
+
+    EquipmentAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Equipment'
+
+    EquipmentChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Equipment'
+
+    EquipmentRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Equipment'
+
+    AlarmAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Alarm'
+
+    AlarmChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Alarm'
+
+    AlarmRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Alarm'
+
+    PortalUserAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/PortalUser'
+
+    PortalUserChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/PortalUser'
+
+    PortalUserRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/PortalUser'
+
+    ProfileAddedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Profile'
+
+    ProfileChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Profile'
+
+    ProfileRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        payload:
+          $ref: '#/components/schemas/Profile'
+
+    StatusChangedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Status'
+
+    StatusRemovedEvent:
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          $ref: '#/components/schemas/Status'
+
+    UnserializableSystemEvent:
+      description: This event is used in situations when the cloud cannot parse the event that was previously stored in the DB, used to cover upgrade scenarios.
+      properties:
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        payload:
+          type: string
+    
+#
+# Equipment Routing Models
+#
+    EquipmentRoutingRecord:
+      properties:
+        id:
+          type: integer
+          format: int64
+        equipmentId:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        gatewayId:
+          type: integer
+          format: int64
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+          
+    EquipmentGatewayRecord:
+      properties:
+        id:
+          type: integer
+          format: int64
+        hostname:
+          type: string
+        ipAddr:
+          type: string
+        port:
+          type: integer
+          format: int64
+        gatewayType:
+          $ref: '#/components/schemas/GatewayType'
+        createdTimeStamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+      
+    GatewayType:
+      type: string
+      enum:
+      - CEGW
+      - CNAGW
+      
+      
+#
 # Objects related to pagination
 #
 
@@ -7388,7 +7928,8 @@ components:
           default: equipmentId
           enum: 
           - equipmentId
-          - alarmCode
+          - clientMac
+          - dataType
           - createdTimestamp
         sortOrder:
           $ref: '#/components/schemas/SortOrder'
@@ -7434,6 +7975,68 @@ components:
         context:
           $ref: '#/components/schemas/PaginationContextServiceMetric'          
 
+
+    SortColumnsSystemEvent:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: equipmentId
+          enum: 
+          - equipmentId
+          - dataType
+          - createdTimestamp
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+      example:
+        model_type: ColumnAndSort
+        columnName: equipmentId
+        sortOrder: asc
+          
+    PaginationContextSystemEvent:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        lastPage:
+          type: boolean
+        cursor:
+          type: string
+      example: 
+        model_type: PaginationContext
+        maxItemsPerPage: 10
+
+    PaginationResponseSystemEvent:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemEventRecord'
+        context:
+          $ref: '#/components/schemas/PaginationContextSystemEvent'
           
 ## ---------------------------------------------------------------------------
 security:
@@ -8860,6 +9463,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginationResponseServiceMetric'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/systemEvent/forCustomer:
+    get:
+      tags:
+      - System Events
+      summary: Get list of System Events for customerId, optional set of equipment ids, and optional set of data types. Only events that are created between specified fromTime and toTime are retrieved.
+      operationId: getSystemEventsforCustomer
+      parameters:
+      - name: fromTime
+        in: query
+        description: Include events created after (and including) this timestamp in milliseconds
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: toTime
+        in: query
+        description: Include events created before (and including) this timestamp in milliseconds
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: Set of equipment ids. Empty or null means retrieve events for all equipment for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: dataTypes
+        in: query
+        description: Set of system event data types. Empty or null means retrieve all.
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SystemEventDataType'
+      - name: sortBy
+        in: query
+        description: Sort options. If not provided, then results will be ordered by equipmentId and createdTimestamp.
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortColumnsSystemEvent'
+      - name: paginationContext
+        in: query
+        description: pagination context
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/PaginationContextSystemEvent'
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponseSystemEvent'
         500:
           $ref: '#/components/responses/GenericApiError'
 

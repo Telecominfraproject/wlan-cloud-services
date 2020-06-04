@@ -36,6 +36,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
+      <dependency>
+        <artifactId>system-event-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
     </dependencies>
 </project>
 

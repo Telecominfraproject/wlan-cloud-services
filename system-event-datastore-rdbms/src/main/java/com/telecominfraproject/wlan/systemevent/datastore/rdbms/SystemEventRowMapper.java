@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.UnserializableSystemEvent;
 
 /**
  * @author dtoptygin
@@ -39,6 +40,18 @@ public class SystemEventRowMapper implements RowMapper<SystemEventRecord> {
                 systemEventRecord.setDetails(details);
             } catch (RuntimeException exp) {
                 LOG.error("Failed to decode SystemEvent from database for {}", systemEventRecord);
+                try {
+	                //cannot parse this event (because current code does not have this class anymore?)
+	                //so we'll deliver unparsed string to the caller
+	                UnserializableSystemEvent evt = new UnserializableSystemEvent();
+	                evt.setCustomerId(systemEventRecord.getCustomerId());
+	                evt.setEquipmentId(systemEventRecord.getEquipmentId());
+	                evt.setEventTimestamp(systemEventRecord.getEventTimestamp());
+	                evt.setPayload(SystemEvent.fromZippedBytesAsString(zippedBytes));
+	                systemEventRecord.setDetails(evt);
+                } catch (RuntimeException e) {
+                    LOG.error("Failed to parse UnserializableSystemEvent for {}", systemEventRecord);
+                }
             }
         }
         
