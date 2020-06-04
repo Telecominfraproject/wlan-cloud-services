@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CloudSDK Service Metric API
-  description: APIs that provide services for viewing, updating and deleting various data elements of service metrics.
+  description: APIs that provide services for creating, deleting and retrieving history of service metrics.
   version: 1.0.0
 servers:
   - url: https://localhost:9091
@@ -4059,10 +4059,11 @@ components:
           - ColumnAndSort
         columnName:
           type: string
-          default: equipmentId
-          enum: 
+          default: createdTimestamp
+          enum:
           - equipmentId
-          - alarmCode
+          - clientMac
+          - dataType
           - createdTimestamp
         sortOrder:
           $ref: '#/components/schemas/SortOrder'
