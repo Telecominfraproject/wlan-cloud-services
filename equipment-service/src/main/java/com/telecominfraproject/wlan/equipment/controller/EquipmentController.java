@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -25,6 +26,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
@@ -236,6 +238,7 @@ public class EquipmentController {
             LOG.error("Failed to update Equipment, request contains unsupported value: {}", equipment);
             throw new DsDataValidationException("Equipment contains unsupported value");
         }
+        validateChannelNum(equipment);
 
         Equipment ret = equipmentDatastore.update(equipment);
 
@@ -246,6 +249,27 @@ public class EquipmentController {
 
         return ret;
     }
+    
+	private void validateChannelNum(Equipment equipment) {
+		if (equipment.getDetails() instanceof ApElementConfiguration) {
+			ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipment.getDetails();
+			if (apElementConfiguration.getRadioMap() != null) {
+				for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
+
+					ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
+					int channel = elementRadioConfig.getChannelNumber();
+					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannels();
+					// todo remove empty check when AP returns allowedChannels
+					if (allowedChannels != null && !allowedChannels.isEmpty() && !allowedChannels.contains(channel)) {
+						LOG.error(
+								"Failed to update Equipment. The channelNumber {} is not allowed, the allowed channels is {}",
+								channel, allowedChannels);
+						throw new DsDataValidationException("Equipment contains disallowed channel number.");
+					}
+				}
+			}
+		}
+	}
     
     /**
      * Deletes Equipment record

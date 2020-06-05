@@ -23,15 +23,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.google.common.collect.Lists;
 import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
@@ -441,6 +445,46 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
     	assertEquals(AntennaType.OMNI, apElementConfiguration.getAntennaType());
     	assertEquals(DeploymentType.CEILING, apElementConfiguration.getDeploymentType());
     	
+    }
+    
+    @Test(expected = DsDataValidationException.class)
+    public void testEquipmentUpdateChannelNumValidation() {
+
+        //Create new Equipment - success
+        Equipment equipment = new Equipment();
+        equipment.setName("testName-"+getNextEquipmentId());
+        equipment.setInventoryId("test-inv-"+getNextEquipmentId());
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setDetails(ApElementConfiguration.createWithDefaults());
+
+        ElementRadioConfiguration element2dot4RadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
+        element2dot4RadioConfig.setAllowedChannels(Lists.newArrayList(1, 6, 11));
+
+//        System.out.println("================================");
+//        System.out.println(equipment);
+
+        Equipment ret = remoteInterface.create(equipment);
+        assertNotNull(ret);
+
+        ret = remoteInterface.get(ret.getId());
+        assertEqualEquipments(equipment, ret);
+
+        ElementRadioConfiguration retElement2dot4RadioConfig = ((ApElementConfiguration)ret.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
+        assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 6);
+
+        //Update success
+        retElement2dot4RadioConfig.setChannelNumber(1);
+
+        Equipment updatedEquipment = remoteInterface.update(ret);
+
+        Equipment retUpdate = remoteInterface.get(ret.getId());
+        assertEqualEquipments(retUpdate, updatedEquipment);
+        ElementRadioConfiguration ret2Element2dot4RadioConfig = ((ApElementConfiguration)retUpdate.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
+        assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 1);
+
+        //Update failure
+        ret2Element2dot4RadioConfig.setChannelNumber(7);
+        remoteInterface.update(retUpdate);
     }
     
     private void assertEqualEquipments(
