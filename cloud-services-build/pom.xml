@@ -171,6 +171,8 @@
                                 <module>../manufacturer-service-remote</module>
 
                                 <module>../single-process-streams</module>
+                                <module>../kafka-streams</module>
+                                
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
                                 <module>../ssc-process</module>

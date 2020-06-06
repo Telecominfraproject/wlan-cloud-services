@@ -47,6 +47,9 @@
       </dependency>
 
       <dependency>
+      <!-- 
+        <artifactId>kafka-streams</artifactId>
+       -->
         <artifactId>single-process-streams</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
