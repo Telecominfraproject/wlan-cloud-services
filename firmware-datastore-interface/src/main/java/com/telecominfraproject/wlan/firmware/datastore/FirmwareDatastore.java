@@ -48,4 +48,18 @@ public interface FirmwareDatastore {
      */
     PaginationResponse<Firmware> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Firmware> context);
 
+//    /**
+//     * Retrieve all firmware revisions and group the results by equipment type.
+//     * @return
+//     */
+//	Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType();
+//	
+//	
+//    /**
+//     * Retrieve the firmware version entry by name.
+//     * Does not throw exception if entry not found.
+//     * @param targetSwVersion
+//     * @return
+//     */
+//	FirmwareVersion getByNameOrNull(String targetSwVersion);
 }
