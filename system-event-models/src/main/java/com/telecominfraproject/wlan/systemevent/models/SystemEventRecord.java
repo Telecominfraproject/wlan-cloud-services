@@ -4,12 +4,13 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 
 /**
  * @author dtoptygin
  *
  */
-public class SystemEventRecord extends BaseJsonModel {
+public class SystemEventRecord extends BaseJsonModel implements HasProducedTimestamp {
     private static final long serialVersionUID = 6763035984453691752L;
 
     private int customerId;
@@ -127,5 +128,10 @@ public class SystemEventRecord extends BaseJsonModel {
 				&& Objects.equals(dataType, other.dataType);
 	}
 
+	@Override
+	@JsonIgnore
+	public long getProducedTimestampMs() {
+		return eventTimestamp;
+	}
     
 }

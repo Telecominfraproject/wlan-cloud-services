@@ -7,13 +7,13 @@
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
-  <artifactId>kafka-streams</artifactId>
-  <name>kafka-streams</name>
-  <description>Implementation of message producers for metrics and event streams using Kafka.</description>
+  <artifactId>kafka-streams-consumer</artifactId>
+  <name>kafka-streams-consumer</name>
+  <description>Implementation of message consumers for metrics and event streams using Kafka.</description>
   
     <dependencies>
       <dependency>
-        <artifactId>base-stream-interface</artifactId>
+        <artifactId>base-stream-consumer</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

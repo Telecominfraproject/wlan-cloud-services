@@ -89,6 +89,12 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
+      <dependency>
+        <artifactId>routing-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
     
       <!-- prov services -->
       <dependency>
@@ -196,12 +202,6 @@
       </dependency>
 
       <dependency>
-        <artifactId>single-process-streams</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
-      </dependency>
-      
-      <dependency>
         <artifactId>service-metric-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -279,6 +279,18 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
+      <!-- Stream Processors -->
+      <dependency>
+        <artifactId>single-process-streams</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+            
+      <dependency>
+        <artifactId>provisioning-sp</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
       
     </dependencies>
     

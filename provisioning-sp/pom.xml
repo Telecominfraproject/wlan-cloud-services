@@ -7,17 +7,11 @@
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
-  <artifactId>single-process-streams</artifactId>
-  <name>single-process-streams</name>
-  <description>Single process implementation of metrics and event streams. Contains both message producers and consumers. Non scalable, for use in very simple scenarios.</description>
+  <artifactId>provisioning-sp</artifactId>
+  <name>provisioning-sp</name>
+  <description>Stream Processors for provisioning events.</description>
   
     <dependencies>
-      <dependency>
-        <artifactId>base-stream-interface</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
-      </dependency>
-
       <dependency>
         <artifactId>base-stream-consumer</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
@@ -38,6 +32,32 @@
 
       <dependency>
         <artifactId>base-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+        <artifactId>routing-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      
+      <!--  models used by the application logic of the stream processor -->
+      <dependency>
+        <artifactId>equipment-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
+      <dependency>
+        <artifactId>profile-models</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>location-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

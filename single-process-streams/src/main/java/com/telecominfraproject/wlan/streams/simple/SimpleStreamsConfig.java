@@ -7,59 +7,65 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.stream.StreamInterface;
+import com.telecominfraproject.wlan.stream.StreamMessageDispatcher;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
+/**
+ * @author dtop
+ *	This class configures simple implementation of stream producers and consumers that are co-located in the same java process.
+ */
 @Configuration
 @EnableScheduling
 public class SimpleStreamsConfig {
 
 	    private static final Logger LOG = LoggerFactory.getLogger(SimpleStreamsConfig.class);
 	    
-	    @Value("${tip.wlan.serviceMetricsQueueMax:5000}") 
-	    private int serviceMetricsQueueMax;
-	
-	    @Value("${tip.wlan.systemEventsQueueMax:5000}") 
-	    private int systemEventsQueueMax;
-	
+	    @Value("${tip.wlan.simpleStreamQueueMax:5000}") 
+	    private int simpleStreamQueueMax;
+		
 	    @Value("${tip.wlan.purgeStreamRecordsOlderThanSec:600}") 
 	    private int purgeStreamRecordsOlderThanSec;
 	
-	    
-	    private LinkedBlockingDeque<ServiceMetric> serviceMetricsQueue;
-	    private LinkedBlockingDeque<SystemEventRecord> systemEventsQueue;  
+        @Value("${tip.wlan.wlanServiceMetricsTopic:wlan_service_metrics}")
+    	private String wlanServiceMetricsTopic;
+        
+        @Value("${tip.wlan.systemEventsTopic:system_events}")
+    	private String systemEventsTopic;
+    	
+        @Autowired
+        private StreamMessageDispatcher streamMessageDispatcher;
 
-	    //TODO: figure out how to handle consumers:
-	    //NO - one separate blocking queue per StreamProcessor for each of the subscribed topics
-	    //
-		// * - have a special StreamRecordMover thread moving records from incoming
-		// queues into each registered
-		// StreamProcessor ( SP can maintain its own queue if needed) - this way record
-		// can be removed from the incoming queue once it has been delivered to all
-		// interested SPs. Each SP registers itself as an Autowired Bean.
-		// StreamRecordMover thread will iterate through all registered beans and will
-		// deliver each incoming record to each SP Bean.
-	    // StreamProcessor.push(String topic, BaseJsonModel record){
-	    //    if(myTopicsSet.contains(topic) && record instanceOf ServiceMetric) {
-	    //			-- place record into the internal blocking queue, if cannot - do SP-specific draining of the internal queue
-	    //	  }
-	    // }
-	    //
-		// NO - or have each SP do its own polling and populating of its internal queue -
-		// but here how would we know when to remove the record from the incoming queue
-	    //
+	    private LinkedBlockingDeque<QueuedStreamMessage> simpleStreamQueue;
 	    
 	    @PostConstruct
 	    private void postCreate() {
-		    serviceMetricsQueue = new LinkedBlockingDeque<>(serviceMetricsQueueMax);
-		    systemEventsQueue = new LinkedBlockingDeque<>(systemEventsQueueMax);  
+	    	simpleStreamQueue = new LinkedBlockingDeque<>(simpleStreamQueueMax);
+	    	
+	    	Thread streamReaderThread = new Thread( new Runnable() {
+				
+				@Override
+				public void run() {
+					LOG.info("Starting streamReaderThread");
+					while(true) {
+						QueuedStreamMessage msg = poll();
+	                	LOG.trace("Read message {}", msg);
+						streamMessageDispatcher.push(msg);
+					}
+				}
+			}, "streamReaderThread"); 
+	    	
+	    	streamReaderThread.setDaemon(true);
+	    	streamReaderThread.start();
 	    }
 
 	
@@ -77,9 +83,9 @@ public class SimpleStreamsConfig {
                 	boolean elementAdded = false;
                 	while(!elementAdded) {
 	                	try {
-	                		elementAdded = serviceMetricsQueue.offer(record, 5, TimeUnit.SECONDS);
+	                		elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(wlanServiceMetricsTopic, record), 5, TimeUnit.SECONDS);
 						} catch (InterruptedException e) {
-							LOG.warn("Interrupted while waiting for the queue to be consumed");
+							LOG.warn("Interrupted while waiting for the message to be added to the queue");
 							Thread.currentThread().interrupt();
 							break;
 						}
@@ -106,9 +112,10 @@ public class SimpleStreamsConfig {
                 	boolean elementAdded = false;
                 	while(!elementAdded) {
 	                	try {
-	                		elementAdded = systemEventsQueue.offer(record, 5, TimeUnit.SECONDS);
+	                		elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(systemEventsTopic, record), 5, TimeUnit.SECONDS);
+	                    	LOG.trace("publishing system event completed");
 						} catch (InterruptedException e) {
-							LOG.warn("Interrupted while waiting for the queue to be consumed");
+							LOG.warn("Interrupted while waiting for the message to be added to the queue");
 							Thread.currentThread().interrupt();
 							break;
 						}
@@ -128,8 +135,28 @@ public class SimpleStreamsConfig {
 
         	LOG.info("removeOldMetricsAndEvents periodic task started, removing stream records older than {}", createdBeforeMs);
 
-        	serviceMetricsQueue.removeIf(sm -> sm.getCreatedTimestamp() < createdBeforeMs);
-        	systemEventsQueue.removeIf(se -> se.getEventTimestamp() < createdBeforeMs);
+			simpleStreamQueue.removeIf(sm -> sm.getProducedTimestampMs() < createdBeforeMs);
         	
+        }
+        
+        /**
+         * This method will block until a message becomes available in the queue.
+         * 
+         * @return next queued message
+         */
+        public QueuedStreamMessage poll() {
+        	QueuedStreamMessage ret = null;
+        	
+        	while(ret == null) {
+            	try {
+            		ret = simpleStreamQueue.poll(5, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					LOG.warn("Interrupted while waiting for the message to be read from the queue");
+					Thread.currentThread().interrupt();
+					break;
+				}
+        	}
+        	
+        	return ret;
         }
 }

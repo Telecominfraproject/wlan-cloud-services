@@ -2,17 +2,19 @@ package com.telecominfraproject.wlan.servicemetric.models;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 
 /**
  * @author dtoptygin
  *
  */
-public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac {
+public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac, HasProducedTimestamp {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
@@ -152,5 +154,11 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
     	return ret;
     }
 
+	@Override
+	@JsonIgnore
+	public long getProducedTimestampMs() {
+		return createdTimestamp;
+	}
+    
     
 }

@@ -35,13 +35,13 @@
   <logger name="com.telecominfraproject" level="INFO"/>
   
   <logger name="com.telecominfraproject.wlan.core.server.webconfig.WebGenericConverter" level="OFF"/>
-  
-  <!-- 
-  <logger name="com.telecominfraproject.wlan.streams.provisioning.EquipmentConfigPushTrigger" level="TRACE"/>
-  <logger name="com.telecominfraproject.wlan.streams.simple.SimpleStreamsConfig" level="TRACE"/>
-  <logger name="com.telecominfraproject.wlan.stream.StreamMessageDispatcher" level="TRACE"/>
-   -->
    
+   <!-- 
+  <logger name="com.telecominfraproject.wlan.streams.provisioning.EquipmentConfigPushTrigger" level="TRACE"/>
+  <logger name="com.telecominfraproject.wlan.streams.kafka.KafkaStreamsConfig" level="TRACE"/>
+  <logger name="com.telecominfraproject.wlan.stream.StreamMessageDispatcher" level="TRACE"/>
+    -->
+    
   <root level="WARN">
     <appender-ref ref="stdout"/>
   </root>

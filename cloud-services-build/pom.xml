@@ -170,12 +170,16 @@
                                 <module>../manufacturer-service-local</module>
                                 <module>../manufacturer-service-remote</module>
 
+                                <module>../provisioning-sp</module>
+                                
                                 <module>../single-process-streams</module>
                                 <module>../kafka-streams</module>
+                                <module>../kafka-streams-consumer</module>
                                 
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
                                 <module>../ssc-process</module>
+                                <module>../spc-process</module>
                                 <module>../portal-process</module>
                                 <module>../all-cloud-in-one-process</module>
                         </modules>

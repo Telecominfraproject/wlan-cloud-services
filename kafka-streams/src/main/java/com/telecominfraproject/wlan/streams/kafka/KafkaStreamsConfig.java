@@ -13,6 +13,10 @@ import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
+/**
+ * @author dtop
+ * This class configures producers of the messages to be pushed into Kafka - System Events and Service Metrics
+ */
 @Configuration
 public class KafkaStreamsConfig {
 
