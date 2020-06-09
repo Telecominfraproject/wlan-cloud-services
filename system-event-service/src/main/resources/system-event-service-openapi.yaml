@@ -3568,8 +3568,8 @@ paths:
     get:
       tags:
       - System Event Data
-      summary: Gets service metric record for customer
-      operationId: getServiceMetricRecordForCustomer
+      summary: Gets system event record for customer
+      operationId: getSystemEventRecordForCustomer
       parameters:
       - name: fromTime
         in: query
