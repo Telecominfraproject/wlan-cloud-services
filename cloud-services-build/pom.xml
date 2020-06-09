@@ -170,6 +170,11 @@
                                 <module>../manufacturer-service-local</module>
                                 <module>../manufacturer-service-remote</module>
 
+                                <module>../equipment-gateway-models</module>
+                                <module>../equipment-gateway-service-interface</module>
+                                <module>../equipment-gateway-service-local</module>
+                                <module>../equipment-gateway-service-remote</module>
+
                                 <module>../provisioning-sp</module>
                                 
                                 <module>../single-process-streams</module>
