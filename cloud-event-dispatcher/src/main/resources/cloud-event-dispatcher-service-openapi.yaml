@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CloudSDK Cloud Event Dispatcher API
-  description: APIs that provide services for creating cloud events events.
+  description: APIs that provide services for posting System Events and WLAN Service Metrics into the cloud.
   version: 1.0.0
 servers:
   - url: https://localhost:9091
