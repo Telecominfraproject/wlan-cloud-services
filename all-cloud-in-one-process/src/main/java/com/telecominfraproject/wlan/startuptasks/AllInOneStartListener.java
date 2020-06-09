@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.startuptasks;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -50,7 +51,11 @@ import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
+import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
+import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
+import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.SecureMode;
 import com.telecominfraproject.wlan.servicemetric.ServiceMetricServiceInterface;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApPerformance;
@@ -97,32 +102,31 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private AlarmServiceInterface alarmServiceInterface;
-	
+
 	@Autowired
 	private PortalUserServiceInterface portalUserServiceInterface;
-	
+
 	@Autowired
 	private ServiceMetricServiceInterface serviceMetricInterface;
 
 	@Override
 	public void run(ApplicationArguments args) {
 		LOG.info("Creating initial objects");
-		
+
 		Customer customer = new Customer();
 		customer.setEmail("test@example.com");
 		customer.setName("Test Customer");
 
 		customer = customerServiceInterface.create(customer);
 
-		for(int i = 0; i<20; i++) {
+		for (int i = 0; i < 20; i++) {
 			PortalUser portalUser = new PortalUser();
 			portalUser.setCustomerId(customer.getId());
 			portalUser.setRole(PortalUserRole.CustomerIT);
-			portalUser.setPassword("pwd"+i);
-			portalUser.setUsername("user-"+i);
+			portalUser.setPassword("pwd" + i);
+			portalUser.setUsername("user-" + i);
 			portalUserServiceInterface.create(portalUser);
 		}
-		
 
 		Location location_1 = new Location();
 		location_1.setParentId(0);
@@ -184,6 +188,46 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		location_2 = locationServiceInterface.create(location_2);
 
+		Profile profileRadius = new Profile();
+		profileRadius.setCustomerId(customer.getId());
+		profileRadius.setProfileType(ProfileType.radius);
+		profileRadius.setName("Radius-Profile");
+
+		RadiusProfile radiusDetails = new RadiusProfile();
+		RadiusServiceRegion radiusServiceRegion = new RadiusServiceRegion();
+		RadiusServer radiusServer = new RadiusServer();
+		radiusServer.setAuthPort(1812);
+		try {
+			radiusServer.setIpAddress(InetAddress.getLocalHost());
+			radiusServer.setSecret("testing123");
+			radiusServiceRegion.addRadiusServer("Radius-Profile", radiusServer);
+			radiusServiceRegion.setRegionName("Ottawa");
+			radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
+			profileRadius.setDetails(radiusDetails);
+			profileRadius = profileServiceInterface.create(profileRadius);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Profile profileSsidEAP = new Profile();
+		profileSsidEAP.setCustomerId(customer.getId());
+		profileSsidEAP.setName("Connectus-cloud-Enterprise");
+		SsidConfiguration ssidConfigEAP = SsidConfiguration.createWithDefaults();
+		Set<RadioType> appliedRadiosEAP = new HashSet<RadioType>();
+		appliedRadiosEAP.add(RadioType.is2dot4GHz);
+		appliedRadiosEAP.add(RadioType.is5GHzL);
+		appliedRadiosEAP.add(RadioType.is5GHzU);
+		ssidConfigEAP.setAppliedRadios(appliedRadiosEAP);
+		ssidConfigEAP.setSecureMode(SecureMode.wpaEAP);
+		ssidConfigEAP.setKeyStr("testing123");
+		profileSsidEAP.setDetails(ssidConfigEAP);
+		ssidConfigEAP.setRadiusServiceName(profileRadius.getName());
+		Set<Long> childIds = new HashSet<Long>();
+		childIds.add(profileRadius.getId());
+		profileSsidEAP.setChildProfileIds(childIds);
+		profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
+
 		Profile profileSsid = new Profile();
 		profileSsid.setCustomerId(customer.getId());
 		profileSsid.setName("Connectus-cloud");
@@ -202,6 +246,13 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
 		profileAp.getChildProfileIds().add(profileSsid.getId());
 		profileAp = profileServiceInterface.create(profileAp);
+
+		Profile enterpriseProfileAp = new Profile();
+		enterpriseProfileAp.setCustomerId(customer.getId());
+		enterpriseProfileAp.setName("EnterpriseApProfile");
+		enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
+		enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
+		enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
 
 		List<Equipment> equipmentList = new ArrayList<>();
 		int numEquipment = 50;
@@ -223,7 +274,14 @@ public class AllInOneStartListener implements ApplicationRunner {
 				equipment.setLocationId(location_2.getId());
 			}
 
-			equipment.setProfileId(profileAp.getId());
+			// spread AP profiles between Enterprise SSID based and SSID
+			// setting the region to the location used in location_2, so assign profiles
+			// based on this
+			if (i <= 32) {
+				equipment.setProfileId(profileAp.getId());
+			} else {
+				equipment.setProfileId(enterpriseProfileAp.getId());
+			}
 			equipment.setInventoryId("ap-" + i);
 			equipment.setName("AP " + i);
 			equipment.setSerial("serial-ap-" + i);
@@ -233,11 +291,15 @@ public class AllInOneStartListener implements ApplicationRunner {
 			equipmentList.add(equipment);
 
 			createStatusForEquipment(equipment);
-			
+
 			createAlarmsForEquipment(equipment);
-			
-			createClientSessions(equipment, ssidConfig);
-			
+
+			if (i <= 32) {
+				createClientSessions(equipment, ssidConfig);
+			} else {
+				createClientSessions(equipment, ssidConfigEAP);
+			}
+
 			createServiceMetrics(equipment);
 
 		}
@@ -254,11 +316,21 @@ public class AllInOneStartListener implements ApplicationRunner {
 		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
 		LOG.info("SSID configs: {}", ssidConfigs);
 
+		// print out SSID configurations used by ap-33
+		profileContainer = new ProfileContainer(
+				profileServiceInterface.getProfileWithChildren(equipmentList.get(32).getProfileId()));
+
+		ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(32).getProfileId(), ProfileType.ssid);
+		List<SsidConfiguration> ssidConfigs2 = new ArrayList<>();
+
+		ssidProfiles.forEach(p -> ssidConfigs2.add((SsidConfiguration) p.getDetails()));
+		LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
+
 	}
 
 	private void createServiceMetrics(Equipment equipment) {
 		List<ServiceMetric> metricRecordList = new ArrayList<>();
-		
+
 		ServiceMetric smr = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
 		metricRecordList.add(smr);
 
@@ -273,7 +345,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 		apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
 
 		apPerformance.setCpuTemperature(getRandomInt(25, 90));
-		apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98)});
+		apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98) });
 
 		apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
 
@@ -297,32 +369,32 @@ public class AllInOneStartListener implements ApplicationRunner {
 		apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
 
 		int numRadioUtilReports = getRandomInt(5, 10);
-		
-		for (int i = 0; i< numRadioUtilReports; i++) {
-				RadioUtilization radioUtil = new RadioUtilization();
-				int surveyDurationMs = getRandomInt(5000, 10000);
-				int busyTx = getRandomInt(0, surveyDurationMs/3);
-				int busyRx = getRandomInt(0, surveyDurationMs/3);
-				int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
-				
-				radioUtil.setTimestampSeconds( (int) ((System.currentTimeMillis() - surveyDurationMs) / 1000));
-				radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
-				radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
-				radioUtil.setNonWifi( 100 * (busy - busyTx - busyRx) / surveyDurationMs);
-				
-				switch (i%3) {
-				case 0:
-					apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
-					break;
-				case 1:
-					apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
-					break;
-				case 2:
-					apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
-					break;
-				default:
-					//do nothing
-				}
+
+		for (int i = 0; i < numRadioUtilReports; i++) {
+			RadioUtilization radioUtil = new RadioUtilization();
+			int surveyDurationMs = getRandomInt(5000, 10000);
+			int busyTx = getRandomInt(0, surveyDurationMs / 3);
+			int busyRx = getRandomInt(0, surveyDurationMs / 3);
+			int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
+
+			radioUtil.setTimestampSeconds((int) ((System.currentTimeMillis() - surveyDurationMs) / 1000));
+			radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
+			radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
+			radioUtil.setNonWifi(100 * (busy - busyTx - busyRx) / surveyDurationMs);
+
+			switch (i % 3) {
+			case 0:
+				apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
+				break;
+			case 1:
+				apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
+				break;
+			case 2:
+				apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
+				break;
+			default:
+				// do nothing
+			}
 		}
 
 		serviceMetricInterface.create(metricRecordList);
@@ -333,72 +405,73 @@ public class AllInOneStartListener implements ApplicationRunner {
 		Client client;
 		ClientSession clientSession;
 		MacAddress macAddress;
-		
-		for(int i=0; i< numClientsPerAp; i++) {
+
+		for (int i = 0; i < numClientsPerAp; i++) {
 			client = new Client();
 			client.setCustomerId(equipment.getCustomerId());
-			macAddress = new MacAddress(
-					new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(), getRandomByte(), getRandomByte() });
-			
+			macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+					getRandomByte(), getRandomByte() });
+
 			client.setMacAddress(macAddress);
 			ClientInfoDetails details = new ClientInfoDetails();
-			details.setAlias("alias "+ macAddress.getAddressAsLong());
-			details.setApFingerprint("fp "+ macAddress.getAddressAsString());
-			details.setHostName("hostName-"+ macAddress.getAddressAsLong());
-			details.setUserName("user-"+ macAddress.getAddressAsLong());
-			client.setDetails(details );
+			details.setAlias("alias " + macAddress.getAddressAsLong());
+			details.setApFingerprint("fp " + macAddress.getAddressAsString());
+			details.setHostName("hostName-" + macAddress.getAddressAsLong());
+			details.setUserName("user-" + macAddress.getAddressAsLong());
+			client.setDetails(details);
 			this.clientServiceInterface.create(client);
-			
-			RadioType radioType	;
-			
-			int idx = (int) (macAddress.getAddressAsLong() %  3) ;
-			switch(idx) {
-				case 0:
-					radioType = RadioType.is2dot4GHz;
-					break;
-				case 1:
-					radioType = RadioType.is5GHzL;
-					break;
-				case 2:
-					radioType = RadioType.is5GHzU;
-					break;
-				default: 
-					radioType = RadioType.is5GHzL;
+
+			RadioType radioType;
+
+			int idx = (int) (macAddress.getAddressAsLong() % 3);
+			switch (idx) {
+			case 0:
+				radioType = RadioType.is2dot4GHz;
+				break;
+			case 1:
+				radioType = RadioType.is5GHzL;
+				break;
+			case 2:
+				radioType = RadioType.is5GHzU;
+				break;
+			default:
+				radioType = RadioType.is5GHzL;
 			}
-			
+
 			clientSession = new ClientSession();
 			clientSession.setMacAddress(macAddress);
 			clientSession.setCustomerId(equipment.getCustomerId());
 			clientSession.setEquipmentId(equipment.getId());
-			
+
 			ClientSessionDetails sessionDetails = new ClientSessionDetails();
 			sessionDetails.setApFingerprint(details.getApFingerprint());
 			sessionDetails.setHostname(details.getHostName());
 			try {
-				sessionDetails.setIpAddress(Inet4Address.getByAddress(new byte[] { (byte) 192, (byte) 168, 10, getRandomByte() }));
+				sessionDetails.setIpAddress(
+						Inet4Address.getByAddress(new byte[] { (byte) 192, (byte) 168, 10, getRandomByte() }));
 			} catch (UnknownHostException e) {
-				//nothing to do here
-			}			
+				// nothing to do here
+			}
 			sessionDetails.setRadioType(radioType);
 			sessionDetails.setSecurityType(SecurityType.PSK);
 			sessionDetails.setSsid(ssidConfig.getSsid());
 			sessionDetails.setSessionId(System.currentTimeMillis());
-			sessionDetails.setAssocTimestamp(System.currentTimeMillis()- getRandomLong(10000,1000000));
-			
+			sessionDetails.setAssocTimestamp(System.currentTimeMillis() - getRandomLong(10000, 1000000));
+
 			ClientSessionMetricDetails metricDetails = new ClientSessionMetricDetails();
 			metricDetails.setRssi(getRandomInt(-60, -40));
 			metricDetails.setRxBytes(getRandomLong(10000, 10000000));
 			metricDetails.setTxBytes(getRandomLong(10000, 10000000));
-			metricDetails.setRxMbps(getRandomFloat(50,100));
-			metricDetails.setTxMbps(getRandomFloat(50,100));
+			metricDetails.setRxMbps(getRandomFloat(50, 100));
+			metricDetails.setTxMbps(getRandomFloat(50, 100));
 			metricDetails.setSnr(getRandomInt(-90, -50));
-			
-			sessionDetails.setMetricDetails(metricDetails );
-			
-			clientSession.setDetails(sessionDetails );
-			
+
+			sessionDetails.setMetricDetails(metricDetails);
+
+			clientSession.setDetails(sessionDetails);
+
 			this.clientServiceInterface.updateSession(clientSession);
-			
+
 		}
 	}
 
@@ -512,25 +585,25 @@ public class AllInOneStartListener implements ApplicationRunner {
 	}
 
 	private void createAlarmsForEquipment(Equipment equipment) {
- 
-		if(equipment.getId() % 7 !=0) {
-			//only some APs will have an alarm
+
+		if (equipment.getId() % 7 != 0) {
+			// only some APs will have an alarm
 			return;
 		}
-		
+
 		Alarm alarm = new Alarm();
-        alarm.setCustomerId(equipment.getCustomerId());
-        alarm.setEquipmentId(equipment.getId());
-        alarm.setAlarmCode(AlarmCode.MemoryUtilization);
-        alarm.setCreatedTimestamp(System.currentTimeMillis());
-        
-        AlarmDetails details = new AlarmDetails();
-        details.setMessage("Available memory is too low");
-		alarm.setDetails(details );
+		alarm.setCustomerId(equipment.getCustomerId());
+		alarm.setEquipmentId(equipment.getId());
+		alarm.setAlarmCode(AlarmCode.MemoryUtilization);
+		alarm.setCreatedTimestamp(System.currentTimeMillis());
+
+		AlarmDetails details = new AlarmDetails();
+		details.setMessage("Available memory is too low");
+		alarm.setDetails(details);
 
 		alarmServiceInterface.create(alarm);
 	}
-	
+
 	private static byte getRandomByte() {
 		byte ret = (byte) (225 * Math.random());
 		return ret;

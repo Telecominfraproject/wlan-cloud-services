@@ -452,6 +452,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         wpa2OnlyPSK(5L),
         wpa2OnlyRadius(6L),
         wep(7L),
+        wpaEAP(8L),
         
         UNSUPPORTED(-1L);
 
