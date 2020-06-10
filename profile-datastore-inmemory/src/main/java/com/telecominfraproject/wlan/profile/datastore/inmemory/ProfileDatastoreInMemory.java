@@ -19,6 +19,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
@@ -267,5 +268,48 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     	}
 
     }
+    
+    @Override
+    public List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds) {
+    	List<PairLongLong> ret = new ArrayList<>();
+    	if(profileIds == null) {
+    		return ret;
+    	}
+    	
+		profileIds.forEach(p -> {
+			Set<Long> topParents = new HashSet<>(); 
+			getTopParents(p, topParents);
+			topParents.forEach( tp-> ret.add(new PairLongLong(p, tp)));
+		});
+    	
+    	return ret;
+    }
+        
+    private Set<Long> getParents(long profileId) {
+
+    	Set<Long> ret = new HashSet<>();    	
+    	idToProfileMap.values().forEach(p -> { if(p.getChildProfileIds().contains(profileId)) { ret.add(p.getId());} });
+    	
+    	return ret;
+    }
+
+    private void getTopParents(long profileId, Set<Long> collectedParents) {
+
+		if (collectedParents.contains(profileId)) {
+			//guard against loops in parents
+			return;
+		}
+
+    	Set<Long> currentLevelParents = getParents(profileId);
+    	
+    	if(currentLevelParents.isEmpty()) {
+    		collectedParents.add(profileId);
+    		return;
+    	} else {
+			currentLevelParents.forEach(p -> getTopParents(p, collectedParents) );
+    	}
+    	
+    }
+
     
 }

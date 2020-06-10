@@ -17,6 +17,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 import com.telecominfraproject.wlan.profile.models.Profile;
@@ -31,6 +32,8 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
     private static final Logger LOG = LoggerFactory.getLogger(ProfileServiceRemote.class);
     
     private static final ParameterizedTypeReference<List<Profile>> Profile_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Profile>>() {};
+
+    private static final ParameterizedTypeReference<List<PairLongLong>> PairLongLong_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<PairLongLong>>() {};
 
     private static final ParameterizedTypeReference<PaginationResponse<Profile>> Profile_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<Profile>>() {};
 
@@ -123,6 +126,35 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
 
 	}
 
+	@Override
+	public List<PairLongLong> getTopLevelProfiles(Set<Long> profileIdSet) {
+		
+        LOG.debug("getTopLevelProfiles({})", profileIdSet);
+
+        if (profileIdSet == null || profileIdSet.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String setString = profileIdSet.toString().substring(1, profileIdSet.toString().length() - 1);
+        
+        try {
+            ResponseEntity<List<PairLongLong>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/topLevelProfiles?profileIdSet={profileIdSet}", HttpMethod.GET,
+                    null, PairLongLong_LIST_CLASS_TOKEN, setString);
+
+            List<PairLongLong> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getTopLevelProfiles({}) return {} entries", profileIdSet, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getTopLevelProfiles({}) exception ", profileIdSet, exp);
+            throw exp;
+        }
+
+	}
+	
 	@Override
 	public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
 			PaginationContext<Profile> context) {

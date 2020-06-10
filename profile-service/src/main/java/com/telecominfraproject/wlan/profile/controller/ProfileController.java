@@ -19,6 +19,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
@@ -43,6 +44,12 @@ public class ProfileController {
     public static class ListOfProfiles extends ArrayList<Profile> {
         private static final long serialVersionUID = 3070319062835500930L;
     }
+
+    public static class ListOfPairLongLong extends ArrayList<PairLongLong> {
+        private static final long serialVersionUID = 3070319062835500931L;
+    }
+
+    
 
     @Autowired private ProfileDatastore profileDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
@@ -240,6 +247,13 @@ public class ProfileController {
             LOG.error("Failed to publish event : {}", event, e);
         }
     }
+
+    @RequestMapping(value = "/topLevelProfiles", method = RequestMethod.GET)
+	public ListOfPairLongLong getTopLevelProfiles(@RequestParam Set<Long> profileIdSet) {
+    	ListOfPairLongLong ret = new ListOfPairLongLong();
+    	ret.addAll(profileDatastore.getTopLevelProfiles(profileIdSet));
+		return ret;
+	}
 
     
 }

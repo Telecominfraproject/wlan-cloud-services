@@ -29,6 +29,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
@@ -161,6 +162,12 @@ public class ProfileDAO extends BaseJdbcDao {
             + " FROM profile_map s JOIN recursetree rt ON rt.childProfileId = s.parentProfileId)"
             + " SELECT * FROM recursetree";
 
+    private static final String SQL_GET_TOP_LEVEL_PARENT_IDS = "WITH RECURSIVE recursetree( childProfileId, parentProfileId ) AS ("
+            + " SELECT childProfileId, parentProfileId FROM profile_map WHERE childProfileId = ?"
+            + " UNION "
+            + " SELECT s.childProfileId, s.parentProfileId"
+            + " FROM profile_map s JOIN recursetree rt ON rt.parentProfileId = s.childProfileId)"
+            + "   SELECT distinct(parentProfileId) FROM recursetree where parentProfileId not in (select childProfileId FROM recursetree) ";
 
     private static final RowMapper<Profile> profileRowMapper = new ProfileRowMapper();
 
@@ -527,5 +534,29 @@ public class ProfileDAO extends BaseJdbcDao {
         
 		return ret;
 	}
+
+
+	public List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds) {
+        LOG.debug("Looking up top-level profiles for {}", profileIds);
+        Set<PairLongLong> ret = new HashSet<>();
+        
+        if(profileIds == null) {
+        	return Collections.emptyList();
+        }
+
+    	profileIds.forEach(profileId -> {
+            List<Long> parentIds = this.jdbcTemplate.queryForList(SQL_GET_TOP_LEVEL_PARENT_IDS, Long.class, profileId);
+            if(parentIds.isEmpty()) {
+            	//this profile is a top-level one
+            	ret.add(new PairLongLong(profileId, profileId));
+            } else {
+            	parentIds.forEach(parentId -> ret.add(new PairLongLong(profileId,parentId)));
+            }
+    	});
+
+        LOG.debug("Found top-level profiles {} for {}", profileIds, ret);
+
+        return new ArrayList<>(ret);
+    }
     
 }

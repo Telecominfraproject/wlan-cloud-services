@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.controller.ProfileController;
 import com.telecominfraproject.wlan.profile.models.Profile;
 
@@ -75,4 +75,9 @@ public class ProfileServiceLocal implements ProfileServiceInterface {
         return profileController.delete(profileId);
     }
 
+    @Override
+    public List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds) {
+        LOG.debug("calling profileController.getTopLevelProfiles {} ", profileIds);
+        return profileController.getTopLevelProfiles(profileIds);
+    }
 }

@@ -26,4 +26,5 @@ create table profile_map (
 
 create index profile_map_customerId on profile_map (customerId);
 create index profile_map_customerId_parent on profile_map (customerId, parentProfileId);
-
+create index profile_map_parent on profile_map (parentProfileId);
+create index profile_map_child on profile_map (childProfileId);

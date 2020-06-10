@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.datastore.ProfileDatastore;
 import com.telecominfraproject.wlan.profile.models.Profile;
 
@@ -66,5 +66,10 @@ public class ProfileDatastoreRdbms implements ProfileDatastore {
     @Override
     public List<Profile> getProfileWithChildren(long profileId) {
     	return profileDAO.getProfileWithChildren(profileId);
+    }
+    
+    @Override
+    public List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds) {
+    	return profileDAO.getTopLevelProfiles(profileIds);
     }
 }

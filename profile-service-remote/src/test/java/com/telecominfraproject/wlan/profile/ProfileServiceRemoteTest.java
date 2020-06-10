@@ -26,8 +26,8 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.models.Profile;
-import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
@@ -332,6 +332,72 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
     	result = remoteInterface.getProfileWithChildren(profile_gp1.getId());
     	assertEquals(5, result.size());
     	assertEquals(new HashSet<>(Arrays.asList(profile_gp1, profile_p1, profile_p2, profile_c1, profile_c2)), new HashSet<>(result) );
+
+    }
+    
+
+    @Test
+    public void testGetTopLevelProfiles(){
+    	int nextId = getNextCustomerId();
+
+    	Profile profile_c1 = createProfileObject(nextId);
+    	Profile profile_c2 = createProfileObject(nextId);
+
+        //create with no children
+    	profile_c1 = remoteInterface.create(profile_c1);
+    	profile_c2 = remoteInterface.create(profile_c2);
+    	
+    	//create with 1 child
+    	Profile profile_p1 = createProfileObject(nextId);
+    	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
+    	profile_p1 = remoteInterface.create(profile_p1);
+
+    	//create with 2 children
+    	Profile profile_p2 = createProfileObject(nextId);
+    	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+    	profile_p2 = remoteInterface.create(profile_p2);
+    	
+    	//grand-parent - create with 2 children and 2 grand children
+    	Profile profile_gp1 = createProfileObject(nextId);
+    	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
+    	profile_gp1 = remoteInterface.create(profile_gp1);
+    	
+    	//another grand-parent - create with 1 child and 1 grand child
+    	Profile profile_gp2 = createProfileObject(nextId);
+    	profile_gp2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId())));
+    	profile_gp2 = remoteInterface.create(profile_gp2);
+    	
+    	//test leaf nodes
+    	List<PairLongLong> ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_c1.getId())));
+    	assertEquals(2, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_c1.getId(), profile_gp1.getId())));
+    	assertTrue(ret.contains(new PairLongLong(profile_c1.getId(), profile_gp2.getId())));
+
+    	ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_c2.getId())));
+    	assertEquals(1, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_c2.getId(), profile_gp1.getId())));
+
+    	//test intermediate nodes
+    	ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_p1.getId())));
+    	assertEquals(2, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_p1.getId(), profile_gp1.getId())));
+    	assertTrue(ret.contains(new PairLongLong(profile_p1.getId(), profile_gp2.getId())));
+
+    	ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_p2.getId())));
+    	assertEquals(1, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_p2.getId(), profile_gp1.getId())));
+
+    	//test top nodes
+    	ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_gp1.getId())));
+    	assertEquals(1, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_gp1.getId(), profile_gp1.getId())));
+
+    	//test multiple profiles
+    	ret = remoteInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
+    	assertEquals(3, ret.size());
+    	assertTrue(ret.contains(new PairLongLong(profile_c1.getId(), profile_gp1.getId())));
+    	assertTrue(ret.contains(new PairLongLong(profile_c1.getId(), profile_gp2.getId())));
+    	assertTrue(ret.contains(new PairLongLong(profile_c2.getId(), profile_gp1.getId())));
 
     }
     

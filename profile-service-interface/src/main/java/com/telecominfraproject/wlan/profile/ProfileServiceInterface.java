@@ -6,7 +6,7 @@ import java.util.Set;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.models.Profile;
 
 
@@ -92,4 +92,12 @@ public interface ProfileServiceInterface {
 	 */
     List<Profile> getProfileWithChildren(long profileId);
 
+    /**
+     * Find top-level parent profiles for the specified set of profile ids.
+     * 
+     * @param profileIds
+     * @return list of pairs <profileId, parentProfileId>
+     */
+    List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds);
+    
 }
