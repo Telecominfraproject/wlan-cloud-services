@@ -47,9 +47,10 @@
       </dependency>
 
       <dependency>
-      <!-- producer part of the kafka streams 
+      <!-- producer part of the kafka streams - - > 
         <artifactId>kafka-streams</artifactId>
-        -->
+         -->
+        
        <!-- TODO: switch this over to kafka streams when the helm charts are ready --> 
         <artifactId>single-process-streams</artifactId>
          
