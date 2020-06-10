@@ -15,4 +15,4 @@ create table system_event (
 );
 
 create index idx_system_event_customerId on system_event (customerId);
- idx_system_event_customerEquipmentDatatype on system_event (customerId, equipmentId, dataType);
+create index idx_system_event_customerEquipmentDatatype on system_event (customerId, equipmentId, dataType);
