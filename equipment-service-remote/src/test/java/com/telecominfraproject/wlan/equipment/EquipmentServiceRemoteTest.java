@@ -31,6 +31,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
@@ -486,6 +487,98 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         ret2Element2dot4RadioConfig.setChannelNumber(7);
         remoteInterface.update(retUpdate);
     }
+
+    @Test
+    public void testGetPaginatedEquipmentIds()
+    {
+       //create Equipment objects
+       Equipment mdl;
+       int customerId_1 = getNextCustomerId();
+       int customerId_2 = getNextCustomerId();
+       
+       int apNameIdx = 0;
+       
+       for(int i = 0; i< 50; i++){
+           mdl = new Equipment();
+           mdl.setCustomerId(customerId_1);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileId(i%5);
+           mdl.setLocationId(100 + (i%5));
+           mdl.setEquipmentType(EquipmentType.AP);
+           mdl.setInventoryId("inv-testGetPaginatedEquipmentIds-" + mdl.getName());
+           
+           apNameIdx++;
+           remoteInterface.create(mdl);
+       }
+
+       for(int i = 0; i< 10; i++){
+           mdl = new Equipment();
+           mdl.setCustomerId(customerId_2);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileId(10000);
+           mdl.setLocationId(20000);
+           mdl.setEquipmentType(EquipmentType.AP);
+           mdl.setInventoryId("inv-testGetPaginatedEquipmentIds-" + mdl.getName());
+           apNameIdx++;
+           remoteInterface.create(mdl);
+       }
+
+       //paginate over Equipment ids used by profileIds 1,2:
+       
+       PaginationContext<PairLongLong> context = new PaginationContext<>(5);
+       Set<Long> profileIds = new HashSet<>(Arrays.asList(1L, 2L));
+	   PaginationResponse<PairLongLong> page1 = remoteInterface.getEquipmentIdsByProfileIds(profileIds, context);
+       PaginationResponse<PairLongLong> page2 = remoteInterface.getEquipmentIdsByProfileIds(profileIds, page1.getContext());
+       PaginationResponse<PairLongLong> page3 = remoteInterface.getEquipmentIdsByProfileIds(profileIds, page2.getContext());
+       PaginationResponse<PairLongLong> page4 = remoteInterface.getEquipmentIdsByProfileIds(profileIds, page3.getContext());
+       PaginationResponse<PairLongLong> page5 = remoteInterface.getEquipmentIdsByProfileIds(profileIds, page4.getContext());
+       
+       assertEquals(5, page1.getItems().size());
+       assertEquals(5, page2.getItems().size());
+       assertEquals(5, page3.getItems().size());
+       assertEquals(5, page4.getItems().size());
+       assertEquals(0, page5.getItems().size());
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertFalse(page2.getContext().isLastPage());
+       assertFalse(page3.getContext().isLastPage());
+       assertFalse(page4.getContext().isLastPage());
+       assertTrue(page5.getContext().isLastPage());
+       
+       page1.getItems().forEach(e -> assertEquals(1L, e.getValue1().longValue()) );
+       page2.getItems().forEach(e -> assertEquals(1L, e.getValue1().longValue()) );
+       page3.getItems().forEach(e -> assertEquals(2L, e.getValue1().longValue()) );
+       page4.getItems().forEach(e -> assertEquals(2L, e.getValue1().longValue()) );
+
+       //paginate over Equipment ids used by locationIds 101,102:
+       
+       context = new PaginationContext<>(5);
+       Set<Long> locationIds = new HashSet<>(Arrays.asList(101L, 102L));
+	   page1 = remoteInterface.getEquipmentIdsByLocationIds(locationIds, context);
+       page2 = remoteInterface.getEquipmentIdsByLocationIds(locationIds, page1.getContext());
+       page3 = remoteInterface.getEquipmentIdsByLocationIds(locationIds, page2.getContext());
+       page4 = remoteInterface.getEquipmentIdsByLocationIds(locationIds, page3.getContext());
+       page5 = remoteInterface.getEquipmentIdsByLocationIds(locationIds, page4.getContext());
+       
+       assertEquals(5, page1.getItems().size());
+       assertEquals(5, page2.getItems().size());
+       assertEquals(5, page3.getItems().size());
+       assertEquals(5, page4.getItems().size());
+       assertEquals(0, page5.getItems().size());
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertFalse(page2.getContext().isLastPage());
+       assertFalse(page3.getContext().isLastPage());
+       assertFalse(page4.getContext().isLastPage());
+       assertTrue(page5.getContext().isLastPage());
+       
+       page1.getItems().forEach(e -> assertEquals(101L, e.getValue1().longValue()) );
+       page2.getItems().forEach(e -> assertEquals(101L, e.getValue1().longValue()) );
+       page3.getItems().forEach(e -> assertEquals(102L, e.getValue1().longValue()) );
+       page4.getItems().forEach(e -> assertEquals(102L, e.getValue1().longValue()) );
+
+    }
+    
     
     private void assertEqualEquipments(
             Equipment expected,

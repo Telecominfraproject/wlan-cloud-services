@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.equipment.datastore.rdbms;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,11 +31,11 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 
 /**
@@ -168,11 +169,30 @@ public class EquipmentDAO extends BaseJdbcDao {
     private static final String SQL_GET_BY_CUSTOMER_ID_AND_EQUIPMENT_TYPE = "select " + ALL_COLUMNS + " from "
             + TABLE_NAME + " " + " where customerId = ? and equipmentType = ? ";
 
+    private static final String SQL_GET_EQUIPMENTIDS_BY_LOCATIONIDS = "select locationId, id from "
+            + TABLE_NAME + " " + " where locationId ";
+
+    private static final String SQL_GET_EQUIPMENTIDS_BY_PROFILEIDS = "select profileId, id from "
+            + TABLE_NAME + " " + " where profileId ";
+
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
 
     private static final RowMapper<Equipment> equipmentRowMapper = new EquipmentRowMapper();
+
+    private static final RowMapper<PairLongLong> pairLongLongRowMapper = new RowMapper<PairLongLong>() {
+		
+		@Override
+		public PairLongLong mapRow(ResultSet rs, int rowNum) throws SQLException {
+			PairLongLong pair = new PairLongLong();
+		    int colIdx=1;
+		    pair.setValue1(rs.getLong(colIdx++));
+		    pair.setValue2(rs.getLong(colIdx++));
+		    
+		    return pair;
+		}
+	};
 
 
     @Autowired(required=false)
@@ -600,5 +620,152 @@ public class EquipmentDAO extends BaseJdbcDao {
             return null;
         }
     }
+
+
+	public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds,
+			PaginationContext<PairLongLong> context) {
+		
+        if (locationIds == null || locationIds.isEmpty()) {
+        	throw new IllegalArgumentException("getEquipmentIdsByLocationIds : LocationIds must be provided");
+        }
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up equipment ids for locations {} last returned page number {}",
+                    locationIds, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up equipment ids for locations {} last returned page number {}", 
+                locationIds, context.getLastReturnedPageNumber());
+
+        String query = SQL_GET_EQUIPMENTIDS_BY_LOCATIONIDS;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.addAll(locationIds);
+
+        StringBuilder strb = new StringBuilder(100);
+        strb.append("  in (");
+        for (int i = 0; i < locationIds.size(); i++) {
+            strb.append("?");
+            if (i < locationIds.size() - 1) {
+                strb.append(",");
+            }
+        }
+        strb.append(") ");
+
+        query += strb.toString();
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by locationId, id ");
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        List<PairLongLong> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+        		pairLongLongRowMapper);
+
+        if (pageItems == null) {
+            LOG.debug("Cannot find equipment ids for locations {} last returned page number {}",
+                    locationIds, context.getLastReturnedPageNumber());
+        } else {
+            LOG.debug("Found {} equipment ids for locations {} last returned page number {}",
+                    pageItems.size(), locationIds, context.getLastReturnedPageNumber());
+        }
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
+	}
+
+	public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds,
+			PaginationContext<PairLongLong> context) {
+		
+        if (profileIds == null || profileIds.isEmpty()) {
+        	throw new IllegalArgumentException("getEquipmentIdsByProfileIds : ProfileIds must be provided");
+        }
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up equipment ids for profiles {} last returned page number {}",
+                    profileIds, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up equipment ids for profiles {} last returned page number {}", 
+                profileIds, context.getLastReturnedPageNumber());
+
+        String query = SQL_GET_EQUIPMENTIDS_BY_PROFILEIDS;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.addAll(profileIds);
+
+        StringBuilder strb = new StringBuilder(100);
+        strb.append("  in (");
+        for (int i = 0; i < profileIds.size(); i++) {
+            strb.append("?");
+            if (i < profileIds.size() - 1) {
+                strb.append(",");
+            }
+        }
+        strb.append(") ");
+
+        query += strb.toString();
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by profileId, id ");
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        List<PairLongLong> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+        		pairLongLongRowMapper);
+
+        if (pageItems == null) {
+            LOG.debug("Cannot find equipment ids for profiles {} last returned page number {}",
+                    profileIds, context.getLastReturnedPageNumber());
+        } else {
+            LOG.debug("Found {} equipment ids for profiles {} last returned page number {}",
+                    pageItems.size(), profileIds, context.getLastReturnedPageNumber());
+        }
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
+	}
 
 }

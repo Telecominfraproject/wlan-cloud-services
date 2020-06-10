@@ -10,7 +10,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 
@@ -78,5 +78,27 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     @Override
     public Equipment getByInventoryIdOrNull(String inventoryId) {
     	return equipmentDAO.getByInventoryIdOrNull(inventoryId);
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds,
+    		PaginationContext<PairLongLong> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
+    	return equipmentDAO.getEquipmentIdsByLocationIds(locationIds, context);
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds,
+    		PaginationContext<PairLongLong> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
+    	return equipmentDAO.getEquipmentIdsByProfileIds(profileIds, context);
     }
 }

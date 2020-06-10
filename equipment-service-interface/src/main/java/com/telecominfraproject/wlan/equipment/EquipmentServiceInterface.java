@@ -7,7 +7,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
@@ -100,5 +100,23 @@ public interface EquipmentServiceInterface {
      * @return equipment details object specific to the supplied equipmentType, populated with default values. 
      */
     EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType);
-    
+
+    /**
+     * Find equipment ids for the equipment that refers (directly or indirectly) to the specified set of profile ids.
+     * 
+     * @param profileIds
+     * @param context
+     * @return paginated list of pairs (profileId, equipmentId)
+     */
+    PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds, PaginationContext<PairLongLong> context);
+
+    /**
+     * Find equipment ids for the equipment that resides in the specified set of location ids.
+     * 
+     * @param locationIds
+     * @param context
+     * @return paginated list of pairs (locationId, equipmentId)
+     */
+    PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds, PaginationContext<PairLongLong> context);
+
 }

@@ -20,6 +20,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
@@ -367,5 +368,137 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         }
         
         return ret;
-    }    
+    }
+
+
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds,
+    		PaginationContext<PairLongLong> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            return ret;
+        }
+
+        List<PairLongLong> items = new LinkedList<>();
+
+        // build full result list first
+        for (Equipment ce : idToEquipmentMap.values()) {
+            if (CollectionUtils.isEmpty(locationIds) || locationIds.contains(ce.getLocationId())) {
+                items.add(new PairLongLong(ce.getLocationId(), ce.getId()));
+            }
+        }
+
+        Collections.sort(items, new Comparator<PairLongLong>() {
+            @Override
+            public int compare(PairLongLong o1, PairLongLong o2) {
+                    return Long.compare(o1.getValue1(), o2.getValue1());
+            }
+        });
+
+        // now select only items for the requested page
+        // find first item to add
+        int fromIndex = 0;
+        if (context.getStartAfterItem() != null) {
+            for (PairLongLong ce : items) {
+                fromIndex++;
+                if (ce.equals(context.getStartAfterItem())) {
+                    break;
+                }
+            }
+        }
+
+        // find last item to add
+        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        if (toIndexExclusive > items.size()) {
+            toIndexExclusive = items.size();
+        }
+
+        // copy page items into result
+        List<PairLongLong> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        for (PairLongLong ce : items.subList(fromIndex, toIndexExclusive)) {
+            selectedItems.add(ce);
+        }
+
+        ret.setItems(selectedItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+        
+        return ret;
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds,
+    		PaginationContext<PairLongLong> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            return ret;
+        }
+
+        List<PairLongLong> items = new LinkedList<>();
+
+        // build full result list first
+        for (Equipment ce : idToEquipmentMap.values()) {
+            if (CollectionUtils.isEmpty(profileIds) || profileIds.contains(ce.getProfileId())) {
+                items.add(new PairLongLong(ce.getProfileId(), ce.getId()));
+            }
+        }
+
+        Collections.sort(items, new Comparator<PairLongLong>() {
+            @Override
+            public int compare(PairLongLong o1, PairLongLong o2) {
+                    return Long.compare(o1.getValue1(), o2.getValue1());
+            }
+        });
+
+        // now select only items for the requested page
+        // find first item to add
+        int fromIndex = 0;
+        if (context.getStartAfterItem() != null) {
+            for (PairLongLong ce : items) {
+                fromIndex++;
+                if (ce.equals(context.getStartAfterItem())) {
+                    break;
+                }
+            }
+        }
+
+        // find last item to add
+        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        if (toIndexExclusive > items.size()) {
+            toIndexExclusive = items.size();
+        }
+
+        // copy page items into result
+        List<PairLongLong> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        for (PairLongLong ce : items.subList(fromIndex, toIndexExclusive)) {
+            selectedItems.add(ce);
+        }
+
+        ret.setItems(selectedItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+        
+        return ret;
+    }
+    
+ 
+    
 }

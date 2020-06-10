@@ -18,6 +18,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -33,6 +34,8 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentServiceRemote.class);
     
     private static final ParameterizedTypeReference<List<Equipment>> Equipment_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Equipment>>() {};
+
+    private static final ParameterizedTypeReference<PaginationResponse<PairLongLong>> PairLongLong_PaginationResponse_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<PairLongLong>>() {};
 
     private static final ParameterizedTypeReference<PaginationResponse<Equipment>> Equipment_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<Equipment>>() {};
 
@@ -243,6 +246,61 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         return ret;
     }    
 
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIdSet,
+    		PaginationContext<PairLongLong> context) {
+
+        LOG.debug("calling getEquipmentIdsByProfileIds( {}, {} )", profileIdSet, context);
+
+        if (profileIdSet == null || profileIdSet.isEmpty()) {
+            throw new IllegalArgumentException("getEquipmentIdsByProfileIds - profileIds must be provided");
+        }
+
+        String setString = profileIdSet.toString().substring(1, profileIdSet.toString().length() - 1);
+        
+        try {
+            ResponseEntity<PaginationResponse<PairLongLong>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/equipmentIdsByProfileIds?profileIds={profileIds}&paginationContext={context}", HttpMethod.GET,
+                    null, PairLongLong_PaginationResponse_CLASS_TOKEN, setString, context);
+
+            PaginationResponse<PairLongLong> result = responseEntity.getBody();
+            LOG.debug("getEquipmentIdsByProfileIds({},{}) return {} entries", profileIdSet, context, result.getItems().size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getEquipmentIdsByProfileIds({},{}) exception ", profileIdSet, context, exp);
+            throw exp;
+        }
+
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIdSet,
+    		PaginationContext<PairLongLong> context) {
+
+        LOG.debug("calling getEquipmentIdsByLocationIds( {}, {} )", locationIdSet, context);
+
+        if (locationIdSet == null || locationIdSet.isEmpty()) {
+            throw new IllegalArgumentException("getEquipmentIdsByLocationIds - locationIds must be provided");
+        }
+
+        String setString = locationIdSet.toString().substring(1, locationIdSet.toString().length() - 1);
+        
+        try {
+            ResponseEntity<PaginationResponse<PairLongLong>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/equipmentIdsByLocationIds?locationIds={locationIds}&paginationContext={context}", HttpMethod.GET,
+                    null, PairLongLong_PaginationResponse_CLASS_TOKEN, setString, context);
+
+            PaginationResponse<PairLongLong> result = responseEntity.getBody();
+            LOG.debug("getEquipmentIdsByLocationIds({},{}) return {} entries", locationIdSet, context, result.getItems().size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getEquipmentIdsByLocationIds({},{}) exception ", locationIdSet, context, exp);
+            throw exp;
+        }
+
+    }
+    
+    
     public String getBaseUrl() {
         if(baseUrl==null) {
             baseUrl = environment.getProperty("tip.wlan.equipmentServiceBaseUrl").trim()+"/api/equipment";

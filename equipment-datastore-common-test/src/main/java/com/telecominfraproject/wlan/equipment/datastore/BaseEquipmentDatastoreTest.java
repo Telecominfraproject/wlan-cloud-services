@@ -23,9 +23,9 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 
@@ -444,6 +444,97 @@ public abstract class BaseEquipmentDatastoreTest {
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getName()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
+
+    }
+
+    @Test
+    public void testGetPaginatedEquipmentIds()
+    {
+       //create Equipment objects
+       Equipment mdl;
+       int customerId_1 = (int) testSequence.incrementAndGet();
+       int customerId_2 = (int) testSequence.incrementAndGet();
+       
+       int apNameIdx = 0;
+       
+       for(int i = 0; i< 50; i++){
+           mdl = new Equipment();
+           mdl.setCustomerId(customerId_1);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileId(i%5);
+           mdl.setLocationId(100 + (i%5));
+           mdl.setEquipmentType(EquipmentType.AP);
+           mdl.setInventoryId("inv-testGetPaginatedEquipmentIds-" + mdl.getName());
+           
+           apNameIdx++;
+           testInterface.create(mdl);
+       }
+
+       for(int i = 0; i< 10; i++){
+           mdl = new Equipment();
+           mdl.setCustomerId(customerId_2);
+           mdl.setName("qr_"+apNameIdx);
+           mdl.setProfileId(10000);
+           mdl.setLocationId(20000);
+           mdl.setEquipmentType(EquipmentType.AP);
+           mdl.setInventoryId("inv-testGetPaginatedEquipmentIds-" + mdl.getName());
+           apNameIdx++;
+           testInterface.create(mdl);
+       }
+
+       //paginate over Equipment ids used by profileIds 1,2:
+       
+       PaginationContext<PairLongLong> context = new PaginationContext<>(5);
+       Set<Long> profileIds = new HashSet<>(Arrays.asList(1L, 2L));
+	   PaginationResponse<PairLongLong> page1 = testInterface.getEquipmentIdsByProfileIds(profileIds, context);
+       PaginationResponse<PairLongLong> page2 = testInterface.getEquipmentIdsByProfileIds(profileIds, page1.getContext());
+       PaginationResponse<PairLongLong> page3 = testInterface.getEquipmentIdsByProfileIds(profileIds, page2.getContext());
+       PaginationResponse<PairLongLong> page4 = testInterface.getEquipmentIdsByProfileIds(profileIds, page3.getContext());
+       PaginationResponse<PairLongLong> page5 = testInterface.getEquipmentIdsByProfileIds(profileIds, page4.getContext());
+       
+       assertEquals(5, page1.getItems().size());
+       assertEquals(5, page2.getItems().size());
+       assertEquals(5, page3.getItems().size());
+       assertEquals(5, page4.getItems().size());
+       assertEquals(0, page5.getItems().size());
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertFalse(page2.getContext().isLastPage());
+       assertFalse(page3.getContext().isLastPage());
+       assertFalse(page4.getContext().isLastPage());
+       assertTrue(page5.getContext().isLastPage());
+       
+       page1.getItems().forEach(e -> assertEquals(1L, e.getValue1().longValue()) );
+       page2.getItems().forEach(e -> assertEquals(1L, e.getValue1().longValue()) );
+       page3.getItems().forEach(e -> assertEquals(2L, e.getValue1().longValue()) );
+       page4.getItems().forEach(e -> assertEquals(2L, e.getValue1().longValue()) );
+
+       //paginate over Equipment ids used by locationIds 101,102:
+       
+       context = new PaginationContext<>(5);
+       Set<Long> locationIds = new HashSet<>(Arrays.asList(101L, 102L));
+	   page1 = testInterface.getEquipmentIdsByLocationIds(locationIds, context);
+       page2 = testInterface.getEquipmentIdsByLocationIds(locationIds, page1.getContext());
+       page3 = testInterface.getEquipmentIdsByLocationIds(locationIds, page2.getContext());
+       page4 = testInterface.getEquipmentIdsByLocationIds(locationIds, page3.getContext());
+       page5 = testInterface.getEquipmentIdsByLocationIds(locationIds, page4.getContext());
+       
+       assertEquals(5, page1.getItems().size());
+       assertEquals(5, page2.getItems().size());
+       assertEquals(5, page3.getItems().size());
+       assertEquals(5, page4.getItems().size());
+       assertEquals(0, page5.getItems().size());
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertFalse(page2.getContext().isLastPage());
+       assertFalse(page3.getContext().isLastPage());
+       assertFalse(page4.getContext().isLastPage());
+       assertTrue(page5.getContext().isLastPage());
+       
+       page1.getItems().forEach(e -> assertEquals(101L, e.getValue1().longValue()) );
+       page2.getItems().forEach(e -> assertEquals(101L, e.getValue1().longValue()) );
+       page3.getItems().forEach(e -> assertEquals(102L, e.getValue1().longValue()) );
+       page4.getItems().forEach(e -> assertEquals(102L, e.getValue1().longValue()) );
 
     }
     

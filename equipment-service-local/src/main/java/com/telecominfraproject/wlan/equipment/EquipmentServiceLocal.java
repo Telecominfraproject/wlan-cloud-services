@@ -12,7 +12,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
@@ -87,5 +87,17 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
     @Override
     public EquipmentDetails getDefaultEquipmentDetails(EquipmentType equipmentType) {
     	return equipmentController.getDefaultEquipmentDetails(equipmentType);
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds,
+    		PaginationContext<PairLongLong> context) {
+    	return equipmentController.getEquipmentIdsByLocationIds(locationIds, context);
+    }
+    
+    @Override
+    public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds,
+    		PaginationContext<PairLongLong> context) {
+    	return equipmentController.getEquipmentIdsByProfileIds(profileIds, context);
     }
 }

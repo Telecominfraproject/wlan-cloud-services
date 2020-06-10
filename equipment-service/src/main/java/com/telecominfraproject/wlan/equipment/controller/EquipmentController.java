@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
@@ -310,5 +311,68 @@ public class EquipmentController {
         }
     }
 
+    @RequestMapping(value = "/equipmentIdsByLocationIds", method = RequestMethod.GET)
+	public PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(@RequestParam Set<Long> locationIds,
+            @RequestParam(required = false) PaginationContext<PairLongLong> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+    	
+        LOG.debug("Looking up Equipment ids for locations {} with last returned page number {}", 
+                locationIds, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Equipment ids for locations {} with last returned page number {}",
+                    locationIds, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<PairLongLong> onePage = this.equipmentDatastore.getEquipmentIdsByLocationIds(locationIds, paginationContext);
+        ret.setContext(onePage.getContext());
+        ret.getItems().addAll(onePage.getItems());
+
+        LOG.debug("Retrieved {} Equipment ids for locations {} ", onePage.getItems().size(), locationIds);
+
+        return ret;
+        
+    }
+
+    @RequestMapping(value = "/equipmentIdsByProfileIds", method = RequestMethod.GET)
+	public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(@RequestParam Set<Long> profileIds,
+            @RequestParam(required = false) PaginationContext<PairLongLong> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+    	
+        LOG.debug("Looking up Equipment ids for profiles {} with last returned page number {}", 
+                profileIds, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<PairLongLong> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Equipment ids for profiles {} with last returned page number {}",
+                    profileIds, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<PairLongLong> onePage = this.equipmentDatastore.getEquipmentIdsByProfileIds(profileIds, paginationContext);
+        ret.setContext(onePage.getContext());
+        ret.getItems().addAll(onePage.getItems());
+
+        LOG.debug("Retrieved {} Equipment ids for profiles {} ", onePage.getItems().size(), profileIds);
+
+        return ret;
+        
+    }
     
 }
