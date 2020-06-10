@@ -13,7 +13,7 @@ create table service_metric (
   
 );
 
-create index service_metric_customerId on service_metric (customerId);
-create index service_metric_customerEquipmentDatatype on service_metric (customerId, equipmentId, dataType);
+create index idx_service_metric_customerId on service_metric (customerId);
+create index idx_service_metric_customerEquipmentDatatype on service_metric (customerId, equipmentId, dataType);
 
 

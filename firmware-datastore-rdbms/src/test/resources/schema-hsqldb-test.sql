@@ -13,4 +13,4 @@ create table firmware (
   
 );
 
-create index firmware_customerId on firmware (customerId);
+create index idx_firmware_customerId on firmware (customerId);

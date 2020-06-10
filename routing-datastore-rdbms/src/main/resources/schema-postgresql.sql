@@ -13,7 +13,7 @@ create table equipment_gateway (
 
 );
 
-create index equipment_gateway_hostname on equipment_gateway (hostname);
+create index idx_equipment_gateway_hostname on equipment_gateway (hostname);
 
 create table equipment_routing (
     -- postgresql
@@ -26,12 +26,12 @@ create table equipment_routing (
     createdTimestamp bigint not null,
     lastModifiedTimestamp bigint not null,
 
-    FOREIGN KEY (gatewayId) REFERENCES equipment_gateway(id) ON DELETE CASCADE
+    FOREIGN KEY (gatewayId) REFERENCES equipment_gateway(id) ON delete CASCADE
     
 );
 
 
-create index equipment_routing_customerId on equipment_routing (customerId);
-create index equipment_routing_equipmentId on equipment_routing (equipmentId);
-create index equipment_routing_gatewayId on equipment_routing (gatewayId);
+create index idx_equipment_routing_customerId on equipment_routing (customerId);
+create index idx_equipment_routing_equipmentId on equipment_routing (equipmentId);
+create index idx_equipment_routing_gatewayId on equipment_routing (gatewayId);
 

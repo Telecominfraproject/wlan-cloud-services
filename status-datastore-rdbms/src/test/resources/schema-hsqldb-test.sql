@@ -13,8 +13,8 @@ create table status (
     primary key (customerId, equipmentId, statusDataType)
 );
 
-create index status_customerId on status (customerId);
-create index status_equipmentId on status (equipmentId);
-create index status_customerEquipmentDatatype on status (customerId, equipmentId, statusDataType);
+create index idx_status_customerId on status (customerId);
+create index idx_status_equipmentId on status (equipmentId);
+create index idx_status_customerEquipmentDatatype on status (customerId, equipmentId, statusDataType);
 
 

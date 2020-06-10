@@ -15,5 +15,5 @@ create table portal_user (
   
 );
 
-create index portal_user_customerId on portal_user (customerId);
+create index idx_portal_user_customerId on portal_user (customerId);
 create unique index portal_user_customerId_username on portal_user (customerId, username);

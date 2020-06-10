@@ -9,4 +9,4 @@ create table customer_info (
     lastModifiedTimestamp bigint not null
 );
 
-create UNIQUE INDEX customer_info_email on customer_info (email);
+create UNIQUE INDEX idx_customer_info_email on customer_info (email);

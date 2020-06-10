@@ -19,6 +19,6 @@ create table alarm (
   
 );
 
-create index alarm_customerId on alarm (customerId);
-create index alarm_equipmentId on alarm (equipmentId );
+create index idx_alarm_customerId on alarm (customerId);
+create index idx_alarm_equipmentId on alarm (equipmentId );
 

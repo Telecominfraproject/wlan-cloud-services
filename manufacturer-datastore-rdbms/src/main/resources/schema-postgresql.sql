@@ -11,6 +11,6 @@ create table manufacturer (
   
 );
 
-create index manufacturer_customerId on manufacturer (customerId);
+create index idx_manufacturer_customerId on manufacturer (customerId);
 
 

@@ -12,5 +12,5 @@ CREATE TABLE customer_info (
 
 );
 
-CREATE UNIQUE INDEX customer_info_email on customer_info (email);
+CREATE UNIQUE INDEX idx_customer_info_email on customer_info (email);
 

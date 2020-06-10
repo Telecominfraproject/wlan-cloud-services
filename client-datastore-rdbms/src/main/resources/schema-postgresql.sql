@@ -11,7 +11,7 @@ create table client (
     primary key (customerId, macAddress)
 );
 
-create index client_customerId on client (customerId);
+create index idx_client_customerId on client (customerId);
 
 create table client_session (
     -- postgresql     
@@ -26,5 +26,5 @@ create table client_session (
     primary key (customerId, equipmentId, macAddress)
 );
 
-create index clientSession_customerId on client (customerId);
+create index idx_clientSession_customerId on client (customerId);
 

@@ -15,7 +15,7 @@ create table equipment_gateway (
 
 );
 
-create index equipment_gateway_hostname on equipment_gateway (hostname);
+create index idx_equipment_gateway_hostname on equipment_gateway (hostname);
 
 create table equipment_routing (
      -- hsqldb 
@@ -33,7 +33,7 @@ create table equipment_routing (
 );
 
 
-create index equipment_routing_customerId on equipment_routing (customerId);
-create index equipment_routing_equipmentId on equipment_routing (equipmentId);
-create index equipment_routing_gatewayId on equipment_routing (gatewayId);
+create index idx_equipment_routing_customerId on equipment_routing (customerId);
+create index idx_equipment_routing_equipmentId on equipment_routing (equipmentId);
+create index idx_equipment_routing_gatewayId on equipment_routing (gatewayId);
 

@@ -21,10 +21,10 @@ create table equipment (
   
 );
 
-create index equipment_customerId on equipment (customerId);
-create index equipment_customerId_equipmentType on equipment (customerId, equipmentType);  
-create index equipment_profileId on equipment (profileId);  
-create index equipment_inventoryId on equipment (inventoryId);
-create index equipment_location on equipment (locationId);
+create index idx_equipment_customerId on equipment (customerId);
+create index idx_equipment_customerId_equipmentType on equipment (customerId, equipmentType);
+create index idx_equipment_profileId on equipment (profileId);
+create index idx_equipment_inventoryId on equipment (inventoryId);
+create index idx_equipment_locationId on equipment (locationId);
 
 
