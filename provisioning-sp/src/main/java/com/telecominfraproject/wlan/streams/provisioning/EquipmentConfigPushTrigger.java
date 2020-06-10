@@ -1,6 +1,10 @@
 package com.telecominfraproject.wlan.streams.provisioning;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +13,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
+import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
+import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
+import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
-import com.telecominfraproject.wlan.routing.RoutingServiceInterface;
-import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
@@ -38,7 +50,11 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
     	private String systemEventsTopic;
         
         @Autowired
-        private RoutingServiceInterface routingServiceInterface;
+        private EquipmentGatewayServiceInterface equipmentGatewayInterface;
+        @Autowired
+        private ProfileServiceInterface profileServiceInterface;
+        @Autowired
+        private EquipmentServiceInterface equipmentServiceInterface;
 
 	    @Override
 	    protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -94,32 +110,86 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 
 		private void process(EquipmentChangedEvent model) {
 			LOG.debug("Processing EquipmentChangedEvent");
-			//get the affected equipmentId
-			long eqId = model.getEquipmentId();
-			//find gateways for equipment 
-			List<EquipmentGatewayRecord> gateways = routingServiceInterface.getRegisteredGatewayRecordList(eqId);
-			gateways.forEach(gw -> { gw.getIpAddr(); gw.getPort(); });
-			// TODO: for each route - send the ConfigChangedCommand
+			equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(), model.getEquipmentId()));
 		}
 
 		private void process(ProfileAddedEvent model) {
-			LOG.debug("Processing ProfileAddedEvent");
-			//TODO: implement this
+			LOG.debug("Processing ProfileAddedEvent {}", model.getPayload().getId());
+			processProfile(model.getPayload());
 		}
 
 		private void process(ProfileChangedEvent model) {
-			LOG.debug("Processing ProfileChangedEvent");
-			//TODO: implement this
+			LOG.debug("Processing ProfileChangedEvent {}", model.getPayload().getId());
+			processProfile(model.getPayload());
 		}
 
 		private void process(ProfileRemovedEvent model) {
-			LOG.debug("Processing ProfileRemovedEvent");
-			//TODO: implement this
+			LOG.debug("Processing ProfileRemovedEvent {}", model.getPayload().getId());
+			processProfile(model.getPayload());
 		}
 
+
+		private void processProfile(Profile profile) {
+			
+			List<PairLongLong> ret = profileServiceInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile.getId())));
+			if(ret == null || ret.isEmpty()) {
+				//nothing to do here
+				return;
+			}
+			
+			Set<Long> parentProfileIds = new HashSet<>();
+			ret.forEach(p -> parentProfileIds.add(p.getValue2()));
+			
+			//go through all equipmentIds that refer to parent profiles and trigger change config notification on them
+			PaginationContext<PairLongLong> context = new PaginationContext<>(100);
+			
+			while(!context.isLastPage()) {
+				PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(parentProfileIds, context );
+				context = page.getContext();
+				
+				Set<Long> equipmentIds = new HashSet<>();
+				page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
+				
+				//retrieve full equipment objects to get the inventory id 
+				List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
+				
+				List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
+				equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
+			
+				equipmentGatewayInterface.sendCommands(commands);
+				LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
+			}			
+			
+			LOG.debug("Finished processing profile {}", profile.getId());
+		}
+		
 		private void process(LocationChangedEvent model) {
-			LOG.debug("Processing LocationChangedEvent");
-			//TODO: implement this
+			LOG.debug("Processing LocationChangedEvent {}", model.getPayload().getId());
+			
+			Set<Long> locationIds = new HashSet<>(Arrays.asList(model.getPayload().getId()));
+			
+			//go through all equipmentIds that reside in the specified location and trigger change config notification on them
+			PaginationContext<PairLongLong> context = new PaginationContext<>(100);
+			
+			while(!context.isLastPage()) {
+				PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByLocationIds(locationIds, context );
+				context = page.getContext();
+				
+				Set<Long> equipmentIds = new HashSet<>();
+				page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
+				
+				//retrieve full equipment objects to get the inventory id 
+				List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
+				
+				List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
+				equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
+			
+				equipmentGatewayInterface.sendCommands(commands);
+				LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
+			}		
+			
+			LOG.debug("Finished processing LocationChangedEvent {}", model.getPayload().getId());
+
 		}
 
 		private void process(BaseJsonModel model) {

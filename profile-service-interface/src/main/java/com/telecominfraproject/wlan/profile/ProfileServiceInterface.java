@@ -96,7 +96,7 @@ public interface ProfileServiceInterface {
      * Find top-level parent profiles for the specified set of profile ids.
      * 
      * @param profileIds
-     * @return list of pairs <profileId, parentProfileId>
+     * @return list of pairs (profileId, parentProfileId)
      */
     List<PairLongLong> getTopLevelProfiles(Set<Long> profileIds);
     
