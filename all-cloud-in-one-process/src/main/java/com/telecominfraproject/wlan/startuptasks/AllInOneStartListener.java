@@ -112,7 +112,15 @@ public class AllInOneStartListener implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) {
 		LOG.info("Creating initial objects");
-
+		try {
+			createInitialObjects(args);
+		} catch (Exception e) {
+			LOG.error("Got Exception ", e);
+			throw e;
+		}
+	}
+	
+	public void createInitialObjects(ApplicationArguments args) {
 		Customer customer = new Customer();
 		customer.setEmail("test@example.com");
 		customer.setName("Test Customer");
@@ -198,17 +206,16 @@ public class AllInOneStartListener implements ApplicationRunner {
 		RadiusServer radiusServer = new RadiusServer();
 		radiusServer.setAuthPort(1812);
 		try {
-			radiusServer.setIpAddress(InetAddress.getLocalHost());
-			radiusServer.setSecret("testing123");
-			radiusServiceRegion.addRadiusServer("Radius-Profile", radiusServer);
-			radiusServiceRegion.setRegionName("Ottawa");
-			radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
-			profileRadius.setDetails(radiusDetails);
-			profileRadius = profileServiceInterface.create(profileRadius);
+			radiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalArgumentException(e);
 		}
+		radiusServer.setSecret("testing123");
+		radiusServiceRegion.addRadiusServer("Radius-Profile", radiusServer);
+		radiusServiceRegion.setRegionName("Ottawa");
+		radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
+		profileRadius.setDetails(radiusDetails);
+		profileRadius = profileServiceInterface.create(profileRadius);
 
 		Profile profileSsidEAP = new Profile();
 		profileSsidEAP.setCustomerId(customer.getId());
