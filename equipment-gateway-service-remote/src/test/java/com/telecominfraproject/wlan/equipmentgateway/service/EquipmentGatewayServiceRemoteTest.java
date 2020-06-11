@@ -62,6 +62,11 @@ public class EquipmentGatewayServiceRemoteTest extends BaseRemoteTest {
 		//now we can send a command that uses the routing info we set up earlier
     	EquipmentCommandResponse ret = testInterface.sendCommand(new CEGWBlinkRequest(inventoryId , equipmentId ));
     	assertEquals(CEGWCommandResultCode.Success, ret.getResultCode());
+    	
+    	//test sending command to equipment that cannot be found
+    	ret = testInterface.sendCommand(new CEGWBlinkRequest(inventoryId+"-non-existent" , -1 ));
+    	assertEquals(CEGWCommandResultCode.FailedToSend, ret.getResultCode());
+    	
     }
 
 
