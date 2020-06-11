@@ -25,6 +25,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmAddedEvent;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmChangedEvent;
 import com.telecominfraproject.wlan.alarm.models.events.AlarmRemovedEvent;
@@ -227,6 +228,19 @@ public class AlarmController {
 
         return ret;
     }
+
+    @RequestMapping(value = "/counts", method = RequestMethod.GET)
+	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
+			@RequestParam Set<Long> equipmentIdSet,
+			@RequestParam Set<AlarmCode> alarmCodeSet) {
+    	
+        LOG.debug("Getting Alarm counts for {} {} {}", customerId, equipmentIdSet, alarmCodeSet);
+
+        AlarmCounts ret = alarmDatastore.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+        
+        LOG.debug("Alarm counts: {}", ret);
+        return ret;
+	}
 
     private void publishEvent(SystemEvent event) {
         if (event == null) {

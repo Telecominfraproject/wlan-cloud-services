@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.alarm.datastore.rdbms;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -162,6 +165,11 @@ public class AlarmDAO extends BaseJdbcDao {
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
+    private static final String SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER = "select equipmentId, alarmCode, count(1) from alarm where customerId = ? ";
+    private static final String SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_FOOTER = " group by equipmentId, alarmCode";
+
+    private static final String SQL_COUNTS_BY_ALARM_CODE_HEADER = "select alarmCode, count(1) from alarm where customerId = ? ";
+    private static final String SQL_COUNTS_BY_ALARM_CODE_FOOTER = " group by alarmCode";
 
     private static final RowMapper<Alarm> alarmRowMapper = new AlarmRowMapper();
 
@@ -569,4 +577,79 @@ public class AlarmDAO extends BaseJdbcDao {
 
         return ret;
     }
+
+
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIds, Set<AlarmCode> alarmCodes) {
+
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+
+		//build the query
+		
+		StringBuilder query = new StringBuilder();
+		if(equipmentIds == null || equipmentIds.isEmpty()) {
+			query.append(SQL_COUNTS_BY_ALARM_CODE_HEADER);
+		} else {
+			query.append(SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER);
+		}
+
+        //add alarmCodes filters
+        if (alarmCodes != null && !alarmCodes.isEmpty()) {
+        	alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and alarmCode in (");
+            for (int i = 0; i < alarmCodes.size(); i++) {
+                strb.append("?");
+                if (i < alarmCodes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query.append(strb);
+        }        
+
+        //add equipmentId filters
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query.append(strb);
+        }
+
+        
+		if(equipmentIds == null || equipmentIds.isEmpty()) {
+			query.append(SQL_COUNTS_BY_ALARM_CODE_FOOTER);
+		} else {
+			query.append(SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_FOOTER);
+		}
+
+		AlarmCounts alarmCounts = new AlarmCounts();
+		alarmCounts.setCustomerId(customerId);
+		
+        this.jdbcTemplate.query(query.toString(), queryArgs.toArray(),
+                new RowCallbackHandler() {
+        	@Override
+        	public void processRow(ResultSet rs) throws SQLException {
+        		if(equipmentIds == null || equipmentIds.isEmpty()) {
+        			alarmCounts.addToCounter(0, AlarmCode.getById(rs.getInt(1)), rs.getInt(2));
+        		} else {
+        			alarmCounts.addToCounter(rs.getInt(1), AlarmCode.getById(rs.getInt(2)), rs.getInt(3));
+        		}
+
+        	}
+        });
+
+		return alarmCounts;
+	}
 }

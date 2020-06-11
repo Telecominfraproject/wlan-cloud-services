@@ -3024,6 +3024,28 @@ components:
       additionalProperties:
         type: object
 
+    AlarmCounts:
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        countsPerEquipmentIdMap:
+          $ref: '#/components/schemas/CountsPerEquipmentIdPerAlarmCodeMap'
+        totalCountsPerAlarmCodeMap:
+          $ref: '#/components/schemas/CountsPerAlarmCodeMap'
+        
+    CountsPerAlarmCodeMap:
+      description: map of AlarmCode to the integer count of alarms
+      type: object
+      additionalProperties:
+        type: integer
+        format: int32
+
+    CountsPerEquipmentIdPerAlarmCodeMap:
+      description: map of AlarmCode to the integer count of alarms
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/CountsPerAlarmCodeMap'
 #
 # WLAN Service Metrics Data Models
 #
@@ -9497,6 +9519,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginationResponseAlarm'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/alarm/counts:
+    get:
+      tags:
+      - Alarms
+      summary: Get counts of Alarms for customerId, optional set of equipment ids, optional set of alarm codes.
+      operationId: getAlarmCounts
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: Set of equipment ids. Empty or null means retrieve for all equipment for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: alarmCodes
+        in: query
+        description: Set of alarm codes. Empty or null means retrieve all.
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AlarmCode'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlarmCounts'
         500:
           $ref: '#/components/responses/GenericApiError'
 

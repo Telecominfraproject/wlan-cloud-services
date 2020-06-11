@@ -9,6 +9,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 
 
 /**
@@ -103,5 +104,13 @@ public interface AlarmServiceInterface {
      * @return next page of matching Alarm objects.
      */
     PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context);
+
+    /**
+     * @param customerId
+     * @param equipmentIdSet - if empty, then only total counts of all alarms for customer per alarm code will be counted
+     * @param alarmCodeSet - can be empty, in which case all alarm codes will be counted
+     * @return alarm counts for the given filters
+     */
+    AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet);
 
 }

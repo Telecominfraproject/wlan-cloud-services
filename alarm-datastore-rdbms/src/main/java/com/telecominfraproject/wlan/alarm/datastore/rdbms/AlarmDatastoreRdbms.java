@@ -13,6 +13,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 
 /**
  * @author dtoptygin
@@ -68,4 +69,8 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
 				context);
 	}
 
+	@Override
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+		return alarmDAO.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+	}
 }

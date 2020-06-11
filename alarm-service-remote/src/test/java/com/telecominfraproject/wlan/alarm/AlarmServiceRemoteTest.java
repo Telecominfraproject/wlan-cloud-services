@@ -22,6 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
+import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -29,10 +33,6 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
-
-import com.telecominfraproject.wlan.alarm.models.Alarm;
-import com.telecominfraproject.wlan.alarm.models.AlarmCode;
-import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 
 /**
  * @author dtoptygin
@@ -352,6 +352,86 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        page1 = remoteInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
        assertEquals(1, page1.getItems().size());
+
+    }
+
+    
+    @Test
+    public void testAlarmCountsRetrieval() {
+        //create some Alarms
+        Alarm mdl;
+        int customerId_1 = getNextCustomerId();
+        int customerId_2 = getNextCustomerId();
+        
+        int apNameIdx = 0;
+        Set<Long> equipmentIds = new HashSet<>();
+        Set<Long> equipmentIds_CPUUtilization = new HashSet<>();
+        Set<Long> equipmentIds_AccessPointIsUnreachable = new HashSet<>();
+        
+        for(int i = 0; i< 50; i++){
+            mdl = createAlarmObject();
+            mdl.setCustomerId(customerId_1);
+            mdl.setScopeId("qr_"+apNameIdx);
+            if((i%2) == 0) {
+            	mdl.setAlarmCode(AlarmCode.CPUUtilization);
+            	equipmentIds_CPUUtilization.add(mdl.getEquipmentId());
+            } else {
+            	equipmentIds_AccessPointIsUnreachable.add(mdl.getEquipmentId());
+            }
+            equipmentIds.add(mdl.getEquipmentId());
+            
+            apNameIdx++;
+            remoteInterface.create(mdl);
+        }
+        
+        {
+        	mdl = createAlarmObject();
+            mdl.setCustomerId(customerId_1);
+            mdl.setEquipmentId(0);
+          	mdl.setAlarmCode(AlarmCode.GenericError);
+            
+          	remoteInterface.create(mdl);        	
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = createAlarmObject();
+            mdl.setCustomerId(customerId_2);
+            mdl.setScopeId("qr_"+apNameIdx);           
+            apNameIdx++;
+            remoteInterface.create(mdl);
+        }
+        
+        Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.GenericError, AlarmCode.CPUUtilization));
+
+        AlarmCounts alarmCounts = remoteInterface.getAlarmCounts(customerId_1, equipmentIds, alarmCodes);
+        assertEquals(0, alarmCounts.getCounter(0, AlarmCode.GenericError));
+        assertEquals(25, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(25, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        
+        equipmentIds_CPUUtilization.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.CPUUtilization)));
+        equipmentIds_AccessPointIsUnreachable.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.AccessPointIsUnreachable)) );        
+
+		AlarmCounts alarmCounts_noEq = remoteInterface.getAlarmCounts(customerId_1, null, alarmCodes);
+        assertEquals(1, alarmCounts_noEq.getCounter(0, AlarmCode.GenericError));
+        assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertTrue(alarmCounts_noEq.getCountsPerEquipmentIdMap().isEmpty());
+        assertEquals(3, alarmCounts_noEq.getTotalCountsPerAlarmCodeMap().size());
+
+		AlarmCounts alarmCounts_noEq_1code = remoteInterface.getAlarmCounts(customerId_1, null, Collections.singleton(AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.GenericError));
+        assertEquals(25, alarmCounts_noEq_1code.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertTrue(alarmCounts_noEq_1code.getCountsPerEquipmentIdMap().isEmpty());
+        assertEquals(1, alarmCounts_noEq_1code.getTotalCountsPerAlarmCodeMap().size());
+        
+		AlarmCounts alarmCounts_1Eq_1code = remoteInterface.getAlarmCounts(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.GenericError));
+        assertEquals(1, alarmCounts_1Eq_1code.getCounter(equipmentIds.iterator().next(), AlarmCode.CPUUtilization));
+        assertEquals(1, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(1, alarmCounts_1Eq_1code.getCountsPerEquipmentIdMap().size());
+        assertEquals(1, alarmCounts_1Eq_1code.getTotalCountsPerAlarmCodeMap().size());
 
     }
     

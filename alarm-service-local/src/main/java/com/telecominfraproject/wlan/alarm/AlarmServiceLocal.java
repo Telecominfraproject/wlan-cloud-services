@@ -15,6 +15,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.alarm.controller.AlarmController;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 
 /**
  * @author dtoptygin
@@ -74,4 +75,8 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
 				alarmCodeSet, createdAfterTimestamp, sortBy, context);
 	}
 
+	@Override
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+		return alarmController.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+	}
 }

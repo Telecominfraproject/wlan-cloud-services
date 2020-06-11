@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -317,5 +318,26 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         }
 
         return ret;
-    }    
+    }
+    
+    @Override
+    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+    	
+    	AlarmCounts alarmCounts = new AlarmCounts();
+    	alarmCounts.setCustomerId(customerId);
+    	
+        idToAlarmMap.values().forEach(a -> {
+        	if(a.getCustomerId() == customerId) {
+        		if( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) ) {
+		        	if( equipmentIdSet != null && !equipmentIdSet.isEmpty() && equipmentIdSet.contains(a.getEquipmentId()) ) {
+		            	alarmCounts.addToCounter(a.getEquipmentId(), a.getAlarmCode(), 1);
+		        	} else if( equipmentIdSet == null || equipmentIdSet.isEmpty()) {		        		 
+		        		alarmCounts.addToCounter(0, a.getAlarmCode(), 1);		        		
+		        	}
+        		}
+	        }
+        });
+
+        return alarmCounts;
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -119,6 +120,38 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
 
 	}
 
+    @Override
+    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+
+		LOG.debug("getAlarmCounts({}, {}, {})", customerId, equipmentIdSet, alarmCodeSet);
+
+        String equipmentIdSetStr = null;
+        if (equipmentIdSet != null && !equipmentIdSet.isEmpty()) {
+            equipmentIdSetStr = equipmentIdSet.toString();
+            equipmentIdSetStr = equipmentIdSetStr.substring(1, equipmentIdSetStr.length() - 1);
+        }
+
+        String alarmCodeSetStr = null;
+        if (alarmCodeSet != null && !alarmCodeSet.isEmpty()) {
+        	alarmCodeSetStr = alarmCodeSet.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	alarmCodeSetStr = alarmCodeSetStr.substring(1, alarmCodeSetStr.length() - 1);
+        }
+        
+        ResponseEntity<AlarmCounts> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/counts?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}", HttpMethod.GET,
+                    null, AlarmCounts.class, customerId, equipmentIdSetStr, alarmCodeSetStr);
+
+        AlarmCounts ret = responseEntity.getBody();
+        LOG.debug("completed getAlarmCounts {} ", ret);
+
+        return ret;
+
+    }
+    
     @Override
     public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
     		Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,

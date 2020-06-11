@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -92,6 +93,19 @@ public class AlarmPortalController  {
 
         return ret;
     }
+
+    @RequestMapping(value = "/alarm/counts", method = RequestMethod.GET)
+	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
+			@RequestParam(required = false) Set<Long> equipmentIds,
+			@RequestParam(required = false) Set<AlarmCode> alarmCodes) {
+    	
+        LOG.debug("Getting Alarm counts for {} {} {}", customerId, equipmentIds, alarmCodes);
+
+        AlarmCounts ret = this.alarmServiceInterface.getAlarmCounts(customerId, equipmentIds, alarmCodes);
+        
+        LOG.debug("Alarm counts: {}", ret);
+        return ret;
+	}
 
     @RequestMapping(value = "/alarm", method = RequestMethod.PUT)
     public Alarm updateAlarm(@RequestBody Alarm alarm) {
