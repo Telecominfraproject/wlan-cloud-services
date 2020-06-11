@@ -313,6 +313,57 @@ components:
         serial: example_serial
         name: example AP
 
+
+#
+# Equipment bulk update data models
+#
+
+    EquipmentRrmBulkUpdateRequest:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentRrmBulkUpdateItem'
+
+    EquipmentRrmBulkUpdateItem:
+      properties:
+        equipmentId:
+          type: integer
+          format: int64
+        perRadioDetails:
+          $ref: '#/components/schemas/EquipmentRrmBulkUpdateItemPerRadioMap'
+          
+    EquipmentRrmBulkUpdateItemPerRadioMap:
+      properties:
+        is5GHz:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is5GHzU:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is5GHzL:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is2dot4GHz:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+    
+    RrmBulkUpdateApDetails:
+      properties:
+        channelNumber:
+          # mapped to equipment->details->radioMap->channelNumber
+          type: integer
+          format: int32
+        rxCellSizeDb:
+          # equipment->details->radioMap->rxCellSizeDb->value
+          type: integer
+        probeResponseThresholdDb:
+          #equipment->details->radioMap->probeResponseThresholdDb->value
+          type: integer
+        clientDisconnectThresholdDb:
+          #equipment->details->radioMap->clientDisconnectThresholdDb->value
+          type: integer
+        clientSteeringSnrDropThreshold:
+          type: integer
+        clientSteeringMinLoadPercentThreshold:
+          type: integer
+
 #
 # Equipment configuration data models
 #
@@ -8378,6 +8429,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Equipment'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/equipment/rrmBulk:
+    put:
+      tags:
+      - Equipment
+      summary: Update RRM related properties of Equipment in bulk
+      operationId: updateEquipmentRrmBulk
+      requestBody:
+        description: Equipment RRM bulk update request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentRrmBulkUpdateRequest'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
           
