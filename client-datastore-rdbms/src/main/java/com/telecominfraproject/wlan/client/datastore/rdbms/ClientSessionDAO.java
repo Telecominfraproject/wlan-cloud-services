@@ -55,6 +55,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
         //TODO: add colums from properties ClientSession in here
         "customerId",
         "equipmentId",
+        "locationId",
         "details",
         //make sure the order of properties matches this list and list in ClientSessionRowMapper and list in create/update methods
         
@@ -153,7 +154,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
     private static final String SORT_SUFFIX = "";
 
 
-    private static final RowMapper<ClientSession> clientRowMapper = new ClientSessionRowMapper();
+    private static final RowMapper<ClientSession> clientSessionRowMapper = new ClientSessionRowMapper();
 
 
     @Autowired(required=false)
@@ -182,6 +183,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
                         ps.setLong(colIdx++, clientSession.getMacAddress().getAddressAsLong());
                         ps.setInt(colIdx++, clientSession.getCustomerId());
                         ps.setLong(colIdx++, clientSession.getEquipmentId());
+                        ps.setLong(colIdx++, clientSession.getLocationId());
                       	ps.setBytes(colIdx++, (clientSession.getDetails()!=null)?clientSession.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -209,7 +211,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
         try{
             ClientSession client = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_ID,
-                    clientRowMapper, customerId, equipmentId, clientMac.getAddressAsLong());
+                    clientSessionRowMapper, customerId, equipmentId, clientMac.getAddressAsLong());
             
             LOG.debug("Found Client session {}", client);
             
@@ -227,8 +229,8 @@ public class ClientSessionDAO extends BaseJdbcDao {
         
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
                 //TODO: add remaining properties from Client session here
+                clientSession.getLocationId(),
                 (clientSession.getDetails()!=null)?clientSession.getDetails().toZippedBytes():null ,
-                                
                 newLastModifiedTs,
                 
                 // use id for update operation
@@ -330,14 +332,14 @@ public class ClientSessionDAO extends BaseJdbcDao {
         bindVars.add(customerId);
         clientMacSet.forEach(m -> bindVars.add(m.getAddressAsLong()) );
         
-        List<ClientSession> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientRowMapper);
+        List<ClientSession> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientSessionRowMapper);
 
         LOG.debug("getSessions({}, {}) returns {} record(s)", customerId, clientMacSet, (null == results) ? 0 : results.size());
         return results;
     }
 
 
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, List<ColumnAndSort> sortBy,
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy,
 			PaginationContext<ClientSession> context) {
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
@@ -377,6 +379,22 @@ public class ClientSessionDAO extends BaseJdbcDao {
             query += strb.toString();
         }
         
+        //add locationId filters
+        if (locationIds != null && !locationIds.isEmpty()) {
+            queryArgs.addAll(locationIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and locationId in (");
+            for (int i = 0; i < locationIds.size(); i++) {
+                strb.append("?");
+                if (i < locationIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
@@ -424,7 +442,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
          * time is 758.484 ms. - DT: still acceptable for our use case
          */
         List<ClientSession> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
-                clientRowMapper);
+                clientSessionRowMapper);
 
         if (pageItems == null) {
             LOG.debug("Cannot find Client sessions for customer {} with last returned page number {}",

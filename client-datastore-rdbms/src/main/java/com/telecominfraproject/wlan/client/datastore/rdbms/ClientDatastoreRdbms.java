@@ -87,14 +87,14 @@ public class ClientDatastoreRdbms implements ClientDatastore {
 	}
 
 	@Override
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds,
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds,
 			List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 
 		if(context == null) {
     		context = new PaginationContext<>();
     	}
 		
-		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, sortBy, context);
+		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, locationIds, sortBy, context);
 	}
     
     

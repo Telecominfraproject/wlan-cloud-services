@@ -449,6 +449,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 			clientSession.setMacAddress(macAddress);
 			clientSession.setCustomerId(equipment.getCustomerId());
 			clientSession.setEquipmentId(equipment.getId());
+			clientSession.setLocationId(equipment.getLocationId());
 
 			ClientSessionDetails sessionDetails = new ClientSessionDetails();
 			sessionDetails.setApFingerprint(details.getApFingerprint());

@@ -114,6 +114,7 @@ public class ClientPortalController  {
     @RequestMapping(value = "/client/session/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<ClientSession> getClientSessionsForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) Set<Long> equipmentIds,    		
+            @RequestParam(required = false) Set<Long> locationIds,    		
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<ClientSession> paginationContext) {
 
@@ -121,7 +122,7 @@ public class ClientPortalController  {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up Client Sessions for customer {} equipment {} with last returned page number {}", 
+        LOG.debug("Looking up Client Sessions for customer {} equipment {} locations {} with last returned page number {}", 
                 customerId, equipmentIds, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
@@ -136,12 +137,12 @@ public class ClientPortalController  {
         }
 
         PaginationResponse<ClientSession> onePage = this.clientServiceInterface
-                .getSessionsForCustomer(customerId, equipmentIds,  sortBy, paginationContext);
+                .getSessionsForCustomer(customerId, equipmentIds, locationIds,  sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} Client Sessions for customer {} equipment {} ", onePage.getItems().size(), 
-                customerId, equipmentIds);
+        LOG.debug("Retrieved {} Client Sessions for customer {} equipment {} locations {}", onePage.getItems().size(), 
+                customerId, equipmentIds, locationIds);
 
         return ret;
     }

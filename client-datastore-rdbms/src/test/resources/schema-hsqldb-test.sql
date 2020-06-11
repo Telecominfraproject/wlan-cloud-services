@@ -22,6 +22,7 @@ create table client_session (
 
     customerId int,
     equipmentId bigint,
+    locationId bigint,
     details varbinary(65535),
     
     lastModifiedTimestamp bigint not null,
@@ -29,5 +30,6 @@ create table client_session (
     primary key (customerId, equipmentId, macAddress)
 );
 
-create index idx_clientSession_customerId on client (customerId);
+create index idx_clientSession_customerId on client_session (customerId);
+create index idx_clientSession_locationId on client_session (customerId, locationId);
 

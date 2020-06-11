@@ -245,6 +245,7 @@ public class ClientController {
     @RequestMapping(value = "/session/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<ClientSession> getSessionsForCustomer(@RequestParam int customerId,
     		@RequestParam Set<Long> equipmentIds,
+    		@RequestParam Set<Long> locationIds,
             @RequestParam List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<ClientSession> paginationContext) {
 
@@ -267,7 +268,7 @@ public class ClientController {
         }
 
         PaginationResponse<ClientSession> onePage = this.clientDatastore
-                .getSessionsForCustomer(customerId, equipmentIds,  sortBy, paginationContext);
+                .getSessionsForCustomer(customerId, equipmentIds, locationIds,  sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 

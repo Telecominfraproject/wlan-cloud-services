@@ -74,9 +74,9 @@ public class ClientServiceLocal implements ClientServiceInterface {
 	}
 
     @Override
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds,
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds,
 			List<ColumnAndSort> sortBy, PaginationContext<ClientSession> paginationContext) {
-		return clientController.getSessionsForCustomer(customerId, equipmentIds, sortBy, paginationContext);
+		return clientController.getSessionsForCustomer(customerId, equipmentIds, locationIds, sortBy, paginationContext);
 	}
 
     @Override

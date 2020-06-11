@@ -12,6 +12,7 @@ public class ClientSession extends BaseJsonModel {
     private MacAddress macAddress;
     private int customerId;
     private long equipmentId;
+    private long locationId;
     private ClientSessionDetails details;
     private long lastModifiedTimestamp;
 
@@ -23,7 +24,15 @@ public class ClientSession extends BaseJsonModel {
         this.equipmentId = equipmentId;
     }
 
-    public int getCustomerId() {
+    public long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(long locationId) {
+		this.locationId = locationId;
+	}
+
+	public int getCustomerId() {
         return customerId;
     }
 
@@ -69,7 +78,7 @@ public class ClientSession extends BaseJsonModel {
 
     @Override
 	public int hashCode() {
-		return Objects.hash(customerId, details, equipmentId, lastModifiedTimestamp, macAddress);
+		return Objects.hash(customerId, details, equipmentId, locationId, lastModifiedTimestamp, macAddress);
 	}
 
 	@Override
@@ -82,7 +91,9 @@ public class ClientSession extends BaseJsonModel {
 		}
 		ClientSession other = (ClientSession) obj;
 		return customerId == other.customerId && Objects.equals(details, other.details)
-				&& equipmentId == other.equipmentId && lastModifiedTimestamp == other.lastModifiedTimestamp
+				&& equipmentId == other.equipmentId 
+				&& locationId == other.locationId 
+				&& lastModifiedTimestamp == other.lastModifiedTimestamp
 				&& Objects.equals(macAddress, other.macAddress);
 	}
 

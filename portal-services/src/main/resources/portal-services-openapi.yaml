@@ -9084,7 +9084,7 @@ paths:
     get:
       tags:
       - Clients
-      summary: Get list of Client sessions for customerId and a set of equipment ids.
+      summary: Get list of Client sessions for customerId and a set of equipment/location ids. Equipment and locations filters are joined using logical AND operation.
       operationId: getClientSessionByCustomerWithFilter
       parameters:
       - name: customerId
@@ -9097,6 +9097,16 @@ paths:
       - name: equipmentIds
         in: query
         description: set of equipment ids. Empty or null means retrieve all equipment for the customer.
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: locationIds
+        in: query
+        description: set of location ids. Empty or null means retrieve for all locations for the customer.
         content:
           text/plain:
             schema:

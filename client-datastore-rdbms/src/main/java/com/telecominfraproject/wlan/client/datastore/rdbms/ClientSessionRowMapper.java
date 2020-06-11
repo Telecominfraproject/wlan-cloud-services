@@ -33,6 +33,7 @@ public class ClientSessionRowMapper implements RowMapper<ClientSession> {
         //make sure order of fields is the same as defined in ClientSession
         clientSession.setCustomerId(rs.getInt(colIdx++));
         clientSession.setEquipmentId(rs.getLong(colIdx++));
+        clientSession.setLocationId(rs.getLong(colIdx++));
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {

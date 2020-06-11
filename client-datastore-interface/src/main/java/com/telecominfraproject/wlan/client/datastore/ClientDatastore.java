@@ -80,11 +80,12 @@ public interface ClientDatastore {
 	 *<li>  "equipmentId"
      *<br> 
      * @param customerId
-     * @param equipmentIds - set of equipment ids for which to retrieve session objects. Empty set or null means retrieve for all customer's equipment.    
+     * @param equipmentIds - set of equipment ids for which to retrieve session objects. Empty set or null means retrieve for all customer's equipment.
+     * @param locationIds - set of location ids for which to retrieve session objects. Empty set or null means retrieve for all customer's locations. 
 	 *
      * @return next page of matching Client session objects.
      */
-    PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
+    PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
 
     
 }

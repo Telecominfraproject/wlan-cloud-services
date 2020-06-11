@@ -330,6 +330,7 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     @Override
     public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId,
     		Set<Long> equipmentIds,
+    		Set<Long> locationIds,
     		final List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 
     	if(context == null) {
@@ -351,10 +352,15 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
 
 			if (mdl.getCustomerId() == customerId && 
 					    (
-						equipmentIds == null 
-						|| equipmentIds.isEmpty()
-						|| equipmentIds.contains(mdl.getEquipmentId()) 
-						)
+							equipmentIds == null 
+							|| equipmentIds.isEmpty()
+							|| equipmentIds.contains(mdl.getEquipmentId()) 
+						) &&
+					    (
+							locationIds == null 
+							|| locationIds.isEmpty()
+							|| locationIds.contains(mdl.getLocationId()) 
+						)					    
 					) {
 	            items.add(mdl);
             }
