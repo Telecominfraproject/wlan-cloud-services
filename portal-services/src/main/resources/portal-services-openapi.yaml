@@ -97,6 +97,14 @@ components:
           type: integer
           format: int64
 
+    PairLongLong:
+      properties:
+        value1:
+          type: integer
+          format: int64
+        value2:
+          type: integer
+          format: int64
 #
 # Customer data models
 #
@@ -8710,6 +8718,36 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Profile'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/profile/equipmentCounts:
+    get:
+      tags:
+      - Profile
+      summary: Get counts of equipment that use specified profiles
+      operationId: getCountsOfEquipmentThatUseProfiles
+      parameters:
+      - name: profileIdSet
+        in: query
+        description: set of profile ids
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PairLongLong'
         500:
           $ref: '#/components/responses/GenericApiError'
 

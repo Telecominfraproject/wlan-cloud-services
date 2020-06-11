@@ -1,8 +1,12 @@
 package com.telecominfraproject.wlan.portal.controller.profile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
 
@@ -37,8 +43,15 @@ public class ProfilePortalController  {
         private static final long serialVersionUID = 1158560190003268713L;
     }
 
+    public static class ListOfPairLongLong extends ArrayList<PairLongLong> {
+        private static final long serialVersionUID = 1158560190003268723L;
+    }
+
     @Autowired
     private ProfileServiceInterface profileServiceInterface;
+
+    @Autowired
+    private EquipmentServiceInterface equipmentServiceInterface;
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET)
     public Profile getProfile(@RequestParam long profileId) {
@@ -141,5 +154,55 @@ public class ProfilePortalController  {
         }
     }
 
-    
+
+    @RequestMapping(value = "/profile/equipmentCounts", method = RequestMethod.GET)
+    public ListOfPairLongLong getCountsOfEquipmentThatUseProfiles(@RequestParam Set<Long> profileIdSet) {
+        LOG.debug("getCountsOfEquipmentThatUseProfiles({})", profileIdSet);
+        
+        //first get top-level profiles for the supplied set - only top-level profiles are linked to equipment
+        List<PairLongLong> topLevelProfiles = this.profileServiceInterface.getTopLevelProfiles(profileIdSet);
+        ListOfPairLongLong ret = new ListOfPairLongLong();
+        
+        //map each supplied profile to its top-level parent
+        Map<Long, Long> profileIdToTopProfileIdMap = new HashMap<>();
+        topLevelProfiles.forEach(pair -> profileIdToTopProfileIdMap.put(pair.getValue1(), pair.getValue2()));
+        
+        //gather top-level profile ids
+        Set<Long> topProfileIds = new HashSet<>();
+        topLevelProfiles.forEach(pair -> topProfileIds.add(pair.getValue2()));
+
+		
+		//TODO: this may be more efficiently done by a specialized count method on equipment datastore
+
+        //now get pages of equipmentIds that refer to the top-level profiles and count the equipmentIds
+        PaginationContext<PairLongLong> context = new PaginationContext<>(500);        
+		this.equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIds, context );
+
+		//prepare map of top-level profileId to the count of equipmentIds
+        Map<Long, AtomicInteger> topProfileIdToEquipmentCountsMap = new HashMap<>();
+        topProfileIds.forEach(p -> topProfileIdToEquipmentCountsMap.put(p, new AtomicInteger()));
+
+		while(!context.isLastPage()) {
+			PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIds, context );
+			context = page.getContext();
+			
+			page.getItems().forEach(p -> {
+				AtomicInteger cnt = topProfileIdToEquipmentCountsMap.get(p.getValue1());
+				if(cnt!=null) {
+					cnt.incrementAndGet();
+				}
+			});
+			
+			LOG.debug("Page {} - counted {} equipmentids", context.getLastReturnedPageNumber(), context.getTotalItemsReturned());
+		}			
+
+		
+		//package results to get equipment counts for the original profile ids
+		profileIdToTopProfileIdMap.forEach((p, tp) -> ret.add(new PairLongLong(p, topProfileIdToEquipmentCountsMap.get(tp).intValue())));
+		
+        LOG.debug("getCountsOfEquipmentThatUseProfiles({}) return {}", profileIdSet, ret);
+        return ret;
+    }
+
+
 }
