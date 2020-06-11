@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
 import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
 
 /**
@@ -27,6 +28,10 @@ public interface EquipmentGatewayServiceInterface {
 	 * @return command response
 	 */
 	default EquipmentCommandResponse sendCommand(CEGWBaseCommand command) {
-		return sendCommands(Arrays.asList(command)).get(0);
+		List<EquipmentCommandResponse> ret = sendCommands(Arrays.asList(command));
+		if(ret == null || ret.isEmpty()) {
+			return new EquipmentCommandResponse(CEGWCommandResultCode.FailedToSend, "", command, "", -1);
+		}
+		return ret.get(0);
 	}
 }
