@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -16,6 +17,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -78,6 +80,12 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
         return equipmentController.update(equipment);
     }
 
+    @Override
+    public GenericResponse updateRrmBulk(EquipmentRrmBulkUpdateRequest request) {
+        LOG.debug("calling equipmentController.updateRrmBulk {} ", request);
+        return equipmentController.updateRrmBulk(request);
+    }
+    
     @Override
     public Equipment delete(long equipmentId) {
         LOG.debug("calling equipmentController.delete {} ", equipmentId);

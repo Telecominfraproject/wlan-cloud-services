@@ -1,7 +1,10 @@
 package com.telecominfraproject.wlan.equipment.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInt
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -30,6 +34,7 @@ import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
@@ -239,6 +244,7 @@ public class EquipmentController {
             LOG.error("Failed to update Equipment, request contains unsupported value: {}", equipment);
             throw new DsDataValidationException("Equipment contains unsupported value");
         }
+        
         validateChannelNum(equipment);
 
         Equipment ret = equipmentDatastore.update(equipment);
@@ -250,6 +256,7 @@ public class EquipmentController {
 
         return ret;
     }
+    
     
 	private void validateChannelNum(Equipment equipment) {
 		if (equipment.getDetails() instanceof ApElementConfiguration) {
@@ -308,6 +315,14 @@ public class EquipmentController {
             cloudEventDispatcher.publishEvent(event);
         } catch (Exception e) {
             LOG.error("Failed to publish event : {}", event, e);
+        }
+    }
+
+    private void publishEvents(List<SystemEvent> events) {
+        try {
+            cloudEventDispatcher.publishEventsBulk(events);
+        } catch (Exception e) {
+            LOG.error("Failed to publish {} events ", events.size(), e);
         }
     }
 
@@ -374,5 +389,36 @@ public class EquipmentController {
         return ret;
         
     }
-    
+
+    @RequestMapping(value = "/rrmBulk", method=RequestMethod.PUT)
+	public GenericResponse updateRrmBulk(@RequestBody EquipmentRrmBulkUpdateRequest request) {
+        
+        LOG.debug("updateRrmBulk {}", request);
+        Set<Long> equipmentIds = new HashSet<>();
+        request.getItems().forEach(item -> equipmentIds.add(item.getEquipmentId()));
+        
+        //validate equipment before the bulk update
+        List<Equipment> equipmentBeforeUpdate = equipmentDatastore.get(equipmentIds);
+        Map<Long, Equipment> eqMap = new HashMap<>();        
+        equipmentBeforeUpdate.forEach(eq -> eqMap.put(eq.getId(), eq));
+        
+        request.getItems().forEach(item -> {
+        	Equipment eq = eqMap.get(item.getEquipmentId());
+        	if(item.applyToEquipment(eq)) {
+        		validateChannelNum(eq);
+        	}
+        });
+        
+        equipmentDatastore.updateRrmBulk(request);
+
+        //send events after the bulk update
+        List<Equipment> equipmentAfterUpdate = equipmentDatastore.get(equipmentIds);
+
+        List<SystemEvent> events = new ArrayList<>();
+        equipmentAfterUpdate.forEach(eq -> events.add(new EquipmentChangedEvent(eq)));
+        publishEvents(events);
+
+        return new GenericResponse(true, "");
+    }
+
 }

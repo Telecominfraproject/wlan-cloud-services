@@ -13,6 +13,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -41,6 +42,11 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     @Override
     public Equipment update(Equipment equipment) {
         return equipmentDAO.update(equipment);
+    }
+    
+    @Override
+    public void updateRrmBulk(EquipmentRrmBulkUpdateRequest request) {
+    	equipmentDAO.updateRrmBulk(request);    	
     }
 
     @Override

@@ -1,7 +1,10 @@
 package com.telecominfraproject.wlan.portal.controller.equipment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -14,14 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 /**
  * @author dtoptygin
@@ -170,5 +177,12 @@ public class EquipmentPortalController  {
     public EquipmentDetails getDefaultEquipmentDetails(@RequestParam EquipmentType equipmentType) {
     	return this.equipmentServiceInterface.getDefaultEquipmentDetails(equipmentType);
     }
-    
+
+    @RequestMapping(value = "/equipment/rrmBulk", method=RequestMethod.PUT)
+	public GenericResponse updateRrmBulk(@RequestBody EquipmentRrmBulkUpdateRequest request) {
+        LOG.debug("updateRrmBulk {}", request);
+        equipmentServiceInterface.updateRrmBulk(request);
+        return new GenericResponse(true, "");
+    }
+
 }

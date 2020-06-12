@@ -352,17 +352,21 @@ components:
           format: int32
         rxCellSizeDb:
           # equipment->details->radioMap->rxCellSizeDb->value
-          type: integer
+          $ref: '#/components/schemas/AutoOrManualValue'
         probeResponseThresholdDb:
           #equipment->details->radioMap->probeResponseThresholdDb->value
-          type: integer
+          $ref: '#/components/schemas/AutoOrManualValue'
         clientDisconnectThresholdDb:
           #equipment->details->radioMap->clientDisconnectThresholdDb->value
+          $ref: '#/components/schemas/AutoOrManualValue'
+        dropInSnrPercentage:
+          #equipment->details->radioMap->bestApSettings->dropInSnrPercentage
           type: integer
-        clientSteeringSnrDropThreshold:
+          format: int32
+        minLoadFactor:
+          #equipment->details->radioMap->bestApSettings->minLoadFactor
           type: integer
-        clientSteeringMinLoadPercentThreshold:
-          type: integer
+          format: int32
 
 #
 # Equipment configuration data models

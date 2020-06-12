@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Set;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 
 /**
@@ -118,5 +120,11 @@ public interface EquipmentServiceInterface {
      * @return paginated list of pairs (locationId, equipmentId)
      */
     PaginationResponse<PairLongLong> getEquipmentIdsByLocationIds(Set<Long> locationIds, PaginationContext<PairLongLong> context);
+
+    /**
+     * Update RRM-related properties on AP details for the collection of equipment
+     * @param request - bulk update request
+     */
+    public GenericResponse updateRrmBulk(EquipmentRrmBulkUpdateRequest request);
 
 }

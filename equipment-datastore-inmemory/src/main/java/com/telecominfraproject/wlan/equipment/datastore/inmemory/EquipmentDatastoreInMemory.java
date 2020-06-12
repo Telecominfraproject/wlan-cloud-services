@@ -24,9 +24,10 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
-
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -121,6 +122,61 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         return equipmentCopy.clone();
     }
 
+    @Override
+    public void updateRrmBulk(EquipmentRrmBulkUpdateRequest request) {
+    	if(request == null || request.getItems() == null || request.getItems().isEmpty()) {
+    		//nothing to do here
+    		return;
+    	}
+    	
+    	for(EquipmentRrmBulkUpdateItem item: request.getItems()) {
+    		//get fresh equipment model
+    		Equipment eq = getOrNull(item.getEquipmentId());
+    		if(eq == null) {
+    			//non-existing equipment, probably got removed, no need to terminate a batch update because of it
+    			continue;
+    		}
+    		
+    		//apply changes
+    		boolean eqChanged = item.applyToEquipment(eq);
+    		
+    		//if resulting model changed - save it
+    		if(eqChanged) {
+    			//attempt to save the modified model
+        		boolean modelSaved = false;
+        		
+    			for(int i = 0; i < 10; i++) {
+	    			try {
+	    				update(eq);
+	    				modelSaved = true;
+	    				break;
+	    			} catch (DsConcurrentModificationException e) {
+	    				//got concurrent update, sleep a bit and retry
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e1) {
+							// nothing to do
+						}
+						
+						//get fresh version of equipment from DB and re-apply our changes on it
+	    				eq = getOrNull(item.getEquipmentId());
+	    				if(eq==null) {
+	    	    			//equipment is not there anymore, no need to terminate a batch update because of it
+	    					break;
+	    				}
+	    				item.applyToEquipment(eq);
+
+					}
+    			}
+    			
+    			if(!modelSaved) {
+    				LOG.warn("In bulk operation this equipment was NOT updated after 10 attempts: {}", eq);
+    			}
+    		}
+    	}
+    	
+    }
+    
     @Override
     public Equipment delete(long equipmentId) {
         Equipment equipment = get(equipmentId);

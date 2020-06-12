@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -34,9 +35,14 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -284,7 +290,23 @@ public class EquipmentDAO extends BaseJdbcDao {
     }
 
     public Equipment update(Equipment equipment) {
+    	Equipment ret = updateNoException(equipment);
+    	
+    	if(ret == null) {
+            throw new DsConcurrentModificationException("Concurrent modification detected for Equipment with id " + equipment.getId()
+            +" Please re-read the most recent data, apply the changes, and retry the update operation"
+            );
+    	}
+    	
+    	return ret;
+    }
 
+    /**
+     * @param equipment to update
+     * @return updated equipment when successful, or null if Concurrent modification was detected for Equipment.
+     */
+    private Equipment updateNoException(Equipment equipment) {
+    	
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = equipment.getLastModifiedTimestamp();
         
@@ -335,10 +357,7 @@ public class EquipmentDAO extends BaseJdbcDao {
                         incomingLastModifiedTs,
                         recordTimestamp
                         );
-                throw new DsConcurrentModificationException("Concurrent modification detected for Equipment with id " + equipment.getId()
-                        +" expected version is " + incomingLastModifiedTs
-                        +" but version in db was " + recordTimestamp
-                        );
+                return null;
                 
             }catch (EmptyResultDataAccessException e) {
                 LOG.debug("Cannot find Equipment for {}", equipment.getId());
@@ -766,6 +785,63 @@ public class EquipmentDAO extends BaseJdbcDao {
         ret.getContext().setStartAfterItem(null);
 
         return ret;
+	}
+
+
+	public void updateRrmBulk(EquipmentRrmBulkUpdateRequest request) {
+    	if(request == null || request.getItems() == null || request.getItems().isEmpty()) {
+    		//nothing to do here
+    		return;
+    	}
+    	
+    	for(EquipmentRrmBulkUpdateItem item: request.getItems()) {
+    		//get fresh equipment model
+    		Equipment eq = getOrNull(item.getEquipmentId());
+    		if(eq == null) {
+    			//non-existing equipment, probably got removed, no need to terminate a batch update because of it
+    			continue;
+    		}
+    		
+    		//apply changes
+    		boolean eqChanged = item.applyToEquipment(eq);
+    		
+    		//if resulting model changed - save it
+    		if(eqChanged) {
+    			//attempt to save the modified model
+        		boolean modelSaved = false;
+        		
+    			for(int i = 0; i < 10; i++) {
+    				Equipment eqRet = updateNoException(eq);
+    				    				
+    				if(eqRet == null) {
+	    				//got concurrent update, sleep a bit and retry
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e1) {
+							// nothing to do
+						}
+					
+						//get fresh version of equipment from DB and re-apply our changes on it
+	    				eq = getOrNull(item.getEquipmentId());
+	    				if(eq==null) {
+	    	    			//equipment is not there anymore, no need to terminate a batch update because of it
+	    					break;
+	    				}
+
+	    				item.applyToEquipment(eq);
+
+    				} else {
+	    				modelSaved = true;
+	    				break;
+					}
+    			}
+    			
+    			if(!modelSaved) {
+    				LOG.warn("In bulk operation this equipment was NOT updated after 10 attempts: {}", eq);
+    			}
+    		}
+    	}
+    	
 	}
 
 }

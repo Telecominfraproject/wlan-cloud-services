@@ -15,14 +15,15 @@ import org.springframework.stereotype.Component;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -229,6 +230,25 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         
         return ret;
     }
+
+    @Override
+    public GenericResponse updateRrmBulk(EquipmentRrmBulkUpdateRequest bulkRequest) {
+        
+        LOG.debug("calling equipment.updateRrmBulk {} ", bulkRequest);
+
+        HttpEntity<String> request = new HttpEntity<String>( bulkRequest.toString(), headers );
+
+        ResponseEntity<GenericResponse> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/rrmBulk",
+                HttpMethod.PUT, request, GenericResponse.class);
+        
+        GenericResponse ret = responseEntity.getBody();
+        
+        LOG.debug("completed equipment.updateRrmBulk {} ", ret);
+        
+        return ret;
+    }
+
 
     @Override
     public Equipment delete(long equipmentId) {

@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -26,8 +27,12 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
 /**
  * @author dtoptygin
@@ -537,6 +542,67 @@ public abstract class BaseEquipmentDatastoreTest {
        page4.getItems().forEach(e -> assertEquals(102L, e.getValue1().longValue()) );
 
     }
+
+    @Test
+    public void testRrmBulkUpdate() {
+        Set<Long> createdSet = new HashSet<>();
+
+        int customerId = (int) testSequence.incrementAndGet();
+        
+        //Create test Equipment
+        Equipment equipment = new Equipment();
+
+        for (int i = 0; i < 10; i++) {
+            equipment.setName("test_rrmBulkUpdate_" + i);
+            equipment.setCustomerId(customerId);
+            equipment.setProfileId(1);
+            equipment.setLocationId(2);
+            equipment.setEquipmentType(EquipmentType.AP);
+            equipment.setInventoryId("inv-" + equipment.getName());
+
+            equipment.setDetails(ApElementConfiguration.createWithDefaults());
+            
+            Equipment ret = testInterface.create(equipment);
+
+            createdSet.add(ret.getId());
+        }
+
+
+        List<Equipment> equipmentList = testInterface.get(createdSet);
+        assertEquals(10, equipmentList.size());
+
+        //verify initial settings
+        for (Equipment c : equipmentList) {
+            assertEquals(50, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getMinLoadFactor().intValue());
+            assertEquals(6, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+        }
+
+        //update all MinLoadFactor on 2.4Ghz radio to 42
+        EquipmentRrmBulkUpdateRequest bulkRequest = new EquipmentRrmBulkUpdateRequest();
+		equipmentList.forEach(eq -> {
+			EquipmentRrmBulkUpdateItem bulkItem = new EquipmentRrmBulkUpdateItem(eq);
+			bulkItem.setEquipmentId(eq.getId());
+			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setMinLoadFactor(42);
+			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setChannelNumber(11);
+			bulkRequest.getItems().add(bulkItem);
+		});
+        
+		testInterface.updateRrmBulk(bulkRequest);
+
+		equipmentList = testInterface.get(createdSet);
+        assertEquals(10, equipmentList.size());
+
+        //verify updated settings
+        for (Equipment c : equipmentList) {
+            assertEquals(42, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getMinLoadFactor().intValue());
+            assertEquals(11, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());            
+        }
+
+        // Clean up after test
+        createdSet.forEach( c-> testInterface.delete(c));
+        
+    }
+    
     
     private Equipment createEquipmentObject() {
     	Equipment result = new Equipment();
