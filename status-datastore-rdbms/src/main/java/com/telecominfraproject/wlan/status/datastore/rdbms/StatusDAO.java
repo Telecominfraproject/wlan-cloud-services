@@ -549,4 +549,70 @@ public class StatusDAO extends BaseJdbcDao {
 
         return ret;    	
     }
+
+	public List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes) {
+		
+    	if(equipmentIds==null || equipmentIds.isEmpty()) {
+    		throw new IllegalArgumentException("equipmentIds parameter must be provided");
+    	}
+    	
+        LOG.debug("Looking up Statuses for customer {} equipment {} types {}", 
+                customerId, equipmentIds, statusDataTypes);
+
+        String query = SQL_GET_BY_CUSTOMER_ID;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        
+        //add equipmentId filters
+        {
+            queryArgs.addAll(equipmentIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and equipmentId in (");
+            for (int i = 0; i < equipmentIds.size(); i++) {
+                strb.append("?");
+                if (i < equipmentIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+        //add statusDataType filters
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+        	statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and statusDataType in (");
+            for (int i = 0; i < statusDataTypes.size(); i++) {
+                strb.append("?");
+                if (i < statusDataTypes.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }        
+
+        query += " order by equipmentId, statusDataType";
+
+        List<Status> ret = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                statusRowMapper);
+
+        if (ret == null) {
+            LOG.debug("Cannot find Statuses for customer {} equipment {} types {} ",
+                    customerId, equipmentIds, statusDataTypes);
+        } else {
+            LOG.debug("Found {} Statuses for customer {} equipment {} types {}",
+                    ret.size(), customerId, equipmentIds, statusDataTypes);
+        }
+        
+        return ret;
+
+	}
 }

@@ -121,5 +121,22 @@ public class StatusPortalController  {
 
         return ret;
     }    
-    
+
+    @RequestMapping(value = "/status/forEquipmentWithFilter", method = RequestMethod.GET)
+    public ListOfStatuses getForEquipment(@RequestParam int customerId, 
+    		@RequestParam Set<Long> equipmentIds, 
+    		@RequestParam(required = false) Set<StatusDataType> statusDataTypes) {
+        LOG.debug("getForEquipment({},{},{})", customerId, equipmentIds, statusDataTypes);
+        try {
+            List<Status> result = this.statusServiceInterface.getForEquipment(customerId, equipmentIds, statusDataTypes);
+            LOG.debug("getForEquipment({},{},{}) return {} entries", customerId, equipmentIds, statusDataTypes, result.size());
+            ListOfStatuses ret = new ListOfStatuses();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getForEquipment({},{},{}) exception ", customerId, equipmentIds, statusDataTypes, exp);
+             throw exp;
+        }
+	}
+
 }

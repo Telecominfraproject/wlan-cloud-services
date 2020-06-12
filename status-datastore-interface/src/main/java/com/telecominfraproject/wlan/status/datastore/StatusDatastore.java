@@ -84,4 +84,21 @@ public interface StatusDatastore {
      */
     PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context);
 
+    /**
+	 * Retrieve a list of Status object for supplied equipmentIds and status data
+	 * types. Note: this method is not paginated because the results are naturally
+	 * limited by the supplied equipment ids, that's why the equipment ids parameter
+	 * must not be null or empty when calling this method.
+	 * 
+	 * @param customerId      - customer for which to retrieve status objects
+	 * @param equipmentIds    - set of equipment ids for which to retrieve status
+	 *                        objects. Empty set or null is not allowed. Some status
+	 *                        objects are not equipment specific (apply to the whole
+	 *                        network), in which case their equipmentId is set to 0.
+	 * @param statusDataTypes - set of status data types to retrieve. Empty set or
+	 *                        null means retrieve all status data types.
+	 * @return list of Status object for supplied filters
+	 */
+    List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes);
+
 }

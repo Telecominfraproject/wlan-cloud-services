@@ -69,4 +69,9 @@ public class StatusDatastoreRdbms implements StatusDatastore {
 
     	return statusDAO.getForCustomer( customerId, equipmentIds, statusDataTypes, sortBy, context);
     }
+    
+    @Override
+    public List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes) {
+    	return statusDAO.getForEquipment(customerId, equipmentIds, statusDataTypes);
+    }
 }

@@ -9175,7 +9175,52 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
-
+  /portal/status/forEquipmentWithFilter:
+    get:
+      tags:
+      - Status
+      summary: Get Status objects for a given customer equipment ids and status data types.
+      operationId: getStatusByCustomerEquipmentWithFilter
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: Set of equipment ids. Must not be empty or null.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: statusDataTypes
+        in: query
+        description: Set of status data types. Empty or null means retrieve all data types.
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusDataType'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
   /portal/client/session/forCustomer:
     get:
       tags:

@@ -78,6 +78,46 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
         }
 
 	}
+    
+    @Override
+    public List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes) {
+
+    	if(equipmentIds==null || equipmentIds.isEmpty()) {
+    		throw new IllegalArgumentException("equipmentIds parameter must be provided");
+    	}
+    	
+    	LOG.debug("getForEquipment({},{},{})", customerId, equipmentIds, statusDataTypes);
+
+        String equipmentIdsStr = equipmentIds.toString();
+        equipmentIdsStr = equipmentIdsStr.substring(1, equipmentIdsStr.length() - 1);
+
+        String statusDataTypesStr = null;
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+        	statusDataTypesStr = statusDataTypes.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+        	statusDataTypesStr = statusDataTypesStr.substring(1, statusDataTypesStr.length() - 1);
+        }
+        
+        try {
+            ResponseEntity<List<Status>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/forEquipmentWithFilters?customerId={customerId}&equipmentIds={equipmentIdsStr}&statusDataTypes={statusDataTypesStr}", 
+                    HttpMethod.GET,
+                    null, Status_LIST_CLASS_TOKEN, customerId, equipmentIdsStr, statusDataTypesStr);
+
+            List<Status> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getForEquipment({},{},{}) return {} entries", customerId, equipmentIds, statusDataTypes, result.size());
+            return result;
+        } catch (Exception exp) {
+        	LOG.error("getForEquipment({},{},{}) exception ", customerId, equipmentIds, statusDataTypes, exp);
+            throw exp;
+        }
+    }
 
 	@Override
 	public PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,

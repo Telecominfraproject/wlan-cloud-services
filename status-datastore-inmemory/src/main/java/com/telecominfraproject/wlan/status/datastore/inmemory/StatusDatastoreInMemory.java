@@ -296,4 +296,48 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
 
         return ret;
     }
+    
+    @Override
+    public List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes) {
+
+    	if(equipmentIds==null || equipmentIds.isEmpty()) {
+    		throw new IllegalArgumentException("equipmentIds parameter must be provided");
+    	}
+    	
+    	PaginationFilter<Status> filter = (mdl) -> {
+            if (mdl.getCustomerId() != customerId) {
+                return false;
+            }
+            
+            if( !equipmentIds.contains(mdl.getEquipmentId()) ) {
+                return false;
+            }
+
+            if(statusDataTypes!=null && !statusDataTypes.isEmpty() && !statusDataTypes.contains(mdl.getStatusDataType())) {
+                return false;
+            }
+
+			return true;
+    	};
+
+        List<Status> ret = new LinkedList<>();
+
+        // apply filters and build the result list
+        idToStatusMap.values().stream().filter(mdl -> filter.includeModel(mdl)).forEach( mdl -> ret.add(mdl.clone()));
+
+        //sort results by equipmentId, statusDataType
+        Collections.sort(ret, new Comparator<Status>() {
+        	@Override
+        	public int compare(Status o1, Status o2) {
+                int cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
+                if(cmp == 0) {
+                	cmp = Integer.compare(o1.getStatusDataType().getId(), o2.getStatusDataType().getId());
+                }
+        		return cmp;
+        	}
+		});
+
+        return ret;
+    }
+    
 }

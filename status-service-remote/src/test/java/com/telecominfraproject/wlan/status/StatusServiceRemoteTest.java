@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -612,6 +613,191 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
 
     }
 
+    @Test
+    public void testgetForEquipment()
+    {
+       //create 30 Statuses for our customer_1: 3 statuses per 10 equipment 
+       Status mdl;
+       int customerId_1 = getNextCustomerId();
+       int customerId_2 = getNextCustomerId();
+       
+       long[] equipmentIds_1 = new long[10];
+       for(int i=0; i<10; i++) {
+    	   equipmentIds_1[i] =  getNextEquipmentId(); 
+       }
+
+       StatusDataType statusDataType_1 = StatusDataType.EQUIPMENT_ADMIN;
+       StatusDataType statusDataType_2 = StatusDataType.PROTOCOL;
+       StatusDataType statusDataType_3 = StatusDataType.OS_PERFORMANCE;
+       
+       Set<Long> emptyEquipment = new HashSet<>();
+       Set<Long> oneEquipment = new HashSet<>();
+       oneEquipment.add(equipmentIds_1[0]);
+
+       Set<Long> twoEquipment = new HashSet<>();
+       twoEquipment.add(equipmentIds_1[0]);
+       twoEquipment.add(equipmentIds_1[1]);
+
+       Set<StatusDataType> emptyStatusDataTypes = new HashSet<>();
+       Set<StatusDataType> oneStatusDataType = new HashSet<>();
+       oneStatusDataType.add(statusDataType_1);
+       
+       Set<StatusDataType> twoStatusDataTypes = new HashSet<>();
+       twoStatusDataTypes.add(statusDataType_1);
+       twoStatusDataTypes.add(statusDataType_2);
+
+       Set<StatusDataType> threeStatusDataTypes = new HashSet<>();
+       threeStatusDataTypes.add(statusDataType_1);
+       threeStatusDataTypes.add(statusDataType_2);
+       threeStatusDataTypes.add(statusDataType_3);
+
+       int apNameIdx = 0;
+       
+       for(int i = 0; i< equipmentIds_1.length; i++){
+           //first status
+           mdl = new Status();
+           mdl.setCustomerId(customerId_1);
+           mdl.setEquipmentId(equipmentIds_1[i]);
+           
+           EquipmentAdminStatusData details1 = new EquipmentAdminStatusData();
+           details1.setStatusCode(StatusCode.normal);
+           details1.setStatusMessage("qr_"+apNameIdx);
+           mdl.setDetails(details1 );
+
+           remoteInterface.update(mdl);
+
+           //second status
+           mdl = new Status();
+           mdl.setCustomerId(customerId_1);
+           mdl.setEquipmentId(equipmentIds_1[i]);
+           
+           EquipmentProtocolStatusData details2 = new EquipmentProtocolStatusData();
+           details2.setSerialNumber("qr_"+apNameIdx);
+           mdl.setDetails(details2);
+
+           remoteInterface.update(mdl);
+
+           //third status
+           mdl = new Status();
+           mdl.setCustomerId(customerId_1);
+           mdl.setEquipmentId(equipmentIds_1[i]);
+           
+           OperatingSystemPerformance details3 = new OperatingSystemPerformance();
+           details3.setAvgFreeMemory(apNameIdx);
+           mdl.setDetails(details3);
+
+           remoteInterface.update(mdl);
+
+           apNameIdx++;
+       }
+
+       //add some statuses for another customer into the mix
+       for(int i = 0; i< 10; i++){
+           mdl = createStatusObject();
+           mdl.setCustomerId(customerId_2);
+           ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
+
+           apNameIdx++;
+           remoteInterface.update(mdl);
+       }
+
+
+       //
+       // Now verify combinations of parameters for getForEquipment method 
+       //
+       
+       List<Status> results;
+       try {
+    	   results = remoteInterface.getForEquipment(customerId_1, emptyEquipment, emptyStatusDataTypes);
+    	   fail("equipmentIds mandatory check failed");
+       }catch (IllegalArgumentException e) {
+		// expected it
+       }
+       
+       try {
+    	   results = remoteInterface.getForEquipment(customerId_1, null, null);
+		   fail("equipmentIds mandatory check failed");
+	   }catch (IllegalArgumentException e) {
+		// expected it
+	   }
+       
+       Set<Long> returnedEquipmentIds = new HashSet<>();
+       Set<StatusDataType> returnedStatusDataTypes = new HashSet<>();
+
+       // verify one equipment, all data types
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, oneEquipment, emptyStatusDataTypes);
+       assertEquals(3, results.size());
+       results.forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			returnedEquipmentIds.add(e.getEquipmentId());
+			returnedStatusDataTypes.add(e.getStatusDataType());
+		});
+		
+		assertEquals(oneEquipment, returnedEquipmentIds);
+		assertEquals(threeStatusDataTypes, returnedStatusDataTypes);
+
+       
+       // verify two equipment, all data types
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, twoEquipment, emptyStatusDataTypes);
+       assertEquals(6, results.size());
+       results.forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			returnedEquipmentIds.add(e.getEquipmentId());
+			returnedStatusDataTypes.add(e.getStatusDataType());
+		});
+		
+		assertEquals(twoEquipment, returnedEquipmentIds);
+		assertEquals(threeStatusDataTypes, returnedStatusDataTypes);
+       
+       
+       // verify one equipment, one data type
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, oneEquipment, oneStatusDataType);
+       assertEquals(1, results.size());
+       results.forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			returnedEquipmentIds.add(e.getEquipmentId());
+			returnedStatusDataTypes.add(e.getStatusDataType());
+		});
+		
+		assertEquals(oneEquipment, returnedEquipmentIds);
+		assertEquals(oneStatusDataType, returnedStatusDataTypes);
+       
+       // verify one equipment, two data types
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, oneEquipment, twoStatusDataTypes);
+       assertEquals(2, results.size());
+       results.forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			returnedEquipmentIds.add(e.getEquipmentId());
+			returnedStatusDataTypes.add(e.getStatusDataType());
+		});
+		
+		assertEquals(oneEquipment, returnedEquipmentIds);
+		assertEquals(twoStatusDataTypes, returnedStatusDataTypes);
+       
+       
+       // verify two equipment, two data types
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, twoEquipment, twoStatusDataTypes);
+       assertEquals(4, results.size());
+       results.forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			returnedEquipmentIds.add(e.getEquipmentId());
+			returnedStatusDataTypes.add(e.getStatusDataType());
+		});
+		
+		assertEquals(twoEquipment, returnedEquipmentIds);
+		assertEquals(twoStatusDataTypes, returnedStatusDataTypes);
+
+	}
     
     private Status createStatusObject() {
     	Status result = new Status();

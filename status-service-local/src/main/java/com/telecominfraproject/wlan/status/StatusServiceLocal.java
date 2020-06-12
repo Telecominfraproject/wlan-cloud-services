@@ -54,6 +54,10 @@ public class StatusServiceLocal implements StatusServiceInterface {
 				paginationContext);
 	}
 
+    @Override
+    public List<Status> getForEquipment(int customerId, Set<Long> equipmentIds, Set<StatusDataType> statusDataTypes) {
+    	return statusController.getForEquipment(customerId, equipmentIds, statusDataTypes);
+    }
 
     @Override
 	public Status update(Status status) {
