@@ -187,6 +187,7 @@
                                 <module>../spc-process</module>
                                 <module>../portal-process</module>
                                 <module>../all-cloud-in-one-process</module>
+                                <module>../all-cloud-and-opensync-gw-in-one-process</module>
                         </modules>
                 </profile>
         </profiles>
