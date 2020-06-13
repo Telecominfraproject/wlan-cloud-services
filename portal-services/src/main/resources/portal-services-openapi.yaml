@@ -8,6 +8,8 @@ servers:
     description: Local Dev server
   - url: https://192.168.0.143:9091
     description: Local Dev server - all-in-one
+  - url: https://192.168.0.143:4044
+    description: Local Dev server - all-in-one in docker
   - url: https://192.168.0.143:9051
     description: Local Dev server - portal, prov, and ssc
 
