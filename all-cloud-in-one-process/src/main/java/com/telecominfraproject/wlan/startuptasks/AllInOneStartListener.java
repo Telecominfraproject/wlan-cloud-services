@@ -10,10 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,7 @@ import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 import com.telecominfraproject.wlan.client.ClientServiceInterface;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
+import com.telecominfraproject.wlan.client.session.models.ClientDhcpDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
@@ -108,6 +111,10 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private ServiceMetricServiceInterface serviceMetricInterface;
+	
+    @Value("${tip.wlan.numEquipmentToCreateOnStartup:50}")
+	private int numEquipmentToCreateOnStartup;
+
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -262,8 +269,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 		enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
 
 		List<Equipment> equipmentList = new ArrayList<>();
-		int numEquipment = 50;
-		for (int i = 1; i <= numEquipment; i++) {
+
+		for (int i = 1; i <= numEquipmentToCreateOnStartup; i++) {
 			Equipment equipment = new Equipment();
 			equipment.setCustomerId(customer.getId());
 			equipment.setEquipmentType(EquipmentType.AP);
@@ -293,6 +300,25 @@ public class AllInOneStartListener implements ApplicationRunner {
 			equipment.setName("AP " + i);
 			equipment.setSerial("serial-ap-" + i);
 			equipment.setDetails(ApElementConfiguration.createWithDefaults());
+			
+			String eqModel;
+			switch( i%4 ) {
+			case 0:
+				eqModel = "ea8300";
+				break;
+			case 1:
+				eqModel = "ecw5211";
+				break;
+			case 2:
+				eqModel = "ecw5410";
+				break;
+			case 3:
+				eqModel = "ap2220";
+				break;
+			default:
+				eqModel = "ap2220";
+			}
+			equipment.getDetails().setEquipmentModel(eqModel);
 
 			equipment = equipmentServiceInterface.create(equipment);
 			equipmentList.add(equipment);
@@ -465,6 +491,21 @@ public class AllInOneStartListener implements ApplicationRunner {
 			sessionDetails.setSsid(ssidConfig.getSsid());
 			sessionDetails.setSessionId(System.currentTimeMillis());
 			sessionDetails.setAssocTimestamp(System.currentTimeMillis() - getRandomLong(10000, 1000000));
+
+			ClientDhcpDetails dhcpDetails = new ClientDhcpDetails(System.currentTimeMillis());
+			dhcpDetails.setLeaseStartTimestamp(System.currentTimeMillis() - getRandomLong(0, TimeUnit.HOURS.toMillis(4)));
+			dhcpDetails.setLeaseTimeInSeconds((int)TimeUnit.HOURS.toSeconds(4));
+			try {
+				dhcpDetails.setDhcpServerIp(InetAddress.getByName("192.168.0.1"));
+				dhcpDetails.setGatewayIp(dhcpDetails.getDhcpServerIp());
+				dhcpDetails.setPrimaryDns(InetAddress.getByName("8.8.8.8"));
+				dhcpDetails.setSecondaryDns(dhcpDetails.getDhcpServerIp());
+				dhcpDetails.setSubnetMask(InetAddress.getByName("192.168.0.255"));
+			} catch (UnknownHostException e) {
+				// nothing to do
+			}
+
+			sessionDetails.setDhcpDetails(dhcpDetails );
 
 			ClientSessionMetricDetails metricDetails = new ClientSessionMetricDetails();
 			metricDetails.setRssi(getRandomInt(-60, -40));
