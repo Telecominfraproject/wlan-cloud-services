@@ -141,6 +141,10 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 			return true;
 		}
 		
+		if(ServiceMetricDataType.isUnsupported(dataType)) {
+			return true;
+		}
+
 		return false;
 	}
 	
