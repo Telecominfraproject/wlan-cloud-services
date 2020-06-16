@@ -130,14 +130,14 @@ public class FirmwareDatastoreRdbms implements FirmwareDatastore {
 		return firmwareTrackAssignmentDatastore.getAllDefaultFirmwareTrackAssignmentDetails(firmwareTrackRecordId);
 	}
 
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
-			long firmwareTrackRecordId, String platform) {
-		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(firmwareTrackRecordId, platform);
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(
+			long firmwareTrackRecordId, String equipmentModel) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(firmwareTrackRecordId, equipmentModel);
 	}
 
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
-			String platform) {
-		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackName, platform);
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName,
+			String equipmentModel) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(trackName, equipmentModel);
 	}
 
 	

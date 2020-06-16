@@ -146,16 +146,16 @@ public class FirmwareTrackAssignmentDatastoreInMemory extends BaseInMemoryDatast
     }
 
     @Override
-    public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
-            long firmwareTrackRecordId, String platform) {
+    public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(
+            long firmwareTrackRecordId, String equipmentModel) {
         FirmwareTrackRecord r = firmwareTrackDatastore.getFirmwareTrackById(firmwareTrackRecordId);
-        return getDefaultFirmwareTrackAssignmentDetailsForPlatform(r.getTrackName(), platform);
+        return getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(r.getTrackName(), equipmentModel);
     }
 
     @Override
-    public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
-            String platform) {
-        if (platform == null || platform.length() == 0) {
+    public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName,
+            String equipmentModel) {
+        if (equipmentModel == null || equipmentModel.length() == 0) {
             return null;
         }
 
@@ -164,7 +164,7 @@ public class FirmwareTrackAssignmentDatastoreInMemory extends BaseInMemoryDatast
             List<FirmwareTrackAssignmentDetails> listOfVersions = getFirmwareTrackDetails(trackName);
             if (listOfVersions != null) {
                 for (FirmwareTrackAssignmentDetails d : listOfVersions) {
-                    if (d.isDefaultRevisionForTrack() && platform.equals(d.getModelId())) {
+                    if (d.isDefaultRevisionForTrack() && equipmentModel.equals(d.getModelId())) {
                         return d;
                     }
                 }

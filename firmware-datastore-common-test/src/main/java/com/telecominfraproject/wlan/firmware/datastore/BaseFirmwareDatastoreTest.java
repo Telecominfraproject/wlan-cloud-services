@@ -393,15 +393,15 @@ public abstract class BaseFirmwareDatastoreTest {
         detailsList = firmwareDatastore.getFirmwareTrackDetails(trackName3);
         assertTrue(detailsList.isEmpty());
 
-        String platform = versionRec2.getModelId();
-        Map<String, FirmwareTrackAssignmentDetails> defaultTrackAssignmentsPerPlatform = firmwareDatastore.getAllDefaultFirmwareTrackAssignmentDetails(trackRec1.getRecordId());
-        assertEquals(1, defaultTrackAssignmentsPerPlatform.size());
-        assertTrue(defaultTrackAssignmentsPerPlatform.containsKey(platform));
+        String equipmentModel = versionRec2.getModelId();
+        Map<String, FirmwareTrackAssignmentDetails> defaultTrackAssignmentsPerEquipmentModel = firmwareDatastore.getAllDefaultFirmwareTrackAssignmentDetails(trackRec1.getRecordId());
+        assertEquals(1, defaultTrackAssignmentsPerEquipmentModel.size());
+        assertTrue(defaultTrackAssignmentsPerEquipmentModel.containsKey(equipmentModel));
         
-        FirmwareTrackAssignmentDetails trackAssignmentDetails1 =  firmwareDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackRec1.getRecordId(), platform);        
-        FirmwareTrackAssignmentDetails trackAssignmentDetails1_1 =  firmwareDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackRec1.getTrackName(), platform);
+        FirmwareTrackAssignmentDetails trackAssignmentDetails1 =  firmwareDatastore.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(trackRec1.getRecordId(), equipmentModel);        
+        FirmwareTrackAssignmentDetails trackAssignmentDetails1_1 =  firmwareDatastore.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(trackRec1.getTrackName(), equipmentModel);
         assertEquals(trackAssignmentDetails1, trackAssignmentDetails1_1);
-        assertEquals(trackAssignmentDetails1, defaultTrackAssignmentsPerPlatform.get(platform));
+        assertEquals(trackAssignmentDetails1, defaultTrackAssignmentsPerEquipmentModel.get(equipmentModel));
         assertEquals(trackAssignmentDetails1, new FirmwareTrackAssignmentDetails(defaultAssignmentRecord_track1, versionRec2));
         
     }

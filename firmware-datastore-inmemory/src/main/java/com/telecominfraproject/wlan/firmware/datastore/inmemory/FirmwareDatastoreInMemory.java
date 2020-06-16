@@ -132,16 +132,16 @@ public class FirmwareDatastoreInMemory extends BaseInMemoryDatastore implements 
 		return firmwareTrackAssignmentDatastore.getAllDefaultFirmwareTrackAssignmentDetails(firmwareTrackRecordId);
 	}
 
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
-			long firmwareTrackRecordId, String platform) {
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(
+			long firmwareTrackRecordId, String equipmentModel) {
 		return firmwareTrackAssignmentDatastore
-				.getDefaultFirmwareTrackAssignmentDetailsForPlatform(firmwareTrackRecordId, platform);
+				.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(firmwareTrackRecordId, equipmentModel);
 	}
 
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
-			String platform) {
-		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackName,
-				platform);
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName,
+			String equipmentModel) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(trackName,
+				equipmentModel);
 	}
 
 	

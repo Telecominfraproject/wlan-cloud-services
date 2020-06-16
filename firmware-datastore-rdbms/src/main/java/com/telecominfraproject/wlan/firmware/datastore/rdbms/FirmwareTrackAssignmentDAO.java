@@ -328,26 +328,26 @@ public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareT
 	}
 
 	@Override
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
-			long firmwareTrackRecordId, String platform) {
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(
+			long firmwareTrackRecordId, String equipmentModel) {
 
-		if (platform == null || platform.length() == 0) {
+		if (equipmentModel == null || equipmentModel.length() == 0) {
             return null;
         }
         Map<String, FirmwareTrackAssignmentDetails> listOfVersions = getAllDefaultFirmwareTrackAssignmentDetails(
                 firmwareTrackRecordId);
 
-        return listOfVersions.get(platform);
+        return listOfVersions.get(equipmentModel);
         
 	}
 	
 	@Override
-	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
-			String platform) {
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName,
+			String equipmentModel) {
 		
         FirmwareTrackRecord trackRecord = firmwareTrackDatastore.getFirmwareTrackByNameOrNull(trackName);
         if(trackRecord != null) {
-            return getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackRecord.getRecordId(), platform);
+            return getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(trackRecord.getRecordId(), equipmentModel);
         }
 
         return null;

@@ -18,20 +18,20 @@ public interface FirmwareTrackAssignmentDaoInterface {
     FirmwareTrackAssignmentDetails getFirmwareTrackAssignmentDetails(long firmwareTrackRecordId, long firmwareVersionRecordId);
     
     /**
-     * Retrieves a map of Platform names to the default FirmwareTrackAssignmentDetails for the particular 
+     * Retrieves a map of equipmentModel names to the default FirmwareTrackAssignmentDetails for the particular 
      * track.
      */
     Map<String, FirmwareTrackAssignmentDetails> getAllDefaultFirmwareTrackAssignmentDetails(long firmwareTrackRecordId);
     
     /**
-     * Retrieves the default FirmwareTrackAssignmentDetails for given track and platform using track record id.
+     * Retrieves the default FirmwareTrackAssignmentDetails for given track and equipmentModel using track record id.
      */
-    FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(long firmwareTrackRecordId, String platform);
+    FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(long firmwareTrackRecordId, String equipmentModel);
     
     /**
-     * Retrieves the default FirmwareTrackAssignmentDetails for given track and platform using the name of the track.
+     * Retrieves the default FirmwareTrackAssignmentDetails for given track and equipmentModel using the name of the track.
      */
-    FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName, String platform);
+    FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName, String equipmentModel);
 
 
     FirmwareTrackAssignmentRecord createOrUpdateFirmwareTrackAssignment(FirmwareTrackAssignmentRecord assignment);

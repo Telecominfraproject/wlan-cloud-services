@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.firmware.datastore.FirmwareDatastore;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
@@ -100,9 +101,9 @@ public class FirmwareController {
     }
 
     @RequestMapping(value = "/version/byName", method = RequestMethod.GET)
-    public FirmwareVersion getFirmwareVersionByName(@RequestParam String versionName) {
-        LOG.debug("Retrieving FirmwareVersion {}", versionName);
-        FirmwareVersion ret = firmwareDatastore.getByName(versionName);
+    public FirmwareVersion getFirmwareVersionByName(@RequestParam String firmwareVersionName) {
+        LOG.debug("Retrieving FirmwareVersion {}", firmwareVersionName);
+        FirmwareVersion ret = firmwareDatastore.getByName(firmwareVersionName);
         LOG.debug("Retrieved FirmwareVersion {}", ret);
         return ret;
     }
@@ -128,7 +129,7 @@ public class FirmwareController {
         LOG.debug("Updating FirmwareVersion {}", firmwareVersion);
         FirmwareVersion origin = firmwareDatastore.get(firmwareVersion.getId());
         // can not change modelId, otherwise we will have to update default
-        // platform setting for all tracks
+        // equipmentModel setting for all tracks
         if ((null != origin.getModelId()) && !origin.getModelId().equals(firmwareVersion.getModelId())) {
             throw new DsDataValidationException("Can not change modelId for firmware version");
         }
@@ -202,7 +203,8 @@ public class FirmwareController {
     }
 
     @RequestMapping(value = "/trackAssignment", method = RequestMethod.PUT)
-    public FirmwareTrackAssignmentDetails updateFirmwareTrackAssignment(@RequestBody FirmwareTrackAssignmentDetails assignmentDetails) {
+    public FirmwareTrackAssignmentDetails updateFirmwareTrackAssignment(
+    		@RequestBody FirmwareTrackAssignmentDetails assignmentDetails) {
         LOG.debug("calling updateFirmwareTrackAssignment({})", assignmentDetails);
         FirmwareTrackAssignmentRecord result = firmwareDatastore.createOrUpdateFirmwareTrackAssignment(assignmentDetails);        
         FirmwareVersion version = firmwareDatastore.get(result.getFirmwareVersionRecordId());
@@ -211,11 +213,11 @@ public class FirmwareController {
     }
     
     @RequestMapping(value = "/trackAssignment", method = RequestMethod.DELETE)
-    public FirmwareTrackAssignmentDetails deleteFirmwareTrackAssignment(@RequestParam long trackId,
+    public FirmwareTrackAssignmentDetails deleteFirmwareTrackAssignment(@RequestParam long firmwareTrackId,
             @RequestParam long firmwareVersionId) {
-        LOG.debug("calling deleteFirmwareTrackAssignment({},{})", trackId, firmwareVersionId);
+        LOG.debug("calling deleteFirmwareTrackAssignment({},{})", firmwareTrackId, firmwareVersionId);
         FirmwareVersion version = firmwareDatastore.get(firmwareVersionId);
-        FirmwareTrackAssignmentRecord assignment = firmwareDatastore.deleteFirmwareTrackAssignment(trackId, firmwareVersionId);
+        FirmwareTrackAssignmentRecord assignment = firmwareDatastore.deleteFirmwareTrackAssignment(firmwareTrackId, firmwareVersionId);
         FirmwareTrackAssignmentDetails result = new FirmwareTrackAssignmentDetails(assignment, version);
         return result;
     }
@@ -258,11 +260,20 @@ public class FirmwareController {
     @RequestMapping(value = "/customerTrack", method = RequestMethod.PUT)
     public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(@RequestBody CustomerFirmwareTrackRecord customerTrack) {
         LOG.debug("calling updateCustomerFirmwareTrackRecord({})", customerTrack);
-        CustomerFirmwareTrackRecord result = firmwareDatastore.createCustomerFirmwareTrackRecord(customerTrack);
+        CustomerFirmwareTrackRecord result;
+        try {
+        	@SuppressWarnings("unused")
+			CustomerFirmwareTrackRecord existing = firmwareDatastore.getCustomerFirmwareTrackRecord(customerTrack.getCustomerId());
+        	result = firmwareDatastore.updateCustomerFirmwareTrackRecord(customerTrack);
+        }catch (DsEntityNotFoundException e) {
+			// no record found
+        	result = firmwareDatastore.createCustomerFirmwareTrackRecord(customerTrack);
+        }
         return result;
     }
 
     
+        
     @RequestMapping(value = "/customerTrack", method = RequestMethod.DELETE)
     public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(@RequestParam int customerId) {
         LOG.debug("calling deleteCustomerFirmwareTrackRecord({})", customerId);

@@ -43,7 +43,7 @@ public interface FirmwareServiceInterface {
 
     FirmwareTrackAssignmentDetails updateFirmwareTrackAssignment(FirmwareTrackAssignmentDetails assignmentDetails);
 
-    FirmwareTrackAssignmentRecord deleteFirmwareTrackAssignment(long firmwareTrackRecordId, long firmwareVersionRecordId);
+    FirmwareTrackAssignmentDetails deleteFirmwareTrackAssignment(long firmwareTrackRecordId, long firmwareVersionRecordId);
 
     CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId);
     CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record);

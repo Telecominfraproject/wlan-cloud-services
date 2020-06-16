@@ -40,7 +40,8 @@ tags:
     Equipment (AccessPoints) can be bound to a customer and location.
 - name: Profile
   description: |
-    Profiles for various services can be associated tith equipment and with other profiles.
+    Profiles for various services can be associated with equipment and with other profiles.
+    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
 - name: Status
   description: |
     Status for the network and individual equipment.
@@ -48,11 +49,25 @@ tags:
   description: |
     Information about WLAN clients and sessions.
 - name: Alarms
+  description: |
+    Alarms can be raised and cleared for equipment and customer.
 - name: WLAN Service Metrics
+  description: |
+    Metrics specific to WLAN service can be created for equipment and customer.
 - name: System Events
+  description: |
+    Various system events can be generated and persisted by the cloud services, including provisioning-related events when data model objects are created, updated, removed. Events are associated with equipment and customer.
 - name: Portal Users
 - name: Firmware Management
+  description: |
+    Firmware versions describe firmware binary files, which can be stored in CloudSDK file broker, or at any publically accessible URL.
+    Firmware tracks define upgrade maintenance window.
+    Firmware versions per equipment model are assigned to a firmware track.
+    There is one DEFAULT firmware track, and there can be many other firmware tracks, with different names.
+    A firmware track can be associated with a customer. If no such explicit customer association exist, then the DEFAULT track will be applied to the customer. 
 - name: Manufacturer OUI
+  description: |
+    Manufacturer records alow translation from OUI (first 3 pieces of the MAC address) into the manufacturer names.
 
 components:
   securitySchemes:
@@ -184,6 +199,26 @@ components:
       - integration
       - UNSUPPORTED
       
+    ScheduleSetting:
+      oneOf:
+      - $ref: '#/components/schemas/DaysOfWeekTimeRangeSchedule'
+      - $ref: '#/components/schemas/DailyTimeRangeSchedule'
+      - $ref: '#/components/schemas/EmptySchedule'
+      discriminator:
+        propertyName: model_type
+      
+
+    FirmwareScheduleSetting:
+      oneOf:
+      - $ref: '#/components/schemas/DailyTimeRangeSchedule'
+      - $ref: '#/components/schemas/EmptySchedule'
+      discriminator:
+        propertyName: model_type
+      example:
+        model_type: EmptySchedule
+        timezone: "US/Eastern"
+
+    
     LocationDetails:
       type: object
       properties:
@@ -259,6 +294,35 @@ components:
         - FRIDAY
         - SATURDAY
         - SUNDAY
+
+    DailyTimeRangeSchedule:
+      type: object
+      properties:
+        timezone:
+          type: string
+        timeBegin:
+          $ref: '#/components/schemas/LocalTimeValue'
+        timeEnd:
+          $ref: '#/components/schemas/LocalTimeValue'
+      example:
+        model_type: DailyTimeRangeSchedule
+        timezone: "US/Eastern"
+        timeBegin: 
+          hour: 22
+          minute: 01
+        timeEnd: 
+          hour: 22
+          minute: 30
+
+    EmptySchedule:
+      description: This schedule setting will never return any TimeWindows.
+      type: object
+      properties:
+        timezone:
+          type: string
+      example:
+        model_type: EmptySchedule
+        timezone: "US/Eastern"
 
 #
 # Equipment data models
@@ -7569,7 +7633,150 @@ components:
       - CEGW
       - CNAGW
       
+
+#
+# Objects related to Firmware Management
+#
       
+    FirmwareVersion:
+      properties:
+        id:
+          type: integer
+          format: int64
+        equipmentType:
+          $ref: '#/components/schemas/EquipmentType'
+        modelId:
+          type: string
+          description: equipment model
+        versionName:
+          type: string
+        description:
+          type: string
+        filename:
+          type: string
+        commit:
+          type: string
+          description: commit number for the firmware image, from the source control system
+        validationMethod:
+          $ref: '#/components/schemas/FirmwareValidationMethod'
+        validationCode:
+          type: string
+          description: firmware digest code, depending on validation method - MD5, etc.
+        releaseDate:
+          type: integer
+          format: int64
+          description: release date of the firmware image, in ms epoch time
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
+
+    FirmwareValidationMethod:
+      type: string
+      enum:
+      - MD5_CHECKSUM
+    
+    FirmwareTrackRecord:
+      properties:
+        recordId:
+          type: integer
+          format: int32
+        trackName:
+          type: string
+        maintenanceWindow:
+          $ref: '#/components/schemas/FirmwareScheduleSetting'
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
+
+    FirmwareTrackAssignmentRecord:
+      properties:
+        trackRecordId:
+          type: integer
+          format: int64
+        firmwareVersionRecordId:
+          type: integer
+          format: int64
+        defaultRevisionForTrack:
+          type: boolean
+        deprecated:
+          type: boolean
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
+
+    
+    FirmwareTrackAssignmentDetails:
+      allOf:
+      - $ref: '#/components/schemas/FirmwareTrackAssignmentRecord'
+      properties:
+        equipmentType:
+          $ref: '#/components/schemas/EquipmentType'
+        modelId:
+          type: string
+          description: equipment model
+        versionName:
+          type: string
+        description:
+          type: string
+        commit:
+          type: string
+          description: commit number for the firmware image, from the source control system
+        releaseDate:
+          type: integer
+          format: int64
+          description: release date of the firmware image, in ms epoch time
+        
+    CustomerFirmwareTrackSettings:
+      properties:
+        autoUpgradeDeprecatedOnBind:
+          $ref: '#/components/schemas/TrackFlag'
+        autoUpgradeUnknownOnBind:
+          $ref: '#/components/schemas/TrackFlag'
+        autoUpgradeDeprecatedDuringMaintenance:
+          $ref: '#/components/schemas/TrackFlag'
+        autoUpgradeUnknownDuringMaintenance:
+          $ref: '#/components/schemas/TrackFlag'
+
+        
+    TrackFlag:
+      type: string
+      default: DEFAULT
+      enum:
+      - ALWAYS
+      - NEVER
+      - DEFAULT
+
+    CustomerFirmwareTrackRecord:
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        trackRecordId:
+          type: integer
+          format: int64
+        settings:
+          $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
+      
+
 #
 # Objects related to pagination
 #
@@ -9786,3 +9993,428 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
+  /portal/firmware/version:
+    post:
+      tags:
+       - Firmware Management
+      summary: Create new FirmwareVersion
+      operationId: createFirmwareVersion
+      requestBody:
+        description: FirmwareVersion info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirmwareVersion'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareVersion By Id
+      operationId: getFirmwareVersion
+      parameters:
+      - name: firmwareVersionId
+        in: query
+        description: firmwareVersion id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - Firmware Management
+      summary: Update FirmwareVersion
+      operationId: updateFirmwareVersion
+      requestBody:
+        description: FirmwareVersion info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirmwareVersion'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - Firmware Management
+      summary: Delete FirmwareVersion
+      operationId: deleteFirmwareVersion
+      parameters:
+      - name: firmwareVersionId
+        in: query
+        description: firmwareVersion id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/version/byName:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareVersion By name
+      operationId: getFirmwareVersionByName
+      parameters:
+      - name: firmwareVersionName
+        in: query
+        description: firmwareVersion name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/version/byEquipmentType:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareVersion By equipmentType
+      operationId: getFirmwareVersionByEquipmentType
+      parameters:
+      - name: equipmentType
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/EquipmentType'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/firmware/track:
+    post:
+      tags:
+       - Firmware Management
+      summary: Create new FirmwareTrackRecord
+      operationId: createFirmwareTrackRecord
+      requestBody:
+        description: FirmwareTrackRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirmwareTrackRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareTrackRecord By Id
+      operationId: getFirmwareTrackRecord
+      parameters:
+      - name: firmwareTrackId
+        in: query
+        description: firmware track id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - Firmware Management
+      summary: Update FirmwareTrackRecord
+      operationId: updateFirmwareTrackRecord
+      requestBody:
+        description: FirmwareTrackRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirmwareTrackRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - Firmware Management
+      summary: Delete FirmwareTrackRecord
+      operationId: deleteFirmwareTrackRecord
+      parameters:
+      - name: firmwareTrackId
+        in: query
+        description: firmware track id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/track/byName:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareTrackRecord By name
+      operationId: getFirmwareTrackRecordByName
+      parameters:
+      - name: firmwareTrackName
+        in: query
+        description: firmware track name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/trackAssignment:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get FirmwareTrackAssignmentDetails for a given firmware track name
+      operationId: getFirmwareTrackAssignmentDetails
+      parameters:
+      - name: firmwareTrackName
+        in: query
+        description: firmware track name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirmwareTrackAssignmentDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - Firmware Management
+      summary: Update FirmwareTrackAssignmentDetails
+      operationId: updateFirmwareTrackAssignmentDetails
+      requestBody:
+        description: FirmwareTrackAssignmentDetails info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirmwareTrackAssignmentDetails'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackAssignmentDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - Firmware Management
+      summary: Delete FirmwareTrackAssignment
+      operationId: deleteFirmwareTrackAssignment
+      parameters:
+      - name: firmwareTrackId
+        in: query
+        description: firmware track id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: firmwareVersionId
+        in: query
+        description: firmware version id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareTrackAssignmentDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/customerTrack/default:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get default settings for handling automatic firmware upgrades
+      operationId: getDefaultCustomerTrackSetting
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/customerTrack:
+    post:
+      tags:
+       - Firmware Management
+      summary: Create new CustomerFirmwareTrackRecord
+      operationId: createCustomerFirmwareTrackRecord
+      requestBody:
+        description: CustomerFirmwareTrackRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+      - Firmware Management
+      summary: Get CustomerFirmwareTrackRecord By customerId
+      operationId: getCustomerFirmwareTrackRecord
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - Firmware Management
+      summary: Update CustomerFirmwareTrackRecord
+      operationId: updateCustomerFirmwareTrackRecord
+      requestBody:
+        description: CustomerFirmwareTrackRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+      - Firmware Management
+      summary: Delete CustomerFirmwareTrackRecord
+      operationId: deleteCustomerFirmwareTrackRecord
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
