@@ -1,65 +1,166 @@
 package com.telecominfraproject.wlan.firmware.datastore.rdbms;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.firmware.datastore.FirmwareDatastore;
-import com.telecominfraproject.wlan.firmware.models.Firmware;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
 /**
  * @author dtoptygin
  *
  */
-@Configuration
+@Component
 public class FirmwareDatastoreRdbms implements FirmwareDatastore {
 
-    @Autowired FirmwareDAO firmwareDAO;
+	@Autowired 
+	private FirmwareVersionDAO firmwareVersionDatastore;
+	
+	@Autowired 
+	private FirmwareTrackDAO firmwareTrackDatastore;
 
-    @Override
-    public Firmware create(Firmware firmware) {
-        return firmwareDAO.create(firmware);
-    }
+	@Autowired 
+	private FirmwareTrackAssignmentDAO firmwareTrackAssignmentDatastore;
 
-    @Override
-    public Firmware get(long firmwareId) {
-        return firmwareDAO.get(firmwareId);
-    }
+	@Autowired 
+	private CustomerFirmwareTrackDAO customerFirmwareTrackDatastore;
 
-    @Override
-    public Firmware getOrNull(long firmwareId) {
-        return firmwareDAO.getOrNull(firmwareId);
-    }
+    @SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(FirmwareDatastoreRdbms.class);
     
-    @Override
-    public Firmware update(Firmware firmware) {
-        return firmwareDAO.update(firmware);
-    }
 
-    @Override
-    public Firmware delete(long firmwareId) {
-        return firmwareDAO.delete(firmwareId);
-    }
-    
-    @Override
-    public List<Firmware> get(Set<Long> firmwareIdSet) {
-    	return firmwareDAO.get(firmwareIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<Firmware> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Firmware> context) {
-    	
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
+    public FirmwareVersion create(FirmwareVersion firmware) {
+		return firmwareVersionDatastore.create(firmware);
+	}
 
-    	return firmwareDAO.getForCustomer( customerId, sortBy, context);
-    }
+	public FirmwareVersion get(long firmwareId) {
+		return firmwareVersionDatastore.get(firmwareId);
+	}
+
+	public FirmwareVersion getByName(String versionName) {
+		return firmwareVersionDatastore.getByName(versionName);
+	}
+
+	public FirmwareVersion getByNameOrNull(String versionName) {
+		return firmwareVersionDatastore.getByNameOrNull(versionName);
+	}
+
+	public FirmwareVersion update(FirmwareVersion firmware) {
+		return firmwareVersionDatastore.update(firmware);
+	}
+
+	public boolean equals(Object obj) {
+		return firmwareVersionDatastore.equals(obj);
+	}
+
+	public FirmwareVersion delete(long firmwareId) {
+		return firmwareVersionDatastore.delete(firmwareId);
+	}
+
+	public Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType() {
+		return firmwareVersionDatastore.getAllGroupedByEquipmentType();
+	}
+
+
+
+    public FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
+		return firmwareTrackDatastore.createFirmwareTrack(firmwareTrack);
+	}
+
+	public FirmwareTrackRecord getFirmwareTrackById(long firmwareTrackId) {
+		return firmwareTrackDatastore.getFirmwareTrackById(firmwareTrackId);
+	}
+
+	public FirmwareTrackRecord getFirmwareTrackByName(String trackName) {
+		return firmwareTrackDatastore.getFirmwareTrackByName(trackName);
+	}
+
+	public FirmwareTrackRecord getFirmwareTrackByNameOrNull(String trackName) {
+		return firmwareTrackDatastore.getFirmwareTrackByNameOrNull(trackName);
+	}
+
+	public FirmwareTrackRecord updateFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
+		return firmwareTrackDatastore.updateFirmwareTrack(firmwareTrack);
+	}
+
+	public FirmwareTrackRecord deleteFirmwareTrackRecord(long firmwareId) {
+		return firmwareTrackDatastore.deleteFirmwareTrackRecord(firmwareId);
+	}
+
+
+	
+
+    public FirmwareTrackAssignmentRecord createOrUpdateFirmwareTrackAssignment(
+			FirmwareTrackAssignmentRecord assignmentRecord) {
+		return firmwareTrackAssignmentDatastore.createOrUpdateFirmwareTrackAssignment(assignmentRecord);
+	}
+
+	public FirmwareTrackAssignmentRecord deleteFirmwareTrackAssignment(long firmwareTrackRecordId,
+			long firmwareVersionRecordId) {
+		return firmwareTrackAssignmentDatastore.deleteFirmwareTrackAssignment(firmwareTrackRecordId,
+				firmwareVersionRecordId);
+	}
+
+	@Override
+	public void deleteFirmwareTrackAssignments(long firmwareTrackRecordId) {
+		firmwareTrackAssignmentDatastore.deleteFirmwareTrackAssignments(firmwareTrackRecordId);
+	}
+	
+	public List<FirmwareTrackAssignmentDetails> getFirmwareTrackDetails(String firmwareTrackName) {
+        return firmwareTrackAssignmentDatastore.getFirmwareTrackDetails(firmwareTrackName);
+	}
+
+	public FirmwareTrackAssignmentDetails getFirmwareTrackAssignmentDetails(long firmwareTrackRecordId,
+			long firmwareVersionRecordId) {
+		return firmwareTrackAssignmentDatastore.getFirmwareTrackAssignmentDetails(firmwareTrackRecordId, firmwareVersionRecordId);
+	}
+
+	public Map<String, FirmwareTrackAssignmentDetails> getAllDefaultFirmwareTrackAssignmentDetails(
+			long firmwareTrackRecordId) {
+		return firmwareTrackAssignmentDatastore.getAllDefaultFirmwareTrackAssignmentDetails(firmwareTrackRecordId);
+	}
+
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
+			long firmwareTrackRecordId, String platform) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(firmwareTrackRecordId, platform);
+	}
+
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
+			String platform) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackName, platform);
+	}
+
+	
+	public CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record) {
+		return customerFirmwareTrackDatastore.createCustomerFirmwareTrackRecord(record);
+	}
+
+	public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record) {
+		return customerFirmwareTrackDatastore.updateCustomerFirmwareTrackRecord(record);
+	}
+
+	public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId) {
+		return customerFirmwareTrackDatastore.getCustomerFirmwareTrackRecord(customerId);
+	}
+
+	public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(int customerId) {
+		return customerFirmwareTrackDatastore.deleteCustomerFirmwareTrackRecord(customerId);
+	}
+
+	@Override
+	public void deleteCustomerFirmwareTrackRecords(long firmwareTrackRecordId) {
+		customerFirmwareTrackDatastore.deleteCustomerFirmwareTrackRecords(firmwareTrackRecordId);
+	}
+	
+
 }

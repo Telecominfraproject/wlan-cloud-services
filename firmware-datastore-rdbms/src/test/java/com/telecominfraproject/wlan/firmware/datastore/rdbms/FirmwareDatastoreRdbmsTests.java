@@ -21,8 +21,14 @@ import com.telecominfraproject.wlan.firmware.datastore.BaseFirmwareDatastoreTest
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = BaseJdbcTest.Config.class)
 @Rollback(value = true)
 @Transactional
-@Import(value = { FirmwareDatastoreRdbms.class, FirmwareDataSourceConfig.class,
-        FirmwareDAO.class, BaseJdbcTest.Config.class })
+@Import(value = { 
+        FirmwareDatastoreRdbms.class,
+        FirmwareDataSourceConfig.class,
+        FirmwareVersionDAO.class,
+        FirmwareTrackDAO.class,
+        FirmwareTrackAssignmentDAO.class,
+        CustomerFirmwareTrackDAO.class,
+ })
 @TestWithEmbeddedDB
 public class FirmwareDatastoreRdbmsTests extends BaseFirmwareDatastoreTest {
 

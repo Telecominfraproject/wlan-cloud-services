@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.status.equipment.models;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
@@ -43,6 +45,13 @@ public class EquipmentUpgradeStatusData extends StatusDetails {
     private Long upgradeStartTime;
     
     private Boolean switchBank;
+    
+    private boolean rebooted = false;
+    /**
+     * reset method
+     */
+    private EquipmentResetMethod performReset = EquipmentResetMethod.NoReset;
+
 
     public EquipmentUpgradeStatusData(EquipmentUpgradeStatusData  data)
     {
@@ -88,48 +97,6 @@ public class EquipmentUpgradeStatusData extends StatusDetails {
         return (EquipmentUpgradeStatusData) super.clone();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof EquipmentUpgradeStatusData)) {
-            return false;
-        }
-        EquipmentUpgradeStatusData other = (EquipmentUpgradeStatusData) obj;
-        if (reason != other.reason) {
-            return false;
-        }
-        if (retries != other.retries) {
-            return false;
-        }
-        if (targetSwVersion == null) {
-            if (other.targetSwVersion != null) {
-                return false;
-            }
-        } else if (!targetSwVersion.equals(other.targetSwVersion)) {
-            return false;
-        }
-        if (upgradeStartTime == null) {
-            if (other.upgradeStartTime != null) {
-                return false;
-            }
-        } else if (!upgradeStartTime.equals(other.upgradeStartTime)) {
-            return false;
-        }
-        if (upgradeState != other.upgradeState) {
-            return false;
-        }
-        return true;
-    }
 
     public EquipmentUpgradeState.FailureReason getReason() {
         return reason;
@@ -150,23 +117,6 @@ public class EquipmentUpgradeStatusData extends StatusDetails {
 
     public EquipmentUpgradeState getUpgradeState() {
         return upgradeState;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-        result = prime * result + retries;
-        result = prime * result + ((targetSwVersion == null) ? 0 : targetSwVersion.hashCode());
-        result = prime * result + ((upgradeStartTime == null) ? 0 : upgradeStartTime.hashCode());
-        result = prime * result + ((upgradeState == null) ? 0 : upgradeState.hashCode());
-        return result;
     }
 
     public void setReason(EquipmentUpgradeState.FailureReason reason) {
@@ -219,4 +169,44 @@ public class EquipmentUpgradeStatusData extends StatusDetails {
         }
         return false;
     }
+
+	public boolean isRebooted() {
+		return rebooted;
+	}
+
+	public void setRebooted(boolean rebooted) {
+		this.rebooted = rebooted;
+	}
+
+	public EquipmentResetMethod getPerformReset() {
+		return performReset;
+	}
+
+	public void setPerformReset(EquipmentResetMethod performReset) {
+		this.performReset = performReset;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(activeSwVersion, alternateSwVersion, performReset, reason, rebooted, retries, switchBank,
+				targetSwVersion, upgradeStartTime, upgradeState);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof EquipmentUpgradeStatusData)) {
+			return false;
+		}
+		EquipmentUpgradeStatusData other = (EquipmentUpgradeStatusData) obj;
+		return Objects.equals(activeSwVersion, other.activeSwVersion)
+				&& Objects.equals(alternateSwVersion, other.alternateSwVersion) && performReset == other.performReset
+				&& reason == other.reason && rebooted == other.rebooted && retries == other.retries
+				&& Objects.equals(switchBank, other.switchBank)
+				&& Objects.equals(targetSwVersion, other.targetSwVersion)
+				&& Objects.equals(upgradeStartTime, other.upgradeStartTime) && upgradeState == other.upgradeState;
+	}
+    
 }

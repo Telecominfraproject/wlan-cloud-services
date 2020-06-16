@@ -12,8 +12,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 
 import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
-
-import com.telecominfraproject.wlan.firmware.models.Firmware;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
 /**
  * @author dtoptygin
@@ -22,7 +21,10 @@ import com.telecominfraproject.wlan.firmware.models.Firmware;
 @Import(value = {
         FirmwareDatastoreRdbms.class,
         FirmwareDataSourceConfig.class,
-        FirmwareDAO.class,
+        FirmwareVersionDAO.class,
+        FirmwareTrackDAO.class,
+        FirmwareTrackAssignmentDAO.class,
+        CustomerFirmwareTrackDAO.class,
         BaseJdbcTest.Config.class
         })
 @TestWithEmbeddedDB
@@ -30,7 +32,7 @@ public class FirmwareDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     
     @Autowired(required=false) private EmbeddedDatabase db;
     @Autowired private FirmwareDatastoreRdbms firmwareDatastore;
-    @Autowired private FirmwareDAO firmwareDAO;
+    @Autowired private FirmwareVersionDAO firmwareDAO;
 
     
     @Before
@@ -43,7 +45,7 @@ public class FirmwareDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
             //this is a simple test to see if embedded db is working in test environment
             JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
             Long ret = jdbcTemplate.queryForObject(
-                    "select id from firmware where id = ?", 
+                    "select id from firmware_version where id = ?", 
                     Long.class, 1);               
             
             assertEquals((Long)1L, ret);
@@ -55,7 +57,7 @@ public class FirmwareDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
     public void testCreateUpdateDeleteFirmware() {
                 
         //GET by Id test
-        Firmware ret = firmwareDatastore.get(1L);        
+        FirmwareVersion ret = firmwareDatastore.get(1L);        
 
         //DELETE Test
         firmwareDAO.delete(ret.getId());

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.firmware.datastore.BaseFirmwareDatastoreTest;
-import com.telecominfraproject.wlan.firmware.datastore.inmemory.FirmwareDatastoreInMemory;
 
 /**
  * @author dtoptygin
@@ -15,7 +14,9 @@ import com.telecominfraproject.wlan.firmware.datastore.inmemory.FirmwareDatastor
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = FirmwareDatastoreInMemoryTests.class)
-@Import(value = { FirmwareDatastoreInMemory.class })
+@Import(value = { FirmwareDatastoreInMemory.class, FirmwareVersionDatastoreInMemory.class,
+		FirmwareTrackDatastoreInMemory.class, FirmwareTrackAssignmentDatastoreInMemory.class,
+		CustomerFirmwareTrackDatastoreInMemory.class })
 public class FirmwareDatastoreInMemoryTests extends BaseFirmwareDatastoreTest {
 
 }

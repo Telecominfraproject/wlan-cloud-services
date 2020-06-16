@@ -1,19 +1,19 @@
 package com.telecominfraproject.wlan.firmware;
 
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.firmware.controller.FirmwareController;
-import com.telecominfraproject.wlan.firmware.models.Firmware;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
 /**
  * @author dtoptygin
@@ -23,50 +23,73 @@ import com.telecominfraproject.wlan.firmware.models.Firmware;
 public class FirmwareServiceLocal implements FirmwareServiceInterface {
 
     @Autowired private FirmwareController firmwareController;
-    private static final Logger LOG = LoggerFactory.getLogger(FirmwareServiceLocal.class);
+    @SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(FirmwareServiceLocal.class);
+    
+	public FirmwareVersion createFirmwareVersion(FirmwareVersion firmwareVersion) {
+		return firmwareController.createFirmwareVersion(firmwareVersion);
+	}
+	public FirmwareVersion getFirmwareVersion(long firmwareVersionId) {
+		return firmwareController.getFirmwareVersion(firmwareVersionId);
+	}
+	public FirmwareVersion getFirmwareVersionByName(String versionName) {
+		return firmwareController.getFirmwareVersionByName(versionName);
+	}
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType) {
+		return firmwareController.getAllFirmwareVersionsByEquipmentType(equipmentType);
+	}
+	public FirmwareVersion updateFirmwareVersion(FirmwareVersion firmwareVersion) {
+		return firmwareController.updateFirmwareVersion(firmwareVersion);
+	}
+	public FirmwareVersion deleteFirmwareVersion(long firmwareVersionId) {
+		return firmwareController.deleteFirmwareVersion(firmwareVersionId);
+	}
+	
+	
+	public FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
+		return firmwareController.createFirmwareTrack(firmwareTrack);
+	}
+	public FirmwareTrackRecord getFirmwareTrackById(long firmwareTrackId) {
+		return firmwareController.getFirmwareTrackById(firmwareTrackId);
+	}
+	public FirmwareTrackRecord getFirmwareTrackByName(String firmwareTrackName) {
+		return firmwareController.getFirmwareTrackByName(firmwareTrackName);
+	}
+	public FirmwareTrackRecord updateFirmwareTrack(FirmwareTrackRecord firmwareTrackRecord) {
+		return firmwareController.updateFirmwareTrack(firmwareTrackRecord);
+	}
+	public FirmwareTrackRecord deleteFirmwareTrackRecord(long firmwareTrackId) {
+		return firmwareController.deleteFirmwareTrackRecord(firmwareTrackId);
+	}
+	
+	
+	public List<FirmwareTrackAssignmentDetails> getFirmwareTrackAssignments(String firmwareTrackName) {
+		return firmwareController.getFirmwareTrackAssignments(firmwareTrackName);
+	}
+	public FirmwareTrackAssignmentDetails updateFirmwareTrackAssignment(
+			FirmwareTrackAssignmentDetails assignmentDetails) {
+		return firmwareController.updateFirmwareTrackAssignment(assignmentDetails);
+	}
+	public FirmwareTrackAssignmentDetails deleteFirmwareTrackAssignment(long trackId, long firmwareVersionId) {
+		return firmwareController.deleteFirmwareTrackAssignment(trackId, firmwareVersionId);
+	}
+	
+	
+	public CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting() {
+		return firmwareController.getDefaultCustomerTrackSetting();
+	}
+	public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId) {
+		return firmwareController.getCustomerFirmwareTrackRecord(customerId);
+	}
+	public CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord customerTrack) {
+		return firmwareController.createCustomerFirmwareTrackRecord(customerTrack);
+	}
+	public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord customerTrack) {
+		return firmwareController.updateCustomerFirmwareTrackRecord(customerTrack);
+	}
+	public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(int customerId) {
+		return firmwareController.deleteCustomerFirmwareTrackRecord(customerId);
+	}    
 
     
-    @Override
-    public Firmware create(Firmware firmware) {
-        LOG.debug("calling firmwareController.create {} ", firmware);
-        return firmwareController.create(firmware);
-    }
-
-    @Override
-    public Firmware get(long firmwareId) {
-        LOG.debug("calling firmwareController.get {} ", firmwareId);
-        return firmwareController.get(firmwareId);
-    }
-    
-    @Override
-    public Firmware getOrNull(long firmwareId) {
-        LOG.debug("calling firmwareController.getOrNull {} ", firmwareId);
-        return firmwareController.getOrNull(firmwareId);
-    }
-    
-    @Override
-    public List<Firmware> get(Set<Long> firmwareIdSet) {
-        LOG.debug("calling firmwareController.getAllInSet {} ", firmwareIdSet);
-        return firmwareController.getAllInSet(firmwareIdSet);
-    }
-    
-    @Override
-    public PaginationResponse<Firmware> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Firmware> context) {
-        LOG.debug("calling firmwareController.getForCustomer {} ", customerId);
-        return firmwareController.getForCustomer(customerId, sortBy, context);
-    }
-
-    @Override
-    public Firmware update(Firmware firmware) {
-        LOG.debug("calling firmwareController.update {} ", firmware);
-        return firmwareController.update(firmware);
-    }
-
-    @Override
-    public Firmware delete(long firmwareId) {
-        LOG.debug("calling firmwareController.delete {} ", firmwareId);
-        return firmwareController.delete(firmwareId);
-    }
-
 }

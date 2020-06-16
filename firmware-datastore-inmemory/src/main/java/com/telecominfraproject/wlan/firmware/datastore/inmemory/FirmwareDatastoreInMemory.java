@@ -1,245 +1,169 @@
 package com.telecominfraproject.wlan.firmware.datastore.inmemory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
-import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
-import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
-
 import com.telecominfraproject.wlan.firmware.datastore.FirmwareDatastore;
-import com.telecominfraproject.wlan.firmware.models.Firmware;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
 /**
- * @author dtoptygin
+ * @author ekeddy
  *
  */
-@Configuration
+@Component
 public class FirmwareDatastoreInMemory extends BaseInMemoryDatastore implements FirmwareDatastore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FirmwareDatastoreInMemory.class);
+	@Autowired 
+	private FirmwareVersionDatastoreInMemory firmwareVersionDatastore;
+	
+	@Autowired 
+	private FirmwareTrackDatastoreInMemory firmwareTrackDatastore;
 
-    private static final Map<Long, Firmware> idToFirmwareMap = new ConcurrentHashMap<Long, Firmware>();
+	@Autowired 
+	private FirmwareTrackAssignmentDatastoreInMemory firmwareTrackAssignmentDatastore;
+
+	@Autowired 
+	private CustomerFirmwareTrackDatastoreInMemory customerFirmwareTrackDatastore;
+
+    @SuppressWarnings("unused")
+	private static final Logger LOG = LoggerFactory.getLogger(FirmwareDatastoreInMemory.class);
     
-    private static final AtomicLong firmwareIdCounter = new AtomicLong();    
 
-    @Override
-    public Firmware create(Firmware firmware) {
-        
-        Firmware firmwareCopy = firmware.clone();
-        
-        long id = firmwareIdCounter.incrementAndGet();
-        firmwareCopy.setId(id);
-        firmwareCopy.setCreatedTimestamp(System.currentTimeMillis());
-        firmwareCopy.setLastModifiedTimestamp(firmwareCopy.getCreatedTimestamp());
-        idToFirmwareMap.put(id, firmwareCopy);
-        
-        LOG.debug("Stored Firmware {}", firmwareCopy);
-        
-        return firmwareCopy.clone();
-    }
+    public FirmwareVersion create(FirmwareVersion firmware) {
+		return firmwareVersionDatastore.create(firmware);
+	}
+
+	public FirmwareVersion get(long firmwareId) {
+		return firmwareVersionDatastore.get(firmwareId);
+	}
+
+	public FirmwareVersion getByName(String versionName) {
+		return firmwareVersionDatastore.getByName(versionName);
+	}
+
+	public FirmwareVersion getByNameOrNull(String versionName) {
+		return firmwareVersionDatastore.getByNameOrNull(versionName);
+	}
+
+	public FirmwareVersion update(FirmwareVersion firmware) {
+		return firmwareVersionDatastore.update(firmware);
+	}
+
+	public boolean equals(Object obj) {
+		return firmwareVersionDatastore.equals(obj);
+	}
+
+	public FirmwareVersion delete(long firmwareId) {
+		return firmwareVersionDatastore.delete(firmwareId);
+	}
+
+	public Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType() {
+		return firmwareVersionDatastore.getAllGroupedByEquipmentType();
+	}
 
 
-    @Override
-    public Firmware get(long firmwareId) {
-        LOG.debug("Looking up Firmware for id {}", firmwareId);
-        
-        Firmware firmware = idToFirmwareMap.get(firmwareId);
-        
-        if(firmware==null){
-            LOG.debug("Cannot find Firmware for id {}", firmwareId);
-            throw new DsEntityNotFoundException("Cannot find Firmware for id " + firmwareId);
-        } else {
-            LOG.debug("Found Firmware {}", firmware);
-        }
 
-        return firmware.clone();
-    }
+    public FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
+		return firmwareTrackDatastore.createFirmwareTrack(firmwareTrack);
+	}
 
-    @Override
-    public Firmware getOrNull(long firmwareId) {
-        LOG.debug("Looking up Firmware for id {}", firmwareId);
-        
-        Firmware firmware = idToFirmwareMap.get(firmwareId);
-        
-        if(firmware==null){
-            LOG.debug("Cannot find Firmware for id {}", firmwareId);
-            return null;
-        } else {
-            LOG.debug("Found Firmware {}", firmware);
-        }
+	public FirmwareTrackRecord getFirmwareTrackById(long firmwareTrackId) {
+		return firmwareTrackDatastore.getFirmwareTrackById(firmwareTrackId);
+	}
 
-        return firmware.clone();
-    }
-    
-    @Override
-    public Firmware update(Firmware firmware) {
-        Firmware existingFirmware = get(firmware.getId());
-        
-        if(existingFirmware.getLastModifiedTimestamp()!=firmware.getLastModifiedTimestamp()){
-            LOG.debug("Concurrent modification detected for Firmware with id {} expected version is {} but version in db was {}", 
-                    firmware.getId(),
-                    firmware.getLastModifiedTimestamp(),
-                    existingFirmware.getLastModifiedTimestamp()
-                    );
-            throw new DsConcurrentModificationException("Concurrent modification detected for Firmware with id " + firmware.getId()
-                    +" expected version is " + firmware.getLastModifiedTimestamp()
-                    +" but version in db was " + existingFirmware.getLastModifiedTimestamp()
-                    );
-            
-        }
-        
-        Firmware firmwareCopy = firmware.clone();
-        firmwareCopy.setLastModifiedTimestamp(getNewLastModTs(firmware.getLastModifiedTimestamp()));
+	public FirmwareTrackRecord getFirmwareTrackByName(String trackName) {
+		return firmwareTrackDatastore.getFirmwareTrackByName(trackName);
+	}
 
-        idToFirmwareMap.put(firmwareCopy.getId(), firmwareCopy);
-        
-        LOG.debug("Updated Firmware {}", firmwareCopy);
-        
-        return firmwareCopy.clone();
-    }
+	public FirmwareTrackRecord getFirmwareTrackByNameOrNull(String trackName) {
+		return firmwareTrackDatastore.getFirmwareTrackByNameOrNull(trackName);
+	}
 
-    @Override
-    public Firmware delete(long firmwareId) {
-        Firmware firmware = get(firmwareId);
-        idToFirmwareMap.remove(firmware.getId());
-        
-        LOG.debug("Deleted Firmware {}", firmware);
-        
-        return firmware.clone();
-    }
+	public FirmwareTrackRecord updateFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
+		return firmwareTrackDatastore.updateFirmwareTrack(firmwareTrack);
+	}
 
-    @Override
-    public List<Firmware> get(Set<Long> firmwareIdSet) {
+	public FirmwareTrackRecord deleteFirmwareTrackRecord(long firmwareId) {
+		return firmwareTrackDatastore.deleteFirmwareTrackRecord(firmwareId);
+	}
 
-    	List<Firmware> ret = new ArrayList<>();
-    	
-    	if(firmwareIdSet!=null && !firmwareIdSet.isEmpty()) {	    	
-	    	idToFirmwareMap.forEach(
-	        		(id, c) -> {
-	        			if(firmwareIdSet.contains(id)) {
-				        	ret.add(c.clone());
-				        } }
-	        		);
-    	}
 
-        LOG.debug("Found Firmwares by ids {}", ret);
+	
 
-        return ret;
-    
-    }
+    public FirmwareTrackAssignmentRecord createOrUpdateFirmwareTrackAssignment(
+			FirmwareTrackAssignmentRecord assignmentRecord) {
+		return firmwareTrackAssignmentDatastore.createOrUpdateFirmwareTrackAssignment(assignmentRecord);
+	}
 
-    @Override
-    public PaginationResponse<Firmware> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<Firmware> context) {
+	public FirmwareTrackAssignmentRecord deleteFirmwareTrackAssignment(long firmwareTrackRecordId,
+			long firmwareVersionRecordId) {
+		return firmwareTrackAssignmentDatastore.deleteFirmwareTrackAssignment(firmwareTrackRecordId,
+				firmwareVersionRecordId);
+	}
 
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
+	@Override
+	public void deleteFirmwareTrackAssignments(long firmwareTrackRecordId) {
+		firmwareTrackAssignmentDatastore.deleteFirmwareTrackAssignments(firmwareTrackRecordId);
+	}
+	
+	public List<FirmwareTrackAssignmentDetails> getFirmwareTrackDetails(String firmwareTrackName) {
+		return firmwareTrackAssignmentDatastore.getFirmwareTrackDetails(firmwareTrackName);
+	}
 
-        PaginationResponse<Firmware> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
+	public FirmwareTrackAssignmentDetails getFirmwareTrackAssignmentDetails(long firmwareTrackRecordId,
+			long firmwareVersionRecordId) {
+		return firmwareTrackAssignmentDatastore.getFirmwareTrackAssignmentDetails(firmwareTrackRecordId,
+				firmwareVersionRecordId);
+	}
 
-        if (ret.getContext().isLastPage()) {
-            // no more pages available according to the context
-            return ret;
-        }
+	public Map<String, FirmwareTrackAssignmentDetails> getAllDefaultFirmwareTrackAssignmentDetails(
+			long firmwareTrackRecordId) {
+		return firmwareTrackAssignmentDatastore.getAllDefaultFirmwareTrackAssignmentDetails(firmwareTrackRecordId);
+	}
 
-        List<Firmware> items = new LinkedList<>();
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(
+			long firmwareTrackRecordId, String platform) {
+		return firmwareTrackAssignmentDatastore
+				.getDefaultFirmwareTrackAssignmentDetailsForPlatform(firmwareTrackRecordId, platform);
+	}
 
-        // apply filters and build the full result list first - inefficient, but ok for testing
-        for (Firmware mdl : idToFirmwareMap.values()) {
+	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForPlatform(String trackName,
+			String platform) {
+		return firmwareTrackAssignmentDatastore.getDefaultFirmwareTrackAssignmentDetailsForPlatform(trackName,
+				platform);
+	}
 
-            if (mdl.getCustomerId() != customerId) {
-                continue;
-            }
+	
+	public CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record) {
+		return customerFirmwareTrackDatastore.createCustomerFirmwareTrackRecord(record);
+	}
 
-            items.add(mdl);
-        }
+	public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record) {
+		return customerFirmwareTrackDatastore.updateCustomerFirmwareTrackRecord(record);
+	}
 
-        // apply sortBy columns
-        Collections.sort(items, new Comparator<Firmware>() {
-            @Override
-            public int compare(Firmware o1, Firmware o2) {
-                if (sortBy == null || sortBy.isEmpty()) {
-                    // sort ascending by id by default
-                    return Long.compare(o1.getId(), o2.getId());
-                } else {
-                    int cmp;
-                    for (ColumnAndSort column : sortBy) {
-                        switch (column.getColumnName()) {
-                        case "id":
-                            cmp = Long.compare(o1.getId(), o2.getId());
-                            break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
-                            break;
-                        default:
-                            // skip unknown column
-                            continue;
-                        }
+	public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId) {
+		return customerFirmwareTrackDatastore.getCustomerFirmwareTrackRecord(customerId);
+	}
 
-                        if (cmp != 0) {
-                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
-                        }
+	public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(int customerId) {
+		return customerFirmwareTrackDatastore.deleteCustomerFirmwareTrackRecord(customerId);
+	}
 
-                    }
-                }
-                return 0;
-            }
-        });
-
-        // now select only items for the requested page
-        // find first item to add
-        int fromIndex = 0;
-        if (context.getStartAfterItem() != null) {
-            for (Firmware mdl : items) {
-                fromIndex++;
-                if (mdl.getId() == context.getStartAfterItem().getId()) {
-                    break;
-                }
-            }
-        }
-
-        // find last item to add
-        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
-        if (toIndexExclusive > items.size()) {
-            toIndexExclusive = items.size();
-        }
-
-        // copy page items into result
-        List<Firmware> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
-        for (Firmware mdl : items.subList(fromIndex, toIndexExclusive)) {
-            selectedItems.add(mdl.clone());
-        }
-
-        ret.setItems(selectedItems);
-
-        // adjust context for the next page
-        ret.prepareForNextPage();
-
-        if(ret.getContext().getStartAfterItem()!=null) {
-        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
-        	Firmware newStartAfterItem = new Firmware();
-        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
-        	ret.getContext().setStartAfterItem(newStartAfterItem);
-        }
-
-        return ret;
-    }    
+	@Override
+	public void deleteCustomerFirmwareTrackRecords(long firmwareTrackRecordId) {
+		customerFirmwareTrackDatastore.deleteCustomerFirmwareTrackRecords(firmwareTrackRecordId);
+	}
+	
 }

@@ -1,12 +1,15 @@
 package com.telecominfraproject.wlan.firmware.controller;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,18 +18,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
-import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
-
 import com.telecominfraproject.wlan.firmware.datastore.FirmwareDatastore;
-import com.telecominfraproject.wlan.firmware.models.Firmware;
-import com.telecominfraproject.wlan.firmware.models.events.FirmwareAddedEvent;
-import com.telecominfraproject.wlan.firmware.models.events.FirmwareChangedEvent;
-import com.telecominfraproject.wlan.firmware.models.events.FirmwareRemovedEvent;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings.TrackFlag;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
 /**
@@ -40,177 +42,24 @@ public class FirmwareController {
 
     private static final Logger LOG = LoggerFactory.getLogger(FirmwareController.class);
 
-    public static class ListOfFirmwares extends ArrayList<Firmware> {
-        private static final long serialVersionUID = 3070319062835500930L;
-    }
-
     @Autowired private FirmwareDatastore firmwareDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
-
+    @Autowired Environment environment;
     
-    /**
-     * Creates new Firmware.
-     *  
-     * @param Firmware
-     * @return stored Firmware object
-     * @throws RuntimeException if Firmware record already exists
-     */
-    @RequestMapping(method=RequestMethod.POST)
-    public Firmware create(@RequestBody Firmware firmware ) {
-
-        LOG.debug("Creating Firmware {}", firmware);
-
-        if (BaseJsonModel.hasUnsupportedValue(firmware)) {
-            LOG.error("Failed to create Firmware, request contains unsupported value: {}", firmware);
-            throw new DsDataValidationException("Firmware contains unsupported value");
-        }
-
-        long ts = System.currentTimeMillis();
-        if (firmware.getCreatedTimestamp() == 0) {
-        	firmware.setCreatedTimestamp(ts);
-        }
-        firmware.setLastModifiedTimestamp(ts);
-
-        Firmware ret = firmwareDatastore.create(firmware);
-
-        LOG.debug("Created Firmware {}", ret);
-
-        FirmwareAddedEvent event = new FirmwareAddedEvent(ret);
-        publishEvent(event);
-
-
-        return ret;
-    }
+    CustomerFirmwareTrackSettings defaultCustomerTrackSettings;
     
-    /**
-     * Retrieves Firmware by id
-     * @param firmwareId
-     * @return Firmware for the supplied id
-     */
-    @RequestMapping(method=RequestMethod.GET)
-    public Firmware get(@RequestParam long firmwareId ) {
-        
-        LOG.debug("Retrieving Firmware {}", firmwareId);
-        
-        Firmware ret = firmwareDatastore.get(firmwareId);
-
-        LOG.debug("Retrieved Firmware {}", ret);
-
-        return ret;
-    }
-
-    /**
-     * Retrieves Firmware by id
-     * @param firmwareId
-     * @return Firmware for the supplied id
-     */
-    @RequestMapping(value = "/orNull", method=RequestMethod.GET)
-    public Firmware getOrNull(@RequestParam long firmwareId ) {
-        
-        LOG.debug("Retrieving Firmware {}", firmwareId);
-        
-        Firmware ret = firmwareDatastore.getOrNull(firmwareId);
-
-        LOG.debug("Retrieved Firmware {}", ret);
-
-        return ret;
-    }
-
-    @RequestMapping(value = "/inSet", method = RequestMethod.GET)
-    public ListOfFirmwares getAllInSet(@RequestParam Set<Long> firmwareIdSet) {
-        LOG.debug("getAllInSet({})", firmwareIdSet);
-        try {
-            List<Firmware> result = firmwareDatastore.get(firmwareIdSet);
-            LOG.debug("getAllInSet({}) return {} entries", firmwareIdSet, result.size());
-            ListOfFirmwares ret = new ListOfFirmwares();
-            ret.addAll(result);
-            return ret;
-        } catch (Exception exp) {
-             LOG.error("getAllInSet({}) exception ", firmwareIdSet, exp);
-             throw exp;
-        }
-    }
-
-    @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
-    public PaginationResponse<Firmware> getForCustomer(@RequestParam int customerId,
-            @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam(required = false) PaginationContext<Firmware> paginationContext) {
-
-    	if(paginationContext == null) {
-    		paginationContext = new PaginationContext<>();
-    	}
-
-        LOG.debug("Looking up Firmwares for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
-
-        PaginationResponse<Firmware> ret = new PaginationResponse<>();
-
-        if (paginationContext.isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up Firmwares for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
-            ret.setContext(paginationContext);
-            return ret;
-        }
-
-        PaginationResponse<Firmware> onePage = this.firmwareDatastore
-                .getForCustomer(customerId,  sortBy, paginationContext);
-        ret.setContext(onePage.getContext());
-        ret.getItems().addAll(onePage.getItems());
-
-        LOG.debug("Retrieved {} Firmwares for customer {} ", onePage.getItems().size(), 
-                customerId);
-
-        return ret;
-    }
-    
-    /**
-     * Updates Firmware record
-     * 
-     * @param Firmware
-     * @return updated Firmware object
-     * @throws RuntimeException if Firmware record does not exist or if it was modified concurrently
-     */
-    @RequestMapping(method=RequestMethod.PUT)
-    public Firmware update(@RequestBody Firmware firmware){
-        
-        LOG.debug("Updating Firmware {}", firmware);
-        
-        if (BaseJsonModel.hasUnsupportedValue(firmware)) {
-            LOG.error("Failed to update Firmware, request contains unsupported value: {}", firmware);
-            throw new DsDataValidationException("Firmware contains unsupported value");
-        }
-
-        Firmware ret = firmwareDatastore.update(firmware);
-
-        LOG.debug("Updated Firmware {}", ret);
-
-        FirmwareChangedEvent event = new FirmwareChangedEvent(ret);
-        publishEvent(event);
-
-        return ret;
-    }
-    
-    /**
-     * Deletes Firmware record
-     * 
-     * @param firmwareId
-     * @return deleted Firmware object
-     */
-    @RequestMapping(method=RequestMethod.DELETE)
-    public Firmware delete(@RequestParam long firmwareId ) {
-        
-        LOG.debug("Deleting Firmware {}", firmwareId);
-        
-        Firmware ret = firmwareDatastore.delete(firmwareId);
-
-        LOG.debug("Deleted Firmware {}", ret);
-        
-        FirmwareRemovedEvent event = new FirmwareRemovedEvent(ret);
-        publishEvent(event);
-
-        return ret;
+    @PostConstruct
+    private void postConstruct() {
+        defaultCustomerTrackSettings = new CustomerFirmwareTrackSettings();
+        defaultCustomerTrackSettings.setAutoUpgradeDeprecatedOnBind(environment
+                .getProperty("whizcontrol.autoupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
+        defaultCustomerTrackSettings.setAutoUpgradeUnknownOnBind(environment
+                .getProperty("whizcontrol.autoupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
+        defaultCustomerTrackSettings.setAutoUpgradeDeprecatedDuringMaintenance(environment.getProperty(
+                "whizcontrol.maintenanceupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
+        defaultCustomerTrackSettings.setAutoUpgradeUnknownDuringMaintenance(environment
+                .getProperty("whizcontrol.maintenanceupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
+        LOG.info("Default CustomerFirmwareTrackSettings: {}", defaultCustomerTrackSettings);    	
     }
 
     private void publishEvent(SystemEvent event) {
@@ -223,6 +72,202 @@ public class FirmwareController {
         } catch (Exception e) {
             LOG.error("Failed to publish event : {}", event, e);
         }
+    }
+
+    @RequestMapping(value = "/version", method = RequestMethod.POST)
+    public FirmwareVersion createFirmwareVersion(@RequestBody FirmwareVersion firmwareVersion) {
+
+        LOG.debug("Creating FirmwareVersion {}", firmwareVersion);
+        if (firmwareVersion.getValidationMethod() != null
+                && (firmwareVersion.getValidationCode() == null || firmwareVersion.getValidationCode().isEmpty())) {
+            throw new DsDataValidationException(
+                    "A validation code was not provided for the validation method " + firmwareVersion);
+        }
+
+        FirmwareVersion ret = firmwareDatastore.create(firmwareVersion);
+
+        LOG.debug("Created FirmwareVersion {}", ret);
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/version", method = RequestMethod.GET)
+    public FirmwareVersion getFirmwareVersion(@RequestParam long firmwareVersionId) {
+        LOG.debug("Retrieving FirmwareVersion {}", firmwareVersionId);
+        FirmwareVersion ret = firmwareDatastore.get(firmwareVersionId);
+        LOG.debug("Retrieved FirmwareVersion {}", ret);
+        return ret;
+    }
+
+    @RequestMapping(value = "/version/byName", method = RequestMethod.GET)
+    public FirmwareVersion getFirmwareVersionByName(@RequestParam String versionName) {
+        LOG.debug("Retrieving FirmwareVersion {}", versionName);
+        FirmwareVersion ret = firmwareDatastore.getByName(versionName);
+        LOG.debug("Retrieved FirmwareVersion {}", ret);
+        return ret;
+    }
+
+    @RequestMapping(value = "/version/byEquipmentType", method = RequestMethod.GET)
+    public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(@RequestParam EquipmentType equipmentType) {
+        LOG.debug("Retrieving all FirmwareVersions for type {} ", equipmentType);
+        Map<EquipmentType, List<FirmwareVersion>> retMap = firmwareDatastore.getAllGroupedByEquipmentType();
+
+        LOG.debug("Returning all FirmwareVersions for type {}, count={}", equipmentType,
+                retMap.get(equipmentType).size());
+
+        List<FirmwareVersion> ret = retMap.get(equipmentType);
+        if (ret == null) {
+            ret = Collections.emptyList();
+        }
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/version", method = RequestMethod.PUT)
+    public FirmwareVersion updateFirmwareVersion(@RequestBody FirmwareVersion firmwareVersion) {
+        LOG.debug("Updating FirmwareVersion {}", firmwareVersion);
+        FirmwareVersion origin = firmwareDatastore.get(firmwareVersion.getId());
+        // can not change modelId, otherwise we will have to update default
+        // platform setting for all tracks
+        if ((null != origin.getModelId()) && !origin.getModelId().equals(firmwareVersion.getModelId())) {
+            throw new DsDataValidationException("Can not change modelId for firmware version");
+        }
+        FirmwareVersion ret = firmwareDatastore.update(firmwareVersion);
+
+        LOG.debug("Updated FirmwareVersion {}", ret);
+
+        return ret;
+    }
+    
+    @RequestMapping(value = "/version", method = RequestMethod.DELETE)
+    public FirmwareVersion deleteFirmwareVersion(@RequestParam long firmwareVersionId) {
+
+        LOG.debug("Deleting FirmwareVersion {}", firmwareVersionId);
+        FirmwareVersion ret = firmwareDatastore.delete(firmwareVersionId);
+        LOG.debug("Deleted FirmwareVersion {}", ret);
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/track", method = RequestMethod.POST)
+    public FirmwareTrackRecord createFirmwareTrack(@RequestBody FirmwareTrackRecord firmwareTrack) {
+        LOG.debug("calling createFirmwareTrack({})", firmwareTrack);
+        firmwareTrack.validateValue();
+        FirmwareTrackRecord result = firmwareDatastore.createFirmwareTrack(firmwareTrack);
+        return result;
+    }
+
+    @RequestMapping(value = "/track", method = RequestMethod.GET)
+    public FirmwareTrackRecord getFirmwareTrackById(@RequestParam long firmwareTrackId) {
+        LOG.debug("calling getFirmwareTrackById({})", firmwareTrackId);
+        return firmwareDatastore.getFirmwareTrackById(firmwareTrackId);
+    }
+
+    @RequestMapping(value = "/track/byName", method = RequestMethod.GET)
+    public FirmwareTrackRecord getFirmwareTrackByName(@RequestParam String firmwareTrackName) {
+        LOG.debug("calling getFirmwareTrackByName({})", firmwareTrackName);
+        FirmwareTrackRecord result = firmwareDatastore.getFirmwareTrackByName(firmwareTrackName);
+        return result;
+    }
+
+    @RequestMapping(value = "/track", method = RequestMethod.PUT)
+    public FirmwareTrackRecord updateFirmwareTrack(@RequestBody FirmwareTrackRecord firmwareTrackRecord) {
+        LOG.debug("calling updateFirmwareTrack({})", firmwareTrackRecord);
+        firmwareTrackRecord.validateValue();
+        // make sure we are not try to change name for default track
+        if (!FirmwareTrackRecord.DEFAULT_TRACK_NAME.equals(firmwareTrackRecord.getTrackName())) {
+            FirmwareTrackRecord originValue = firmwareDatastore
+                    .getFirmwareTrackById(firmwareTrackRecord.getRecordId());
+            if (FirmwareTrackRecord.DEFAULT_TRACK_NAME.equals(originValue.getTrackName())) {
+                throw new DsDataValidationException("Can not change name for default track");
+            }
+        }
+        FirmwareTrackRecord result = firmwareDatastore.updateFirmwareTrack(firmwareTrackRecord);
+        return result;
+    }
+
+    @RequestMapping(value = "/track", method = RequestMethod.DELETE)
+    public FirmwareTrackRecord deleteFirmwareTrackRecord(@RequestParam long firmwareTrackId) {
+        LOG.debug("calling deleteFirmwareTrackRecord({})", firmwareTrackId);
+        FirmwareTrackRecord result = firmwareDatastore.deleteFirmwareTrackRecord(firmwareTrackId);
+        return result;
+    }
+
+
+    @RequestMapping(value = "/trackAssignment", method = RequestMethod.GET)
+    public List<FirmwareTrackAssignmentDetails> getFirmwareTrackAssignments (
+            @RequestParam String firmwareTrackName) {
+        LOG.debug("calling getAllFirmwareVersionsByTrackName({})", firmwareTrackName);
+        return firmwareDatastore.getFirmwareTrackDetails(firmwareTrackName);
+    }
+
+    @RequestMapping(value = "/trackAssignment", method = RequestMethod.PUT)
+    public FirmwareTrackAssignmentDetails updateFirmwareTrackAssignment(@RequestBody FirmwareTrackAssignmentDetails assignmentDetails) {
+        LOG.debug("calling updateFirmwareTrackAssignment({})", assignmentDetails);
+        FirmwareTrackAssignmentRecord result = firmwareDatastore.createOrUpdateFirmwareTrackAssignment(assignmentDetails);        
+        FirmwareVersion version = firmwareDatastore.get(result.getFirmwareVersionRecordId());
+		FirmwareTrackAssignmentDetails ret = new FirmwareTrackAssignmentDetails(result, version );
+        return ret;
+    }
+    
+    @RequestMapping(value = "/trackAssignment", method = RequestMethod.DELETE)
+    public FirmwareTrackAssignmentDetails deleteFirmwareTrackAssignment(@RequestParam long trackId,
+            @RequestParam long firmwareVersionId) {
+        LOG.debug("calling deleteFirmwareTrackAssignment({},{})", trackId, firmwareVersionId);
+        FirmwareVersion version = firmwareDatastore.get(firmwareVersionId);
+        FirmwareTrackAssignmentRecord assignment = firmwareDatastore.deleteFirmwareTrackAssignment(trackId, firmwareVersionId);
+        FirmwareTrackAssignmentDetails result = new FirmwareTrackAssignmentDetails(assignment, version);
+        return result;
+    }
+
+    @RequestMapping(value = "/customerTrack/default", method = RequestMethod.GET)
+    public CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting() {
+        if (defaultCustomerTrackSettings == null) {
+                if (defaultCustomerTrackSettings == null) {
+                    defaultCustomerTrackSettings = new CustomerFirmwareTrackSettings();
+                    defaultCustomerTrackSettings.setAutoUpgradeDeprecatedOnBind(environment
+                            .getProperty("whizcontrol.autoupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
+                    defaultCustomerTrackSettings.setAutoUpgradeUnknownOnBind(environment
+                            .getProperty("whizcontrol.autoupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
+                    defaultCustomerTrackSettings.setAutoUpgradeDeprecatedDuringMaintenance(environment.getProperty(
+                            "whizcontrol.maintenanceupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
+                    defaultCustomerTrackSettings.setAutoUpgradeUnknownDuringMaintenance(environment
+                            .getProperty("whizcontrol.maintenanceupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
+                    LOG.info("Default CustomerFirmwareTrackSettings: {}", defaultCustomerTrackSettings);
+                }
+        }
+        return defaultCustomerTrackSettings;
+    }
+
+
+    @RequestMapping(value = "/customerTrack", method = RequestMethod.GET)
+    public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(@RequestParam int customerId) {
+        LOG.debug("calling getCustomerFirmwareTrackRecord({})", customerId);
+        return firmwareDatastore.getCustomerFirmwareTrackRecord(customerId);
+    }
+    
+
+    @RequestMapping(value = "/customerTrack", method = RequestMethod.POST)
+    public CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(@RequestBody CustomerFirmwareTrackRecord customerTrack) {
+        LOG.debug("calling createCustomerFirmwareTrackRecord({})", customerTrack);
+        CustomerFirmwareTrackRecord result = firmwareDatastore.createCustomerFirmwareTrackRecord(customerTrack);
+        return result;
+    }
+    
+    
+    @RequestMapping(value = "/customerTrack", method = RequestMethod.PUT)
+    public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(@RequestBody CustomerFirmwareTrackRecord customerTrack) {
+        LOG.debug("calling updateCustomerFirmwareTrackRecord({})", customerTrack);
+        CustomerFirmwareTrackRecord result = firmwareDatastore.createCustomerFirmwareTrackRecord(customerTrack);
+        return result;
+    }
+
+    
+    @RequestMapping(value = "/customerTrack", method = RequestMethod.DELETE)
+    public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(@RequestParam int customerId) {
+        LOG.debug("calling deleteCustomerFirmwareTrackRecord({})", customerId);
+        CustomerFirmwareTrackRecord result = firmwareDatastore.deleteCustomerFirmwareTrackRecord(customerId);
+        return result;    	
     }
 
     

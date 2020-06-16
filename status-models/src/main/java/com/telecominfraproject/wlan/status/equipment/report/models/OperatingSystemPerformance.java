@@ -17,7 +17,8 @@ public class OperatingSystemPerformance extends StatusDetails {
     private long uptimeInSeconds;
     private float avgCpuUtilization;
     private float[] avgCpuPerCore;
-    private int avgFreeMemory;
+    private int avgFreeMemoryKb;
+    private long totalAvailableMemoryKb;
     private float avgCpuTemperature;
 
     @Override
@@ -57,12 +58,12 @@ public class OperatingSystemPerformance extends StatusDetails {
         this.avgCpuPerCore = avgCpuPerCore;
     }
 
-    public int getAvgFreeMemory() {
-        return avgFreeMemory;
+    public int getAvgFreeMemoryKb() {
+        return avgFreeMemoryKb;
     }
 
-    public void setAvgFreeMemory(int avgFreeMemory) {
-        this.avgFreeMemory = avgFreeMemory;
+    public void setAvgFreeMemoryKb(int avgFreeMemoryKb) {
+        this.avgFreeMemoryKb = avgFreeMemoryKb;
     }
 
     public float getAvgCpuTemperature() {
@@ -73,7 +74,15 @@ public class OperatingSystemPerformance extends StatusDetails {
         this.avgCpuTemperature = avgCpuTemperature;
     }
 
-    @Override
+    public long getTotalAvailableMemoryKb() {
+		return totalAvailableMemoryKb;
+	}
+
+	public void setTotalAvailableMemoryKb(long totalAvailableMemoryKb) {
+		this.totalAvailableMemoryKb = totalAvailableMemoryKb;
+	}
+
+	@Override
     public OperatingSystemPerformance clone() {
         return (OperatingSystemPerformance) super.clone();
     }
@@ -84,7 +93,7 @@ public class OperatingSystemPerformance extends StatusDetails {
 		int result = 1;
 		result = prime * result + Arrays.hashCode(avgCpuPerCore);
 		result = prime * result
-				+ Objects.hash(avgCpuTemperature, avgCpuUtilization, avgFreeMemory, numCamiCrashes, uptimeInSeconds);
+				+ Objects.hash(avgCpuTemperature, avgCpuUtilization, avgFreeMemoryKb, numCamiCrashes, uptimeInSeconds, totalAvailableMemoryKb);
 		return result;
 	}
 
@@ -100,8 +109,9 @@ public class OperatingSystemPerformance extends StatusDetails {
 		return Arrays.equals(avgCpuPerCore, other.avgCpuPerCore)
 				&& Float.floatToIntBits(avgCpuTemperature) == Float.floatToIntBits(other.avgCpuTemperature)
 				&& Float.floatToIntBits(avgCpuUtilization) == Float.floatToIntBits(other.avgCpuUtilization)
-				&& avgFreeMemory == other.avgFreeMemory && numCamiCrashes == other.numCamiCrashes
-				&& uptimeInSeconds == other.uptimeInSeconds;
+				&& avgFreeMemoryKb == other.avgFreeMemoryKb && numCamiCrashes == other.numCamiCrashes
+				&& uptimeInSeconds == other.uptimeInSeconds
+				&& totalAvailableMemoryKb == other.totalAvailableMemoryKb;
 	}
 
 }

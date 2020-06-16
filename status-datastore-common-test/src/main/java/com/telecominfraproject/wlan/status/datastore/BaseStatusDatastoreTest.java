@@ -349,7 +349,7 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setEquipmentId(equipmentIds_1[i]);
            
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
-           details3.setAvgFreeMemory(apNameIdx);
+           details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);
 
            testInterface.update(mdl);
@@ -622,7 +622,7 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setEquipmentId(equipmentIds_1[i]);
            
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
-           details3.setAvgFreeMemory(apNameIdx);
+           details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);
 
            testInterface.update(mdl);
