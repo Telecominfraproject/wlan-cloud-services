@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>schema-generator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <prov-postgres-sql-schema>prov_aggregated_schema.sql</prov-postgres-sql-schema>
+        <jfrog-url>https://tip.jfrog.io/artifactory/tip-wlan-cloud-schemas</jfrog-url>
+        <jfrog-target-file-path>${project.version}/sql/cloud-sdk-schema-postgresql.sql</jfrog-target-file-path>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>1.3.2</version>
+                <executions>
+                    <execution><!-- Run our schema generation script -->
+                        <id>Schema Aggregator</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                   </execution>
+                </executions>
+                <configuration>
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>./src/main/resources/aggregate-schema.sh</argument>
+                        <argument>${prov-postgres-sql-schema}</argument>
+                        <argument>${schemaUser}</argument>
+                        <argument>${schemaPassword}</argument>
+                        <argument>${jfrog-url}</argument>
+                        <argument>${jfrog-target-file-path}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
