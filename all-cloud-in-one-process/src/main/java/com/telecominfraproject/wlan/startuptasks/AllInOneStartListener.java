@@ -547,7 +547,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 		eqOsPerformance.setAvgCpuTemperature(getRandomFloat(25, 80));
 		eqOsPerformance.setAvgCpuUtilization(getRandomFloat(5, 100));
 		eqOsPerformance.setAvgCpuPerCore(new float[] { getRandomFloat(5, 100), getRandomFloat(5, 100) });
-		eqOsPerformance.setAvgFreeMemory(getRandomInt(10000000, 50000000));
+		eqOsPerformance.setAvgFreeMemoryKb(getRandomInt(20000, 70000));
+		eqOsPerformance.setTotalAvailableMemoryKb( 512000 );
 		status.setDetails(eqOsPerformance);
 		statusList.add(status);
 

@@ -2476,7 +2476,10 @@ components:
           items:
             #float
             type: number
-        avgFreeMemory:
+        avgFreeMemoryKb:
+          type: integer
+          format: int32
+        totalAvailableMemoryKb:
           type: integer
           format: int32
         avgCpuTemperature:          
