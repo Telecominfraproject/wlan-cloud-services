@@ -23,7 +23,7 @@
                 <executions>
                     <execution><!-- Run our schema generation script -->
                         <id>Schema Aggregator</id>
-                        <phase>install</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
@@ -35,8 +35,8 @@
                     <arguments>
                         <argument>./src/main/resources/aggregate-schema.sh</argument>
                         <argument>${prov-postgres-sql-schema}</argument>
-                        <argument>${schemaUser}</argument>
-                        <argument>${schemaPassword}</argument>
+                        <argument>${schema-repository-user}</argument>
+                        <argument>${schema-repository-password}</argument>
                         <argument>${jfrog-url}</argument>
                         <argument>${jfrog-target-file-path}</argument>
                     </arguments>

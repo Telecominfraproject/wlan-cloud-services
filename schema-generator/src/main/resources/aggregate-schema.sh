@@ -2,7 +2,7 @@
 
 ## Usage of this script: (see https://connectustechnologies.atlassian.net/browse/TW-698)
 ## ./src/main/resources/aggregate-schema.sh <GeneratedAggregatedFileName> <Jfrog-UserId>
-#             <EncryptedJfrog-Password> <TARGET_FILE_PATH in Jfrog repo>
+#             <EncryptedJfrog-Password> <Jfrog repo URL> <TARGET_FILE_PATH in Jfrog repo>
 
 
 ## Script to be executed from schema-generator

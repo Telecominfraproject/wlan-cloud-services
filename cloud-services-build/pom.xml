@@ -186,7 +186,9 @@
                                 <module>../ssc-process</module>
                                 <module>../spc-process</module>
                                 <module>../portal-process</module>
-                                <!--module>../schema-generator</module-->
+                                
+                                <module>../schema-generator</module>
+                                
                                 <module>../all-cloud-in-one-process</module>
                                 <module>../all-cloud-and-opensync-gw-in-one-process</module>
                         </modules>
