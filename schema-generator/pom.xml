@@ -4,9 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.telecominfraproject.wlan</groupId>
+        <parent>
+                <groupId>com.telecominfraproject.wlan</groupId>
+                <artifactId>tip-wlan-cloud-root-pom</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <relativePath>../../wlan-cloud-root</relativePath>
+        </parent>
+
     <artifactId>schema-generator</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
         <prov-postgres-sql-schema>prov_aggregated_schema.sql</prov-postgres-sql-schema>
