@@ -237,13 +237,14 @@ public class ManufacturerServiceRemoteTest extends BaseRemoteTest {
         }
         
         // CREATE test where OUI already exists.
-        badCreate.setManufacturerName("Something that would work");
-        try {
-            remoteInterface.createOuiDetails(badCreate);
-            fail("Should not be able to create OUI details for a OUI alread in the datastore.");
-        } catch (Exception e) {
-            // Expected
-        }
+        //We'll be just skipping the results that are already in the datastore
+//        badCreate.setManufacturerName("Something that would work");
+//        try {
+//            remoteInterface.createOuiDetails(badCreate);
+//            fail("Should not be able to create OUI details for a OUI alread in the datastore.");
+//        } catch (Exception e) {
+//            // Expected
+//        }
         
         // UPDATE alias test
         ManufacturerOuiDetails update = new ManufacturerOuiDetails();
