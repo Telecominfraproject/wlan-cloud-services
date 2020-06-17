@@ -7785,6 +7785,37 @@ components:
           type: integer
           format: int64
       
+    ManufacturerDetailsRecord:
+      properties:
+        id:
+          type: integer
+          format: int64
+        manufacturerName:
+          type: string
+        manufacturerAlias:
+          type: string
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
+
+    ManufacturerOuiDetails:
+      properties:
+        oui:
+          description: first 3 bytes of MAC address, expressed as a string like '1a2b3c'
+          type: string
+        manufacturerName:
+          type: string
+        manufacturerAlias:
+          type: string
+
+    ManufacturerOuiDetailsPerOuiMap:
+      additionalProperties:
+        $ref: '#/components/schemas/ManufacturerOuiDetails'
+
 
 #
 # Objects related to pagination
@@ -10416,7 +10447,7 @@ paths:
         required: true
         schema:
           type: integer
-          format: int64
+          format: int32
       responses:
         200:
           description: successful operation
@@ -10427,3 +10458,317 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
+  /portal/manufacturer:
+    post:
+      tags:
+       - Manufacturer OUI
+      summary: Create new ManufacturerDetailsRecord
+      operationId: createManufacturerDetailsRecord
+      requestBody:
+        description: ManufacturerDetailsRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManufacturerDetailsRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerDetailsRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get ManufacturerDetailsRecord By id
+      operationId: getManufacturerDetailsRecord
+      parameters:
+      - name: id
+        in: query
+        description: ManufacturerDetailsRecord id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerDetailsRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+       - Manufacturer OUI
+      summary: Update ManufacturerDetailsRecord
+      operationId: updateManufacturerDetailsRecord
+      requestBody:
+        description: ManufacturerDetailsRecord info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManufacturerDetailsRecord'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerDetailsRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+       - Manufacturer OUI
+      summary: Delete ManufacturerDetailsRecord
+      operationId: deleteManufacturerDetailsRecord
+      parameters:
+      - name: id
+        in: query
+        description: ManufacturerDetailsRecord id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerDetailsRecord'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/manufacturer/oui:
+    post:
+      tags:
+       - Manufacturer OUI
+      summary: Create new ManufacturerOuiDetails
+      operationId: createManufacturerOuiDetails
+      requestBody:
+        description: ManufacturerOuiDetails info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManufacturerOuiDetails'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerOuiDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get ManufacturerOuiDetails By oui
+      operationId: getManufacturerOuiDetailsByOui
+      parameters:
+      - name: oui
+        in: query
+        description: ManufacturerOuiDetails oui
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerOuiDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    delete:
+      tags:
+       - Manufacturer OUI
+      summary: Delete ManufacturerOuiDetails
+      operationId: deleteManufacturerOuiDetails
+      parameters:
+      - name: oui
+        in: query
+        description: ManufacturerOuiDetails oui
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerOuiDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/manufacturer/oui/forManufacturer:
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get Oui List for manufacturer
+      operationId: getOuiListForManufacturer
+      parameters:
+      - name: manufacturer
+        in: query
+        description: Manufacturer name or alias
+        required: true
+        schema:
+          type: string
+      - name: exactMatch
+        in: query
+        description: Perform exact match (true) or prefix match (false) for the manufacturer name or alias
+        required: true
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/manufacturer/oui/all:
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get all ManufacturerOuiDetails
+      operationId: getAllManufacturerOuiDetails
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ManufacturerOuiDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+        
+  /portal/manufacturer/oui/list:
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get ManufacturerOuiDetails for the list of OUIs
+      operationId: getManufacturerDetailsForOuiList
+      parameters:
+      - name: ouiList
+        in: query
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerOuiDetailsPerOuiMap'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/manufacturer/oui/alias:
+    put:
+      tags:
+       - Manufacturer OUI
+      summary: Update alias for ManufacturerOuiDetails
+      operationId: updateOuiAlias
+      requestBody:
+        description: ManufacturerOuiDetails info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManufacturerOuiDetails'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerOuiDetails'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+       - Manufacturer OUI
+      summary: Get alias values that begin with the given prefix
+      operationId: getAliasValuesThatBeginWith
+      parameters:
+      - name: prefix
+        in: query
+        description: OUI prefix
+        required: true
+        schema:
+          type: string
+      - name: maxResults
+        in: query
+        description: max results to return, use -1 for no limit
+        required: true
+        schema:
+          type: integer
+          format: int32
+          default: -1
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        500:
+          $ref: '#/components/responses/GenericApiError'
+  
+  /portal/manufacturer/oui/upload:
+    post:
+      tags:
+       - Manufacturer OUI
+      summary: Upload the gziped OUI DataFile, in the format that is published by IEEE. Latest sanitized IEEE OUI data file (oui.txt.gz) can be obtained from https://linuxnet.ca/ieee/oui/
+      operationId: uploadOuiDataFile
+      parameters:
+      - name: fileName
+        in: query
+        description: file name that is being uploaded
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Contents of gziped OUI DataFile
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: base64          
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+

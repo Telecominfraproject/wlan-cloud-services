@@ -3,287 +3,384 @@ package com.telecominfraproject.wlan.manufacturer.datastore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
-import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
-import com.telecominfraproject.wlan.manufacturer.models.Manufacturer;
-import com.telecominfraproject.wlan.manufacturer.models.ManufacturerDetails;
+import com.telecominfraproject.wlan.manufacturer.models.ManufacturerDetailsRecord;
+import com.telecominfraproject.wlan.manufacturer.models.ManufacturerOuiDetails;
 
 /**
- * @author dtoptygin
+ * @author mpreston
  *
  */
 public abstract class BaseManufacturerDatastoreTest {
-    @Autowired
-    protected ManufacturerDatastore testInterface;
+    private static final String TESTNAME = "testname";
+    private static final String TESTALIAS = "testalias";
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    @Autowired private ManufacturerDatastoreInterface manufacturerDatastore;
 
+    @Before
+    public void setUp() {
+        // nothing
+    }
+    
     @Test
-    public void testCRUD() {
-    	Manufacturer manufacturer = createManufacturerObject();
-
-        //create
-    	Manufacturer created = testInterface.create(manufacturer);
-        assertNotNull(created);
-        assertTrue(created.getId() > 0);
-        assertEquals(manufacturer.getSampleStr(), created.getSampleStr());
-        assertEquals(manufacturer.getCustomerId(), created.getCustomerId());
-        assertNotNull(created.getDetails());
-        assertEquals(manufacturer.getDetails(), created.getDetails());
+    public void testClientManufacturerDetailsCRUD() {
+        final String companyName1 = "Complex Company Inc.";
+        final String companyName2 = "Simple Co.";
+        final String companyName3 = "Simplor Co.";
+        final String companyAlias1 = "Complex";
+        final String companyAlias2 = "Simple";
+        final String companyAlias3 = "Simplor";
                 
-        // update
-        created.setSampleStr(created.getSampleStr()+"_updated");
-        Manufacturer updated = testInterface.update(created);
-        assertNotNull(updated);
-        assertEquals(created.getSampleStr(), updated.getSampleStr());
         
-        while(updated.getLastModifiedTimestamp() == created.getLastModifiedTimestamp()) {
-        	//update again to make the timestamps different      	
-            created.setSampleStr(created.getSampleStr()+"_updated_1");
-            updated = testInterface.update(created);
-        }
+        //CREATE test
+        ManufacturerDetailsRecord manufacturerDetails = new ManufacturerDetailsRecord();
+        manufacturerDetails.setManufacturerName(companyName1);
+        manufacturerDetails.setManufacturerAlias(companyAlias1);
+        
+        ManufacturerDetailsRecord ret = manufacturerDatastore.createManufacturerDetails(manufacturerDetails);
+        
+        //GET by id
+        ret = manufacturerDatastore.getById(ret.getId());    
+        assertTrue(manufacturerDetails.equals(ret));
+        
+        // GET by manufacturer
+        List<ManufacturerDetailsRecord> resultList = manufacturerDatastore.getByManufacturer(companyName1, true);
+        assertTrue(manufacturerDetails.equals(resultList.get(0)));
+        
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("Compl", false);
+        assertTrue(manufacturerDetails.equals(resultList.get(0)));
+        
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("mpl", false);
+        assertTrue(resultList.isEmpty());
+        
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("bad stuff here", false);
+        assertTrue(resultList.isEmpty());
 
+        //UPDATE test - success
+        manufacturerDetails = ret;
+        manufacturerDetails.setManufacturerAlias("New Alias");
+        ret = manufacturerDatastore.updateManufacturerDetails(manufacturerDetails);
+        assertTrue(manufacturerDetails.equals(ret));
+        
         //UPDATE test - fail because of concurrent modification exception
         try{
-        	Manufacturer modelConcurrentUpdate = created.clone();
-        	modelConcurrentUpdate.setSampleStr("not important");
-        	testInterface.update(modelConcurrentUpdate);
-        	fail("failed to detect concurrent modification");
+            ManufacturerDetailsRecord manufacturerDetailsConcurrentUpdate = manufacturerDetails.clone();
+            manufacturerDetailsConcurrentUpdate.setLastModifiedTimestamp(manufacturerDetailsConcurrentUpdate.getLastModifiedTimestamp()-1);
+            manufacturerDetailsConcurrentUpdate.setManufacturerAlias("This should not work");
+            manufacturerDatastore.updateManufacturerDetails(manufacturerDetailsConcurrentUpdate);
+            fail("failed to detect concurrent modification");
         }catch (DsConcurrentModificationException e) {
-        	// expected it
+            // expected it
         }
         
-        //retrieve
-        Manufacturer retrieved = testInterface.get(created.getId());
-        assertNotNull(retrieved);
-        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+        ManufacturerDetailsRecord manufacturerDetails2 = new ManufacturerDetailsRecord();
+        manufacturerDetails2.setManufacturerName(companyName2);
+        manufacturerDetails2.setManufacturerAlias(companyAlias2);
+        ManufacturerDetailsRecord ret2 = manufacturerDatastore.createManufacturerDetails(manufacturerDetails2);
+        
+        ManufacturerDetailsRecord manufacturerDetails3 = new ManufacturerDetailsRecord();
+        manufacturerDetails3.setManufacturerName(companyName3);
+        manufacturerDetails3.setManufacturerAlias(companyAlias3);
+        ManufacturerDetailsRecord ret3 = manufacturerDatastore.createManufacturerDetails(manufacturerDetails3);
+        
+        // GET by manufacturer partial list
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("Simp", false);
+        assertEquals(2, resultList.size());
+        
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("Simple", true);
+        assertEquals(1, resultList.size());
+        
+        resultList.clear();
+        resultList = manufacturerDatastore.getByManufacturer("Simple", false);
+        assertEquals(1, resultList.size());
 
-        retrieved = testInterface.getOrNull(created.getId());
-        assertNotNull(retrieved);
-        assertEquals(retrieved.getLastModifiedTimestamp(), updated.getLastModifiedTimestamp());
+        //DELETE Test
+        manufacturerDatastore.deleteManufacturerDetails(ret.getId());
         
-        //retrieve non-existent
-        try {
-        	testInterface.get(-1);
-        	fail("retrieve non-existing record");
-        }catch(DsEntityNotFoundException e ){
-        	//expected it
+        try{
+            manufacturerDatastore.deleteManufacturerDetails(ret.getId());
+            fail("failed to delete ClientManufacturerDetails");
+        }catch (Exception e) {
+            // expected it
         }
         
-        assertNull(testInterface.getOrNull(-1));
-        
-        //delete
-        retrieved = testInterface.delete(created.getId());
-        assertNotNull(retrieved);
-        
-        //delete non-existent
-        try {
-        	testInterface.delete(-1);
-        	fail("delete non-existing record");
-        }catch(DsEntityNotFoundException e ){
-        	//expected it
-        }
-
-        //update non-existent
-        try {
-        	testInterface.update(retrieved);
-        	fail("update non-existing record");
-        }catch(DsEntityNotFoundException e ){
-        	//expected it
-        }
-
+        // Clean Up.
+        manufacturerDatastore.deleteManufacturerDetails(ret2.getId());
+        manufacturerDatastore.deleteManufacturerDetails(ret3.getId());
     }
     
     @Test
-    public void testGetAllInSet() {
-        Set<Manufacturer> createdSet = new HashSet<>();
-        Set<Manufacturer> createdTestSet = new HashSet<>();
-
-        //Create test Manufacturers
-        Manufacturer manufacturer = new Manufacturer();
-
-        for (int i = 0; i < 10; i++) {
-            manufacturer.setSampleStr("test_" + i);
-            manufacturer.setCustomerId(i);
-
-            Manufacturer ret = testInterface.create(manufacturer);
-
-            // Only keep track of half of the created ones for testing
-            if (i % 2 == 0) {
-                createdTestSet.add(ret.clone());
+    public void testOuiDatastoreOperations() {
+        final String companyName1 = "Complex Company Inc.";
+        final String companyName2 = "Simple Co.";
+        final String companyName3 = "Simplor Co.";
+        
+        final String companyAlias1 = "Complex";
+        final String companyAlias2 = "Simple";
+        final String companyAlias3 = null;
+        
+        final String oui1 = "0000a1";
+        final String oui2 = "0000a2";
+        final String oui3 = "0000a3";
+             
+        // CREATE test
+        ManufacturerOuiDetails ouiDetails1 = new ManufacturerOuiDetails();
+        ouiDetails1.setOui(oui1);
+        ouiDetails1.setManufacturerName(companyName1);
+        ouiDetails1.setManufacturerAlias(companyAlias1);
+        
+        ManufacturerOuiDetails ret1 = manufacturerDatastore.createOuiDetails(ouiDetails1);
+        assertTrue(ouiDetails1.equals(ret1));
+        
+        // Make sure the details object was properly created as well.
+        ManufacturerDetailsRecord manufacturerDetailsRecord1 = manufacturerDatastore.getByManufacturer(companyName1, true).get(0);
+        assertTrue(manufacturerDetailsRecord1.getManufacturerName().equals(companyName1));
+        assertTrue(manufacturerDetailsRecord1.getManufacturerAlias().equals(companyAlias1));
+        
+        // GET by oui test
+        ret1 = manufacturerDatastore.getByOui(oui1);
+        assertTrue(ouiDetails1.equals(ret1));
+        
+        // GET mfr details id test
+        long mfrDetailsId = manufacturerDatastore.getManufacturerDetialsId(oui1);
+        ManufacturerDetailsRecord mfrDetialsRecord = manufacturerDatastore.getById(mfrDetailsId);
+        assertTrue(mfrDetialsRecord.getManufacturerAlias().equals(ret1.getManufacturerAlias()));
+        assertTrue(mfrDetialsRecord.getManufacturerName().equals(ret1.getManufacturerName()));
+        
+        // GET Alias starts with test.
+        List<String> aliasList = manufacturerDatastore.getAliasValuesThatBeginWith("Com", -1);
+        assertEquals(1, aliasList.size());
+        assertTrue(aliasList.get(0).equals(companyAlias1));
+        aliasList = manufacturerDatastore.getAliasValuesThatBeginWith("Sim", 2000);
+        assertTrue(aliasList.isEmpty());
+        
+        
+        // GET by manufacturer tests
+        ManufacturerOuiDetails ouiDetails2 = new ManufacturerOuiDetails();
+        ouiDetails2.setOui(oui2);
+        ouiDetails2.setManufacturerName(companyName2);
+        ouiDetails2.setManufacturerAlias(companyAlias2);
+        ManufacturerOuiDetails ret2 = manufacturerDatastore.createOuiDetails(ouiDetails2);
+        
+        ManufacturerOuiDetails ouiDetails3 = new ManufacturerOuiDetails();
+        ouiDetails3.setOui(oui3);
+        ouiDetails3.setManufacturerName(companyName3);
+        ouiDetails3.setManufacturerAlias(companyAlias3);
+        ManufacturerOuiDetails ret3 = manufacturerDatastore.createOuiDetails(ouiDetails3);
+        
+        List<String> ouiResultList = manufacturerDatastore.getOuiListForManufacturer(companyName1, true);
+        assertEquals(1, ouiResultList.size());
+        assertTrue(ouiDetails1.equals(manufacturerDatastore.getByOui(ouiResultList.get(0))));
+        
+        ouiResultList = manufacturerDatastore.getOuiListForManufacturer("Bad Name", true);
+        assertTrue(ouiResultList.isEmpty());
+        
+        ouiResultList = manufacturerDatastore.getOuiListForManufacturer("Compl", false);
+        assertEquals(1, ouiResultList.size());
+        assertTrue(ouiDetails1.equals(manufacturerDatastore.getByOui(ouiResultList.get(0))));
+        
+        ouiResultList = manufacturerDatastore.getOuiListForManufacturer("ompl", false);
+        assertTrue(ouiResultList.isEmpty());
+        
+        ouiResultList = manufacturerDatastore.getOuiListForManufacturer("Simp", false);
+        assertEquals(2, ouiResultList.size());
+        for (int i = 0 ; i < ouiResultList.size(); i++) {
+            if (ouiResultList.get(i).equals(oui2)) {
+                assertTrue(ouiDetails2.equals(manufacturerDatastore.getByOui(ouiResultList.get(i))));
+            } else if (ouiResultList.get(i).equals(oui3)) {
+                assertTrue(ouiDetails3.equals(manufacturerDatastore.getByOui(ouiResultList.get(i))));
             } else {
-                createdSet.add(ret.clone());
+                fail("Unknown OUI was found: " + ouiResultList.get(i));
             }
         }
-
-        // Use only the IDs from the test set to retrieve records.
-        Set<Long> testSetIds = new HashSet<>();
-        for (Manufacturer c : createdTestSet) {
-            testSetIds.add(c.getId());
+        
+        // GET ALL Manufacturer data test
+        List<ManufacturerOuiDetails> allManufacturerData = manufacturerDatastore.getAllManufacturerData();
+        assertEquals(3, allManufacturerData.size());
+        for (int i = 0 ; i < allManufacturerData.size(); i++) {
+            if (allManufacturerData.get(i).getOui().equals(oui2)) {
+                assertTrue(ouiDetails2.equals(allManufacturerData.get(i)));
+            } else if (allManufacturerData.get(i).getOui().equals(oui3)) {
+                assertTrue(ouiDetails3.equals(allManufacturerData.get(i)));
+            } else if (allManufacturerData.get(i).getOui().equals(oui1)) {
+                assertTrue(ouiDetails1.equals(allManufacturerData.get(i)));
+            } else {
+                if (isTestRecord(allManufacturerData.get(i))) {
+                    // This is the test record from the test data resources.
+                    continue;
+                }
+                fail("Unknown OUI was found: " + ouiResultList.get(i));
+            }
         }
-        assertEquals(5, testSetIds.size());
-
-        List<Manufacturer> manufacturersRetrievedByIdSet = testInterface.get(testSetIds);
-        assertEquals(5, manufacturersRetrievedByIdSet.size());
-        for (Manufacturer c : manufacturersRetrievedByIdSet) {
-            assertTrue(createdTestSet.contains(c));
+        
+        // GET by OUI list test:
+        Map<String, ManufacturerOuiDetails> ouiListSearchResult = manufacturerDatastore.getManufacturerDetailsForOuiList(null);
+        assertTrue(ouiListSearchResult.isEmpty());
+        
+        List<String> ouiList = new ArrayList<>();
+        ouiList.add(oui1);
+        ouiListSearchResult = manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
+        assertEquals(1, ouiListSearchResult.size());
+        assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
+        
+        ouiList.add(oui2);
+        ouiListSearchResult = manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
+        assertEquals(2, ouiListSearchResult.size());
+        assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
+        assertTrue(ouiListSearchResult.get(oui2).equals(ret2));
+        
+        ouiList.add(oui3);
+        ouiListSearchResult = manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
+        assertEquals(3, ouiListSearchResult.size());
+        assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
+        assertTrue(ouiListSearchResult.get(oui2).equals(ret2));
+        assertTrue(ouiListSearchResult.get(oui3).equals(ret3));
+        
+        // CREATE without manufacturer fail test
+        ManufacturerOuiDetails badCreate = new ManufacturerOuiDetails();
+        badCreate.setOui(oui3);
+        badCreate.setManufacturerName(null);
+        badCreate.setManufacturerAlias(companyAlias2);
+        try {
+            ManufacturerOuiDetails badRet = manufacturerDatastore.createOuiDetails(badCreate);
+            fail("Should not be able to create OUI details with a null manufacturer name: " + badRet);
+        } catch (Exception e) {
+            // Expected
         }
-
-        // Make sure the manufacturers from the non-test set are not in the list
-        for (Manufacturer c : manufacturersRetrievedByIdSet) {
-            assertTrue(!createdSet.contains(c));
+        
+        badCreate.setManufacturerName("");
+        try {
+            ManufacturerOuiDetails badRet = manufacturerDatastore.createOuiDetails(badCreate);
+            fail("Should not be able to create OUI details with a blank manufacturer name: " + badRet);
+        } catch (Exception e) {
+            // Expected
         }
-		
-        // Clean up after test
-        for (Manufacturer c : createdSet) {
-        	testInterface.delete(c.getId());
+        
+        // DELETE test
+        manufacturerDatastore.deleteOuiDetails(ret1.getOui());
+        
+        try{
+            manufacturerDatastore.deleteOuiDetails(ret1.getOui());
+            fail("failed to delete ClientOuiDetails");
+        }catch (Exception e) {
+            // expected it
         }
-        for (Manufacturer c : createdTestSet) {
-        	testInterface.delete(c.getId());
-        }
-
+        
+        
+        // Clean up:
+        manufacturerDatastore.deleteOuiDetails(ret2.getOui());
+        manufacturerDatastore.deleteOuiDetails(ret3.getOui());
     }
     
     @Test
-    public void testManufacturerPagination()
-    {
-       //create 100 Manufacturers
-       Manufacturer mdl;
-       int customerId_1 = (int) testSequence.incrementAndGet();
-       int customerId_2 = (int) testSequence.incrementAndGet();
-       
-       int apNameIdx = 0;
-       
-       for(int i = 0; i< 50; i++){
-           mdl = new Manufacturer();
-           mdl.setCustomerId(customerId_1);
-           mdl.setSampleStr("qr_"+apNameIdx);
-           apNameIdx++;
-           testInterface.create(mdl);
-       }
-
-       for(int i = 0; i< 50; i++){
-           mdl = new Manufacturer();
-           mdl.setCustomerId(customerId_2);
-           mdl.setSampleStr("qr_"+apNameIdx);
-           apNameIdx++;
-           testInterface.create(mdl);
-       }
-
-       //paginate over Manufacturers
-       
-       List<ColumnAndSort> sortBy = new ArrayList<>();
-       sortBy.addAll(Arrays.asList(new ColumnAndSort("sampleStr")));
-       
-       PaginationContext<Manufacturer> context = new PaginationContext<>(10);
-       PaginationResponse<Manufacturer> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
-       PaginationResponse<Manufacturer> page2 = testInterface.getForCustomer(customerId_1, sortBy, page1.getContext());
-       PaginationResponse<Manufacturer> page3 = testInterface.getForCustomer(customerId_1, sortBy, page2.getContext());
-       PaginationResponse<Manufacturer> page4 = testInterface.getForCustomer(customerId_1, sortBy, page3.getContext());
-       PaginationResponse<Manufacturer> page5 = testInterface.getForCustomer(customerId_1, sortBy, page4.getContext());
-       PaginationResponse<Manufacturer> page6 = testInterface.getForCustomer(customerId_1, sortBy, page5.getContext());
-       PaginationResponse<Manufacturer> page7 = testInterface.getForCustomer(customerId_1, sortBy, page6.getContext());
-       
-       //verify returned pages
-       assertEquals(10, page1.getItems().size());
-       assertEquals(10, page2.getItems().size());
-       assertEquals(10, page3.getItems().size());
-       assertEquals(10, page4.getItems().size());
-       assertEquals(10, page5.getItems().size());
-       
-       page1.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
-       page2.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
-       page3.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
-       page4.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
-       page5.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
-       
-       assertEquals(0, page6.getItems().size());
-       assertEquals(0, page7.getItems().size());
-       
-       assertFalse(page1.getContext().isLastPage());
-       assertFalse(page2.getContext().isLastPage());
-       assertFalse(page3.getContext().isLastPage());
-       assertFalse(page4.getContext().isLastPage());
-       assertFalse(page5.getContext().isLastPage());
-       
-       assertTrue(page6.getContext().isLastPage());
-       assertTrue(page7.getContext().isLastPage());
-       
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
-       List<String> actualPage3Strings = new ArrayList<>();
-       page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getSampleStr()) );
-       
-       assertEquals(expectedPage3Strings, actualPage3Strings);
-
-//       System.out.println("================================");
-//       for(Manufacturer pmdl: page3.getItems()){
-//           System.out.println(pmdl);
-//       }
-//       System.out.println("================================");
-//       System.out.println("Context: "+ page3.getContext());
-//       System.out.println("================================");
-       
-       //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Manufacturer> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
-       assertEquals(10, page1EmptySort.getItems().size());
-
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
-       List<String> actualPage1EmptySortStrings = new ArrayList<>();
-       page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getSampleStr()) );
-
-       assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
-
-       //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Manufacturer> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
-       assertEquals(10, page1NullSort.getItems().size());
-
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
-       List<String> actualPage1NullSortStrings = new ArrayList<>();
-       page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getSampleStr()) );
-
-       assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
-
-       
-       //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Manufacturer> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("sampleStr", SortOrder.desc)), context);
-       assertEquals(10, page1SingleSortDesc.getItems().size());
-
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
-       List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-       page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getSampleStr()) );
-       
-       assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
-
+    public void testBadUpload() {
+        // Try to upload a invalid file
+        GenericResponse result = manufacturerDatastore.uploadOuiDataFile("This is Bad Data", new byte[] { 0x1, 0x2 });
+        assertFalse("uploaded bad file", result.isSuccess());
     }
     
-    private Manufacturer createManufacturerObject() {
-    	Manufacturer result = new Manufacturer();
-        long nextId = testSequence.getAndIncrement();
-        result.setCustomerId((int) nextId);
-        result.setSampleStr("test-" + nextId); 
-        ManufacturerDetails details = new ManufacturerDetails();
-        details.setSampleDetailsStr("test-details-" + nextId);
-		result.setDetails(details );
-        return result;
+    @Test
+    public void testPopulateOuiDatastore() throws IOException {
+        Map<String, String> knownTestMacs = new HashMap<>();
+        knownTestMacs.put("bc3aea", "GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD");
+        knownTestMacs.put("e8bba8", "GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD");
+        knownTestMacs.put("8c0ee3", "GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD");
+        knownTestMacs.put("7c4ca5", "BSkyB Ltd");
+        knownTestMacs.put("0012f2", "Brocade Communications Systems, Inc.");
+        knownTestMacs.put("001bed", "Brocade Communications Systems, Inc.");
+        knownTestMacs.put("002438", "Brocade Communications Systems, Inc.");
+        knownTestMacs.put("8ce748", "Private (8CE748)");
+        knownTestMacs.put("0084ed", "Private (0084ED)");
+        
+        final String filePath = "test-oui.txt";
+        InputStream inFile = BaseManufacturerDatastoreTest.class.getResource(filePath).openStream();
+        ByteArrayOutputStream compressedStream = new ByteArrayOutputStream();
+        GZIPOutputStream gzOut = new GZIPOutputStream(compressedStream);
+        byte[] buffer = new byte[512];
+        while(inFile.available() > 0) {
+            int read = inFile.read(buffer);
+            gzOut.write(buffer, 0, read);
+        }
+        gzOut.finish();
+        manufacturerDatastore.uploadOuiDataFile(filePath, compressedStream.toByteArray());
+        List<ManufacturerOuiDetails> entireMfrDatastore = manufacturerDatastore.getAllManufacturerData();
+        assertNotNull(entireMfrDatastore);
+        assertEquals(knownTestMacs.size(), entireMfrDatastore.size());
+        for (ManufacturerOuiDetails record : entireMfrDatastore) {
+            if (knownTestMacs.containsKey(record.getOui())) {
+                if (record.getManufacturerName().equals(knownTestMacs.get(record.getOui()))) {
+                    continue;
+                }
+                fail("Incorrect mfr name found. Expected: " + knownTestMacs.get(record.getOui()) + ", found: " + record.getManufacturerName());
+            } else {
+                if (isTestRecord(record)) {
+                    // This is the test record from the test data resources.
+                    continue;
+                }
+                fail("Unknown OUI was found: " + record);
+            }
+        }
+        
+        // Populate it again with the same file, verify the results are the same
+        manufacturerDatastore.uploadOuiDataFile(filePath, compressedStream.toByteArray());
+        entireMfrDatastore.clear();
+        
+        entireMfrDatastore = manufacturerDatastore.getAllManufacturerData();
+        assertEquals(knownTestMacs.size(), entireMfrDatastore.size());
+        for (ManufacturerOuiDetails record : entireMfrDatastore) {
+            if (knownTestMacs.containsKey(record.getOui())) {
+                if (record.getManufacturerName().equals(knownTestMacs.get(record.getOui()))) {
+                    continue;
+                }
+                fail("Incorrect mfr name found. Expected: " + knownTestMacs.get(record.getOui()) + ", found: " + record.getManufacturerName());
+            } else {
+                if (isTestRecord(record)) {
+                    // This is the test record from the test data resources.
+                    continue;
+                }
+                fail("Unknown OUI was found: " + record);
+            }
+        }
+        
+        // Clean up:
+        for(ManufacturerOuiDetails record : entireMfrDatastore) {
+            if (knownTestMacs.containsKey(record.getOui())) {
+                manufacturerDatastore.deleteOuiDetails(record.getOui());
+            } else {
+                if (isTestRecord(record)) {
+                    // This is the test record from the test data resources.
+                    continue;
+                }
+                fail("Unknown OUI was found: " + record);
+            }
+        }
+        
+    }
+
+    private boolean isTestRecord(ManufacturerOuiDetails record) {
+        return (record != null) && TESTNAME.equals(record.getManufacturerName())
+                && TESTALIAS.equals(record.getManufacturerAlias());
     }
 }

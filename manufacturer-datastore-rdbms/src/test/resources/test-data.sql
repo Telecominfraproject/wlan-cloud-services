@@ -1,15 +1,5 @@
-insert into manufacturer (
-    id,
-    customerId,     
-    sampleStr,
-    details,
-    createdTimestamp,
-    lastModifiedTimestamp
-) values (
-    1,
-    1,
-    'test',
-    null,
-    0,0
-);
+
+select count(0) from manufacturer_details;
+
+select count(0) from manufacturer_oui;
 

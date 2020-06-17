@@ -6,7 +6,7 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJDbcDataSource;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseKeyColumnConverter;
 
 /**
- * @author dtoptygin
+ * @author mpreston
  * SQL DataSource that is used by Manufacturer Service
  */
 public class ManufacturerDataSourceImpl extends BaseJDbcDataSource implements ManufacturerDataSourceInterface {

@@ -1,8 +1,6 @@
 package com.telecominfraproject.wlan.manufacturer.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +13,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
 import com.telecominfraproject.wlan.manufacturer.datastore.inmemory.ManufacturerDatastoreInMemory;
-import com.telecominfraproject.wlan.manufacturer.models.Manufacturer;
+import com.telecominfraproject.wlan.manufacturer.models.ManufacturerDetailsRecord;
 
 /**
  * @author dtoptygin
@@ -51,32 +48,24 @@ public class ManufacturerControllerTest {
     @Test
     public void testManufacturerCRUD() throws Exception {
         
-        //Create new Manufacturer - success
-        Manufacturer manufacturer = new Manufacturer();
-        manufacturer.setSampleStr("test");
-
-        Manufacturer ret = manufacturerController.create(manufacturer);
-        assertNotNull(ret);
-
-        ret = manufacturerController.get(ret.getId());
-        assertEqualManufacturers(manufacturer, ret);
-
-        ret = manufacturerController.getOrNull(ret.getId());
-        assertEqualManufacturers(manufacturer, ret);
+        final String companyName1 = "Complex Company Inc. 1";
+        final String companyAlias1 = "Complex 1";
+                
         
-        assertNull(manufacturerController.getOrNull(-1));
-
-        //Delete - success
-        manufacturerController.delete(ret.getId());
+        //CREATE test
+        ManufacturerDetailsRecord manufacturerDetails = new ManufacturerDetailsRecord();
+        manufacturerDetails.setManufacturerName(companyName1);
+        manufacturerDetails.setManufacturerAlias(companyAlias1);
+        
+        ManufacturerDetailsRecord ret = manufacturerController.createManufacturerDetails(manufacturerDetails);
+        
+        //GET by id
+        ret = manufacturerController.getById(ret.getId());    
+        assertTrue(manufacturerDetails.equals(ret));
+        
+        manufacturerController.deleteManufacturerDetails(ret.getId());
         
     }
         
-    private void assertEqualManufacturers(
-            Manufacturer expected,
-            Manufacturer actual) {
-        
-        assertEquals(expected.getSampleStr(), actual.getSampleStr());
-        //TODO: add more fields to check here
-    }
 
 }

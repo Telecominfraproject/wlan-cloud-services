@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
-
 import com.telecominfraproject.wlan.manufacturer.datastore.BaseManufacturerDatastoreTest;
 
 /**
@@ -22,7 +21,9 @@ import com.telecominfraproject.wlan.manufacturer.datastore.BaseManufacturerDatas
 @Rollback(value = true)
 @Transactional
 @Import(value = { ManufacturerDatastoreRdbms.class, ManufacturerDataSourceConfig.class,
-        ManufacturerDAO.class, BaseJdbcTest.Config.class })
+        ManufacturerOuiDAO.class,
+        ManufacturerDetailsDAO.class, 
+        BaseJdbcTest.Config.class })
 @TestWithEmbeddedDB
 public class ManufacturerDatastoreRdbmsTests extends BaseManufacturerDatastoreTest {
 

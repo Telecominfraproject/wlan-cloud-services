@@ -1,0 +1,51 @@
+OUI/MA-L                                                    Organization                                 
+company_id                                                  Organization                                 
+                                                            Address                                      
+
+BC-3A-EA   (hex)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+BC3AEA     (base 16)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+				NO.18 HAIBIN ROAD,WUSHA,CHANG'AN,DONGGUAN,GUANGDONG,CHINA
+				DONGGUAN  GUANGDONG  523860
+				CN
+
+E8-BB-A8   (hex)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+E8BBA8     (base 16)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+				NO.18 HAIBIN ROAD,WUSHA,CHANG'AN,DONGGUAN,GUANGDONG,CHINA
+				DONGGUAN  GUANGDONG  523860
+				CN
+
+8C-0E-E3   (hex)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+8C0EE3     (base 16)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD
+				NO.18 HAIBIN ROAD,WUSHA,CHANG'AN
+				DONGGUAN  GUANGDONG  523860
+				CN
+
+7C-4C-A5   (hex)		BSkyB Ltd
+7C4CA5     (base 16)		BSkyB Ltd
+				130 Kings Road
+				Brentwood  Essex  CM14 4EQ
+				GB
+
+00-12-F2   (hex)		Brocade Communications Systems, Inc.
+0012F2     (base 16)		Brocade Communications Systems, Inc.
+				130 Holger Way
+				San Jose  CA  95134
+				US
+
+00-1B-ED   (hex)		Brocade Communications Systems, Inc.
+001BED     (base 16)		Brocade Communications Systems, Inc.
+				130 Holger Way
+				San Jose  CA  95134
+				US
+
+00-24-38   (hex)		Brocade Communications Systems, Inc.
+002438     (base 16)		Brocade Communications Systems, Inc.
+				130 Holger Way
+				San Jose  CA  95134
+				US
+
+8C-E7-48   (hex)		Private
+8CE748     (base 16)		Private
+				
+00-84-ED   (hex)		Private
+0084ED     (base 16)		Private

@@ -1,245 +1,348 @@
 package com.telecominfraproject.wlan.manufacturer.datastore.inmemory;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.CollectionUtils;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
-
-import com.telecominfraproject.wlan.manufacturer.datastore.ManufacturerDatastore;
-import com.telecominfraproject.wlan.manufacturer.models.Manufacturer;
+import com.telecominfraproject.wlan.manufacturer.datastore.ManufacturerDatastoreInterface;
+import com.telecominfraproject.wlan.manufacturer.datastore.ManufacturerDatastoreUtilities;
+import com.telecominfraproject.wlan.manufacturer.models.ManufacturerDetailsRecord;
+import com.telecominfraproject.wlan.manufacturer.models.ManufacturerOuiDetails;
 
 /**
- * @author dtoptygin
+ * @author mpreston
  *
  */
 @Configuration
-public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore implements ManufacturerDatastore {
+public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore implements ManufacturerDatastoreInterface {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManufacturerDatastoreInMemory.class);
 
-    private static final Map<Long, Manufacturer> idToManufacturerMap = new ConcurrentHashMap<Long, Manufacturer>();
-    
-    private static final AtomicLong manufacturerIdCounter = new AtomicLong();    
+    private final Map<String, Long> ouiToManufacturerDetailsMap = new ConcurrentHashMap<>();
+    private final Map<Long, ManufacturerDetailsRecord> idToManufacturerDetailsRecordMap = new ConcurrentHashMap<>(); 
 
-    @Override
-    public Manufacturer create(Manufacturer manufacturer) {
-        
-        Manufacturer manufacturerCopy = manufacturer.clone();
-        
-        long id = manufacturerIdCounter.incrementAndGet();
-        manufacturerCopy.setId(id);
-        manufacturerCopy.setCreatedTimestamp(System.currentTimeMillis());
-        manufacturerCopy.setLastModifiedTimestamp(manufacturerCopy.getCreatedTimestamp());
-        idToManufacturerMap.put(id, manufacturerCopy);
-        
-        LOG.debug("Stored Manufacturer {}", manufacturerCopy);
-        
-        return manufacturerCopy.clone();
-    }
-
-
-    @Override
-    public Manufacturer get(long manufacturerId) {
-        LOG.debug("Looking up Manufacturer for id {}", manufacturerId);
-        
-        Manufacturer manufacturer = idToManufacturerMap.get(manufacturerId);
-        
-        if(manufacturer==null){
-            LOG.debug("Cannot find Manufacturer for id {}", manufacturerId);
-            throw new DsEntityNotFoundException("Cannot find Manufacturer for id " + manufacturerId);
-        } else {
-            LOG.debug("Found Manufacturer {}", manufacturer);
-        }
-
-        return manufacturer.clone();
-    }
-
-    @Override
-    public Manufacturer getOrNull(long manufacturerId) {
-        LOG.debug("Looking up Manufacturer for id {}", manufacturerId);
-        
-        Manufacturer manufacturer = idToManufacturerMap.get(manufacturerId);
-        
-        if(manufacturer==null){
-            LOG.debug("Cannot find Manufacturer for id {}", manufacturerId);
-            return null;
-        } else {
-            LOG.debug("Found Manufacturer {}", manufacturer);
-        }
-
-        return manufacturer.clone();
-    }
+    private static AtomicLong clientManufacturerDetailsIdCounter = new AtomicLong(0);
     
     @Override
-    public Manufacturer update(Manufacturer manufacturer) {
-        Manufacturer existingManufacturer = get(manufacturer.getId());
-        
-        if(existingManufacturer.getLastModifiedTimestamp()!=manufacturer.getLastModifiedTimestamp()){
-            LOG.debug("Concurrent modification detected for Manufacturer with id {} expected version is {} but version in db was {}", 
-                    manufacturer.getId(),
-                    manufacturer.getLastModifiedTimestamp(),
-                    existingManufacturer.getLastModifiedTimestamp()
-                    );
-            throw new DsConcurrentModificationException("Concurrent modification detected for Manufacturer with id " + manufacturer.getId()
-                    +" expected version is " + manufacturer.getLastModifiedTimestamp()
-                    +" but version in db was " + existingManufacturer.getLastModifiedTimestamp()
-                    );
-            
+    public ManufacturerOuiDetails createOuiDetails(ManufacturerOuiDetails ouiDetails) {
+        if (ouiDetails.getManufacturerName() == null || ouiDetails.getManufacturerName().isEmpty()) {
+            throw new DsDataValidationException("Unable to create ManufacturerOuiDetails when no Manufacturer name is provided.");
         }
         
-        Manufacturer manufacturerCopy = manufacturer.clone();
-        manufacturerCopy.setLastModifiedTimestamp(getNewLastModTs(manufacturer.getLastModifiedTimestamp()));
-
-        idToManufacturerMap.put(manufacturerCopy.getId(), manufacturerCopy);
-        
-        LOG.debug("Updated Manufacturer {}", manufacturerCopy);
-        
-        return manufacturerCopy.clone();
-    }
-
-    @Override
-    public Manufacturer delete(long manufacturerId) {
-        Manufacturer manufacturer = get(manufacturerId);
-        idToManufacturerMap.remove(manufacturer.getId());
-        
-        LOG.debug("Deleted Manufacturer {}", manufacturer);
-        
-        return manufacturer.clone();
-    }
-
-    @Override
-    public List<Manufacturer> get(Set<Long> manufacturerIdSet) {
-
-    	List<Manufacturer> ret = new ArrayList<>();
-    	
-    	if(manufacturerIdSet!=null && !manufacturerIdSet.isEmpty()) {	    	
-	    	idToManufacturerMap.forEach(
-	        		(id, c) -> {
-	        			if(manufacturerIdSet.contains(id)) {
-				        	ret.add(c.clone());
-				        } }
-	        		);
-    	}
-
-        LOG.debug("Found Manufacturers by ids {}", ret);
-
-        return ret;
-    
-    }
-
-    @Override
-    public PaginationResponse<Manufacturer> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<Manufacturer> context) {
-
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
-
-        PaginationResponse<Manufacturer> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
-
-        if (ret.getContext().isLastPage()) {
-            // no more pages available according to the context
-            return ret;
+        Long existingDetailsId = ouiToManufacturerDetailsMap.get(ouiDetails.getOui().toLowerCase());
+        if (existingDetailsId != null) {
+            throw new DsDuplicateEntityException("Unable to create ManufacturerOuiDetails for an OUI that already exists.");
         }
-
-        List<Manufacturer> items = new LinkedList<>();
-
-        // apply filters and build the full result list first - inefficient, but ok for testing
-        for (Manufacturer mdl : idToManufacturerMap.values()) {
-
-            if (mdl.getCustomerId() != customerId) {
-                continue;
-            }
-
-            items.add(mdl);
-        }
-
-        // apply sortBy columns
-        Collections.sort(items, new Comparator<Manufacturer>() {
-            @Override
-            public int compare(Manufacturer o1, Manufacturer o2) {
-                if (sortBy == null || sortBy.isEmpty()) {
-                    // sort ascending by id by default
-                    return Long.compare(o1.getId(), o2.getId());
-                } else {
-                    int cmp;
-                    for (ColumnAndSort column : sortBy) {
-                        switch (column.getColumnName()) {
-                        case "id":
-                            cmp = Long.compare(o1.getId(), o2.getId());
-                            break;
-                        case "sampleStr":
-                            cmp = o1.getSampleStr().compareTo(o2.getSampleStr());
-                            break;
-                        default:
-                            // skip unknown column
-                            continue;
-                        }
-
-                        if (cmp != 0) {
-                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
-                        }
-
-                    }
-                }
-                return 0;
-            }
-        });
-
-        // now select only items for the requested page
-        // find first item to add
-        int fromIndex = 0;
-        if (context.getStartAfterItem() != null) {
-            for (Manufacturer mdl : items) {
-                fromIndex++;
-                if (mdl.getId() == context.getStartAfterItem().getId()) {
+        
+        // Check to see if there is already Manufacturer details for this manufacturer:
+        ManufacturerDetailsRecord manufacturerDetails = null;
+        String manufacturerName = ManufacturerDatastoreUtilities.getByManufacturerName(ouiDetails.getOui(), ouiDetails.getManufacturerName());
+        List<ManufacturerDetailsRecord> manufacturerDetailList = getByManufacturer(manufacturerName, true);
+        if (!manufacturerDetailList.isEmpty()) {
+            // we will use the one match the name, not the alias because alias can change.
+            for (ManufacturerDetailsRecord detail: manufacturerDetailList) {
+                if (detail.getManufacturerName().equalsIgnoreCase(manufacturerName)) {
+                    manufacturerDetails = detail;
                     break;
                 }
             }
         }
+        
+        if (null == manufacturerDetails) {
+            // There was no existing manufacturer details entry. create that,
+            // then create the OU entry.
+            manufacturerDetails = new ManufacturerDetailsRecord();
+            manufacturerDetails.setManufacturerName(manufacturerName);
+            manufacturerDetails.setManufacturerAlias(ouiDetails.getManufacturerAlias());
+            manufacturerDetails = createManufacturerDetails(manufacturerDetails);
+        }
+        
+        ouiToManufacturerDetailsMap.put(ouiDetails.getOui().toLowerCase(), manufacturerDetails.getId());
+        LOG.debug("Stored ClientOuiDetails {}", ouiDetails);
+        return ouiDetails.clone();
+    }
 
-        // find last item to add
-        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
-        if (toIndexExclusive > items.size()) {
-            toIndexExclusive = items.size();
+
+    @Override
+    public ManufacturerOuiDetails deleteOuiDetails(String oui) {
+        ManufacturerOuiDetails clientOuiDetails = getByOui(oui);
+        ouiToManufacturerDetailsMap.remove(clientOuiDetails.getOui().toLowerCase());
+
+        LOG.debug("Deleted ManufacturerOuiDetails {}", clientOuiDetails);
+
+        return clientOuiDetails.clone();
+    }
+
+
+    @Override
+    public List<String> getOuiListForManufacturer(String manufacturer, boolean exactMatch) {
+        List<ManufacturerDetailsRecord> detailsRecordList = getByManufacturer(manufacturer, exactMatch);
+        List<String> resultList = new ArrayList<>();
+        
+        for (Entry<String, Long> ouiEntry : ouiToManufacturerDetailsMap.entrySet()) {
+            for (ManufacturerDetailsRecord record : detailsRecordList) {
+                if (ouiEntry.getValue() == record.getId()) {
+                    resultList.add(ouiEntry.getKey());
+                }
+            }
+        }
+        
+        return resultList;
+    }
+
+
+    @Override
+    public ManufacturerOuiDetails getByOui(String oui) {
+        Long detailsId = ouiToManufacturerDetailsMap.get(oui.toLowerCase());
+        if (null == detailsId) {
+            LOG.debug("Unable to find ManufacturerDetailsRecord with oui {}", oui);
+            throw new DsEntityNotFoundException("ManufacturerDetailsRecord not found for OUI " + oui);
+        }
+        ManufacturerOuiDetails result = new ManufacturerOuiDetails();
+        result.setOui(oui);
+        ManufacturerDetailsRecord detailsRecord = idToManufacturerDetailsRecordMap.get(detailsId);
+        
+        result.setManufacturerName(detailsRecord.getManufacturerName());
+        result.setManufacturerAlias(detailsRecord.getManufacturerAlias());
+        
+        LOG.debug("Found ManufacturerOuiDetails {}", result);
+        return result;
+    }
+
+
+    @Override
+    public ManufacturerDetailsRecord createManufacturerDetails(
+            ManufacturerDetailsRecord clientManufacturerDetails) {
+        long id = clientManufacturerDetailsIdCounter.incrementAndGet();
+        clientManufacturerDetails.setId(id);
+        clientManufacturerDetails.setCreatedTimestamp(System.currentTimeMillis());
+        clientManufacturerDetails.setLastModifiedTimestamp(clientManufacturerDetails.getCreatedTimestamp());
+        idToManufacturerDetailsRecordMap.put(id, clientManufacturerDetails);
+        ManufacturerDetailsRecord clientManufacturerDetailsCopy = clientManufacturerDetails.clone();
+
+        LOG.debug("Stored Manufacturer details {}", clientManufacturerDetailsCopy);
+
+        return clientManufacturerDetailsCopy; 
+    }
+
+
+    @Override
+    public ManufacturerDetailsRecord updateManufacturerDetails(
+            ManufacturerDetailsRecord clientManufacturerDetails) {
+        ManufacturerDetailsRecord existingClientManufacturerDetails = getById(clientManufacturerDetails.getId());
+
+        if(existingClientManufacturerDetails.getLastModifiedTimestamp()!=clientManufacturerDetails.getLastModifiedTimestamp()){
+            LOG.debug("Concurrent modification detected for ManufacturerDetailsRecord with id {} expected version is {} but version in db was {}", 
+                    clientManufacturerDetails.getId(),
+                    clientManufacturerDetails.getLastModifiedTimestamp(),
+                    existingClientManufacturerDetails.getLastModifiedTimestamp()
+                    );
+            throw new DsConcurrentModificationException("Concurrent modification detected for ManufacturerDetailsRecord with id " + clientManufacturerDetails.getId()
+                    +" expected version is " + clientManufacturerDetails.getLastModifiedTimestamp()
+                    +" but version in db was " + existingClientManufacturerDetails.getLastModifiedTimestamp()
+                    );
+
         }
 
-        // copy page items into result
-        List<Manufacturer> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
-        for (Manufacturer mdl : items.subList(fromIndex, toIndexExclusive)) {
-            selectedItems.add(mdl.clone());
+        ManufacturerDetailsRecord clientManufacturerDetailsCopy = clientManufacturerDetails.clone();
+        clientManufacturerDetailsCopy.setLastModifiedTimestamp(getNewLastModTs(clientManufacturerDetails.getLastModifiedTimestamp()));
+        idToManufacturerDetailsRecordMap.put(clientManufacturerDetailsCopy.getId(), clientManufacturerDetailsCopy);
+
+        LOG.debug("Updated ManufacturerDetailsRecord {}", clientManufacturerDetailsCopy);
+
+        return clientManufacturerDetailsCopy.clone();
+    }
+
+
+    @Override
+    public ManufacturerDetailsRecord deleteManufacturerDetails(long id) {
+        ManufacturerDetailsRecord clientManufacturerDetails = getById(id);
+        idToManufacturerDetailsRecordMap.remove(clientManufacturerDetails.getId());
+        LOG.debug("Deleted ManufacturerDetailsRecord {}", clientManufacturerDetails);
+        return clientManufacturerDetails;
+    }
+
+
+    @Override
+    public ManufacturerDetailsRecord getById(long id) {
+        ManufacturerDetailsRecord existingRecord = idToManufacturerDetailsRecordMap.get(id);
+        
+        if (existingRecord == null) {
+            LOG.debug("Unable to find ManufacturerDetailsRecord with id {}", id);
+            throw new DsEntityNotFoundException("ManufacturerDetailsRecord not found " + id);
         }
+        LOG.debug("Found ManufacturerDetailsRecord {}", existingRecord);
+        return existingRecord.clone();
+    }
 
-        ret.setItems(selectedItems);
 
-        // adjust context for the next page
-        ret.prepareForNextPage();
-
-        if(ret.getContext().getStartAfterItem()!=null) {
-        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
-        	Manufacturer newStartAfterItem = new Manufacturer();
-        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
-        	ret.getContext().setStartAfterItem(newStartAfterItem);
+    @Override
+    public List<ManufacturerDetailsRecord> getByManufacturer(String manufacturer, boolean exactMatch) {
+        List<ManufacturerDetailsRecord> resultList = new ArrayList<>();
+        
+        for (ManufacturerDetailsRecord record : idToManufacturerDetailsRecordMap.values()) {
+            if (exactMatch) {
+                if (record.getManufacturerName().equals(manufacturer)) {
+                    resultList.add(record.clone());
+                } else if (record.getManufacturerAlias() != null && record.getManufacturerAlias().equals(manufacturer)) {
+                    resultList.add(record.clone());
+                }
+            } else {
+                if (record.getManufacturerName().startsWith(manufacturer)) {
+                    resultList.add(record.clone());
+                } else if (record.getManufacturerAlias() != null && record.getManufacturerAlias().startsWith(manufacturer)) {
+                    resultList.add(record.clone());
+                }
+            }
         }
+        
+        LOG.debug("Found {} ManufacturerDetailsRecords", resultList.size());
+        
+        return resultList;
+    }
 
-        return ret;
-    }    
+
+    @Override
+    public List<ManufacturerOuiDetails> getAllManufacturerData() {
+        List<ManufacturerOuiDetails> result = new ArrayList<>();
+        for (Entry<String, Long> entry : ouiToManufacturerDetailsMap.entrySet()) {
+            long detailsId = entry.getValue();
+            ManufacturerOuiDetails addItem = new ManufacturerOuiDetails();
+            addItem.setOui(entry.getKey());
+            
+            ManufacturerDetailsRecord detailsRecord = idToManufacturerDetailsRecordMap.get(detailsId);
+            addItem.setManufacturerName(detailsRecord.getManufacturerName());
+            addItem.setManufacturerAlias(detailsRecord.getManufacturerAlias());
+            result.add(addItem);
+        }
+        
+        LOG.debug("Found {} ManufacturerOuiDetails", result.size());
+        return result;
+    }
+
+
+    @Override
+    public GenericResponse uploadOuiDataFile(String filePath, byte[] gzipContent) {
+        Pattern ouiPattern = Pattern.compile("^[0-9A-F]{6}");
+        Pattern companyPattern = Pattern.compile("[\t ]([^\t]+)$");
+
+        try
+        {
+            InputStream in = new GZIPInputStream(new ByteArrayInputStream(gzipContent));
+            BufferedReader input = new BufferedReader(new InputStreamReader(in));
+
+            while(input.ready())
+            {
+                String line = input.readLine();
+                Matcher matcher = ouiPattern.matcher(line);
+
+                if(matcher.find())
+                {
+                    String prefix = line.substring(matcher.start(), matcher.end());
+                    Matcher companyMatcher = companyPattern.matcher(line);
+
+                    if(companyMatcher.find())
+                    {
+                        String company = line.substring(companyMatcher.start() + 1, companyMatcher.end());
+                        ManufacturerOuiDetails addDetails = new ManufacturerOuiDetails();
+                        addDetails.setOui(prefix);
+                        addDetails.setManufacturerName(company);
+                        createOuiDetails(addDetails);
+                    }
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            GenericResponse response = new GenericResponse();
+            response.setSuccess(false);
+            response.setMessage("Failed to load " + filePath + " resource for Mac datastore population: " + e.getLocalizedMessage());
+            return response;
+        }
+        
+        GenericResponse response = new GenericResponse();
+        response.setSuccess(true);
+        return response;
+    }
+
+
+    @Override
+    public Map<String, ManufacturerOuiDetails> getManufacturerDetailsForOuiList(List<String> ouiList) {
+        Map<String, ManufacturerOuiDetails> result = new HashMap<>();
+        if (CollectionUtils.isEmpty(ouiList)) {
+            return result;
+        }
+        for (Entry<String, Long> entry : ouiToManufacturerDetailsMap.entrySet()) {
+            if (ouiList.contains(entry.getKey())) {
+                long detailsId = entry.getValue();
+                ManufacturerOuiDetails addItem = new ManufacturerOuiDetails();
+                addItem.setOui(entry.getKey());
+                
+                ManufacturerDetailsRecord detailsRecord = idToManufacturerDetailsRecordMap.get(detailsId);
+                addItem.setManufacturerName(detailsRecord.getManufacturerName());
+                addItem.setManufacturerAlias(detailsRecord.getManufacturerAlias());
+                result.put(entry.getKey(), addItem); 
+            }
+        }
+        
+        LOG.debug("Found {} ManufacturerOuiDetails for OUI list", result.size());
+        return result;
+    }
+
+
+    @Override
+    public long getManufacturerDetialsId(String oui) {
+        Long retrievedResult = ouiToManufacturerDetailsMap.get(oui);
+        
+        if (retrievedResult != null) {
+            return retrievedResult;
+        } 
+        
+        return -1;
+    }
+
+
+    @Override
+    public List<String> getAliasValuesThatBeginWith(String prefix, int maxResults) {
+        List<String> result = new ArrayList<>();
+        
+        if (maxResults < 0 || maxResults > 1000) {
+            maxResults = 1000;
+        }
+        
+        for (ManufacturerDetailsRecord rec : idToManufacturerDetailsRecordMap.values()) {
+            if (result.size() >= maxResults) {
+                break;
+            }
+            if (rec.getManufacturerAlias() != null && rec.getManufacturerAlias().startsWith(prefix)) {
+                result.add(rec.getManufacturerAlias());
+            }
+        }
+        
+        return result;
+    }
+
+
 }

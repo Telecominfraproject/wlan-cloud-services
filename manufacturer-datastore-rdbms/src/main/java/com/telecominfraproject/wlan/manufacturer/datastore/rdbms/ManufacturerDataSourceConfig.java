@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseDataSourceConfig;
 
 /**
- * @author dtoptygin
+ * @author mpreston
  *
  */
 @Component
@@ -20,7 +20,8 @@ public class ManufacturerDataSourceConfig extends BaseDataSourceConfig {
     @Bean
     public ManufacturerDataSourceInterface manufacturerDataSourceInterface(){
         
-        ManufacturerDataSourceInterface ret = new ManufacturerDataSourceImpl(getDataSource(), getKeyColumnConverter());
+        ManufacturerDataSourceInterface ret = new ManufacturerDataSourceImpl(getDataSource(),
+                getKeyColumnConverter());
         return ret;
     }
     

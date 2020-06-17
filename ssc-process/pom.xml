@@ -65,7 +65,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>service-metric-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -78,7 +78,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>system-event-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -91,7 +91,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>alarm-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -104,7 +104,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>status-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -117,7 +117,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>client-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -130,7 +130,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
+      <!-- Use in-memory DS for now, later switch to Cassandra -->
         <artifactId>routing-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
