@@ -32,9 +32,9 @@ import com.telecominfraproject.wlan.manufacturer.models.ManufacturerOuiDetails;
 @RestController
 @Transactional
 @RequestMapping(value = "/portal/manufacturer")
-public class ManufacturerController {
+public class ManufacturerPortalController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManufacturerController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ManufacturerPortalController.class);
 
     @Autowired
     private ManufacturerInterface manufacturerInterface;
