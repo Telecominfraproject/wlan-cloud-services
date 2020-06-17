@@ -304,9 +304,8 @@ public class ManufacturerServiceRemoteTest extends BaseRemoteTest {
             gzOut.write(buffer, 0, read);
         }
         gzOut.finish();
-        byte[] base64GzippedContent = Base64Utils.encode(compressedStream.toByteArray());
 
-        remoteInterface.uploadOuiDataFile(fileName, base64GzippedContent);
+        remoteInterface.uploadOuiDataFile(fileName, compressedStream.toByteArray());
         List<ManufacturerOuiDetails> entireMfrDatastore = remoteInterface.getAllManufacturerData();
         
         assertEquals(knownTestMacs.size(), entireMfrDatastore.size());
@@ -326,7 +325,7 @@ public class ManufacturerServiceRemoteTest extends BaseRemoteTest {
         }
         
         // Populate it again with the same file, verify the results are the same
-        remoteInterface.uploadOuiDataFile(fileName, base64GzippedContent);
+        remoteInterface.uploadOuiDataFile(fileName, compressedStream.toByteArray());
         entireMfrDatastore.clear();
         
         entireMfrDatastore = remoteInterface.getAllManufacturerData();

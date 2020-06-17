@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -117,13 +118,32 @@ public class ManufacturerController {
     }
 
     @PostMapping(value = "/oui/upload", consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
-    public GenericResponse uploadOuiDataFile(@RequestParam String fileName, @RequestBody byte[] base64GzippedContent) {
+    public GenericResponse uploadOuiDataFile(@RequestParam String fileName, @RequestBody byte[] gzippedContent) {
         LOG.debug("uploadOuiDataFile({})", fileName);
-        GenericResponse ret = manufacturerInterface.uploadOuiDataFile(fileName, base64GzippedContent);
+        GenericResponse ret = manufacturerInterface.uploadOuiDataFile(fileName, gzippedContent);
         LOG.debug("uploadOuiDataFile({}) returns {}", fileName, ret);
         return ret;
     }
 
+    @PostMapping(value = "/oui/upload/base64", consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    public GenericResponse uploadOuiDataFileBase64(@RequestParam String fileName, @RequestBody byte[] base64GzippedContent) {
+        LOG.debug("uploadOuiDataFileBase64({})", fileName);
+        GenericResponse ret;
+        if (null == base64GzippedContent) {
+            LOG.error("Unable to load OUI data file {}, missing file content", fileName);
+            ret = new GenericResponse(false, "missing compressed data file content");
+        } else {
+            try {
+                byte[] gzippedContent = Base64Utils.decode(base64GzippedContent);
+                ret = manufacturerInterface.uploadOuiDataFile(fileName, gzippedContent);
+            } catch (IllegalArgumentException e) {
+                ret = new GenericResponse(false, "invalid base64 encoded data file content");
+            }
+        }
+        LOG.debug("uploadOuiDataFileBase64({}) returns {}", fileName, ret);
+        return ret;
+    }
+    
     @GetMapping(value = "/oui/list")
     public Map<String, ManufacturerOuiDetails> getManufacturerDetailsForOuiSet(
             @RequestParam List<String> ouiList) {

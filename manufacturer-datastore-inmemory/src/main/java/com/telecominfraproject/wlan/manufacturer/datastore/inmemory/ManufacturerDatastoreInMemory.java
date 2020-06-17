@@ -53,7 +53,7 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
         
         Long existingDetailsId = ouiToManufacturerDetailsMap.get(ouiDetails.getOui().toLowerCase());
         if (existingDetailsId != null) {
-            throw new DsDuplicateEntityException("Unable to create ManufacturerOuiDetails for an OUI that already exists.");
+            LOG.warn("Unable to create ManufacturerOuiDetails for an OUI that already exists.");
         }
         
         // Check to see if there is already Manufacturer details for this manufacturer:

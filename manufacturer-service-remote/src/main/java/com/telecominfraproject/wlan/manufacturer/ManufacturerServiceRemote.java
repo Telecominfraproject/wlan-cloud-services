@@ -187,15 +187,15 @@ public class ManufacturerServiceRemote extends BaseRemoteClient implements Manuf
     }
 
     @Override
-    public GenericResponse uploadOuiDataFile(String fileName, byte[] base64GzippedContent) {
+    public GenericResponse uploadOuiDataFile(String fileName, byte[] gzippedContent) {
         LOG.debug("uploadOuiDataFile({})", fileName);
         GenericResponse ret;
-        if (null != base64GzippedContent) {
+        if (null != gzippedContent) {
             HttpHeaders fileHeaders = new HttpHeaders();
             fileHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             fileHeaders.set("Accept-Encoding", "gzip,deflate");
 
-            HttpEntity<byte[]> request = new HttpEntity<>(base64GzippedContent, fileHeaders);
+            HttpEntity<byte[]> request = new HttpEntity<>(gzippedContent, fileHeaders);
 
             ResponseEntity<GenericResponse> responseEntity = restTemplate.postForEntity(
                     getBaseUrl() + "/oui/upload?fileName={fileName}", request, GenericResponse.class,

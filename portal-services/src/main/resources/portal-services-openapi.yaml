@@ -10712,12 +10712,12 @@ paths:
     get:
       tags:
        - Manufacturer OUI
-      summary: Get alias values that begin with the given prefix
+      summary: Get manufacturer aliases that begin with the given prefix
       operationId: getAliasValuesThatBeginWith
       parameters:
       - name: prefix
         in: query
-        description: OUI prefix
+        description: prefix for the manufacturer alias
         required: true
         schema:
           type: string
@@ -10755,7 +10755,38 @@ paths:
         schema:
           type: string
       requestBody:
-        description: Contents of gziped OUI DataFile
+        description: Contents of gziped OUI DataFile, raw
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary          
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/manufacturer/oui/upload/base64:
+    post:
+      tags:
+       - Manufacturer OUI
+      summary: Upload the gziped OUI DataFile using base64 encoding, in the format that is published by IEEE. Latest sanitized IEEE OUI data file (oui.txt.gz) can be obtained from https://linuxnet.ca/ieee/oui/
+      operationId: uploadOuiDataFileBase64
+      parameters:
+      - name: fileName
+        in: query
+        description: file name that is being uploaded
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Contents of gziped OUI DataFile, base64-encoded
         required: true
         content:
           application/octet-stream:
@@ -10771,4 +10802,3 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
-

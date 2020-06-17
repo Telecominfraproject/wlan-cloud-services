@@ -104,12 +104,12 @@ public interface ManufacturerInterface {
      * Appends any records from the passed in file to the Manufacturer Details datastore.
      * Only adds in new records.
      * @param fileName 
-     * @param base64GzippedContent base64 encoded gzipped file
+     * @param gzippedContent encoded gzipped file
      * 
      * @return result
      * 
      */
-    GenericResponse uploadOuiDataFile(String fileName, byte[] base64GzippedContent);
+    GenericResponse uploadOuiDataFile(String fileName, byte[] gzippedContent);
     
     /**
      * Retrieve all the OUI details for a specific list of OUI values.

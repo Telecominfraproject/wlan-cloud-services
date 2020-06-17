@@ -136,18 +136,17 @@ public class ManufacturerController {
     }
 
     @PostMapping(value = "/oui/upload", consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
-    public GenericResponse uploadOuiDataFile(@RequestParam String fileName, @RequestBody byte[] base64GzippedContent) {
+    public GenericResponse uploadOuiDataFile(@RequestParam String fileName, @RequestBody byte[] gzippedContent) {
         LOG.debug("uploadOuiDataFile({})", fileName);
         GenericResponse ret;
-        if (null == base64GzippedContent) {
+        if (null == gzippedContent) {
             LOG.error("Unable to load OUI data file {}, missing file content", fileName);
             ret = new GenericResponse(false, "missing compressed data file content");
         } else {
             try {
-                byte[] gzippedContent = Base64Utils.decode(base64GzippedContent);
                 ret = manufacturerDatastore.uploadOuiDataFile(fileName, gzippedContent);
             } catch (IllegalArgumentException e) {
-                ret = new GenericResponse(false, "invalid b64 encoded data file content");
+                ret = new GenericResponse(false, "invalid encoded data file content");
             }
         }
         LOG.debug("uploadOuiDataFile({}) returns {}", fileName, ret);
