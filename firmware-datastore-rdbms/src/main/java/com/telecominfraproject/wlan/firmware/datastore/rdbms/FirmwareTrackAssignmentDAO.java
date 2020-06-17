@@ -30,7 +30,6 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-import com.telecominfraproject.wlan.firmware.datastore.FirmwareTrackAssignmentDaoInterface;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
@@ -42,7 +41,7 @@ import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
  */
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareTrackAssignmentDaoInterface{
+public class FirmwareTrackAssignmentDAO extends BaseJdbcDao {
     private static final Logger LOG = LoggerFactory.getLogger(FirmwareDatastoreRdbms.class);
 
     private static final String[] ALL_COLUMNS_LIST = {
@@ -327,7 +326,6 @@ public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareT
 		
 	}
 
-	@Override
 	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModel(
 			long firmwareTrackRecordId, String equipmentModel) {
 
@@ -341,7 +339,6 @@ public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareT
         
 	}
 	
-	@Override
 	public FirmwareTrackAssignmentDetails getDefaultFirmwareTrackAssignmentDetailsForEquipmentModelByTrackName(String trackName,
 			String equipmentModel) {
 		
@@ -353,7 +350,6 @@ public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareT
         return null;
 	}
 	
-	@Override
 	public FirmwareTrackAssignmentDetails getFirmwareTrackAssignmentDetails(long firmwareTrackRecordId,
 			long firmwareVersionRecordId) {
 		
@@ -367,7 +363,6 @@ public class FirmwareTrackAssignmentDAO extends BaseJdbcDao implements FirmwareT
         return null;
 	}
 	
-	@Override
 	public List<FirmwareTrackAssignmentDetails> getFirmwareTrackDetails(String firmwareTrackName) {
         FirmwareTrackRecord trackRecord = firmwareTrackDatastore.getFirmwareTrackByName(firmwareTrackName);
         List<FirmwareTrackAssignmentDetails> versions = getAllFirmwareVersionsByTrackId(trackRecord.getRecordId());

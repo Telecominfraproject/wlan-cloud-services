@@ -27,7 +27,6 @@ import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-import com.telecominfraproject.wlan.firmware.datastore.CustomerFirmwareTrackDaoInterface;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 
 /**
@@ -36,7 +35,7 @@ import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
  */
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-public class CustomerFirmwareTrackDAO extends BaseJdbcDao implements CustomerFirmwareTrackDaoInterface {
+public class CustomerFirmwareTrackDAO extends BaseJdbcDao {
     private static final Logger LOG = LoggerFactory.getLogger(FirmwareDatastoreRdbms.class);
 
     private static final String[] ALL_COLUMNS_LIST = {
