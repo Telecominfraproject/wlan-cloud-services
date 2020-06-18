@@ -23,7 +23,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>customer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -36,7 +35,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>location-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -49,7 +47,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>equipment-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -62,7 +59,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>profile-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -75,7 +71,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>portal-user-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -88,7 +83,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>firmware-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
@@ -101,7 +95,6 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to RDBMS -->
         <artifactId>manufacturer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
