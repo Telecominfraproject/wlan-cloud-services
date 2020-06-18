@@ -27,7 +27,7 @@ public class OpensyncCloudGatewayController {
     	LOG.info("***** Using mock OpensyncCloudGatewayController");
     }
     
-	@RequestMapping(value = "/commands", method = RequestMethod.POST)
+	@RequestMapping(value = "/api/commands", method = RequestMethod.POST)
 	public ListOfEquipmentCommandResponses sendCommands(@RequestBody List<CEGWBaseCommand> commands) {
 		ListOfEquipmentCommandResponses ret = new ListOfEquipmentCommandResponses(); 
 		if(commands == null) {

@@ -175,6 +175,8 @@
                                 <module>../equipment-gateway-service-local</module>
                                 <module>../equipment-gateway-service-remote</module>
 
+                                <module>../filestore-service</module>
+
                                 <module>../provisioning-sp</module>
                                 
                                 <module>../single-process-streams</module>

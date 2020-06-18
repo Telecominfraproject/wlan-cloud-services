@@ -101,7 +101,7 @@ public class EquipmentGatewayServiceRemote  extends BaseRemoteClient implements 
         LOG.debug("Sending to gateway {}:{} commands {}", gatewayHost, gatewayPort, commands);
         
         ResponseEntity<List<EquipmentCommandResponse>> responseEntity = restTemplate.exchange(
-        		getProtocol() + "://" + gatewayHost + ":" + gatewayPort + "/commands",
+        		getProtocol() + "://" + gatewayHost + ":" + gatewayPort + "/api/commands",
                 HttpMethod.POST, request, EquipmentCommandResponse_LIST_CLASS_TOKEN);
         
         List<EquipmentCommandResponse> ret =  responseEntity.getBody();

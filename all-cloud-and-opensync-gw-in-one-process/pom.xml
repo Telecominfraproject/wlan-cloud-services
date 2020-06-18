@@ -116,6 +116,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
     
+       <dependency>
+            <artifactId>filestore-service</artifactId>
+            <groupId>com.telecominfraproject.wlan</groupId>
+            <version>${tip-wlan-cloud.release.version}</version>
+        </dependency>
+    
       <!-- prov services -->
       <dependency>
         <artifactId>customer-service</artifactId>
