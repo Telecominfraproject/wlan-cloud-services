@@ -1,4 +1,4 @@
-create table service_metric (
+create table if not exists service_metric (
     -- postgresql     
 
     customerId int,
@@ -13,7 +13,7 @@ create table service_metric (
   
 );
 
-create index idx_service_metric_customerId on service_metric (customerId);
-create index idx_service_metric_customerEquipmentDatatype on service_metric (customerId, equipmentId, dataType);
+create index if not exists idx_service_metric_customerId on service_metric (customerId);
+create index if not exists idx_service_metric_customerEquipmentDatatype on service_metric (customerId, equipmentId, dataType);
 
 

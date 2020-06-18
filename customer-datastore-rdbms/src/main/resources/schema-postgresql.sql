@@ -1,4 +1,4 @@
-create table customer_info (
+create table if not exists customer_info (
     -- postgresql     
     id    SERIAL PRIMARY KEY,
 
@@ -9,4 +9,4 @@ create table customer_info (
     lastModifiedTimestamp bigint not null
 );
 
-create UNIQUE INDEX idx_customer_info_email on customer_info (email);
+create UNIQUE INDEX if not exists idx_customer_info_email on customer_info (email);

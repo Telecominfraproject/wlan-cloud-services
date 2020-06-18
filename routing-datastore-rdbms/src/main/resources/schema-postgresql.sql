@@ -1,5 +1,5 @@
 
-create table equipment_gateway (
+create table if not exists equipment_gateway (
     -- postgresql
     id BIGSERIAL PRIMARY KEY,
 
@@ -13,9 +13,9 @@ create table equipment_gateway (
 
 );
 
-create index idx_equipment_gateway_hostname on equipment_gateway (hostname);
+create index if not exists idx_equipment_gateway_hostname on equipment_gateway (hostname);
 
-create table equipment_routing (
+create table if not exists equipment_routing (
     -- postgresql
     id BIGSERIAL PRIMARY KEY,
 
@@ -31,7 +31,7 @@ create table equipment_routing (
 );
 
 
-create index idx_equipment_routing_customerId on equipment_routing (customerId);
-create index idx_equipment_routing_equipmentId on equipment_routing (equipmentId);
-create index idx_equipment_routing_gatewayId on equipment_routing (gatewayId);
+create index if not exists idx_equipment_routing_customerId on equipment_routing (customerId);
+create index if not exists idx_equipment_routing_equipmentId on equipment_routing (equipmentId);
+create index if not exists idx_equipment_routing_gatewayId on equipment_routing (gatewayId);
 

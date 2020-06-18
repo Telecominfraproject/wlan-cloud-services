@@ -24,7 +24,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>customer-datastore-inmemory</artifactId>
+        <artifactId>customer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -37,7 +37,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>location-datastore-inmemory</artifactId>
+        <artifactId>location-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -50,7 +50,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>equipment-datastore-inmemory</artifactId>
+        <artifactId>equipment-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -63,7 +63,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>profile-datastore-inmemory</artifactId>
+        <artifactId>profile-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -76,7 +76,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>portal-user-datastore-inmemory</artifactId>
+        <artifactId>portal-user-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -89,7 +89,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>firmware-datastore-inmemory</artifactId>
+        <artifactId>firmware-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -102,7 +102,7 @@
       
       <dependency>
       <!-- Use in-memory DS for now, later switch to RDBMS -->
-        <artifactId>manufacturer-datastore-inmemory</artifactId>
+        <artifactId>manufacturer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

@@ -1,4 +1,4 @@
-create table client (
+create table if not exists client (
     -- postgresql     
     macAddress bigint ,
 
@@ -11,9 +11,9 @@ create table client (
     primary key (customerId, macAddress)
 );
 
-create index idx_client_customerId on client (customerId);
+create index if not exists idx_client_customerId on client (customerId);
 
-create table client_session (
+create table if not exists client_session (
     -- postgresql     
     macAddress bigint ,
 
@@ -27,6 +27,6 @@ create table client_session (
     primary key (customerId, equipmentId, macAddress)
 );
 
-create index idx_clientSession_customerId on client_session (customerId);
-create index idx_clientSession_locationId on client_session (customerId, locationId);
+create index if not exists idx_clientSession_customerId on client_session (customerId);
+create index if not exists idx_clientSession_locationId on client_session (customerId, locationId);
 

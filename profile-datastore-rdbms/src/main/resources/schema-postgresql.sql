@@ -1,4 +1,4 @@
-create table profile (
+create table if not exists profile (
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -13,9 +13,9 @@ create table profile (
   
 );
 
-create index idx_profile_customerId on profile (customerId);
+create index if not exists idx_profile_customerId on profile (customerId);
 
-create table profile_map (
+create table if not exists profile_map (
     customerId int,
     parentProfileId bigint, 
     childProfileId bigint,
@@ -25,7 +25,7 @@ create table profile_map (
 );
 
 
-create index idx_profile_map_customerId on profile_map (customerId);
-create index idx_profile_map_customerId_parent on profile_map (customerId, parentProfileId);
-create index idx_profile_map_parent on profile_map (parentProfileId);
-create index idx_profile_map_child on profile_map (childProfileId);
+create index if not exists idx_profile_map_customerId on profile_map (customerId);
+create index if not exists idx_profile_map_customerId_parent on profile_map (customerId, parentProfileId);
+create index if not exists idx_profile_map_parent on profile_map (parentProfileId);
+create index if not exists idx_profile_map_child on profile_map (childProfileId);

@@ -1,4 +1,4 @@
-create table alarm (
+create table if not exists alarm (
     customerId int not null,
     equipmentId bigint default 0 not null,
     alarmCode int not null,
@@ -17,6 +17,6 @@ create table alarm (
   
 );
 
-create index idx_alarm_customerId on alarm (customerId);
-create index idx_alarm_equipmentId on alarm (equipmentId );
+create index if not exists idx_alarm_customerId on alarm (customerId);
+create index if not exists idx_alarm_equipmentId on alarm (equipmentId );
 

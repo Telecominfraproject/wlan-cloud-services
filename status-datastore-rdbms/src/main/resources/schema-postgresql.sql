@@ -1,4 +1,4 @@
-create table status (
+create table if not exists status (
     -- postgresql     
     customerId int not null,
     equipmentId bigint not null,
@@ -11,8 +11,8 @@ create table status (
     primary key (customerId, equipmentId, statusDataType)
 );
 
-create index idx_status_customerId on status (customerId);
-create index idx_status_equipmentId on status (equipmentId);
-create index idx_status_customerEquipmentDatatype on status (customerId, equipmentId, statusDataType);
+create index if not exists idx_status_customerId on status (customerId);
+create index if not exists idx_status_equipmentId on status (equipmentId);
+create index if not exists idx_status_customerEquipmentDatatype on status (customerId, equipmentId, statusDataType);
 
 

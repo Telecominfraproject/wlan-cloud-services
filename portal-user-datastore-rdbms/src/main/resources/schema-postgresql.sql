@@ -1,4 +1,4 @@
-create table portal_user (
+create table if not exists portal_user (
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -13,7 +13,7 @@ create table portal_user (
   
 );
 
-create index idx_portal_user_customerId on portal_user (customerId);
-create unique index portal_user_customerId_username on portal_user (customerId, username);
+create index if not exists idx_portal_user_customerId on portal_user (customerId);
+create unique index if not exists portal_user_customerId_username on portal_user (customerId, username);
 
 

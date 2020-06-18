@@ -12,13 +12,7 @@ cd $SCHEMA_DIR
 # Aggregates the sql files into one file
 # $1: Aggregated SQLFile
 generateSchemaFile() {
-  {
-echo "\l ;
-DROP DATABASE IF EXISTS prov_db ;
-CREATE DATABASE prov_db ;
-\c prov_db ;
-"
-  } >> $1
+  cat $SCHEMA_DIR/src/main/resources/user_create.sql >> $1
   find ../. -type f -name "schema-postgresql.sql" | grep -v target |xargs cat >> $1
   echo "\q " >> $1
   mv $1 $SCHEMA_DIR/target

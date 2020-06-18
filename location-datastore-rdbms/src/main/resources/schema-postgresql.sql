@@ -1,4 +1,4 @@
-create table equipment_location (
+create table if not exists equipment_location (
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -13,5 +13,5 @@ create table equipment_location (
     lastModifiedTimestamp bigint not null
 );
 
-create index idx_equipment_location_customerId on equipment_location (customerId);
-create index idx_equipment_location_parentId on equipment_location (parentId);
+create index if not exists idx_equipment_location_customerId on equipment_location (customerId);
+create index if not exists idx_equipment_location_parentId on equipment_location (parentId);

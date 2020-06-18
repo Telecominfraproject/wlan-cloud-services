@@ -1,4 +1,4 @@
-create table equipment (
+create table if not exists  equipment (
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -21,10 +21,10 @@ create table equipment (
   
 );
 
-create index idx_equipment_customerId on equipment (customerId);
-create index idx_equipment_customerId_equipmentType on equipment (customerId, equipmentType);
-create index idx_equipment_profileId on equipment (profileId);
-create index idx_equipment_inventoryId on equipment (inventoryId);
-create index idx_equipment_locationId on equipment (locationId);
+create index if not exists idx_equipment_customerId on equipment (customerId);
+create index if not exists idx_equipment_customerId_equipmentType on equipment (customerId, equipmentType);
+create index if not exists idx_equipment_profileId on equipment (profileId);
+create index if not exists idx_equipment_inventoryId on equipment (inventoryId);
+create index if not exists idx_equipment_locationId on equipment (locationId);
 
 

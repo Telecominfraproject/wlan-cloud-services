@@ -1,4 +1,4 @@
-create table firmware_version (
+create table if not exists firmware_version (
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -15,9 +15,9 @@ create table firmware_version (
     lastModifiedTimestamp bigint not null
   
 );
-CREATE INDEX idx_firmware_version_name_id on firmware_version(versionName);
+create index if not exists idx_firmware_version_name_id on firmware_version(versionName);
 
-create table firmware_track(
+create table if not exists firmware_track(
     id BIGSERIAL PRIMARY KEY,
     
     trackName varchar(300) unique not null,
@@ -28,7 +28,7 @@ create table firmware_track(
 insert into firmware_track (trackname, createdtimestamp, lastmodifiedtimestamp, maintenancewindow)
 values ('DEFAULT', 1541694284000, 1541694284000, '{"_type":"EmptySchedule","timezone":null}');
 
-create table firmware_track_assignment (
+create table if not exists firmware_track_assignment (
     trackId bigint not null,
     firmwareId bigint not null,
     defaultForTrack boolean default false,
@@ -41,9 +41,9 @@ create table firmware_track_assignment (
     FOREIGN KEY(firmwareId) REFERENCES firmware_version(id) on delete cascade
 );
 
-CREATE INDEX idx_firmware_track_id on firmware_track_assignment(trackId);
+create index if not exists idx_firmware_track_id on firmware_track_assignment(trackId);
 
-create table customer_track_assignment (
+create table if not exists customer_track_assignment (
     trackId bigint not null,
     customerId int not null,
     settings varchar(255),

@@ -1,5 +1,5 @@
 
-create table manufacturer_details(
+create table if not exists manufacturer_details(
     -- postgresql     
     id BIGSERIAL PRIMARY KEY,
 
@@ -10,10 +10,10 @@ create table manufacturer_details(
     lastModifiedTimestamp bigint not null
 );
 
-create index idx_manufacturer_alias on manufacturer_details (manufacturerAlias); 
+create index if not exists idx_manufacturer_alias on manufacturer_details (manufacturerAlias); 
 
 
-create table manufacturer_oui(
+create table if not exists manufacturer_oui(
     -- postgresql     
     oui varchar(6) PRIMARY KEY,
 
@@ -22,4 +22,4 @@ create table manufacturer_oui(
     FOREIGN KEY(manufacturerDetails) REFERENCES manufacturer_details(id) ON DELETE CASCADE
 );
 
-create index idx_oui_manufacturer_details on manufacturer_oui (manufacturerDetails);  
+create index if not exists idx_oui_manufacturer_details on manufacturer_oui (manufacturerDetails);  
