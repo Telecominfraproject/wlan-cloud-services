@@ -68,6 +68,9 @@ tags:
 - name: Manufacturer OUI
   description: |
     Manufacturer records alow translation from OUI (first 3 pieces of the MAC address) into the manufacturer names.
+- name: File Services
+  description: |
+    Simple filestore service that allows stand-alone CloudSDK to serve firmware images to the APs. Supports only single level directory. Files can be stored and retrieved with webtoken auth by the portal and with client certificate auth by the AP.
 
 components:
   securitySchemes:
@@ -10800,5 +10803,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /filestore/{fileName}:
+    post:
+      tags:
+       - File Services
+      summary: Upload binary file.
+      operationId: uploadBinaryFile
+      parameters:
+      - name: fileName
+        in: path
+        description: File name that is being uploaded. File/path delimiters not allowed.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Contents of binary file
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary          
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    get:
+      tags:
+       - File Services
+      summary: Download binary file.
+      operationId: downloadBinaryFile
+      parameters:
+      - name: fileName
+        in: path
+        description: File name to download. File/path delimiters not allowed.
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary          
         500:
           $ref: '#/components/responses/GenericApiError'

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,6 +39,24 @@ public class FileBrokerController {
     
     @Value("${tip.wlan.fileStoreDirectory:/tmp/tip-wlan-filestore}")
 	private String fileStoreDirectoryName;
+    
+    @PostConstruct
+    void postConstruct() {
+    	File fileStoreDir = new File(fileStoreDirectoryName);
+    	
+    	if(!fileStoreDir.exists()) {
+    		LOG.info("Attempting to create directory {}", fileStoreDirectoryName);
+    		boolean result = fileStoreDir.mkdirs();
+    		if(result) {
+    			LOG.info("Created directory {}", fileStoreDirectoryName);
+    		} else {
+    			LOG.warn("Could not create directory {} - will not be able to store and serve files from it", fileStoreDirectoryName);
+    		}
+    	} else {
+    		LOG.info("Will use directory {} to store and serve files", fileStoreDirectoryName);
+    	}
+    	
+    }
 
     @GetMapping(value = "/{fileName}")
     public void getFile(@PathVariable String fileName,  HttpServletResponse response) {
