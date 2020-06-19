@@ -331,13 +331,13 @@ public class ClientSessionMetricDetails extends BaseJsonModel
         if(other.rxBytes != null)
         {
             // We keep the sum going
-            LOG.trace("RxBytes {}: adding {} to {}", this.rxBytes, other.rxBytes);
+            LOG.trace("RxBytes: adding {} to {}", this.rxBytes, other.rxBytes);
             this.setRxBytes(sum(this.rxBytes, other.rxBytes));
         }
         if(other.txBytes != null)
         {
             // We keep the sum going
-            LOG.trace("TxBytes {}: adding {} to {}", this.txBytes, other.txBytes);
+            LOG.trace("TxBytes: adding {} to {}", this.txBytes, other.txBytes);
             this.setTxBytes(sum(this.txBytes, other.txBytes));
         }
         

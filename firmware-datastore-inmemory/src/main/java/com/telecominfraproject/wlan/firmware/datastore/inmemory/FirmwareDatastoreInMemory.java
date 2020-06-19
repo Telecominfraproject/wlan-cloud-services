@@ -60,10 +60,6 @@ public class FirmwareDatastoreInMemory extends BaseInMemoryDatastore implements 
 		return firmwareVersionDatastore.update(firmware);
 	}
 
-	public boolean equals(Object obj) {
-		return firmwareVersionDatastore.equals(obj);
-	}
-
 	public FirmwareVersion delete(long firmwareId) {
 		return firmwareVersionDatastore.delete(firmwareId);
 	}

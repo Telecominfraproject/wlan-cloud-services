@@ -213,7 +213,7 @@ public class CustomerServiceController {
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public ListOfPairIntStrings getAllCustomerIdAndNames(@RequestParam int batchSize,
             @RequestParam int continueAfterCustomerId) {
-        LOG.debug("Calling getAllCustomerIdAndNames({}, {}, {})", batchSize, continueAfterCustomerId);
+        LOG.debug("Calling getAllCustomerIdAndNames({}, {})", batchSize, continueAfterCustomerId);
         ListOfPairIntStrings ret = new ListOfPairIntStrings();
         ret.addAll(customerDatastore.getAll(batchSize, continueAfterCustomerId));
 

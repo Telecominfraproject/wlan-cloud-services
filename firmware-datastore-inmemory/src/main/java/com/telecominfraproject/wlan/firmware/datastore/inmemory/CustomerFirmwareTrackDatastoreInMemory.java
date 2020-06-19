@@ -59,7 +59,7 @@ public class CustomerFirmwareTrackDatastoreInMemory extends BaseInMemoryDatastor
         if (existing.getLastModifiedTimestamp() != record.getLastModifiedTimestamp()) {
             LOG.debug(
                     "Concurrent modification detected for CustomerFirmwareTrackRecord with customerId {} expected version is {} but version in db was {}",
-                    record.getCustomerId(), existing.getLastModifiedTimestamp());
+                    record.getCustomerId(),  record.getLastModifiedTimestamp(), existing.getLastModifiedTimestamp());
             throw new DsConcurrentModificationException(
                     "Concurrent modification detected for CustomerFirmwareTrackRecord with customerId "
                             + record.getCustomerId() + " expected version is " + record.getLastModifiedTimestamp()

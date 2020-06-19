@@ -155,7 +155,7 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
 						try {
 							Thread.sleep(20);
 						} catch (InterruptedException e1) {
-							// nothing to do
+							Thread.currentThread().interrupt();
 						}
 						
 						//get fresh version of equipment from DB and re-apply our changes on it

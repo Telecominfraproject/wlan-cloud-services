@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
-import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -35,11 +34,8 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
-import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
-import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -391,11 +387,7 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<Equipment> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 equipmentRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Equipments for customer {}", customerId);
-        } else {
-            LOG.debug("Found Equipments for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Equipments for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -419,7 +411,7 @@ public class EquipmentDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<Equipment> results = this.jdbcTemplate.query(query, equipmentIdSet.toArray(), equipmentRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", equipmentIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", equipmentIdSet, results.size());
         return results;
     }
 
@@ -495,13 +487,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<Equipment> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 equipmentRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Equipments for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Equipments for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} Equipments for customer {} with last returned page number {}",
+                pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 
@@ -695,13 +682,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<PairLongLong> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
         		pairLongLongRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find equipment ids for locations {} last returned page number {}",
-                    locationIds, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} equipment ids for locations {} last returned page number {}",
-                    pageItems.size(), locationIds, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} equipment ids for locations {} last returned page number {}",
+                pageItems.size(), locationIds, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 
@@ -768,13 +750,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<PairLongLong> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
         		pairLongLongRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find equipment ids for profiles {} last returned page number {}",
-                    profileIds, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} equipment ids for profiles {} last returned page number {}",
-                    pageItems.size(), profileIds, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} equipment ids for profiles {} last returned page number {}",
+                pageItems.size(), profileIds, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 
@@ -818,7 +795,7 @@ public class EquipmentDAO extends BaseJdbcDao {
 						try {
 							Thread.sleep(20);
 						} catch (InterruptedException e1) {
-							// nothing to do
+							Thread.currentThread().interrupt();
 						}
 					
 						//get fresh version of equipment from DB and re-apply our changes on it
