@@ -25,6 +25,44 @@ jobs:
           - alarm-service-local
           - alarm-service-remote
           - all-cloud-and-opensync-gw-in-one-docker
+          - all-cloud-and-opensync-gw-in-one-process
+          - all-cloud-in-one-docker
+          - all-cloud-in-one-process
+          - client-datastore-common-test
+          - client-datastore-inmemory
+          - client-datastore-interface
+          - client-datastore-rdbms
+          - client-models
+          - client-service
+          - client-service-interface
+          - client-service-local
+          - client-service-remote
+          - cloud-event-dispatcher
+          - cloud-event-dispatcher-empty
+          - cloud-event-dispatcher-interface
+          - cloud-event-dispatcher-local
+          - cloud-event-dispatcher-remote
+          - cloud-services-build
+          - customer-datastore-common-test
+          - customer-datastore-inmemory
+          - customer-datastore-interface
+          - customer-datastore-rdbms
+          - customer-models
+          - customer-service
+          - customer-service-interface
+          - customer-service-local
+          - customer-service-remote
+          - equipment-datastore-common-test
+          - equipment-datastore-inmemory
+          - equipment-datastore-interface
+          - equipment-datastore-rdbms
+          - equipment-gateway-models
+          - equipment-gateway-service-interface
+          - equipment-gateway-service-local
+          - equipment-gateway-service-remote
+          - equipment-models
+          - equipment-service
+          - equipment-service-interface
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
