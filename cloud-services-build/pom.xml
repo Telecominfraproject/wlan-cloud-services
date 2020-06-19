@@ -192,6 +192,7 @@
                                 <module>../schema-generator</module>
                                 
                                 <module>../all-cloud-in-one-process</module>
+                                <module>../all-cloud-in-one-process-with-persistence</module>
                                 <module>../all-cloud-and-opensync-gw-in-one-process</module>
                         </modules>
                 </profile>
