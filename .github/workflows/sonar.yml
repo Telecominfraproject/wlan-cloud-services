@@ -9,6 +9,7 @@ on:
 env:
   SONAR_URL: https://sonarcloud.io
   SONAR_ORGANIZATION: telecominfraproject
+  MAVEN_OPTS: -Xmx3g -Xss2m # prevents java.lang.StackOverflowError
 
 jobs:
   sonar:
