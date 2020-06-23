@@ -37,6 +37,9 @@ public class KafkaProducerConfig {
         @Value("${tip.wlan.kafka.securityProtocol:SSL}")
         private String securityProtocol; // - use SSL, kafka default is PLAINTEXT
 
+        @Value("${tip.wlan.kafka.sslEndpointIdentificationAlgorithm:HTTPS}")
+        private String sslEndpointIdentificationAlgorithm; // For the HTTPS value to work the alternative names in the certificates have to be correctly specified. Use empty string "" to turn it off.
+
         @Bean
         public Producer<String,  byte[]> streamProducer(){
         	//https://kafka.apache.org/25/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html
@@ -235,6 +238,7 @@ ssl.truststore.type=JKS
         	props.put("ssl.truststore.location", sslTruststoreLocation);
         	props.put("ssl.truststore.password", sslTruststorePassword);
         	props.put("ssl.truststore.type", sslTruststoreType);
+            props.put("ssl.endpoint.identification.algorithm", sslEndpointIdentificationAlgorithm);
         	props.put("security.protocol", securityProtocol);
 
         	//
