@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,7 +40,7 @@ public abstract class BaseAlarmDatastoreTest {
     @Autowired
     protected AlarmDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    protected static final AtomicLong testSequence = new AtomicLong(1);
 
     @Test
     public void testCRUD() {
@@ -370,6 +371,9 @@ public abstract class BaseAlarmDatastoreTest {
         Set<Long> equipmentIds_CPUUtilization = new HashSet<>();
         Set<Long> equipmentIds_AccessPointIsUnreachable = new HashSet<>();
         
+        Set<Long> equipmentIds_c1 = new HashSet<>();
+        Set<Long> equipmentIds_c2 = new HashSet<>();
+
         for(int i = 0; i< 50; i++){
             mdl = createAlarmObject();
             mdl.setCustomerId(customerId_1);
@@ -381,6 +385,7 @@ public abstract class BaseAlarmDatastoreTest {
             	equipmentIds_AccessPointIsUnreachable.add(mdl.getEquipmentId());
             }
             equipmentIds.add(mdl.getEquipmentId());
+            equipmentIds_c1.add(mdl.getEquipmentId());
             
             apNameIdx++;
             testInterface.create(mdl);
@@ -391,6 +396,7 @@ public abstract class BaseAlarmDatastoreTest {
             mdl.setCustomerId(customerId_1);
             mdl.setEquipmentId(0);
           	mdl.setAlarmCode(AlarmCode.GenericError);
+            equipmentIds_c1.add(mdl.getEquipmentId());
             
             testInterface.create(mdl);        	
         }
@@ -398,7 +404,9 @@ public abstract class BaseAlarmDatastoreTest {
         for(int i = 0; i< 50; i++){
             mdl = createAlarmObject();
             mdl.setCustomerId(customerId_2);
-            mdl.setScopeId("qr_"+apNameIdx);           
+            mdl.setScopeId("qr_"+apNameIdx);
+            equipmentIds_c2.add(mdl.getEquipmentId());
+
             apNameIdx++;
             testInterface.create(mdl);
         }
@@ -435,10 +443,25 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(1, alarmCounts_1Eq_1code.getCountsPerEquipmentIdMap().size());
         assertEquals(1, alarmCounts_1Eq_1code.getTotalCountsPerAlarmCodeMap().size());
 
+        //see how filtering by equipment works with small number of ids
+        Set<Long> smallEqIds = new HashSet<>();
+        Iterator<Long> iter = equipmentIds.iterator();
+        for(int i=0; i< 4; i++) {
+        	smallEqIds.add(iter.next());
+        }
+        AlarmCounts alarmCounts_small = testInterface.getAlarmCounts(customerId_1, smallEqIds, alarmCodes);
+        assertEquals(0, alarmCounts_small.getCounter(0, AlarmCode.GenericError));
+        assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+
+        //clean up after the test
+        equipmentIds_c1.forEach(eqId -> testInterface.delete(customerId_1, eqId));
+        equipmentIds_c2.forEach(eqId -> testInterface.delete(customerId_2, eqId));
+
     }
     
     
-    private Alarm createAlarmObject() {
+    protected Alarm createAlarmObject() {
     	Alarm result = new Alarm();
         result.setCustomerId((int) testSequence.getAndIncrement());
         result.setEquipmentId(testSequence.getAndIncrement());

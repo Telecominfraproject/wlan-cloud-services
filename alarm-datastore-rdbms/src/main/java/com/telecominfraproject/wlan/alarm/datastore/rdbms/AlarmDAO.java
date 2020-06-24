@@ -644,7 +644,7 @@ public class AlarmDAO extends BaseJdbcDao {
         		if(equipmentIds == null || equipmentIds.isEmpty()) {
         			alarmCounts.addToCounter(0, AlarmCode.getById(rs.getInt(1)), rs.getInt(2));
         		} else {
-        			alarmCounts.addToCounter(rs.getInt(1), AlarmCode.getById(rs.getInt(2)), rs.getInt(3));
+        			alarmCounts.addToCounter(rs.getLong(1), AlarmCode.getById(rs.getInt(2)), rs.getInt(3));
         		}
 
         	}

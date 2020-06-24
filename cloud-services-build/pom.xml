@@ -114,6 +114,7 @@
                                 <module>../alarm-datastore-inmemory</module>
                                 <module>../alarm-datastore-interface</module>
                                 <module>../alarm-datastore-rdbms</module>
+                                <module>../alarm-datastore-cassandra</module>
                                 <module>../alarm-models</module>
                                 <module>../alarm-service</module>
                                 <module>../alarm-service-interface</module>
