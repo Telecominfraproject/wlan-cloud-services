@@ -46,6 +46,8 @@ public enum StatusDataType {
 	RADIO_UTILIZATION(11),
 	ACTIVE_BSSIDS(12),
 	CLIENT_DETAILS(13),
+	
+	CUSTOMER_DASHBOARD(14),
 
     UNSUPPORTED   (-1);
     

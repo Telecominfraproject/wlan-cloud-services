@@ -41,6 +41,9 @@ public class SimpleStreamsConfig {
         
         @Value("${tip.wlan.systemEventsTopic:system_events}")
     	private String systemEventsTopic;
+        
+        @Value("${tip.wlan.customerEventsTopic:customer_events}")
+    	private String customerEventsTopic;
     	
         @Autowired
         private StreamMessageDispatcher streamMessageDispatcher;
@@ -127,6 +130,38 @@ public class SimpleStreamsConfig {
               
               return si;
         }
+        
+        @Bean
+        public StreamInterface<SystemEventRecord> customerEventStreamInterface() {
+        	StreamInterface<SystemEventRecord> si = new StreamInterface<SystemEventRecord>() {
+
+                {
+                    LOG.info("*** Using simple stream for the customer events");
+                }
+                
+                @Override
+                public void publish(SystemEventRecord record) {
+                	LOG.info("publishing customer event {}", record);
+                	
+                	boolean elementAdded = false;
+                	while(!elementAdded) {
+	                	try {
+	                		elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(customerEventsTopic, record), 5, TimeUnit.SECONDS);
+	                    	LOG.trace("publishing customer event completed");
+						} catch (InterruptedException e) {
+							LOG.warn("Interrupted while waiting for the message to be added to the queue");
+							Thread.currentThread().interrupt();
+							break;
+						}
+                	}
+
+                }
+                
+              };
+              
+              return si;
+        }
+
 
         @Scheduled(initialDelay=60000, fixedDelay=60000)
         public void removeOldMetricsAndEvents(){

@@ -38,11 +38,18 @@ import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
+import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.firmware.FirmwareServiceInterface;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
+import com.telecominfraproject.wlan.firmware.models.ValidationMethod;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.LocationDetails;
 import com.telecominfraproject.wlan.location.models.LocationType;
@@ -66,6 +73,7 @@ import com.telecominfraproject.wlan.servicemetric.apnode.models.EthernetLinkStat
 import com.telecominfraproject.wlan.servicemetric.apnode.models.RadioUtilization;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
+import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolState;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolStatusData;
@@ -75,6 +83,9 @@ import com.telecominfraproject.wlan.status.equipment.report.models.OperatingSyst
 import com.telecominfraproject.wlan.status.equipment.report.models.RadioUtilizationReport;
 import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
+import com.telecominfraproject.wlan.status.models.events.StatusChangedEvent;
+import com.telecominfraproject.wlan.systemevent.SystemEventServiceInterface;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
  * Listen for context started event so that we can populate initial dataset in
@@ -111,6 +122,13 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 	@Autowired
 	private ServiceMetricServiceInterface serviceMetricInterface;
+
+	@Autowired
+	private SystemEventServiceInterface systemEventInterface;
+
+	@Autowired
+	private FirmwareServiceInterface firmwareInterface;
+
 	
     @Value("${tip.wlan.numEquipmentToCreateOnStartup:50}")
 	private int numEquipmentToCreateOnStartup;
@@ -337,6 +355,10 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		}
 
+		createDashboardStatus(customer, equipmentList);
+		
+		createFirmwareObjects();
+		
 		LOG.info("Done creating initial objects");
 
 		// print out SSID configurations used by ap-1
@@ -359,6 +381,138 @@ public class AllInOneStartListener implements ApplicationRunner {
 		ssidProfiles.forEach(p -> ssidConfigs2.add((SsidConfiguration) p.getDetails()));
 		LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
 
+	}
+
+	private void createFirmwareObjects() {
+        FirmwareVersion firmwareVersion_ap2220 = new FirmwareVersion();
+        firmwareVersion_ap2220.setEquipmentType(EquipmentType.AP);
+        firmwareVersion_ap2220.setVersionName("ap2220-2020-06-25-ce03472");
+        firmwareVersion_ap2220.setCommit("ce03472");
+        firmwareVersion_ap2220.setDescription("");
+        firmwareVersion_ap2220.setModelId("ap2220");
+        firmwareVersion_ap2220.setFilename("https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ap2220/ap2220-2020-06-25-ce03472.tar.gz");
+        firmwareVersion_ap2220.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion_ap2220.setValidationCode("c69370aa5b6622d91a0fba3a5441f31c");
+        firmwareVersion_ap2220.setReleaseDate(System.currentTimeMillis());
+        
+        firmwareVersion_ap2220 = firmwareInterface.createFirmwareVersion(firmwareVersion_ap2220);
+
+        FirmwareVersion firmwareVersion_ea8300 = new FirmwareVersion();
+        firmwareVersion_ea8300.setEquipmentType(EquipmentType.AP);
+        firmwareVersion_ea8300.setVersionName("ea8300-2020-06-25-ce03472");
+        firmwareVersion_ea8300.setCommit("ce03472");
+        firmwareVersion_ea8300.setDescription("");
+        firmwareVersion_ea8300.setModelId("ea8300");
+        firmwareVersion_ea8300.setFilename("https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz");
+        firmwareVersion_ea8300.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion_ea8300.setValidationCode("b209deb9847bdf40a31e45edf2e5a8d7");
+        firmwareVersion_ea8300.setReleaseDate(System.currentTimeMillis());
+        
+        firmwareVersion_ea8300 = firmwareInterface.createFirmwareVersion(firmwareVersion_ea8300);
+
+        FirmwareVersion firmwareVersion_ecw5211 = new FirmwareVersion();
+        firmwareVersion_ecw5211.setEquipmentType(EquipmentType.AP);
+        firmwareVersion_ecw5211.setVersionName("ecw5211-2020-06-26-4ff7208");
+        firmwareVersion_ecw5211.setCommit("4ff7208");
+        firmwareVersion_ecw5211.setDescription("");
+        firmwareVersion_ecw5211.setModelId("ecw5211");
+        firmwareVersion_ecw5211.setFilename("https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/ecw5211-2020-06-26-4ff7208.tar.gz");
+        firmwareVersion_ecw5211.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion_ecw5211.setValidationCode("133072b0e8a440063109604375938fba");
+        firmwareVersion_ecw5211.setReleaseDate(System.currentTimeMillis());
+        
+        firmwareVersion_ecw5211 = firmwareInterface.createFirmwareVersion(firmwareVersion_ecw5211);
+
+        FirmwareVersion firmwareVersion_ecw5410 = new FirmwareVersion();
+        firmwareVersion_ecw5410.setEquipmentType(EquipmentType.AP);
+        firmwareVersion_ecw5410.setVersionName("ecw5410-2020-06-25-ce03472");
+        firmwareVersion_ecw5410.setCommit("ce03472");
+        firmwareVersion_ecw5410.setDescription("");
+        firmwareVersion_ecw5410.setModelId("ecw5410");
+        firmwareVersion_ecw5410.setFilename("https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/ecw5410-2020-06-25-ce03472.tar.gz");
+        firmwareVersion_ecw5410.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion_ecw5410.setValidationCode("2940ca34eeab85be18f3a4b79f4da6d9");
+        firmwareVersion_ecw5410.setReleaseDate(System.currentTimeMillis());
+        
+        firmwareVersion_ecw5410 = firmwareInterface.createFirmwareVersion(firmwareVersion_ecw5410);
+
+		FirmwareTrackRecord track = new FirmwareTrackRecord(FirmwareTrackRecord.DEFAULT_TRACK_NAME);
+		track.setMaintenanceWindow(new EmptySchedule());
+		track = firmwareInterface.createFirmwareTrack(track);
+		
+		firmwareInterface.updateFirmwareTrackAssignment(new FirmwareTrackAssignmentDetails(new FirmwareTrackAssignmentRecord(
+                track.getRecordId(), firmwareVersion_ap2220.getId()), firmwareVersion_ap2220));
+
+		firmwareInterface.updateFirmwareTrackAssignment(new FirmwareTrackAssignmentDetails(new FirmwareTrackAssignmentRecord(
+                track.getRecordId(), firmwareVersion_ea8300.getId()), firmwareVersion_ea8300));
+
+		firmwareInterface.updateFirmwareTrackAssignment(new FirmwareTrackAssignmentDetails(new FirmwareTrackAssignmentRecord(
+                track.getRecordId(), firmwareVersion_ecw5211.getId()), firmwareVersion_ecw5211));
+		
+		firmwareInterface.updateFirmwareTrackAssignment(new FirmwareTrackAssignmentDetails(new FirmwareTrackAssignmentRecord(
+                track.getRecordId(), firmwareVersion_ecw5410.getId()), firmwareVersion_ecw5410));
+		
+	}
+
+	private void createDashboardStatus(Customer customer, List<Equipment> equipmentList) {
+		//create current status
+		Status status = createDashboardStatusObject(customer, equipmentList); 
+		status = statusServiceInterface.update(status);
+
+		long currentTs = System.currentTimeMillis();
+		
+		List<SystemEventRecord> systemEventRecords = new ArrayList<>();
+		//create history of statuses for the last 4 hours - each status changes every 5 minutes, 12 times per hour
+		for(int i=0; i<12*4; i++) {
+			currentTs -= ((CustomerPortalDashboardStatus)status.getDetails()).getTimeBucketMs();
+			
+			status = createDashboardStatusObject(customer, equipmentList);
+			status.setCreatedTimestamp(currentTs);
+			status.setLastModifiedTimestamp(currentTs);
+			CustomerPortalDashboardStatus ds = (CustomerPortalDashboardStatus)status.getDetails();
+			ds.setTimeBucketId(ds.getTimeBucketId() - (ds.getTimeBucketMs() * i) );
+			ds.getTrafficBytesDownstream().addAndGet(getRandomLong(-5000000, 5000000));
+			ds.getTrafficBytesUpstream().addAndGet(getRandomLong(-5000000, 5000000));
+			
+			SystemEventRecord ser = new SystemEventRecord(new StatusChangedEvent(status));
+			systemEventRecords.add(ser);
+			
+		}
+		systemEventInterface.create(systemEventRecords);
+		
+	}
+	
+	private Status createDashboardStatusObject(Customer customer, List<Equipment> equipmentList) {
+		CustomerPortalDashboardStatus dashboardStatus = new CustomerPortalDashboardStatus();
+		long timeBucketId = System.currentTimeMillis();
+		timeBucketId = timeBucketId - timeBucketId %  dashboardStatus.getTimeBucketMs();
+		dashboardStatus.setTimeBucketId(timeBucketId);
+		
+		dashboardStatus.setTotalProvisionedEquipment(equipmentList.size());
+		dashboardStatus.incrementAssociatedClientsCountPerRadio(RadioType.is2dot4GHz, equipmentList.size() * getRandomInt(1, 20));
+		dashboardStatus.incrementAssociatedClientsCountPerRadio(RadioType.is5GHzL, equipmentList.size() * getRandomInt(1, 20));
+		dashboardStatus.incrementAssociatedClientsCountPerRadio(RadioType.is5GHzU, equipmentList.size() * getRandomInt(1, 20));
+		
+		dashboardStatus.incrementClientCountPerOui("000000", 8);
+		dashboardStatus.incrementClientCountPerOui("000001", 30);
+		dashboardStatus.incrementClientCountPerOui("0F0F0F", 42);
+		
+		dashboardStatus.incrementEquipmentCountPerOui("749CE3", 50);
+		dashboardStatus.incrementEquipmentCountPerOui("3C2C99", 1);
+		dashboardStatus.incrementEquipmentCountPerOui("1CEA0B", 1);
+		
+		dashboardStatus.getEquipmentInServiceCount().addAndGet(2);
+		
+		dashboardStatus.getEquipmentWithClientsCount().addAndGet(2);
+		
+		dashboardStatus.getTrafficBytesDownstream().addAndGet(getRandomLong(10000000, 100000000));
+		dashboardStatus.getTrafficBytesUpstream().addAndGet(getRandomLong(10000000, 100000000));
+		
+		Status status = new Status();
+		status.setCustomerId(customer.getId());
+		status.setDetails(dashboardStatus);
+		
+		return status;
 	}
 
 	private void createServiceMetrics(Equipment equipment) {

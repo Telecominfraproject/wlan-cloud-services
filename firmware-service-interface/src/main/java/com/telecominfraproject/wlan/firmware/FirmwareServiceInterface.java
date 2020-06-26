@@ -32,6 +32,9 @@ public interface FirmwareServiceInterface {
     FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrackRecord);
 
     FirmwareTrackRecord getFirmwareTrackByName(String firmwareTrackName);
+  
+//TODO: implement this for completeness:    
+//    List<FirmwareTrackRecord> getAllFirmwareTracks();
 
     FirmwareTrackRecord getFirmwareTrackById(long firmwareTrackRecordId);
 

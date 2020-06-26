@@ -33,8 +33,15 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
+      <!-- Stream Processor modules -->
       <dependency>
         <artifactId>provisioning-sp</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>dashboard-sp</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

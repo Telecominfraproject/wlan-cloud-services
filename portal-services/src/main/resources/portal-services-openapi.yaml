@@ -12,7 +12,9 @@ servers:
     description: Local Dev server - all-in-one in docker
   - url: https://192.168.0.143:9051
     description: Local Dev server - portal, prov, and ssc
-
+  - url: https://192.168.0.143:7071
+    description: Local Dev server - opensync gateway
+  - url: https://wlan-portal-svc.tip.lab.connectus.ai
 
 tags:
 - name: Data Model Overview
@@ -1674,6 +1676,7 @@ components:
       - RADIO_UTILIZATION
       - ACTIVE_BSSIDS
       - CLIENT_DETAILS
+      - CUSTOMER_DASHBOARD
    
     Status:
       type: object
@@ -1715,9 +1718,51 @@ components:
         - $ref: '#/components/schemas/NetworkAggregateStatusData'
         - $ref: '#/components/schemas/OperatingSystemPerformance'
         - $ref: '#/components/schemas/RadioUtilizationReport'
+        - $ref: '#/components/schemas/CustomerPortalDashboardStatus'
       discriminator:
         propertyName: model_type
     
+    CustomerPortalDashboardStatus:
+      properties:
+        model_type:
+          type: string
+          enum:
+          - CustomerPortalDashboardStatus
+        statusDataType:
+          type: string
+          enum:
+          - CUSTOMER_DASHBOARD
+        timeBucketId:
+          description: All metrics/events that have (createdTimestamp % timeBucketMs == timeBucketId) are counted in this object.
+          type: integer
+          format: int64
+        timeBucketMs:
+          description: Length of the time bucket in milliseconds
+          type: integer
+          format: int64
+        equipmentInServiceCount:
+          type: integer
+          format: int32
+        equipmentWithClientsCount:
+          type: integer
+          format: int32
+        totalProvisionedEquipment:
+          type: integer
+          format: int32
+        trafficBytesDownstream:
+          type: integer
+          format: int64
+        trafficBytesUpstream:
+          type: integer
+          format: int64
+        associatedClientsCountPerRadio:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        clientCountPerOui:
+          $ref: '#/components/schemas/IntegerValueMap'
+        equipmentCountPerOui:
+          $ref: '#/components/schemas/IntegerValueMap'
+
+      
     ActiveBSSIDs:
       type: object
       properties:

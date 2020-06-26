@@ -1,0 +1,130 @@
+package com.telecominfraproject.wlan.systemevent.aggregation.models;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
+
+/**
+ * @author dtop
+ * <br>This model contains aggregate data for counters for a portion of all customer equipment (non-overlapping subsets).
+ * It is produced by CustomerPortalDashboardPartialAggregator, placed on a kafka queue (customer_events), and consumed by CustomerPortalDashboardAggregator. 
+ */
+public class CustomerPortalDashboardPartialEvent extends SystemEvent implements HasCustomerId {
+
+	private static final long serialVersionUID = -8139895289619328335L;
+
+	/**
+	 * Time Bucket Id for this partial event
+	 * All metrics/events that have (createdTimestamp % timeBucketMs == timeBucketId) are counted in this partial event.   
+	 */
+	private long timeBucketId;
+	
+	/**
+	 * Length of the bucket in milliseconds
+	 */
+	private long timeBucketMs = TimeUnit.MINUTES.toMillis(5);
+	
+	private AtomicInteger equipmentInServiceCount = new AtomicInteger();
+	private AtomicInteger equipmentWithClientsCount = new AtomicInteger();
+	
+	private Map<RadioType, AtomicInteger> associatedClientsCountPerRadio = new EnumMap<>(RadioType.class);
+	
+	private AtomicLong trafficBytesDownstream = new AtomicLong();
+	private AtomicLong trafficBytesUpstream = new AtomicLong();
+	
+	private Map<String, AtomicInteger> clientCountPerOui = new HashMap<>();
+
+	public long getTimeBucketId() {
+		return timeBucketId;
+	}
+
+	public void setTimeBucketId(long timeBucketId) {
+		this.timeBucketId = timeBucketId;
+	}
+
+	public long getTimeBucketMs() {
+		return timeBucketMs;
+	}
+
+	public void setTimeBucketMs(long timeBucketMs) {
+		this.timeBucketMs = timeBucketMs;
+	}
+
+	public AtomicInteger getEquipmentInServiceCount() {
+		return equipmentInServiceCount;
+	}
+
+	public void setEquipmentInServiceCount(AtomicInteger equipmentInServiceCount) {
+		this.equipmentInServiceCount = equipmentInServiceCount;
+	}
+
+	public AtomicInteger getEquipmentWithClientsCount() {
+		return equipmentWithClientsCount;
+	}
+
+	public void setEquipmentWithClientsCount(AtomicInteger equipmentWithClientsCount) {
+		this.equipmentWithClientsCount = equipmentWithClientsCount;
+	}
+
+	public Map<RadioType, AtomicInteger> getAssociatedClientsCountPerRadio() {
+		return associatedClientsCountPerRadio;
+	}
+
+	public void setAssociatedClientsCountPerRadio(Map<RadioType, AtomicInteger> associatedClientsCountPerRadio) {
+		this.associatedClientsCountPerRadio = associatedClientsCountPerRadio;
+	}
+
+	public AtomicLong getTrafficBytesDownstream() {
+		return trafficBytesDownstream;
+	}
+
+	public void setTrafficBytesDownstream(AtomicLong trafficBytesDownstream) {
+		this.trafficBytesDownstream = trafficBytesDownstream;
+	}
+
+	public AtomicLong getTrafficBytesUpstream() {
+		return trafficBytesUpstream;
+	}
+
+	public void setTrafficBytesUpstream(AtomicLong trafficBytesUpstream) {
+		this.trafficBytesUpstream = trafficBytesUpstream;
+	}
+
+	public Map<String, AtomicInteger> getClientCountPerOui() {
+		return clientCountPerOui;
+	}
+
+	public void setClientCountPerOui(Map<String, AtomicInteger> clientCountPerOui) {
+		this.clientCountPerOui = clientCountPerOui;
+	}
+
+	/// Utility methods
+	
+	public void incrementAssociatedClientsCountPerRadio(RadioType radioType, int value) {
+		AtomicInteger counter = associatedClientsCountPerRadio.get(radioType);
+		if(counter == null) {
+			counter = new AtomicInteger();
+			associatedClientsCountPerRadio.put(radioType, counter);
+		}
+		
+		counter.addAndGet(value);
+	}
+
+	public void incrementClientCountPerOui(String oui, int value) {
+		AtomicInteger counter = clientCountPerOui.get(oui);
+		if(counter == null) {
+			counter = new AtomicInteger();
+			clientCountPerOui.put(oui, counter);
+		}
+		
+		counter.addAndGet(value);
+	}
+
+}

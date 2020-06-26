@@ -18,8 +18,8 @@ public class KafkaConsumerContainerContextConfiguration {
 	private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerContainerContextConfiguration.class);
 
     @Bean
-    public ApplicationListener<ContextClosedEvent> kafkaContainerStopEventListner() {
-        LOG.debug("Creating kafka container stop event listener");
+    public ApplicationListener<ContextClosedEvent> kafkaConsumerContainerStopEventListener() {
+        LOG.debug("Creating kafka consumer container stop event listener");
         return new KafkaConsumerStopListener(consumer);
     }
     
