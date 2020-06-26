@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration  -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
+<!--                                                                -->
+<!-- For professional support please see                            -->
+<!--    http://www.qos.ch/shop/products/professionalSupport         -->
+<!--                                                                -->
+<configuration>
+  <conversionRule conversionWord="filteredStack"
+                  converterClass="com.telecominfraproject.wlan.server.exceptions.logback.ExceptionCompressingConverter" />
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%filteredStack%nopex</pattern>
+      <!-- See http://logback.qos.ch/manual/layouts.html for details -->
+      <!-- %ex{5} - add at the end to display only 5 levels of the exception stack trace -->
+      <!-- %nopex - add at the end to not display any of the exception stack traces -->
+      <!-- %ex{full} - add at the end to display all the levels of the exception stack trace -->
+  </encoder>
+    <!--
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>myApp.log</file>
+
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+  </appender>
+  -->
+
+  </appender>
+  <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/app/logs/spcservice.log</file>
+    <append>true</append>
+    <encoder>
+      <pattern>%date %level [%thread] %logger{36} [%file:%line] %msg%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>/app/logs/spcservice.%i.log.gz</fileNamePattern>
+      <minIndex>1</minIndex>
+      <maxIndex>3</maxIndex>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>20MB</maxFileSize>
+    </triggeringPolicy>
+  </appender>
+
+
+  <!--
+  details: http://logback.qos.ch/manual/configuration.html#auto_configuration
+
+  runtime configuration, if need to override the defaults:
+    -Dlogging.config=file:///home/ec2-user/opensync/logback.xml
+
+  for log configuration debugging - use
+  	-Dlogback.statusListenerClass=ch.qos.logback.core.status.OnConsoleStatusListener
+
+  log levels:
+	OFF ERROR WARN INFO DEBUG TRACE
+   -->
+  <logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR"/>
+  <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="INFO"/>
+  <logger name="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer" level="INFO"/>
+
+  <logger name="com.telecominfraproject" level="INFO"/>
+  <logger name="com.telecominfraproject.wlan" level="DEBUG"/>
+  <logger name="com.telecominfraproject.wlan.core.server.webconfig.WebGenericConverter" level="OFF"/>
+
+
+  <logger name="com.telecominfraproject.wlan.streams.provisioning.EquipmentConfigPushTrigger" level="TRACE"/>
+  <logger name="com.telecominfraproject.wlan.streams.kafka.KafkaStreamsConfig" level="TRACE"/>
+  <logger name="com.telecominfraproject.wlan.stream.StreamMessageDispatcher" level="TRACE"/>
+
+  <root level="WARN">
+    <appender-ref ref="logfile"/>
+  </root>
+  
+</configuration>
