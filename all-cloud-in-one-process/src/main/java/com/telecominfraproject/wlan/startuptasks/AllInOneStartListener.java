@@ -553,10 +553,34 @@ public class AllInOneStartListener implements ApplicationRunner {
 		apNodeMetrics.setNoiseFloor(RadioType.is5GHzL, Integer.valueOf(-98));
 		apNodeMetrics.setNoiseFloor(RadioType.is5GHzU, Integer.valueOf(-98));
 
+		List<MacAddress> clientMacAddresses_2g = new ArrayList<>();
+		for(int i = 0; i< 6; i++) {
+			MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+					getRandomByte(), getRandomByte() });			
+			clientMacAddresses_2g.add(macAddress);
+		}		
+		apNodeMetrics.setClientMacAddresses(RadioType.is2dot4GHz, clientMacAddresses_2g );
+		
+		List<MacAddress> clientMacAddresses_5gl = new ArrayList<>();
+		for(int i = 0; i< 6; i++) {
+			MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+					getRandomByte(), getRandomByte() });			
+			clientMacAddresses_5gl.add(macAddress);
+		}
+		apNodeMetrics.setClientMacAddresses(RadioType.is5GHzL, clientMacAddresses_5gl );
+
+		List<MacAddress> clientMacAddresses_5gu = new ArrayList<>();
+		for(int i = 0; i< 6; i++) {
+			MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+					getRandomByte(), getRandomByte() });			
+			clientMacAddresses_5gu.add(macAddress);
+		}
+		apNodeMetrics.setClientMacAddresses(RadioType.is5GHzU, clientMacAddresses_5gu );
+
 		apNodeMetrics.setRadioUtilization(RadioType.is2dot4GHz, new ArrayList<>());
 		apNodeMetrics.setRadioUtilization(RadioType.is5GHzL, new ArrayList<>());
 		apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
-
+		
 		int numRadioUtilReports = getRandomInt(5, 10);
 
 		for (int i = 0; i < numRadioUtilReports; i++) {
