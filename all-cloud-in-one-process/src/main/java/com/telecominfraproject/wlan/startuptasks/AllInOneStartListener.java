@@ -316,6 +316,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 			}
 			equipment.setInventoryId("ap-" + i);
 			equipment.setName("AP " + i);
+			equipment.setBaseMacAddress( new MacAddress(
+					new byte[] { 0x74, (byte) 0x9C, (byte) 0xE3, getRandomByte(), getRandomByte(), getRandomByte() }));
 			equipment.setSerial("serial-ap-" + i);
 			equipment.setDetails(ApElementConfiguration.createWithDefaults());
 			
@@ -710,8 +712,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 		status.setCustomerId(equipment.getCustomerId());
 		status.setEquipmentId(equipment.getId());
 		EquipmentProtocolStatusData eqProtocolStatus = new EquipmentProtocolStatusData();
-		eqProtocolStatus.setBaseMacAddress(new MacAddress(
-				new byte[] { 0x74, (byte) 0x9C, (byte) 0xE3, getRandomByte(), getRandomByte(), getRandomByte() }));
+		eqProtocolStatus.setBaseMacAddress(equipment.getBaseMacAddress());
 		eqProtocolStatus.setPoweredOn(true);
 		eqProtocolStatus.setProtocolState(EquipmentProtocolState.ready);
 		try {

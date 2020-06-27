@@ -3,11 +3,13 @@ package com.telecominfraproject.wlan.equipment.datastore.inmemory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificatio
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -205,6 +208,35 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
 
         return ret;
     
+    }
+    
+    @Override
+    public CustomerEquipmentCounts getEquipmentCounts(int customerId) {
+    	CustomerEquipmentCounts counts = new CustomerEquipmentCounts();
+    	counts.setCustomerId(customerId);
+    	AtomicInteger totalCount = new AtomicInteger();
+    	Map<String, AtomicInteger> perOuiMap = new HashMap<>();
+    	
+    	idToEquipmentMap.values().forEach(
+        		(eq) -> {
+        			if(eq.getCustomerId() == customerId) {
+			        	totalCount.incrementAndGet();
+			        	
+			        	if(eq.getBaseMacAddress()!=null) {
+			        		AtomicInteger cnt = perOuiMap.get(eq.getBaseMacAddress().toOuiString());
+			        		if(cnt == null) {
+			        			cnt = new AtomicInteger();
+			        			perOuiMap.put(eq.getBaseMacAddress().toOuiString(), cnt);
+			        		}
+			        		cnt.incrementAndGet();
+			        	}
+			        }        			
+        		});
+
+    	counts.setTotalCount(totalCount.get());
+    	perOuiMap.forEach((oui, cnt) -> counts.getOuiCounts().put(oui, cnt.get()));
+    	
+    	return counts;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.equipment.models;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
@@ -28,6 +29,8 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
     private  String latitude;
     private  String longitude;
     
+    private MacAddress baseMacAddress;
+
     private  String serial;
     
     private long createdTimestamp;
@@ -137,6 +140,14 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 		this.serial = serial;
 	}
 
+	public MacAddress getBaseMacAddress() {
+		return baseMacAddress;
+	}
+
+	public void setBaseMacAddress(MacAddress baseMacAddress) {
+		this.baseMacAddress = baseMacAddress;
+	}
+
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -161,13 +172,17 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
     		ret.setDetails(details.clone());
     	}
     	
+    	if(baseMacAddress!=null) {
+    		ret.baseMacAddress = baseMacAddress.clone();
+    	}
+    	
     	return ret;
     }
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdTimestamp, customerId, details, equipmentType, id, inventoryId,
-				lastModifiedTimestamp, locationId, name, profileId, latitude, longitude, serial);
+				lastModifiedTimestamp, locationId, name, profileId, latitude, longitude, serial, baseMacAddress);
 	}
 
 	@Override
@@ -187,6 +202,7 @@ public class Equipment extends BaseJsonModel implements HasCustomerId {
 						&& Objects.equals(latitude, other.latitude)
 						&& Objects.equals(longitude, other.longitude)
 						&& Objects.equals(serial, other.serial)
+						&& Objects.equals(baseMacAddress, other.baseMacAddress)
 						;
 	}
     

@@ -2,12 +2,14 @@ package com.telecominfraproject.wlan.systemevent.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+
 /**
  * @author dtoptygin
  * @param <T> 
  *
  */
-public abstract class CustomerEvent<T> extends SystemEvent {
+public abstract class CustomerEvent<T> extends SystemEvent implements HasCustomerId {
 
     private static final long serialVersionUID = -6866253868015569466L;
     

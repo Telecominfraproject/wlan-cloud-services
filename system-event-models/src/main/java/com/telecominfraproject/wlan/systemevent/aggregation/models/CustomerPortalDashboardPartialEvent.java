@@ -1,8 +1,9 @@
 package com.telecominfraproject.wlan.systemevent.aggregation.models;
 
+import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,12 +35,12 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 	private AtomicInteger equipmentInServiceCount = new AtomicInteger();
 	private AtomicInteger equipmentWithClientsCount = new AtomicInteger();
 	
-	private Map<RadioType, AtomicInteger> associatedClientsCountPerRadio = new EnumMap<>(RadioType.class);
+	private Map<RadioType, AtomicInteger> associatedClientsCountPerRadio = Collections.synchronizedMap(new EnumMap<>(RadioType.class));
 	
 	private AtomicLong trafficBytesDownstream = new AtomicLong();
 	private AtomicLong trafficBytesUpstream = new AtomicLong();
 	
-	private Map<String, AtomicInteger> clientCountPerOui = new HashMap<>();
+	private Map<String, AtomicInteger> clientCountPerOui = new ConcurrentHashMap<>();
 
 	public long getTimeBucketId() {
 		return timeBucketId;
@@ -111,7 +112,10 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		AtomicInteger counter = associatedClientsCountPerRadio.get(radioType);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			associatedClientsCountPerRadio.put(radioType, counter);
+			counter = associatedClientsCountPerRadio.putIfAbsent(radioType, counter);
+			if(counter == null) {
+				counter = associatedClientsCountPerRadio.get(radioType);
+			}
 		}
 		
 		counter.addAndGet(value);
@@ -121,10 +125,30 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		AtomicInteger counter = clientCountPerOui.get(oui);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			clientCountPerOui.put(oui, counter);
+			counter = clientCountPerOui.putIfAbsent(oui, counter);
+			if(counter == null) {
+				counter = clientCountPerOui.get(oui);
+			}
 		}
 		
 		counter.addAndGet(value);
+	}
+	
+	@Override
+	public CustomerPortalDashboardPartialEvent clone() {
+		CustomerPortalDashboardPartialEvent ret = (CustomerPortalDashboardPartialEvent) super.clone();
+		
+		if(associatedClientsCountPerRadio!=null) {
+			ret.associatedClientsCountPerRadio = Collections.synchronizedMap(new EnumMap<>(RadioType.class));
+			associatedClientsCountPerRadio.forEach((k,v) -> ret.associatedClientsCountPerRadio.put(k, new AtomicInteger(v.get())));			
+		}
+		
+		if(clientCountPerOui!=null) {
+			ret.clientCountPerOui = new ConcurrentHashMap<>();
+			clientCountPerOui.forEach((k,v) -> ret.clientCountPerOui.put(k, new AtomicInteger(v.get())));			
+		}
+		
+		return ret;		
 	}
 
 }

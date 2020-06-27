@@ -1,8 +1,9 @@
 package com.telecominfraproject.wlan.status.dashboard.models;
 
+import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,15 +31,15 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 	private AtomicInteger equipmentInServiceCount = new AtomicInteger();
 	private AtomicInteger equipmentWithClientsCount = new AtomicInteger();
 	
-	private Map<RadioType, AtomicInteger> associatedClientsCountPerRadio = new EnumMap<>(RadioType.class);
+	private Map<RadioType, AtomicInteger> associatedClientsCountPerRadio = Collections.synchronizedMap(new EnumMap<>(RadioType.class));
 	
 	private AtomicLong trafficBytesDownstream = new AtomicLong();
 	private AtomicLong trafficBytesUpstream = new AtomicLong();
 	
-	private Map<String, AtomicInteger> clientCountPerOui = new HashMap<>();
+	private Map<String, AtomicInteger> clientCountPerOui = new ConcurrentHashMap<>();
 	
 	private int totalProvisionedEquipment;
-	private Map<String, AtomicInteger> equipmentCountPerOui = new HashMap<>();
+	private Map<String, AtomicInteger> equipmentCountPerOui = new ConcurrentHashMap<>();
 	
 
 	@Override
@@ -67,7 +68,10 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		AtomicInteger counter = associatedClientsCountPerRadio.get(radioType);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			associatedClientsCountPerRadio.put(radioType, counter);
+			counter = associatedClientsCountPerRadio.putIfAbsent(radioType, counter);
+			if(counter == null) {
+				counter = associatedClientsCountPerRadio.get(radioType);
+			}
 		}
 		
 		counter.addAndGet(value);
@@ -77,7 +81,10 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		AtomicInteger counter = clientCountPerOui.get(oui);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			clientCountPerOui.put(oui, counter);
+			counter = clientCountPerOui.putIfAbsent(oui, counter);
+			if(counter == null) {
+				counter = clientCountPerOui.get(oui);
+			}
 		}
 		
 		counter.addAndGet(value);
@@ -87,7 +94,10 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		AtomicInteger counter = equipmentCountPerOui.get(oui);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			equipmentCountPerOui.put(oui, counter);
+			counter = equipmentCountPerOui.putIfAbsent(oui, counter);
+			if(counter == null) {
+				counter = equipmentCountPerOui.get(oui);
+			}
 		}
 		
 		counter.addAndGet(value);
@@ -171,6 +181,28 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 
 	public void setEquipmentCountPerOui(Map<String, AtomicInteger> equipmentCountPerOui) {
 		this.equipmentCountPerOui = equipmentCountPerOui;
+	}
+	
+	@Override
+	public CustomerPortalDashboardStatus clone() {
+		CustomerPortalDashboardStatus ret = (CustomerPortalDashboardStatus) super.clone();
+		
+		if(clientCountPerOui !=null) {
+			ret.clientCountPerOui = new ConcurrentHashMap<>();
+			clientCountPerOui.forEach((k, v) -> ret.clientCountPerOui.put(k, new AtomicInteger(v.get())));
+		}
+
+		if(equipmentCountPerOui != null) {
+			ret.equipmentCountPerOui = new ConcurrentHashMap<>();
+			equipmentCountPerOui.forEach((k, v) -> ret.equipmentCountPerOui.put(k, new AtomicInteger(v.get())));
+		}
+		
+		if(associatedClientsCountPerRadio != null) {
+			ret.associatedClientsCountPerRadio = Collections.synchronizedMap(new EnumMap<>(RadioType.class));
+			associatedClientsCountPerRadio.forEach((k, v) -> ret.associatedClientsCountPerRadio.put(k, new AtomicInteger(v.get())));
+		}
+		
+		return ret;
 	}
 
 }

@@ -7,9 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
@@ -32,10 +35,12 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
+import com.telecominfraproject.wlan.core.model.pair.PairStringLong;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -68,6 +73,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         "details",
         "latitude",
         "longitude", 
+        "baseMacAddress",
+        "manufacturerOui",
         "serial",
         //make sure the order of properties matches this list and list in EquipmentRowMapper and list in create/update methods
         
@@ -180,6 +187,9 @@ public class EquipmentDAO extends BaseJdbcDao {
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
+    private static final String SQL_GET_EQUIPMENT_COUNTS_FOR_CUSTOMER = "select manufacturerOui, count(1) from "
+            + TABLE_NAME + " " + " where customerId = ? group by manufacturerOui ";
+
 
     private static final RowMapper<Equipment> equipmentRowMapper = new EquipmentRowMapper();
 
@@ -190,6 +200,19 @@ public class EquipmentDAO extends BaseJdbcDao {
 			PairLongLong pair = new PairLongLong();
 		    int colIdx=1;
 		    pair.setValue1(rs.getLong(colIdx++));
+		    pair.setValue2(rs.getLong(colIdx++));
+		    
+		    return pair;
+		}
+	};
+
+    private static final RowMapper<PairStringLong> pairStringLongRowMapper = new RowMapper<PairStringLong>() {
+		
+		@Override
+		public PairStringLong mapRow(ResultSet rs, int rowNum) throws SQLException {
+			PairStringLong pair = new PairStringLong();
+		    int colIdx=1;
+		    pair.setValue1(rs.getString(colIdx++));
 		    pair.setValue2(rs.getLong(colIdx++));
 		    
 		    return pair;
@@ -226,6 +249,8 @@ public class EquipmentDAO extends BaseJdbcDao {
                       	ps.setBytes(colIdx++, (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null);
                       	ps.setString(colIdx++, equipment.getLatitude());
                       	ps.setString(colIdx++, equipment.getLongitude());
+                      	ps.setString(colIdx++, (equipment.getBaseMacAddress()!=null)?equipment.getBaseMacAddress().getAddressAsString():null);
+                      	ps.setString(colIdx++, (equipment.getBaseMacAddress()!=null)?equipment.getBaseMacAddress().toOuiString():null);
                       	ps.setString(colIdx++, equipment.getSerial());
                         
                         ps.setLong(colIdx++, ts);
@@ -319,6 +344,8 @@ public class EquipmentDAO extends BaseJdbcDao {
                 (equipment.getDetails()!=null)?equipment.getDetails().toZippedBytes():null ,
                 equipment.getLatitude(),
                 equipment.getLongitude(),
+              	(equipment.getBaseMacAddress()!=null)?equipment.getBaseMacAddress().getAddressAsString():null ,
+                (equipment.getBaseMacAddress()!=null)?equipment.getBaseMacAddress().toOuiString():null ,
                 equipment.getSerial(),
                                 
                 //equipment.getCreatedTimestamp(), - not updating this one
@@ -819,6 +846,39 @@ public class EquipmentDAO extends BaseJdbcDao {
     		}
     	}
     	
+	}
+
+
+	public CustomerEquipmentCounts getEquipmentCounts(int customerId) {
+        List<PairStringLong> dbCounts = this.jdbcTemplate.query(SQL_GET_EQUIPMENT_COUNTS_FOR_CUSTOMER, new Object[] { customerId },
+        		pairStringLongRowMapper);
+        
+    	AtomicInteger totalCount = new AtomicInteger();
+    	Map<String, AtomicInteger> perOuiMap = new HashMap<>();
+    	
+    	dbCounts.forEach(
+        		(psl) -> {
+        				String oui = psl.getValue1();
+        				int eqCount = psl.getValue2().intValue();
+        				
+			        	totalCount.addAndGet(eqCount);
+			        	
+			        	if(oui!=null) {
+			        		AtomicInteger cnt = perOuiMap.get(oui);
+			        		if(cnt == null) {
+			        			cnt = new AtomicInteger();
+			        			perOuiMap.put(oui, cnt);
+			        		}
+			        		cnt.addAndGet(eqCount);
+			        	}
+        		});
+
+    	CustomerEquipmentCounts ret = new CustomerEquipmentCounts();
+    	ret.setCustomerId(customerId);
+    	ret.setTotalCount(totalCount.get());
+    	perOuiMap.forEach((oui, cnt) -> ret.getOuiCounts().put(oui, cnt.get()));
+
+        return ret;
 	}
 
 }

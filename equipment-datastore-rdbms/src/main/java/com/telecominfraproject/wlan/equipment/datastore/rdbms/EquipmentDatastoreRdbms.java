@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
@@ -106,5 +107,10 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     	}
 
     	return equipmentDAO.getEquipmentIdsByProfileIds(profileIds, context);
+    }
+    
+    @Override
+    public CustomerEquipmentCounts getEquipmentCounts(int customerId) {
+    	return equipmentDAO.getEquipmentCounts(customerId);
     }
 }

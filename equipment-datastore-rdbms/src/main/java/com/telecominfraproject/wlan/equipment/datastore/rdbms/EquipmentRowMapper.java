@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -49,6 +50,18 @@ public class EquipmentRowMapper implements RowMapper<Equipment> {
 
         equipment.setLatitude(rs.getString(colIdx++));
         equipment.setLongitude(rs.getString(colIdx++));
+        
+        String macStr = rs.getString(colIdx++);        
+        if(macStr!=null && !macStr.isEmpty()) {
+	        try {
+	            equipment.setBaseMacAddress(MacAddress.valueOf(macStr));
+	        } catch (RuntimeException exp) {
+	            LOG.warn("Failed to decode baseMacAddress {} from database for id = {}", macStr, equipment.getId());            	
+	        }
+        }
+        //skipping the next column - manufacturerOui - as it is derived from base mac. we only store that column to allow counting equipment by OUIs.
+        colIdx++;
+        
         equipment.setSerial(rs.getString(colIdx++));
         
         equipment.setCreatedTimestamp(rs.getLong(colIdx++));

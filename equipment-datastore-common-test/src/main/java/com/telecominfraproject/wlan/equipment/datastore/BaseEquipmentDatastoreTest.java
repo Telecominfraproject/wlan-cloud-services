@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -28,7 +29,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
-import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
@@ -132,6 +133,42 @@ public abstract class BaseEquipmentDatastoreTest {
         }catch(DsEntityNotFoundException e ){
         	//expected it
         }
+
+    }
+    
+    @Test
+    public void testEquipmentCounts() {
+    	Equipment equipment_1 = createEquipmentObject();
+    	Equipment equipment_2 = createEquipmentObject();
+    	equipment_2.setCustomerId(equipment_1.getCustomerId());
+
+        //create
+    	Equipment eq_1 = testInterface.create(equipment_1);
+    	Equipment eq_2 = testInterface.create(equipment_2);
+
+    	//retrieve
+        CustomerEquipmentCounts retrieved = testInterface.getEquipmentCounts(eq_1.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(2, retrieved.getTotalCount());
+        assertEquals(2, retrieved.getOuiCounts().get(eq_1.getBaseMacAddress().toOuiString()).intValue());
+
+        //delete eq_1
+        testInterface.delete(eq_1.getId());
+
+        //test with one equipment
+        retrieved = testInterface.getEquipmentCounts(eq_2.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(1, retrieved.getTotalCount());
+        assertEquals(1, retrieved.getOuiCounts().get(eq_2.getBaseMacAddress().toOuiString()).intValue());
+
+        //delete eq_2
+        testInterface.delete(eq_2.getId());
+
+        //test with no equipment
+        retrieved = testInterface.getEquipmentCounts(eq_1.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(0, retrieved.getTotalCount());
+        assertEquals(0, retrieved.getOuiCounts().size());
 
     }
     
@@ -611,6 +648,8 @@ public abstract class BaseEquipmentDatastoreTest {
         result.setName("test-" + nextId); 
         result.setProfileId(1);
         result.setLocationId(2);
+        result.setBaseMacAddress(new MacAddress(
+				new byte[] { (byte) 0x74, (byte) 0x9C, (byte) 0xE3, getRandomByte(), getRandomByte(), getRandomByte() }));
         result.setEquipmentType(EquipmentType.AP);
         result.setInventoryId("inv-" + result.getName());
         
@@ -623,4 +662,10 @@ public abstract class BaseEquipmentDatastoreTest {
 		
         return result;
     }
+    
+	private static byte getRandomByte() {
+		byte ret = (byte) (225 * Math.random());
+		return ret;
+	}
+
 }

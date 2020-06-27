@@ -1,5 +1,9 @@
 package com.telecominfraproject.wlan.streams.dashboard;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,18 +11,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
-import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
-import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
-import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
-import com.telecominfraproject.wlan.status.StatusServiceInterface;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
+import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
@@ -74,19 +74,16 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
         @Value("${tip.wlan.wlanServiceMetricsTopic:wlan_service_metrics}")
     	private String wlanServiceMetricsTopic;
         
+        @Value("${tip.wlan.customerPortalDashboard.timeBucketMs:300000}") //5 minutes aggregation buckets
+        private long timeBucketMs;
+
+        @Value("${tip.wlan.customerPortalDashboard.timeBucketsInFlight:3}") //maintain the last 3 aggregation buckets
+        private long timeBucketsInFlight;
+        
         @Autowired @Qualifier("customerEventStreamInterface") private StreamInterface<SystemEventRecord> customerEventStream;
 
-        @Autowired
-        private EquipmentGatewayServiceInterface equipmentGatewayInterface;
-        @Autowired
-        private ProfileServiceInterface profileServiceInterface;
-        @Autowired
-        private EquipmentServiceInterface equipmentServiceInterface;
-        @Autowired
-        private AlarmServiceInterface alarmServiceInterface;
-
-        @Autowired
-        private StatusServiceInterface statusServiceInterface;
+	    private ConcurrentHashMap<Integer, CustomerPortalDashboardPartialContext> contextPerCustomerIdMap = new ConcurrentHashMap<>();
+	    
 
 	    @Override
 	    protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -112,12 +109,12 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 	    protected void processMessage(QueuedStreamMessage message) {
 	    	
 	    	ServiceMetric mdl = (ServiceMetric) message.getModel();
-	    	ServiceMetricDetails se = mdl.getDetails();
+	    	ServiceMetricDetails smd = mdl.getDetails();
 	    	LOG.debug("Processing {}", mdl);
 	    	
-	    	switch ( se.getClass().getSimpleName() ) {
+	    	switch ( smd.getClass().getSimpleName() ) {
 	    	case "ApNodeMetrics":
-	    		process((ApNodeMetrics) se);
+	    		process(mdl.getCustomerId(), mdl.getCreatedTimestamp(), mdl.getEquipmentId(), (ApNodeMetrics) smd);
 	    		break;
 	    	default:
 	    		process(mdl);
@@ -125,9 +122,57 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 	    	
 	    }
 
-		private void process(ApNodeMetrics model) {
+		private void process(int customerId, long timestamp, long equipmentId, ApNodeMetrics model) {
 			LOG.debug("Processing ApNodeMetrics");
-			//equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(), model.getEquipmentId()));
+			//get context for the customerId
+			CustomerPortalDashboardPartialContext context = contextPerCustomerIdMap.get(customerId);
+			if(context == null) {
+				context = new CustomerPortalDashboardPartialContext(customerId);
+				context = contextPerCustomerIdMap.putIfAbsent(customerId, context);
+				if(context == null) {
+					context = contextPerCustomerIdMap.get(customerId);
+				}
+			}
+			
+			// Get CustomerPortalDashboardPartialEvent from the context for the timeBucket that corresponds to the ApNodeMetrics timestamp
+			long timeBucketId = timestamp - ( timestamp % timeBucketMs);
+			CustomerPortalDashboardPartialEvent partialEvent = context.getOrCreatePartialEvent(timeBucketId);
+			
+			// Update counters on the context and/or CustomerPortalDashboardPartialEvent
+			context.getEquipmentIds().add(equipmentId);
+			
+			if(model.getClientCount() > 0) {
+				context.getEquipmentIdsWithClients().add(equipmentId);
+			}
+			
+			context.addClientMacs(model);
+			
+			AtomicLong txBytes = new AtomicLong();
+			model.getTxBytesPerRadio().values().forEach(v -> txBytes.addAndGet(v));			
+			partialEvent.getTrafficBytesDownstream().addAndGet(txBytes.get());
+
+			AtomicLong rxBytes = new AtomicLong();
+			model.getRxBytesPerRadio().values().forEach(v -> rxBytes.addAndGet(v));			
+			partialEvent.getTrafficBytesUpstream().addAndGet(rxBytes.get());
+
+			LOG.debug("Processed {}", partialEvent);
+
+			
+			// Check the time - every (timeBucketsInFlight x timeBucket) ms get the oldest CustomerPortalDashboardPartialEvent from the context,
+			CustomerPortalDashboardPartialEvent oldestPartialEvent = context.getOldestPartialEventOrNull();
+			if(oldestPartialEvent!=null && oldestPartialEvent.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
+				// finalize oldestPartialEvent counters, and put it into customerEventStream
+				oldestPartialEvent.getEquipmentInServiceCount().set(context.getEquipmentIds().size());
+				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
+				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
+				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
+				
+				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
+				
+				//remove that oldest CustomerPortalDashboardPartialEvent from the context				
+				context.removePartialEvent(oldestPartialEvent.getTimeBucketId());
+				LOG.debug("Finalized processing of {}", oldestPartialEvent);
+			}
 		}
 
 		private void process(BaseJsonModel model) {
