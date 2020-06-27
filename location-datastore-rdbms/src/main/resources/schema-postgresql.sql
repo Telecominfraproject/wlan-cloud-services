@@ -10,7 +10,8 @@ create table if not exists equipment_location (
     details varchar(65535),
     
     createdTimestamp bigint not null,
-    lastModifiedTimestamp bigint not null
+    lastModifiedTimestamp bigint not null,
+    FOREIGN KEY (parentId) REFERENCES equipment_location(id) ON DELETE RESTRICT
 );
 
 create index if not exists idx_equipment_location_customerId on equipment_location (customerId);

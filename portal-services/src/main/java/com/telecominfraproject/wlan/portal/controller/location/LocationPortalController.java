@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.portal.controller.location;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 
@@ -39,6 +42,9 @@ public class LocationPortalController  {
 
     @Autowired
     private LocationServiceInterface locationServiceInterface;
+
+    @Autowired
+    private EquipmentServiceInterface equipmentServiceInterface;
 
     @RequestMapping(value = "/location", method = RequestMethod.GET)
     public Location getLocation(@RequestParam long locationId) {
@@ -71,6 +77,12 @@ public class LocationPortalController  {
     public Location deleteLocation(@RequestParam long locationId) {
         LOG.debug("Deleting location {}", locationId);
 
+        //check that there are no equipment at this location
+        PaginationResponse<PairLongLong> eqipmentAtLocation = equipmentServiceInterface.getEquipmentIdsByLocationIds(Collections.singleton(locationId), null);
+        if(!eqipmentAtLocation.getItems().isEmpty()) {
+        	throw new IllegalStateException("Cannot delete location because it contains equipment");
+        }
+        
         Location ret = locationServiceInterface.delete(locationId);
 
         return ret;
