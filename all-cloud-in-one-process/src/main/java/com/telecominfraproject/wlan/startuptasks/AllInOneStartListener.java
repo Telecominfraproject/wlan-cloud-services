@@ -57,8 +57,12 @@ import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
+import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
+import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
+import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
+import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
@@ -272,6 +276,22 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileSsid.setDetails(ssidConfig);
 		profileSsid = profileServiceInterface.create(profileSsid);
 
+		//Captive portal profile
+		Profile profileCaptivePortal = new Profile();
+		profileCaptivePortal.setCustomerId(customer.getId());
+		profileCaptivePortal.setName("Captive-portal");
+		CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
+		captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
+		captivePortalConfig.setBrowserTitle("Access the network as Guest");
+		captivePortalConfig.setExpiryType(SessionExpiryType.unlimited);
+		captivePortalConfig.setMaxUsersWithSameCredentials(42);
+		captivePortalConfig.setName(profileCaptivePortal.getName());
+		captivePortalConfig.setSuccessPageMarkdownText("Welcome to the network");
+		captivePortalConfig.setUserAcceptancePolicy("Use this network at your own risk. No warranty of any kind.");
+		profileCaptivePortal.setDetails(captivePortalConfig);
+		profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
+		
+		
 		Profile profileAp = new Profile();
 		profileAp.setCustomerId(customer.getId());
 		profileAp.setName("ApProfile");
