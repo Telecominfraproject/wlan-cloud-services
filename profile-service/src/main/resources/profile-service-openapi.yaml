@@ -842,7 +842,14 @@ components:
         - BRIDGE
         - NAT
         
-    
+    PairLongLong:
+      properties:
+        value1:
+          type: integer
+          format: int64
+        value2:
+          type: integer
+          format: int64
         
     
 ## ---------------------------------------------------------------------------
@@ -1017,7 +1024,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -1063,6 +1070,40 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
+  /api/profile/topLevelProfiles:
+     get:
+      tags:
+      - Profile Data
+      summary: Get top level profiles
+      operationId: getTopLevelProfiles
+      parameters:
+      - name: profileIdSet
+        in: query
+        description: Set of profile IDs
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PairLongLong'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
+          
+
+
+
+
 
 
 

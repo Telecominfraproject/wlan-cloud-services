@@ -722,7 +722,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -903,6 +903,17 @@ paths:
               items:
                 type: integer
                 format: long
+      - name: locationIds
+        in: query
+        description: Location IDs
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: long
       - name: sortBy
         in: query
         description: sort options
@@ -964,4 +975,8 @@ paths:
  
  
  
+
+
+
+
 

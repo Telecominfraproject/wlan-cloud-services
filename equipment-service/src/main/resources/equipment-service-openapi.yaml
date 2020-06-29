@@ -551,6 +551,15 @@ components:
         obssHopMode:
           $ref: '#/components/schemas/ObssHopMode'
           
+    PairLongLong:
+      properties:
+        value1:
+          type: integer
+          format: int64
+        value2:
+          type: integer
+          format: int64
+
     IntegerValueMap:
       type: object
       additionalProperties:
@@ -630,7 +639,7 @@ components:
       example: 
         model_type: PaginationContext
         maxItemsPerPage: 10
-
+  
     PaginationResponseEquipment:
       type: object
       properties:
@@ -640,6 +649,97 @@ components:
             $ref: '#/components/schemas/Equipment'
         context:
           $ref: '#/components/schemas/PaginationContextEquipment'
+      
+    PaginationContextPairLongLong:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        lastPage:
+          type: boolean
+        cursor:
+          type: string
+      example: 
+        model_type: PaginationContext
+        maxItemsPerPage: 10
+
+    PaginationResponsePairLongLong:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PairLongLong'
+        context:
+          $ref: '#/components/schemas/PaginationContextPairLongLong'
+          
+#
+# Equipment bulk update data models
+#
+
+    EquipmentRrmBulkUpdateRequest:
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/EquipmentRrmBulkUpdateItem'
+  
+    EquipmentRrmBulkUpdateItem:
+        properties:
+          equipmentId:
+            type: integer
+            format: int64
+          perRadioDetails:
+            $ref: '#/components/schemas/EquipmentRrmBulkUpdateItemPerRadioMap'
+            
+    EquipmentRrmBulkUpdateItemPerRadioMap:
+      properties:
+        is5GHz:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is5GHzU:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is5GHzL:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+        is2dot4GHz:
+          $ref: '#/components/schemas/RrmBulkUpdateApDetails'
+      
+    RrmBulkUpdateApDetails:
+      properties:
+        channelNumber:
+          # mapped to equipment->details->radioMap->channelNumber
+          type: integer
+          format: int32
+        rxCellSizeDb:
+          # equipment->details->radioMap->rxCellSizeDb->value
+          $ref: '#/components/schemas/AutoOrManualValue'
+        probeResponseThresholdDb:
+          #equipment->details->radioMap->probeResponseThresholdDb->value
+          $ref: '#/components/schemas/AutoOrManualValue'
+        clientDisconnectThresholdDb:
+          #equipment->details->radioMap->clientDisconnectThresholdDb->value
+          $ref: '#/components/schemas/AutoOrManualValue'
+        dropInSnrPercentage:
+          #equipment->details->radioMap->bestApSettings->dropInSnrPercentage
+          type: integer
+          format: int32
+        minLoadFactor:
+          #equipment->details->radioMap->bestApSettings->minLoadFactor
+          type: integer
+          format: int32
           
 ## ---------------------------------------------------------------------------
 security:
@@ -836,7 +936,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -942,6 +1042,114 @@ paths:
                   $ref: '#/components/schemas/ApElementConfiguration'
         500: 
           $ref: '#/components/responses/GenericApiError'
+  
+  /api/equipment/equipmentIdsByLocationIds:
+     get:
+      tags:
+      - Equipment Data
+      summary: Get equipment Ids by Location Ids
+      operationId: getEquipmentIdsByLocationIds
+      parameters:
+      - name: locationIds
+        in: query
+        description: Set of Location IDs
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      
+      - name: paginationContext
+        in: query
+        description: pagination context
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/PaginationContextPairLongLong'
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/PaginationResponsePairLongLong'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
+  
+  /api/equipment/equipmentIdsByProfileIds:
+     get:
+      tags:
+      - Equipment Data
+      summary: Get equipment Ids by Profile Ids
+      operationId: getEquipmentIdsByProfileIds
+      parameters:
+      - name: profile Ids
+        in: query
+        description: Set of profile IDs
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      
+      - name: paginationContext
+        in: query
+        description: pagination context
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/PaginationContextPairLongLong'
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/PaginationResponsePairLongLong'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
+          
+  /api/equipment/rrmBulk:
+    put:
+      tags:
+      - Equipment
+      summary: Update RRM related properties of Equipment in bulk
+      operationId: updateEquipmentRrmBulk
+      requestBody:
+        description: Equipment RRM bulk update request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentRrmBulkUpdateRequest'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+  
 
   /api/equipment/countsForCustomer:
      get:
