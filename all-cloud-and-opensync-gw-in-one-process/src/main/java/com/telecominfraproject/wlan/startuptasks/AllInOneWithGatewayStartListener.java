@@ -257,6 +257,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		profileSsidEAP.setChildProfileIds(childIds);
 		profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
+<<<<<<< HEAD
 		Profile profileSsid_3_radios = new Profile();
 		profileSsid_3_radios.setCustomerId(customer.getId());
 		profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
@@ -320,6 +321,26 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration)profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
 		profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
 		profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
+=======
+		Profile profileSsid = new Profile();
+		profileSsid.setCustomerId(customer.getId());
+		profileSsid.setName("TipWlan-cloud");
+		SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
+		Set<RadioType> appliedRadios = new HashSet<RadioType>();
+		appliedRadios.add(RadioType.is2dot4GHz);
+		appliedRadios.add(RadioType.is5GHzL);
+		appliedRadios.add(RadioType.is5GHzU);
+		ssidConfig.setAppliedRadios(appliedRadios);
+		profileSsid.setDetails(ssidConfig);
+		profileSsid = profileServiceInterface.create(profileSsid);
+
+		Profile profileAp = new Profile();
+		profileAp.setCustomerId(customer.getId());
+		profileAp.setName("ApProfile");
+		profileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
+		profileAp.getChildProfileIds().add(profileSsid.getId());
+		profileAp = profileServiceInterface.create(profileAp);
+>>>>>>> ConnectUs Reference Changes
 
 		Profile enterpriseProfileAp = new Profile();
 		enterpriseProfileAp.setCustomerId(customer.getId());

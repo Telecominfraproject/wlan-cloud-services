@@ -314,6 +314,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
         profileAp_3_radios.setDetails(ApNetworkConfiguration.createWithDefaults());
+	
         Map<RadioType, RadioProfileConfiguration> radioProfileMap_3_radios = new HashMap<>();
         radioProfileMap_3_radios.put(RadioType.is2dot4GHz,
                 RadioProfileConfiguration.createWithDefaults(RadioType.is2dot4GHz));
