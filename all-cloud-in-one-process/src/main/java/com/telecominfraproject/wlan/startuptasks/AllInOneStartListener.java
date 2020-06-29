@@ -140,6 +140,8 @@ public class AllInOneStartListener implements ApplicationRunner {
     @Value("${tip.wlan.numEquipmentToCreateOnStartup:50}")
 	private int numEquipmentToCreateOnStartup;
 
+    @Value("${tip.wlan.numClientsPerApToCreateOnStartup:0}")
+	private int numClientsPerApToCreateOnStartup;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -348,7 +350,13 @@ public class AllInOneStartListener implements ApplicationRunner {
 		Map<String, Long> equipmentProfileIdPerModel = new HashMap<>();
 		equipmentProfileIdPerModel.put(EquipmentAutoProvisioningSettings.DEFAULT_MODEL_NAME, profileAp_3_radios.getId());
 		equipmentProfileIdPerModel.put("EA8300-CA", profileAp_3_radios.getId());
+		equipmentProfileIdPerModel.put("EA8300", profileAp_3_radios.getId());
 		equipmentProfileIdPerModel.put("TIP_AP", profileAp_2_radios.getId());
+		equipmentProfileIdPerModel.put("ECW5410", profileAp_2_radios.getId());
+		equipmentProfileIdPerModel.put("ECW5211", profileAp_2_radios.getId());
+		equipmentProfileIdPerModel.put("AP2220", profileAp_2_radios.getId());
+		
+		
 		
 		autoProvisioning.setEquipmentProfileIdPerModel(equipmentProfileIdPerModel );
 		details.setAutoProvisioning(autoProvisioning);
@@ -685,7 +693,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 	}
 
 	private void createClientSessions(Equipment equipment, SsidConfiguration ssidConfig) {
-		int numClientsPerAp = 20;
+		int numClientsPerAp = numClientsPerApToCreateOnStartup;
 		Client client;
 		ClientSession clientSession;
 		MacAddress macAddress;
