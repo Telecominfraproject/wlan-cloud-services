@@ -319,6 +319,12 @@
       </dependency>
 
       <dependency>
+        <artifactId>dashboard-sp</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+      <dependency>
         <artifactId>equipment-gateway-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>

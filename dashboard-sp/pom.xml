@@ -18,12 +18,13 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
-      <!-- this is needed so that the stream processors can directly post messages to topics - to aggregate partial results, etc. -->
       <dependency>
-        <artifactId>kafka-streams</artifactId>
+        <!-- this is needed so that the stream processors can directly post messages to topics - to aggregate partial results, etc. -->
+        <artifactId>base-stream-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
 
       <dependency>
         <artifactId>service-metric-models</artifactId>

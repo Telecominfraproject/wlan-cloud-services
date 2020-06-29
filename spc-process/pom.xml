@@ -33,6 +33,13 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
+      <!-- this is needed so that the stream processors can directly post messages to topics - to aggregate partial results, etc. -->
+      <dependency>
+        <artifactId>kafka-streams</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
       <!-- Stream Processor modules -->
       <dependency>
         <artifactId>provisioning-sp</artifactId>
