@@ -256,6 +256,29 @@ components:
             $ref: '#/components/schemas/Alarm'
         context:
           $ref: '#/components/schemas/PaginationContextAlarm'    
+          
+    AlarmCounts:
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        countsPerEquipmentIdMap:
+          $ref: '#/components/schemas/CountsPerEquipmentIdPerAlarmCodeMap'
+        totalCountsPerAlarmCodeMap:
+          $ref: '#/components/schemas/CountsPerAlarmCodeMap'
+
+    CountsPerAlarmCodeMap:
+      description: map of AlarmCode to the integer count of alarms
+      type: object
+      additionalProperties:
+        type: integer
+        format: int32
+
+    CountsPerEquipmentIdPerAlarmCodeMap:
+      description: map of AlarmCode to the integer count of alarms
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/CountsPerAlarmCodeMap'
 
 #
 # Other related objects
@@ -543,7 +566,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -564,10 +587,57 @@ paths:
                   $ref: '#/components/schemas/PaginationResponseAlarm'
         500:
           $ref: '#/components/responses/GenericApiError'
-    
+  
+  /api/alarm/counts:
+    get:
+      tags:
+      - Alarm Data
+      summary: Get counts of Alarms for customerId, optional set of equipment ids, optional set of alarm codes.
+      operationId: getAlarmCounts
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIdSet
+        in: query
+        description: Set of equipment ids. Empty or null means retrieve for all equipment for the customer.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: alarmCodeSet
+        in: query
+        description: Set of alarm codes.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AlarmCode'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlarmCounts'
+        500:
+          $ref: '#/components/responses/GenericApiError'  
 
   
   
+
+
+
 
 
 

@@ -1263,7 +1263,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -1374,6 +1374,53 @@ paths:
                 items:
                   $ref: '#/components/schemas/Status'
         500: 
+          $ref: '#/components/responses/GenericApiError'
+          
+  /api/status/forEquipmentWithFilters:
+     get:
+      tags:
+      - Status Data
+      summary: Get equipment with filters
+      operationId: getForEquipment
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: Set of Equipment IDs
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: statusDataTypes
+        in: query
+        description: Status Data Types
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                 $ref: '#/components/schemas/StatusDataType'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+        500:
           $ref: '#/components/responses/GenericApiError'
   
   
