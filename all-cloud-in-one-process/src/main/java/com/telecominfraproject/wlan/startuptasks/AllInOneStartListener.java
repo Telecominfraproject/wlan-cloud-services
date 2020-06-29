@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
 import com.telecominfraproject.wlan.customer.models.Customer;
+import com.telecominfraproject.wlan.customer.models.CustomerDetails;
+import com.telecominfraproject.wlan.customer.models.EquipmentAutoProvisioningSettings;
 import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
@@ -62,9 +65,9 @@ import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalCo
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
-import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
+import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
@@ -156,7 +159,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		customer = customerServiceInterface.create(customer);
 
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 5; i++) {
 			PortalUser portalUser = new PortalUser();
 			portalUser.setCustomerId(customer.getId());
 			portalUser.setRole(PortalUserRole.CustomerIT);
@@ -248,7 +251,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
 		Profile profileSsidEAP = new Profile();
 		profileSsidEAP.setCustomerId(customer.getId());
-		profileSsidEAP.setName("Connectus-cloud-Enterprise");
+		profileSsidEAP.setName("TipWlan-cloud-Enterprise");
 		SsidConfiguration ssidConfigEAP = SsidConfiguration.createWithDefaults();
 		Set<RadioType> appliedRadiosEAP = new HashSet<RadioType>();
 		appliedRadiosEAP.add(RadioType.is2dot4GHz);
@@ -264,17 +267,30 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileSsidEAP.setChildProfileIds(childIds);
 		profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
-		Profile profileSsid = new Profile();
-		profileSsid.setCustomerId(customer.getId());
-		profileSsid.setName("Connectus-cloud");
-		SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
-		Set<RadioType> appliedRadios = new HashSet<RadioType>();
-		appliedRadios.add(RadioType.is2dot4GHz);
-		appliedRadios.add(RadioType.is5GHzL);
-		appliedRadios.add(RadioType.is5GHzU);
-		ssidConfig.setAppliedRadios(appliedRadios);
-		profileSsid.setDetails(ssidConfig);
-		profileSsid = profileServiceInterface.create(profileSsid);
+		Profile profileSsid_3_radios = new Profile();
+		profileSsid_3_radios.setCustomerId(customer.getId());
+		profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
+		SsidConfiguration ssidConfig_3_radios = SsidConfiguration.createWithDefaults();
+		Set<RadioType> appliedRadios_3_radios = new HashSet<RadioType>();
+		appliedRadios_3_radios.add(RadioType.is2dot4GHz);
+		appliedRadios_3_radios.add(RadioType.is5GHzL);
+		appliedRadios_3_radios.add(RadioType.is5GHzU);
+		ssidConfig_3_radios.setAppliedRadios(appliedRadios_3_radios);
+		ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
+		profileSsid_3_radios.setDetails(ssidConfig_3_radios);
+		profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
+
+		Profile profileSsid_2_radios = new Profile();
+		profileSsid_2_radios.setCustomerId(customer.getId());
+		profileSsid_2_radios.setName("TipWlan-cloud-2-radios");
+		SsidConfiguration ssidConfig_2_radios = SsidConfiguration.createWithDefaults();
+		Set<RadioType> appliedRadios_2_radios = new HashSet<RadioType>();
+		appliedRadios_2_radios.add(RadioType.is2dot4GHz);
+		appliedRadios_2_radios.add(RadioType.is5GHz);
+		ssidConfig_2_radios.setAppliedRadios(appliedRadios_2_radios);
+		ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
+		profileSsid_2_radios.setDetails(ssidConfig_2_radios);
+		profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
 
 		//Captive portal profile
 		Profile profileCaptivePortal = new Profile();
@@ -292,12 +308,28 @@ public class AllInOneStartListener implements ApplicationRunner {
 		profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
 		
 		
-		Profile profileAp = new Profile();
-		profileAp.setCustomerId(customer.getId());
-		profileAp.setName("ApProfile");
-		profileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
-		profileAp.getChildProfileIds().add(profileSsid.getId());
-		profileAp = profileServiceInterface.create(profileAp);
+		Profile profileAp_3_radios = new Profile();
+		profileAp_3_radios.setCustomerId(customer.getId());
+		profileAp_3_radios.setName("ApProfile-3-radios");
+		profileAp_3_radios.setDetails(ApNetworkConfiguration.createWithDefaults());
+        Map<RadioType, RadioProfileConfiguration> radioProfileMap_3_radios = new HashMap<>();
+        radioProfileMap_3_radios.put(RadioType.is2dot4GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+        radioProfileMap_3_radios.put(RadioType.is5GHzL, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzL));
+        radioProfileMap_3_radios.put(RadioType.is5GHzU, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
+        ((ApNetworkConfiguration)profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
+		profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
+		profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
+
+		Profile profileAp_2_radios = new Profile();
+		profileAp_2_radios.setCustomerId(customer.getId());
+		profileAp_2_radios.setName("ApProfile-2-radios");
+		profileAp_2_radios.setDetails(ApNetworkConfiguration.createWithDefaults());
+        Map<RadioType, RadioProfileConfiguration> radioProfileMap_2_radios = new HashMap<>();
+        radioProfileMap_2_radios.put(RadioType.is2dot4GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+        radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
+        ((ApNetworkConfiguration)profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
+		profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
+		profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
 		Profile enterpriseProfileAp = new Profile();
 		enterpriseProfileAp.setCustomerId(customer.getId());
@@ -305,6 +337,25 @@ public class AllInOneStartListener implements ApplicationRunner {
 		enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
 		enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
 		enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
+		
+		//configure equipment auto-provisioning for the customer
+		CustomerDetails details = new CustomerDetails();
+		EquipmentAutoProvisioningSettings autoProvisioning = new EquipmentAutoProvisioningSettings();
+		autoProvisioning.setEnabled(true);
+		autoProvisioning.setLocationId(location_2.getId());
+		
+		//populate auto-provisioning equipment profiles per model
+		Map<String, Long> equipmentProfileIdPerModel = new HashMap<>();
+		equipmentProfileIdPerModel.put(EquipmentAutoProvisioningSettings.DEFAULT_MODEL_NAME, profileAp_3_radios.getId());
+		equipmentProfileIdPerModel.put("EA8300-CA", profileAp_3_radios.getId());
+		equipmentProfileIdPerModel.put("TIP_AP", profileAp_2_radios.getId());
+		
+		autoProvisioning.setEquipmentProfileIdPerModel(equipmentProfileIdPerModel );
+		details.setAutoProvisioning(autoProvisioning);
+		
+		customer.setDetails(details );
+		customer = customerServiceInterface.update(customer);
+
 
 		List<Equipment> equipmentList = new ArrayList<>();
 
@@ -323,14 +374,14 @@ public class AllInOneStartListener implements ApplicationRunner {
 			} else if (i <= 32) {
 				equipment.setLocationId(location_1_2.getId());
 			} else {
-				equipment.setLocationId(location_2.getId());
+				equipment.setLocationId(location_1_2.getId());
 			}
 
 			// spread AP profiles between Enterprise SSID based and SSID
 			// setting the region to the location used in location_2, so assign profiles
 			// based on this
 			if (i <= 32) {
-				equipment.setProfileId(profileAp.getId());
+				equipment.setProfileId(profileAp_3_radios.getId());
 			} else {
 				equipment.setProfileId(enterpriseProfileAp.getId());
 			}
@@ -368,7 +419,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 			createAlarmsForEquipment(equipment);
 
 			if (i <= 32) {
-				createClientSessions(equipment, ssidConfig);
+				createClientSessions(equipment, ssidConfig_3_radios);
 			} else {
 				createClientSessions(equipment, ssidConfigEAP);
 			}

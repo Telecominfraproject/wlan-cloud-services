@@ -7,6 +7,8 @@ CREATE TABLE customer_info (
     email varchar(320),
     name varchar(100),
 
+    details varbinary(65535),
+
     createdTimestamp bigint NOT NULL,
     lastModifiedTimestamp bigint NOT NULL
 

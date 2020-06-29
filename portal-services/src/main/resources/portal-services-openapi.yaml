@@ -148,6 +148,8 @@ components:
           format: email
         name:
           type: string
+        details:
+          $ref: '#/components/schemas/CustomerDetails'
         createdTimestamp:
           type: integer
           format: int64
@@ -155,6 +157,22 @@ components:
           description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
           type: integer
           format: int64
+          
+    CustomerDetails:
+      properties:
+        autoProvisioning:
+          $ref: '#/components/schemas/EquipmentAutoProvisioningSettings'
+        
+    EquipmentAutoProvisioningSettings:
+      properties:
+        enabled:
+          type: boolean
+        locationId:
+          description: auto-provisioned equipment will appear under this location
+          type: integer
+          format: int64
+        equipmentProfileIdPerModel:
+          $ref: '#/components/schemas/LongValueMap'
 
 #
 # Location data models
@@ -2345,6 +2363,12 @@ components:
       type: object
       additionalProperties:
         type: integer
+
+    LongValueMap:
+      type: object
+      additionalProperties:
+        type: integer
+        format: int64
     
     UserDetails:
       type: object

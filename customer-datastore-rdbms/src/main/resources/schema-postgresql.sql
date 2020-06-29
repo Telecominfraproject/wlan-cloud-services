@@ -4,6 +4,8 @@ create table if not exists customer_info (
 
     email varchar(320) ,
     name varchar(100),
+    
+    details bytea,
 
     createdTimestamp bigint not null,
     lastModifiedTimestamp bigint not null

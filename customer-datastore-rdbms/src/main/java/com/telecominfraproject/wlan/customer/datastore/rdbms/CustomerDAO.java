@@ -45,7 +45,7 @@ public class CustomerDAO extends BaseJdbcDao {
     private static final String[] GENERATED_KEY_COLS = { COL_ID };
 
     static final String[] ALL_COLUMNS_LIST = { COL_ID, 
-    		"email", "name", 
+    		"email", "name", "details", 
             "createdTimestamp", "lastModifiedTimestamp" };
 
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
@@ -140,6 +140,7 @@ public class CustomerDAO extends BaseJdbcDao {
 
                     ps.setString(colIdx++, customer.getEmail().toLowerCase());
                     ps.setString(colIdx++, customer.getName());
+                  	ps.setBytes(colIdx++, (customer.getDetails()!=null)?customer.getDetails().toZippedBytes():null);
                     
                     ps.setLong(colIdx++, ts);
                     ps.setLong(colIdx++, ts);
@@ -250,6 +251,7 @@ public class CustomerDAO extends BaseJdbcDao {
                 // customer.getId(), - not updating this one
                 customer.getEmail(),
                 customer.getName(),
+                (customer.getDetails()!=null)?customer.getDetails().toZippedBytes():null ,
                 
                 //customer.getCreatedTimestamp(), - not updating this one 
                 newLastModifiedTs,

@@ -15,6 +15,8 @@ public class Customer extends BaseJsonModel{
     private String name;
     private String email;
 
+    private CustomerDetails details;
+    
     private long createdTimestamp;
     private long lastModifiedTimestamp;
 
@@ -27,6 +29,7 @@ public class Customer extends BaseJsonModel{
         this.id = customer.id;
         this.name = customer.name;
         this.email = customer.email;
+        this.details = details;
         this.createdTimestamp = customer.createdTimestamp;
         this.lastModifiedTimestamp = customer.lastModifiedTimestamp;
     }
@@ -34,7 +37,10 @@ public class Customer extends BaseJsonModel{
     @Override
     public Customer clone() {
         Customer ret = (Customer) super.clone();
-
+        if(details!=null) {
+        	ret.details = details.clone();
+        }
+        
         return ret;
     }
 
@@ -100,6 +106,14 @@ public class Customer extends BaseJsonModel{
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public CustomerDetails getDetails() {
+		return details;
+	}
+
+	public void setDetails(CustomerDetails details) {
+		this.details = details;
 	}
     
 }
