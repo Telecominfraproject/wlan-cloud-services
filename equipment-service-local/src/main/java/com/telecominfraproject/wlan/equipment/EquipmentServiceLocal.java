@@ -15,6 +15,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -107,5 +108,10 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
     public PaginationResponse<PairLongLong> getEquipmentIdsByProfileIds(Set<Long> profileIds,
     		PaginationContext<PairLongLong> context) {
     	return equipmentController.getEquipmentIdsByProfileIds(profileIds, context);
+    }
+    
+    @Override
+    public CustomerEquipmentCounts getEquipmentCounts(int customerId) {
+    	return equipmentController.getEquipmentCounts(customerId);
     }
 }

@@ -25,7 +25,7 @@ public class LocationRowMapper implements RowMapper<Location> {
         location.setLocationType(LocationType.getById(rs.getInt(colIdx++)));
         location.setCustomerId(rs.getInt(colIdx++));
         location.setName(rs.getString(colIdx++));
-        location.setParentId(rs.getLong(colIdx++));
+        location.setParentId(rs.getLong(colIdx++)); //when DB value is null, parentId is set to 0
         location.setDetails(LocationDAO.generateDetails(rs.getString(colIdx++)));
         location.setCreatedTimestamp(rs.getLong(colIdx++));
         location.setLastModifiedTimestamp(rs.getLong(colIdx++));

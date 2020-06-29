@@ -179,6 +179,7 @@
                                 <module>../filestore-service</module>
 
                                 <module>../provisioning-sp</module>
+                                <module>../dashboard-sp</module>
                                 
                                 <module>../single-process-streams</module>
                                 <module>../kafka-streams</module>

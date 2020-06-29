@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.location.datastore.rdbms;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -148,10 +149,10 @@ public class LocationDAO extends BaseJdbcDao {
             + " UNION "
             + " SELECT " + ALL_COLUMNS_WITH_PREFIX
             + " FROM "+TABLE_NAME+" s" + " JOIN recursetree rt ON rt.parentid = s.id)"
-            + " SELECT * FROM recursetree where parentid = 0";
+            + " SELECT * FROM recursetree where parentid is null";
 
     private static final String SQL_GET_ALL_TOP_LEVEL = "select " + ALL_COLUMNS + " from " + TABLE_NAME + " "
-            + " where parentid = 0";
+            + " where parentid is null";
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
@@ -183,7 +184,11 @@ public class LocationDAO extends BaseJdbcDao {
                     ps.setInt(colIdx++, location.getLocationType().getId());
                     ps.setInt(colIdx++, location.getCustomerId());
                     ps.setString(colIdx++, location.getName());
-                    ps.setLong(colIdx++, location.getParentId());
+                    if(location.getParentId()>0) {
+	                    ps.setLong(colIdx++, location.getParentId());
+	                }else {
+	                	ps.setNull(colIdx++, Types.BIGINT);
+	                }
                     ps.setString(colIdx++, generatePatch(location.getDetails()));
                     ps.setLong(colIdx++, ts);
                     ps.setLong(colIdx++, ts);
@@ -226,8 +231,10 @@ public class LocationDAO extends BaseJdbcDao {
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE,
                 // location.getId(), - not updating this one
                 // Add remaining properties from Location here
-                location.getLocationType().getId(), location.getCustomerId(),
-                location.getName(), location.getParentId(),
+                location.getLocationType().getId(), 
+                location.getCustomerId(),
+                location.getName(), 
+                location.getParentId()>0?location.getParentId():null,
                 generatePatch(location.getDetails()),
                 // location.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,

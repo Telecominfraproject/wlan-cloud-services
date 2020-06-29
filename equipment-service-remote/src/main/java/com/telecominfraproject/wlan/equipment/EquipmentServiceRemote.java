@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -319,7 +320,25 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         }
 
     }
-    
+
+    @Override
+    public CustomerEquipmentCounts getEquipmentCounts(int customerId) {
+        LOG.debug("calling getEquipmentCounts( {} )", customerId);
+
+        try {
+            ResponseEntity<CustomerEquipmentCounts> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/countsForCustomer?customerId={customerId}", HttpMethod.GET,
+                    null, CustomerEquipmentCounts.class, customerId);
+
+            CustomerEquipmentCounts result = responseEntity.getBody();
+            LOG.debug("getEquipmentCounts({}) returns {} ", customerId, result);
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getEquipmentCounts({}) exception ", customerId, exp);
+            throw exp;
+        }
+
+    }
     
     public String getBaseUrl() {
         if(baseUrl==null) {

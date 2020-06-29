@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,6 +32,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
@@ -420,5 +422,12 @@ public class EquipmentController {
 
         return new GenericResponse(true, "");
     }
+
+    @GetMapping("/countsForCustomer")
+	public CustomerEquipmentCounts getEquipmentCounts(@RequestParam int customerId) {
+		CustomerEquipmentCounts ret = equipmentDatastore.getEquipmentCounts(customerId);
+        LOG.debug("getEquipmentCounts({})  {}", customerId, ret);
+		return ret;
+	}
 
 }

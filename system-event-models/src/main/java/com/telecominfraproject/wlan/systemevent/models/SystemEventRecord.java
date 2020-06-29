@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 
 /**
@@ -24,18 +26,17 @@ public class SystemEventRecord extends BaseJsonModel implements HasProducedTimes
         // for serialization
     }
 
-    @SuppressWarnings("rawtypes")
     public SystemEventRecord(SystemEvent systemEvent) {
         this.eventTimestamp = systemEvent.getEventTimestamp();
         this.dataType = systemEvent.getClass().getSimpleName();
         this.details = systemEvent;
         
-        if(systemEvent instanceof CustomerEvent){
-            this.customerId = ((CustomerEvent)systemEvent).getCustomerId();
+        if(systemEvent instanceof HasCustomerId){
+            this.customerId = ((HasCustomerId)systemEvent).getCustomerId();
         }
         
-        if(systemEvent instanceof EquipmentEvent){
-            this.equipmentId = ((EquipmentEvent)systemEvent).getEquipmentId();
+        if(systemEvent instanceof HasEquipmentId){
+            this.equipmentId = ((HasEquipmentId)systemEvent).getEquipmentId();
         }
     }
     

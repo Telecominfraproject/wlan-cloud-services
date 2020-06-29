@@ -2,12 +2,14 @@ package com.telecominfraproject.wlan.systemevent.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+
 /**
  * @author dtoptygin
  * @param <T>
  *
  */
-public abstract class EquipmentEvent<T> extends CustomerEvent<T> {
+public abstract class EquipmentEvent<T> extends CustomerEvent<T> implements HasEquipmentId {
 
     private static final long serialVersionUID = -3139345444294000637L;
 

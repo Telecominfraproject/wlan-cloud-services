@@ -11,6 +11,6 @@ insert into equipment_location (
     1,
     1,
     'testName',
-    0,
+    null,
     0,0
 );

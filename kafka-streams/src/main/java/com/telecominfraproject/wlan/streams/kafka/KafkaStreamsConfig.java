@@ -27,7 +27,14 @@ public class KafkaStreamsConfig {
         
         @Value("${tip.wlan.systemEventsTopic:system_events}")
     	private String systemEventsTopic;
-    	
+
+        @Value("${tip.wlan.customerEventsTopic:customer_events}")
+    	private String customerEventsTopic;
+
+        /**
+         * @param producer
+         * @return interface for publishing wlan service metrics into a topic that is partitioned by customerId, equipmentId, clientMac and dataType.
+         */
         @Bean
         public StreamInterface<ServiceMetric> metricStreamInterface(@Autowired Producer<String,  byte[]> producer) {
         	StreamInterface<ServiceMetric> si = new StreamInterface<ServiceMetric>() {
@@ -48,6 +55,10 @@ public class KafkaStreamsConfig {
               return si;
         }
         
+        /**
+         * @param producer
+         * @return interface for publishing system events into a topic that is partitioned by customerId, equipmentId and dataType.
+         */
         @Bean
         public StreamInterface<SystemEventRecord> eventStreamInterface(@Autowired Producer<String,  byte[]> producer) {
         	StreamInterface<SystemEventRecord> si = new StreamInterface<SystemEventRecord>() {
@@ -67,5 +78,32 @@ public class KafkaStreamsConfig {
               
               return si;
         }
+
+        /**
+		 * @param producer
+		 * @return interface for publishing system invents into a topic that is
+		 *         partitioned only by customerId - used to combine results of partial
+		 *         aggregations into customer-centric view
+		 */
+        @Bean
+        public StreamInterface<SystemEventRecord> customerEventStreamInterface(@Autowired Producer<String,  byte[]> producer) {
+        	StreamInterface<SystemEventRecord> si = new StreamInterface<SystemEventRecord>() {
+
+                {
+                    LOG.info("*** Using kafka stream for the customer events");
+                }
+                
+                @Override
+                public void publish(SystemEventRecord record) {
+                	LOG.trace("publishing customer event {}", record);
+                	String recordKey = record.getCustomerId() + "_" + record.getDataType(); 
+                	producer.send(new ProducerRecord<String, byte[]>(customerEventsTopic, recordKey, record.toZippedBytes()));                	
+                }
+                
+              };
+              
+              return si;
+        }
+
 
 }

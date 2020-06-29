@@ -560,6 +560,23 @@ components:
           type: integer
           format: int64
 
+    IntegerValueMap:
+      type: object
+      additionalProperties:
+        type: integer
+
+    CustomerEquipmentCounts:
+      description: counts for the equipment provisioned for a single customer
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int32
+        ouiCounts:
+          $ref: '#/components/schemas/IntegerValueMap'
+          
 #
 # Objects related to pagination
 #
@@ -1133,8 +1150,28 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
   
+
+  /api/equipment/countsForCustomer:
+     get:
+      tags:
+      - Equipment Data
+      summary: Count provisioned equipment for a given customer
+      operationId: getEquipmentCounts
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/CustomerEquipmentCounts'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
   
-
-
-
-

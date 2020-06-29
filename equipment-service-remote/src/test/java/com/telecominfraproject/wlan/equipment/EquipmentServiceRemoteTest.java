@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.google.common.collect.Lists;
 import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -34,6 +35,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
@@ -131,6 +133,51 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         
     }
     
+    @Test
+    public void testEquipmentCounts() {
+        Equipment equipment_1 = new Equipment();
+        equipment_1.setName("testName-"+getNextEquipmentId());
+        equipment_1.setInventoryId("test-inv-"+getNextEquipmentId());
+        equipment_1.setEquipmentType(EquipmentType.AP);
+        equipment_1.setCustomerId(getNextCustomerId());
+        equipment_1.setBaseMacAddress(new MacAddress( new byte[] { (byte) 0x74, (byte) 0x9C, (byte) 0xE3, 0x01, 0x02, 0x03 }));
+        
+        Equipment equipment_2 = new Equipment();
+        equipment_2.setName("testName-"+getNextEquipmentId());
+        equipment_2.setInventoryId("test-inv-"+getNextEquipmentId());
+        equipment_2.setEquipmentType(EquipmentType.AP);
+    	equipment_2.setCustomerId(equipment_1.getCustomerId());
+        equipment_2.setBaseMacAddress(new MacAddress( new byte[] { (byte) 0x74, (byte) 0x9C, (byte) 0xE3, 0x01, 0x02, 0x04 }));
+
+        //create
+    	Equipment eq_1 = remoteInterface.create(equipment_1);
+    	Equipment eq_2 = remoteInterface.create(equipment_2);
+
+    	//retrieve
+        CustomerEquipmentCounts retrieved = remoteInterface.getEquipmentCounts(eq_1.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(2, retrieved.getTotalCount());
+        assertEquals(2, retrieved.getOuiCounts().get(eq_1.getBaseMacAddress().toOuiString()).intValue());
+
+        //delete eq_1
+        remoteInterface.delete(eq_1.getId());
+
+        //test with one equipment
+        retrieved = remoteInterface.getEquipmentCounts(eq_2.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(1, retrieved.getTotalCount());
+        assertEquals(1, retrieved.getOuiCounts().get(eq_2.getBaseMacAddress().toOuiString()).intValue());
+
+        //delete eq_2
+        remoteInterface.delete(eq_2.getId());
+
+        //test with no equipment
+        retrieved = remoteInterface.getEquipmentCounts(eq_1.getCustomerId());
+        assertNotNull(retrieved);
+        assertEquals(0, retrieved.getTotalCount());
+        assertEquals(0, retrieved.getOuiCounts().size());
+
+    }
     
     @Test
     public void testGetAllInSet() {

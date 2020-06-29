@@ -35,6 +35,12 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
 
     @Override
     public Location create(Location location) {
+    	if(location.getParentId()>0) {
+    		if(idToLocationMap.get(location.getParentId()) == null) {
+    			throw new IllegalStateException("Cannot create location with non-existing parent");
+    		}
+    	}
+    	
         Location locationCopy = location.clone();
 
         long id = locationIdCounter.incrementAndGet();
@@ -76,6 +82,12 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
             return null;
         }
 
+    	if(location.getParentId()>0) {
+    		if(idToLocationMap.get(location.getParentId()) == null) {
+    			throw new IllegalStateException("Cannot update location to non-existing parent");
+    		}
+    	}
+
         // Check for concurrent modification
         if (existingLocation.getLastModifiedTimestamp() != location.getLastModifiedTimestamp()) {
             LOG.debug(
@@ -109,6 +121,12 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
     @Override
     public Location delete(long locationId) {
         Location location = get(locationId);
+        
+        List<Location> descendants = getAllDescendants(locationId);
+        if(!descendants.isEmpty()) {
+        	throw new IllegalStateException("This location cannot be removed because it is not empty. Remove the contained locations first.");
+        }
+        
         idToLocationMap.remove(location.getId());
 
         LOG.debug("Deleted Location {}", location);

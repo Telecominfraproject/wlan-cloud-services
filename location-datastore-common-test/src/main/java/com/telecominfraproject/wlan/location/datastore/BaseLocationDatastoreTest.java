@@ -152,6 +152,14 @@ public abstract class BaseLocationDatastoreTest {
        assertTrue(children.contains(bartJr));
        assertTrue(children.contains(lisa));
        assertFalse(children.contains(flanders));
+       
+       try {
+    	   testInterface.delete(grandpa.getId());
+    	   fail("deleted location that has descendants");
+       } catch(Exception e) {
+    	   //expected it
+       }
+       
     }
 
     @Test
@@ -169,15 +177,31 @@ public abstract class BaseLocationDatastoreTest {
           Location bartJr = testInterface.create(generateLocation(bart.getId()));
 
           // Just to see if Flanders ends up in the mix
-          Location orphan = testInterface.create(generateLocation(999));
+          Location orphan = testInterface.create(generateLocation(0));
+          
+          try {
+        	  testInterface.create(generateLocation(999));
+        	  fail("created location with non-existing parent");
+          } catch(Exception e) {
+        	  //expected it
+          }
+
+          try {
+        	  Location orphanClone = orphan.clone();
+        	  orphanClone.setParentId(999);
+        	  testInterface.update(orphanClone);
+        	  fail("updated location to non-existing parent");
+          } catch(Exception e) {
+        	  //expected it
+          }
+
 
           Location topParent = testInterface.getTopLevelLocation(bart.getId());
           assertNotNull(topParent);
           assertFieldEquals(grandpa, topParent);
           
-          /* We'll test the case also where there's no proper parent */
           Location orphanParent = testInterface.getTopLevelLocation(orphan.getId());
-          assertNull(orphanParent);
+          assertFieldEquals(orphan, orphanParent);
           
     }
 
