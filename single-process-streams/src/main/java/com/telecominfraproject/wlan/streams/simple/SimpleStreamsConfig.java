@@ -33,7 +33,7 @@ public class SimpleStreamsConfig {
 	    @Value("${tip.wlan.simpleStreamQueueMax:5000}") 
 	    private int simpleStreamQueueMax;
 		
-	    @Value("${tip.wlan.purgeStreamRecordsOlderThanSec:600}") 
+	    @Value("${tip.wlan.purgeStreamRecordsOlderThanSec:1800}") 
 	    private int purgeStreamRecordsOlderThanSec;
 	
         @Value("${tip.wlan.wlanServiceMetricsTopic:wlan_service_metrics}")
