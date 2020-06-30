@@ -167,6 +167,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: wlan-cloud-services
+        ref: master
         fetch-depth: 0
     - name: Checkout dependency Telecominfraproject/wlan-cloud-root
       uses: actions/checkout@v2
@@ -207,7 +208,8 @@ jobs:
           cd $project
           echo "*** Project: ${project} ***"
           mvn clean install
-          mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project -Dsonar.pullrequest.base=master -Dsonar.pullrequest.key=13
+          # mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project -Dsonar.pullrequest.base=master -Dsonar.pullrequest.key=13
+          mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project
           cd $OLDPWD
         done
 #
