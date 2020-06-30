@@ -1,8 +1,12 @@
 package com.telecominfraproject.wlan.streams.dashboard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,27 +161,62 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 
 			LOG.debug("Processed {}", partialEvent);
 
-			
-			// Check the time - every (timeBucketsInFlight x timeBucket) ms get the oldest CustomerPortalDashboardPartialEvent from the context,
-			CustomerPortalDashboardPartialEvent oldestPartialEvent = context.getOldestPartialEventOrNull();
-			if(oldestPartialEvent!=null && oldestPartialEvent.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
-				// finalize oldestPartialEvent counters, and put it into customerEventStream
-				oldestPartialEvent.getEquipmentInServiceCount().set(context.getEquipmentIds().size());
-				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
-				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
-				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
-				
-				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
-				
-				//remove that oldest CustomerPortalDashboardPartialEvent from the context				
-				context.removePartialEvent(oldestPartialEvent.getTimeBucketId());
-				LOG.debug("Finalized processing of {}", oldestPartialEvent);
-			}
 		}
 
 		private void process(BaseJsonModel model) {
 			LOG.warn("Unprocessed model: {}", model);
 		}
 	    
+	    @PostConstruct
+	    private void postCreate() {
+	    	
+	    	Thread customerPortalDashboardPartialEventPusherThread = new Thread( new Runnable() {
+				
+				@Override
+				public void run() {
+					LOG.info("Starting customerPortalDashboardPartialEventPusherThread");
+					while(true) {
+	                	LOG.trace("Pushing partial events");
+
+	                	List<CustomerPortalDashboardPartialContext> contexts = new ArrayList<>(contextPerCustomerIdMap.values());
+		                	
+	                	contexts.forEach(context -> {
+		                	try {
+		                		// Get the oldest CustomerPortalDashboardPartialEvent from the context,
+			        			// if it is older than (timeBucketsInFlight x timeBucket) ms - finalize it and publish it 
+			        			CustomerPortalDashboardPartialEvent oldestPartialEvent = context.getOldestPartialEventOrNull();
+			        			if(oldestPartialEvent!=null && oldestPartialEvent.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
+			        				// finalize oldestPartialEvent counters, and put it into customerEventStream
+			        				oldestPartialEvent.getEquipmentInServiceCount().set(context.getEquipmentIds().size());
+			        				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
+			        				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
+			        				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
+			        				
+			        				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
+			        				
+			        				//remove that oldest CustomerPortalDashboardPartialEvent from the context				
+			        				context.removePartialEvent(oldestPartialEvent.getTimeBucketId());
+			        				LOG.trace("Finalized processing of {}", oldestPartialEvent);
+			        			}
+		                	} catch(Exception e) {
+		                		LOG.error("Error when processing context for customer {}", context.getCustomerId(), e);
+		                	}
+	                	});
+	                	
+	                	try {
+	                		Thread.sleep(10000);
+	                	} catch (InterruptedException e) {
+	                		Thread.currentThread().interrupt();
+						}
+	                	
+	                	LOG.trace("Done pushing partial events");
+					}
+				}
+			}, "customerPortalDashboardPartialEventPusherThread"); 
+	    	
+	    	customerPortalDashboardPartialEventPusherThread.setDaemon(true);
+	    	customerPortalDashboardPartialEventPusherThread.start();
+	    }
+
 	    
 }

@@ -1,7 +1,11 @@
 package com.telecominfraproject.wlan.streams.dashboard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +76,7 @@ public class CustomerPortalDashboardAggregator extends StreamProcessor {
         @Value("${tip.wlan.customerPortalDashboard.timeBucketMs:300000}") //5 minutes aggregation buckets
         private long timeBucketMs;
         
-        @Value("${tip.wlan.customerPortalDashboard.timeBucketsInFlight:3}") //maintain the last 3 aggregation buckets
+        @Value("${tip.wlan.customerPortalDashboard.timeBucketsInFlight:2}") //maintain the last 2 aggregation buckets
         private long timeBucketsInFlight;
 
         @Autowired 
@@ -141,31 +145,65 @@ public class CustomerPortalDashboardAggregator extends StreamProcessor {
 
 			LOG.debug("Processed {}", dashboardStatus);
 
-			
-			// Check the time - every (timeBucketsInFlight x timeBucket) ms get the oldest CustomerPortalDashboardStatus from the context,
-			CustomerPortalDashboardStatus oldestDashboardStatus = context.getOldestDashboardStatusOrNull();
-			if(oldestDashboardStatus!=null && oldestDashboardStatus.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
-				// finalize oldestDashboardStatus counters, and store it
-				
-				CustomerEquipmentCounts equipmentCounts = equipmentService.getEquipmentCounts(customerId);
-				oldestDashboardStatus.setTotalProvisionedEquipment(equipmentCounts.getTotalCount());
-				equipmentCounts.getOuiCounts().forEach((oui, cnt) -> oldestDashboardStatus.getEquipmentCountPerOui().put(oui, new AtomicInteger(cnt)));
-
-				//save the oldest status
-				Status status = new Status();
-				status.setCustomerId(customerId);
-				status.setDetails(oldestDashboardStatus);
-				statusService.update(status);
-				
-				//remove that oldest CustomerPortalDashboardStatus from the context				
-				context.removeDashboardStatus(oldestDashboardStatus.getTimeBucketId());
-				LOG.debug("Finalized processing of {}", oldestDashboardStatus);
-			}
 		}
 
 		private void process(BaseJsonModel model) {
 			LOG.warn("Unprocessed model: {}", model);
 		}
 	    
+	    @PostConstruct
+	    private void postCreate() {
+	    	
+	    	Thread customerPortalDashboardStatusPusherThread = new Thread( new Runnable() {
+				
+				@Override
+				public void run() {
+					LOG.info("Starting customerPortalDashboardStatusPusherThread");
+					while(true) {
+	                	LOG.trace("Pushing customerPortalDashboardStatuses");
+
+	                	List<CustomerPortalDashboardContext> contexts = new ArrayList<>(contextPerCustomerIdMap.values());
+		                	
+	                	contexts.forEach(context -> {
+		                	try {
+		            			// Get the oldest CustomerPortalDashboardStatus from the context,
+		                		// If it is older than ( (timeBucketsInFlight + 1) x timeBucket) ms - save it and remove from the context
+		            			CustomerPortalDashboardStatus oldestDashboardStatus = context.getOldestDashboardStatusOrNull();
+		            			if(oldestDashboardStatus!=null && oldestDashboardStatus.getTimeBucketId() < System.currentTimeMillis() - (timeBucketsInFlight +1)* timeBucketMs) {
+		            				// finalize oldestDashboardStatus counters, and store it
+		            				
+		            				CustomerEquipmentCounts equipmentCounts = equipmentService.getEquipmentCounts(context.getCustomerId());
+		            				oldestDashboardStatus.setTotalProvisionedEquipment(equipmentCounts.getTotalCount());
+		            				equipmentCounts.getOuiCounts().forEach((oui, cnt) -> oldestDashboardStatus.getEquipmentCountPerOui().put(oui, new AtomicInteger(cnt)));
+
+		            				//save the oldest status
+		            				Status status = new Status();
+		            				status.setCustomerId(context.getCustomerId());
+		            				status.setDetails(oldestDashboardStatus);
+		            				statusService.update(status);
+		            				
+		            				//remove that oldest CustomerPortalDashboardStatus from the context				
+		            				context.removeDashboardStatus(oldestDashboardStatus.getTimeBucketId());
+		            				LOG.trace("Finalized processing of {}", oldestDashboardStatus);
+		            			}
+		                	} catch(Exception e) {
+		                		LOG.error("Error when processing context for customer {}", context.getCustomerId(), e);
+		                	}
+	                	});
+	                	
+	                	try {
+	                		Thread.sleep(10000);
+	                	} catch (InterruptedException e) {
+	                		Thread.currentThread().interrupt();
+						}
+	                	
+	                	LOG.trace("Done pushing customerPortalDashboardStatuses");
+					}
+				}
+			}, "customerPortalDashboardStatusPusherThread"); 
+	    	
+	    	customerPortalDashboardStatusPusherThread.setDaemon(true);
+	    	customerPortalDashboardStatusPusherThread.start();
+	    }
 	    
 }
