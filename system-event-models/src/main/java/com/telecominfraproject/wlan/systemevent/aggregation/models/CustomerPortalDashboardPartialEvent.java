@@ -21,6 +21,8 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 
 	private static final long serialVersionUID = -8139895289619328335L;
 
+	private int customerId;
+	
 	/**
 	 * Time Bucket Id for this partial event
 	 * All metrics/events that have (createdTimestamp % timeBucketMs == timeBucketId) are counted in this partial event.   
@@ -134,6 +136,14 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		counter.addAndGet(value);
 	}
 	
+	public int getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(int customerId) {
+		this.customerId = customerId;
+	}
+
 	@Override
 	public CustomerPortalDashboardPartialEvent clone() {
 		CustomerPortalDashboardPartialEvent ret = (CustomerPortalDashboardPartialEvent) super.clone();
