@@ -93,6 +93,9 @@ public class CustomerPortalDashboardPartialContext {
 			if(macSet == null) {
 				macSet = Collections.synchronizedSet(new HashSet<>());
 				macSet = clientMacsPerRadio.putIfAbsent(rt, macSet);
+				if(macSet == null) {
+					macSet = clientMacsPerRadio.get(rt);
+				}
 			}
 		});
 		
@@ -112,6 +115,9 @@ public class CustomerPortalDashboardPartialContext {
 			if(cnt == null) {
 				cnt = new AtomicInteger();
 				cnt = ret.putIfAbsent(oui, cnt);
+				if(cnt == null) {
+					cnt = ret.get(oui);
+				}
 			}
 			cnt.incrementAndGet();
 		}));
