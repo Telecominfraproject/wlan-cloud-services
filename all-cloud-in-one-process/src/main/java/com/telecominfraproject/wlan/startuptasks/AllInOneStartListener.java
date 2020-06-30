@@ -137,7 +137,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 	private FirmwareServiceInterface firmwareInterface;
 
 	
-    @Value("${tip.wlan.numEquipmentToCreateOnStartup:50}")
+    @Value("${tip.wlan.numEquipmentToCreateOnStartup:0}")
 	private int numEquipmentToCreateOnStartup;
 
     @Value("${tip.wlan.numClientsPerApToCreateOnStartup:0}")
@@ -442,25 +442,27 @@ public class AllInOneStartListener implements ApplicationRunner {
 		
 		LOG.info("Done creating initial objects");
 
-		// print out SSID configurations used by ap-1
-		ProfileContainer profileContainer = new ProfileContainer(
-				profileServiceInterface.getProfileWithChildren(equipmentList.get(0).getProfileId()));
-
-		List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(0).getProfileId(),
-				ProfileType.ssid);
-		List<SsidConfiguration> ssidConfigs = new ArrayList<>();
-		ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
-		LOG.info("SSID configs: {}", ssidConfigs);
-
-		// print out SSID configurations used by ap-33
-		profileContainer = new ProfileContainer(
-				profileServiceInterface.getProfileWithChildren(equipmentList.get(32).getProfileId()));
-
-		ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(32).getProfileId(), ProfileType.ssid);
-		List<SsidConfiguration> ssidConfigs2 = new ArrayList<>();
-
-		ssidProfiles.forEach(p -> ssidConfigs2.add((SsidConfiguration) p.getDetails()));
-		LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
+		if(equipmentList.size()>40) {
+			// print out SSID configurations used by ap-1
+			ProfileContainer profileContainer = new ProfileContainer(
+					profileServiceInterface.getProfileWithChildren(equipmentList.get(0).getProfileId()));
+	
+			List<Profile> ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(0).getProfileId(),
+					ProfileType.ssid);
+			List<SsidConfiguration> ssidConfigs = new ArrayList<>();
+			ssidProfiles.forEach(p -> ssidConfigs.add((SsidConfiguration) p.getDetails()));
+			LOG.info("SSID configs: {}", ssidConfigs);
+	
+			// print out SSID configurations used by ap-33
+			profileContainer = new ProfileContainer(
+					profileServiceInterface.getProfileWithChildren(equipmentList.get(32).getProfileId()));
+	
+			ssidProfiles = profileContainer.getChildrenOfType(equipmentList.get(32).getProfileId(), ProfileType.ssid);
+			List<SsidConfiguration> ssidConfigs2 = new ArrayList<>();
+	
+			ssidProfiles.forEach(p -> ssidConfigs2.add((SsidConfiguration) p.getDetails()));
+			LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
+		}
 
 	}
 
