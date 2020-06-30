@@ -36,6 +36,7 @@ import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
@@ -249,12 +250,28 @@ public class EquipmentController {
         
         validateChannelNum(equipment);
 
+        Equipment old = equipmentDatastore.get(equipment.getId());
+        
         Equipment ret = equipmentDatastore.update(equipment);
 
         LOG.debug("Updated Equipment {}", ret);
-
-        EquipmentChangedEvent event = new EquipmentChangedEvent(ret);
-        publishEvent(event);
+      
+        if(ret.getDetails() instanceof ApElementConfiguration) {
+        	
+        	EquipmentRrmBulkUpdateItem changes = new EquipmentRrmBulkUpdateItem(equipment);
+        	
+	        if(old.getProfileId()!= ret.getProfileId()
+	        		|| changes.applyToEquipment(old)
+	        		) {
+	        	LOG.debug("generating EquipmentChangedEvent for equipment {} {}", equipment.getId(), equipment.getInventoryId());
+	            EquipmentChangedEvent event = new EquipmentChangedEvent(ret);
+	            publishEvent(event);
+	        	
+	        } else {
+	        	LOG.warn("Equipment {} has changed but we are not generating EquipmentChangedEvent - review this workflow !!!", equipment.getInventoryId());
+	        }
+	        
+        }
 
         return ret;
     }
