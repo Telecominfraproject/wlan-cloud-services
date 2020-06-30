@@ -210,4 +210,3 @@ jobs:
           mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=com.telecominfraproject.wlan:$project -Dsonar.pullrequest.base=master
           cd $OLDPWD
         done
-#
