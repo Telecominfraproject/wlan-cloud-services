@@ -201,6 +201,7 @@ jobs:
       run: |
         for project in $(ls -d */); do
           cd $project
+          echo "*** Project: ${project} ***"
           mvn clean install
           mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=com.telecominfraproject.wlan:$project
           cd $OLDPWD
