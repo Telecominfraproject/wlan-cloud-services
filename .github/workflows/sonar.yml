@@ -199,7 +199,7 @@ jobs:
         MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        for project in $(ls -d */); do
+        for project in $(ls -d */ | sed 's/\///'); do
           cd $project
           echo "*** Project: ${project} ***"
           mvn clean install
