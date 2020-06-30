@@ -58,6 +58,7 @@ public class CustomerPortalDashboardPartialContext {
 		CustomerPortalDashboardPartialEvent ret = timeBucketToPartialEventMap.get(timeBucketId);
 		if(ret == null) {
 			ret = new CustomerPortalDashboardPartialEvent();
+			ret.setCustomerId(customerId);
 			ret.setTimeBucketId(timeBucketId);
 			ret.setEventTimestamp(timeBucketId);
 			ret = timeBucketToPartialEventMap.putIfAbsent(timeBucketId, ret);
