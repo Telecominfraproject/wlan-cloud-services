@@ -207,7 +207,7 @@ jobs:
           cd $project
           echo "*** Project: ${project} ***"
           mvn clean install
-          mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project -Dsonar.pullrequest.base=master
+          mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project -Dsonar.pullrequest.base=master -Dsonar.pullrequest.branch=TOOLS-23-sonar
           cd $OLDPWD
         done
 #
