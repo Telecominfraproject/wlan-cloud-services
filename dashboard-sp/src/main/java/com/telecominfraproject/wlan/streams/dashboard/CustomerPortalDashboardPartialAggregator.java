@@ -77,7 +77,7 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
         @Value("${tip.wlan.customerPortalDashboard.timeBucketMs:300000}") //5 minutes aggregation buckets
         private long timeBucketMs;
 
-        @Value("${tip.wlan.customerPortalDashboard.timeBucketsInFlight:3}") //maintain the last 3 aggregation buckets
+        @Value("${tip.wlan.customerPortalDashboard.timeBucketsInFlight:2}") //maintain the last 2 aggregation buckets
         private long timeBucketsInFlight;
         
         @Autowired @Qualifier("customerEventStreamInterface") private StreamInterface<SystemEventRecord> customerEventStream;
