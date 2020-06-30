@@ -1,15 +1,13 @@
 package com.telecominfraproject.wlan.portal.controller.equipment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,14 +19,11 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
-import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
-import com.telecominfraproject.wlan.location.models.Location;
-import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 /**
  * @author dtoptygin
@@ -40,6 +35,9 @@ public class EquipmentPortalController  {
 
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentPortalController.class);
 
+    @Value("${tip.wlan.portal.equipment.numRetryUpdate:10}") 
+    private int numRetryUpdate;
+    
     // For serialization:
     // need these wrapper classes so that each element in returned container is
     // marked with "model_type" attribute
@@ -64,8 +62,23 @@ public class EquipmentPortalController  {
     public Equipment updateEquipment(@RequestBody Equipment equipment) {
         LOG.debug("Updating equipment {}", equipment.getId());
 
-        Equipment ret = equipmentServiceInterface.update(equipment);
+        Equipment ret = null;
 
+        for(int i=0; i<numRetryUpdate; i++) {
+	        try {
+	            ret = equipmentServiceInterface.update(equipment);
+	            break;
+	        } catch (DsConcurrentModificationException e) {
+	            LOG.debug("Equipment was concurrently updated, retrying: {}", e.getMessage());
+	            Equipment existing  = equipmentServiceInterface.getOrNull(equipment.getId());
+	            equipment.setLastModifiedTimestamp(existing.getLastModifiedTimestamp());
+	        }
+        }
+
+        if(ret == null) {
+        	throw new DsConcurrentModificationException("Could not update equipment after " + numRetryUpdate + " retries");
+        }
+        
         return ret;
     }
 
