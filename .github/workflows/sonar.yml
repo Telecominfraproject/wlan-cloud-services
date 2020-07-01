@@ -1,10 +1,8 @@
 name: Run sonar analysis
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  repository_dispatch:
+    types: [ matrix-sonar ]
 
 env:
   SONAR_URL: https://sonarcloud.io
@@ -13,154 +11,6 @@ env:
 
 jobs:
   sonar:
-    # strategy:
-    #   matrix:
-    #     project:
-    #       - alarm-datastore-common-test
-    #       - alarm-datastore-inmemory
-    #       - alarm-datastore-interface
-    #       - alarm-datastore-rdbms
-    #       - alarm-models
-    #       - alarm-service
-    #       - alarm-service-interface
-    #       - alarm-service-local
-    #       - alarm-service-remote
-    #       - all-cloud-and-opensync-gw-in-one-docker
-    #       - all-cloud-and-opensync-gw-in-one-process
-    #       - all-cloud-in-one-docker
-    #       - all-cloud-in-one-process
-    #       - client-datastore-common-test
-    #       - client-datastore-inmemory
-    #       - client-datastore-interface
-    #       - client-datastore-rdbms
-    #       - client-models
-    #       - client-service
-    #       - client-service-interface
-    #       - client-service-local
-    #       - client-service-remote
-    #       - cloud-event-dispatcher
-    #       - cloud-event-dispatcher-empty
-    #       - cloud-event-dispatcher-interface
-    #       - cloud-event-dispatcher-local
-    #       - cloud-event-dispatcher-remote
-    #       - cloud-services-build
-    #       - customer-datastore-common-test
-    #       - customer-datastore-inmemory
-    #       - customer-datastore-interface
-    #       - customer-datastore-rdbms
-    #       - customer-models
-    #       - customer-service
-    #       - customer-service-interface
-    #       - customer-service-local
-    #       - customer-service-remote
-    #       - equipment-datastore-common-test
-    #       - equipment-datastore-inmemory
-    #       - equipment-datastore-interface
-    #       - equipment-datastore-rdbms
-    #       - equipment-gateway-models
-    #       - equipment-gateway-service-interface
-    #       - equipment-gateway-service-local
-    #       - equipment-gateway-service-remote
-    #       - equipment-models
-    #       - equipment-service
-    #       - equipment-service-interface
-    #       - equipment-service-local
-    #       - equipment-service-remote
-    #       - filestore-service
-    #       - firmware-datastore-common-test
-    #       - firmware-datastore-inmemory
-    #       - firmware-datastore-interface
-    #       - firmware-datastore-rdbms
-    #       - firmware-models
-    #       - firmware-service
-    #       - firmware-service-interface
-    #       - firmware-service-local
-    #       - firmware-service-remote
-    #       - kafka-streams
-    #       - kafka-streams-consumer
-    #       - location-datastore-common-test
-    #       - location-datastore-inmemory
-    #       - location-datastore-interface
-    #       - location-datastore-rdbms
-    #       - location-models
-    #       - location-service
-    #       - location-service-interface
-    #       - location-service-local
-    #       - location-service-remote
-    #       - manufacturer-datastore-common-test
-    #       - manufacturer-datastore-inmemory
-    #       - manufacturer-datastore-interface
-    #       - manufacturer-datastore-rdbms
-    #       - manufacturer-models
-    #       - manufacturer-service
-    #       - manufacturer-service-interface
-    #       - manufacturer-service-local
-    #       - manufacturer-service-remote
-    #       - portal-docker
-    #       - portal-process
-    #       - portal-services
-    #       - portal-user-datastore-common-test
-    #       - portal-user-datastore-inmemory
-    #       - portal-user-datastore-interface
-    #       - portal-user-datastore-rdbms
-    #       - portal-user-models
-    #       - portal-user-service
-    #       - portal-user-service-interface
-    #       - portal-user-service-local
-    #       - portal-user-service-remote
-    #       - profile-datastore-common-test
-    #       - profile-datastore-inmemory
-    #       - profile-datastore-interface
-    #       - profile-datastore-rdbms
-    #       - profile-models
-    #       - profile-service
-    #       - profile-service-interface
-    #       - profile-service-local
-    #       - profile-service-remote
-    #       - prov-docker
-    #       - prov-process
-    #       - provisioning-sp
-    #       - routing-datastore-common-test
-    #       - routing-datastore-inmemory
-    #       - routing-datastore-interface
-    #       - routing-datastore-rdbms
-    #       - routing-models
-    #       - routing-service
-    #       - routing-service-interface
-    #       - routing-service-local
-    #       - routing-service-remote
-    #       - schema-generator
-    #       - service-metric-datastore-common-test
-    #       - service-metric-datastore-inmemory
-    #       - service-metric-datastore-interface
-    #       - service-metric-datastore-rdbms
-    #       - service-metric-models
-    #       - service-metric-service
-    #       - service-metric-service-interface
-    #       - service-metric-service-local
-    #       - service-metric-service-remote
-    #       - single-process-streams
-    #       - spc-process
-    #       - ssc-docker
-    #       - ssc-process
-    #       - status-datastore-common-test
-    #       - status-datastore-inmemory
-    #       - status-datastore-interface
-    #       - status-datastore-rdbms
-    #       - status-models
-    #       - status-service
-    #       - status-service-interface
-    #       - status-service-local
-    #       - status-service-remote
-    #       - system-event-datastore-common-test
-    #       - system-event-datastore-inmemory
-    #       - system-event-datastore-interface
-    #       - system-event-datastore-rdbms
-    #       - system-event-models
-    #       - system-event-service
-    #       - system-event-service-interface
-    #       - system-event-service-local
-    #       - system-event-service-remote
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -186,30 +36,20 @@ jobs:
         key: ${{ runner.os }}-m2
     - name: Configure maven settings.xml
       run: cp wlan-cloud-services/.github/workflows/maven_settings_template.xml /home/runner/.m2/settings.xml
-    # - name: Maven build
-    #   working-directory: wlan-cloud-services/${{ matrix.project }}
-    #   env:
-    #     MAVEN_REPO_USERNAME: build-pipeline
-    #     MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   run: mvn clean install
-    - name: Run sonar
-      # working-directory: wlan-cloud-services/${{ matrix.project }}
-      working-directory: wlan-cloud-services/
+    - name: Maven build
+      working-directory: wlan-cloud-services/${{ github.event.client_payload.project }}
       env:
-        MAVEN_REPO_USERNAME: build-pipeline
+        # MAVEN_REPO_USERNAME: build-pipeline
+        MAVEN_REPO_USERNAME: tip-read
         MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "GITHUB_REF ${{ env.GITHUB_REF }}"
-        GITHUB_BRANCH=$(git branch --show-current)
+      run: mvn clean install
+    - name: Run sonar analysis for ${{ github.event.client_payload.project }}
+      working-directory: wlan-cloud-services/${{ github.event.client_payload.project }}
+      env:
+        # MAVEN_REPO_USERNAME: build-pipeline
+        MAVEN_REPO_USERNAME: tip-read
+        MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ github.event.client_payload.project }}
 
-        for project in $(ls -d */ | sed 's/\///'); do
-          cd $project
-          echo "*** Project: ${project} ***"
-          mvn clean install
-          # mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project -Dsonar.pullrequest.base=master -Dsonar.pullrequest.key=13
-          mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=$project
-          cd $OLDPWD
-        done
-#

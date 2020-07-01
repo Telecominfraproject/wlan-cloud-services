@@ -1,0 +1,35 @@
+name: Trigger sonar analysis
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: master
+    - name: Trigger sonar analysis
+      run: |
+        echo URL "https://api.github.com/repos/${GITHUB_REPOSITORY}/dispatches"
+
+        for project in $(find . -exec test -f {}/pom.xml \; -printf '%f\n' -prune); do
+          echo "Triggering sonar analysis for project ${project}"
+
+          curl -s --location --request POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/dispatches" \
+          --header "Authorization: Bearer ${{ secrets.TOKEN }}" \
+          --header "Content-Type: application/json" \
+          --data-raw "{
+              \"event_type\": \"matrix-sonar\",
+              \"client_payload\": {
+                \"project\": \"${project}\"
+              }
+          }"
+
+          sleep 1
+
+        done
+
