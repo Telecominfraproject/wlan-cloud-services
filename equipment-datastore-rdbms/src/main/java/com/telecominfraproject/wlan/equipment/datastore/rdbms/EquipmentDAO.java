@@ -616,13 +616,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<Equipment> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 equipmentRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find equipment {} for customer {} locations {} last returned page number {}",
-                    equipmentType, customerId, locationIds, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} equipment {} for customer {} locations {} last returned page number {}",
+        LOG.debug("Found {} equipment {} for customer {} locations {} last returned page number {}",
                     pageItems.size(), equipmentType, customerId, locationIds, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 

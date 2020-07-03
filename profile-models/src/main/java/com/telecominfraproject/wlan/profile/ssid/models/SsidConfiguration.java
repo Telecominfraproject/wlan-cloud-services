@@ -198,7 +198,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             return;
         }
         if (bandwidthLimitDown > BANDWIDTH_LIMIT_MAX) {
-            LOG.debug("Unable to set bandwidth limit down gresater than {}. Using max value of {}Mbps.", BANDWIDTH_LIMIT_MAX);
+            LOG.debug("Unable to set bandwidth limit down greater than {}. Using max value of {} Mbps.", BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
             this.bandwidthLimitDown = BANDWIDTH_LIMIT_MAX;
             return;
         }
@@ -217,7 +217,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             return;
         }
         if (bandwidthLimitUp > BANDWIDTH_LIMIT_MAX) {
-            LOG.debug("Unable to set bandwidth limit up gresater than {}. Using max value of {}Mbps.", BANDWIDTH_LIMIT_MAX);
+            LOG.debug("Unable to set bandwidth limit up greater than {}. Using max value of {} Mbps.", BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
             this.bandwidthLimitUp = BANDWIDTH_LIMIT_MAX;
             return;
         }

@@ -347,15 +347,10 @@ public class ProfileDAO extends BaseJdbcDao {
         List<Profile> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 profileRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Profiles for customer {}", customerId);
-        } else {
-        	
-            //retrieve child profile ids
-            ret.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
+        //retrieve child profile ids
+        ret.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
 
-            LOG.debug("Found Profiles for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Profiles for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -382,7 +377,7 @@ public class ProfileDAO extends BaseJdbcDao {
         //retrieve child profile ids
         results.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
 
-        LOG.debug("get({}) returns {} record(s)", profileIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", profileIdSet, results.size());
         return results;
     }
 
@@ -458,17 +453,11 @@ public class ProfileDAO extends BaseJdbcDao {
         List<Profile> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 profileRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Profiles for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-        	
-            //retrieve child profile ids
-        	pageItems.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
+        //retrieve child profile ids
+    	pageItems.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
 
-            LOG.debug("Found {} Profiles for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} Profiles for customer {} with last returned page number {}",
+                pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

@@ -236,10 +236,12 @@ public class ManufacturerServiceRemote extends BaseRemoteClient implements Manuf
 
             ret = new HashMap<>();
             for(Future<Map<String, ManufacturerOuiDetails>> future : futures) {
-                Map<String, ManufacturerOuiDetails> partialResult;
+                Map<String, ManufacturerOuiDetails> partialResult = null;
                 try {
                     partialResult = future.get();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (InterruptedException e) {
+                	Thread.currentThread().interrupt();
+            	} catch ( ExecutionException e) {
                     throw new GenericErrorException("Unable to get result", e);
                 }
                 if(partialResult != null) {

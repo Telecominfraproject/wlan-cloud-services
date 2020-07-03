@@ -300,11 +300,7 @@ public class ClientDAO extends BaseJdbcDao {
         List<Client> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 clientRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Clients for customer {}", customerId);
-        } else {
-            LOG.debug("Found Clients for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Clients for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -332,7 +328,7 @@ public class ClientDAO extends BaseJdbcDao {
         
         List<Client> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientRowMapper);
 
-        LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, results.size());
         return results;
     }
 
@@ -408,13 +404,8 @@ public class ClientDAO extends BaseJdbcDao {
         List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 clientRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Clients for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Clients for customer {} with last returned page number {}",
+        LOG.debug("Found {} Clients for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 

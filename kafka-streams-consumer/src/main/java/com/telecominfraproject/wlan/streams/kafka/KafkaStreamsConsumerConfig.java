@@ -76,7 +76,7 @@ public class KafkaStreamsConsumerConfig {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e1) {
-					// nothing to do here
+					Thread.currentThread().interrupt();
 				}
 				
 				return Collections.emptyList();

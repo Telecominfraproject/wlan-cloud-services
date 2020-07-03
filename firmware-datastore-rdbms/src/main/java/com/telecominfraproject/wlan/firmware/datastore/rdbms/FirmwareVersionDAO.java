@@ -295,14 +295,12 @@ public class FirmwareVersionDAO extends BaseJdbcDao {
         for (EquipmentType et : EquipmentType.values()) {
             resultMap.put(et, new ArrayList<>());
         }
-        if (results == null || results.isEmpty()) {
-            LOG.debug("No FirmwareVersions found");
-        } else {
-            for (FirmwareVersion v : results) {
-                resultMap.get(v.getEquipmentType()).add(v);
-            }
+        
+        for (FirmwareVersion v : results) {
+            resultMap.get(v.getEquipmentType()).add(v);
         }
-        LOG.debug("Found {} FirmwareVersions", (results == null) ? 0 : results.size());
+        
+        LOG.debug("Found {} FirmwareVersions", results.size());
         return resultMap;
     }
 

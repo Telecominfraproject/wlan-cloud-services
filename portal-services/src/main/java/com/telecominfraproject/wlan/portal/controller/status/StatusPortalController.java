@@ -117,7 +117,7 @@ public class StatusPortalController  {
         ret.getItems().addAll(cePage.getItems());
 
         LOG.debug("Retrieved {} statuses {} for customer {} equipment {}  type {}", cePage.getItems().size(), 
-                customerId, equipmentIds, statusDataTypes);
+                statusDataTypes, customerId, equipmentIds, statusDataTypes);
 
         return ret;
     }    

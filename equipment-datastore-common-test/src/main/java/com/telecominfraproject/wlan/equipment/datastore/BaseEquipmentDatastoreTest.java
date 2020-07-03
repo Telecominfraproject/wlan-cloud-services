@@ -504,7 +504,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
            mdl.setProfileId(i%5);
-           mdl.setLocationId(100 + (i%5));
+           mdl.setLocationId(100L + (i%5));
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-testGetPaginatedEquipmentIds-" + mdl.getName());
            

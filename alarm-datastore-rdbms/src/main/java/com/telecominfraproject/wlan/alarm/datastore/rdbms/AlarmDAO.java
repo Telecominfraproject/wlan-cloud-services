@@ -437,11 +437,7 @@ public class AlarmDAO extends BaseJdbcDao {
         List<Alarm> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 alarmRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Alarms for customer {}", customerId);
-        } else {
-            LOG.debug("Found Alarms for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Alarms for customer {} : {}", customerId, ret);
 
         return ret;
     }

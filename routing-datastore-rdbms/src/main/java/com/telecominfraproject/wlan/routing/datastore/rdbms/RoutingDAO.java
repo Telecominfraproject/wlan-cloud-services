@@ -321,11 +321,7 @@ public class RoutingDAO extends BaseJdbcDao {
         List<EquipmentRoutingRecord> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 routingRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Routings for customer {}", customerId);
-        } else {
-            LOG.debug("Found Routings for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Routings for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -349,7 +345,7 @@ public class RoutingDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<EquipmentRoutingRecord> results = this.jdbcTemplate.query(query, routingIdSet.toArray(), routingRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", routingIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", routingIdSet, results.size());
         return results;
     }
 
@@ -425,13 +421,8 @@ public class RoutingDAO extends BaseJdbcDao {
         List<EquipmentRoutingRecord> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 routingRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Routings for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Routings for customer {} with last returned page number {}",
+        LOG.debug("Found {} Routings for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 
@@ -450,7 +441,7 @@ public class RoutingDAO extends BaseJdbcDao {
         String query = RoutingDAO.SQL_GET_ALL + " where equipmentId = ? ";
         List<EquipmentRoutingRecord> results = this.jdbcTemplate.query(query, new Object[] {equipmentId}, routingRowMapper);
 
-        LOG.debug("getRegisteredGatewayRecordList({}) returns {} record(s)", equipmentId, (null == results) ? 0 : results.size());
+        LOG.debug("getRegisteredGatewayRecordList({}) returns {} record(s)", equipmentId, results.size());
         return results;
 	}
 

@@ -315,15 +315,16 @@ public abstract class BaseManufacturerDatastoreTest {
         knownTestMacs.put("0084ed", "Private (0084ED)");
         
         final String filePath = "test-oui.txt";
-        InputStream inFile = BaseManufacturerDatastoreTest.class.getResource(filePath).openStream();
         ByteArrayOutputStream compressedStream = new ByteArrayOutputStream();
-        GZIPOutputStream gzOut = new GZIPOutputStream(compressedStream);
-        byte[] buffer = new byte[512];
-        while(inFile.available() > 0) {
-            int read = inFile.read(buffer);
-            gzOut.write(buffer, 0, read);
+        try(InputStream inFile = BaseManufacturerDatastoreTest.class.getResource(filePath).openStream()){
+	        GZIPOutputStream gzOut = new GZIPOutputStream(compressedStream);
+	        byte[] buffer = new byte[512];
+	        while(inFile.available() > 0) {
+	            int read = inFile.read(buffer);
+	            gzOut.write(buffer, 0, read);
+	        }
+	        gzOut.finish();	        
         }
-        gzOut.finish();
         manufacturerDatastore.uploadOuiDataFile(filePath, compressedStream.toByteArray());
         List<ManufacturerOuiDetails> entireMfrDatastore = manufacturerDatastore.getAllManufacturerData();
         assertNotNull(entireMfrDatastore);

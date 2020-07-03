@@ -240,8 +240,8 @@ public class RoamingCandidate extends BaseJsonModel {
         if (first != null && second != null) {
             return Math.abs(first - second) < maxDiff;
         } else {
-            // At lease one of these it null
-            return first == second;
+            // At lease one of these it null, check if the other is null as well
+            return first == null && second == null;
         }
     }
 

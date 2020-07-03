@@ -123,7 +123,7 @@ public class ClientPortalController  {
     	}
 
         LOG.debug("Looking up Client Sessions for customer {} equipment {} locations {} with last returned page number {}", 
-                customerId, equipmentIds, paginationContext.getLastReturnedPageNumber());
+                customerId, equipmentIds, locationIds, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
 

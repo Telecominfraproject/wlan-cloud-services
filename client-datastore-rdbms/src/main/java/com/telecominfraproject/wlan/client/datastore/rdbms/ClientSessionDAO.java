@@ -334,7 +334,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
         
         List<ClientSession> results = this.jdbcTemplate.query(query, bindVars.toArray(), clientSessionRowMapper);
 
-        LOG.debug("getSessions({}, {}) returns {} record(s)", customerId, clientMacSet, (null == results) ? 0 : results.size());
+        LOG.debug("getSessions({}, {}) returns {} record(s)", customerId, clientMacSet, results.size());
         return results;
     }
 

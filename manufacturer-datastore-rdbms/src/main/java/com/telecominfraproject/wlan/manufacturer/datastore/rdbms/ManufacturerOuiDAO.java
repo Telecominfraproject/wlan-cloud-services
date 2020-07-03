@@ -207,7 +207,7 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
             LOG.debug("Resulting Manufacturer data has {} entries", resultList.size());
             return resultList;
         } catch (Exception e) {
-            LOG.debug("Error retrieving all Manufacturer data: {}", e);
+            LOG.debug("Error retrieving all Manufacturer data", e);
             return Collections.emptyList();
         }
     }
@@ -244,7 +244,7 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
 
             return result;
         }catch (Exception  e) {
-            LOG.debug("Error retrieving Manufacturer data for OUI list: {}" , e);
+            LOG.debug("Error retrieving Manufacturer data for OUI list " , e);
             return result;
         }
     }

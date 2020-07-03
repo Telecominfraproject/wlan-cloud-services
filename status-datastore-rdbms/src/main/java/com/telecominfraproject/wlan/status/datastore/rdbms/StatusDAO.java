@@ -317,11 +317,7 @@ public class StatusDAO extends BaseJdbcDao {
         List<Status> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 statusRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Statuss for customer {}", customerId);
-        } else {
-            LOG.debug("Found Statuss for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Statuses for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -332,7 +328,7 @@ public class StatusDAO extends BaseJdbcDao {
         String query = SQL_GET_BY_CUSTOMER_ID + " and equipmentId = ? ";
         List<Status> results = this.jdbcTemplate.query(query, new Object[] {customerId, equipmentId} , statusRowMapper);
 
-        LOG.debug("get({},{}) returns {} record(s)", customerId, equipmentId, (null == results) ? 0 : results.size());
+        LOG.debug("get({},{}) returns {} record(s)", customerId, equipmentId, results.size());
         return results;
     }
 
@@ -408,13 +404,8 @@ public class StatusDAO extends BaseJdbcDao {
         List<Status> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 statusRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Statuss for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Statuss for customer {} with last returned page number {}",
+        LOG.debug("Found {} Statuses for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 
@@ -531,13 +522,8 @@ public class StatusDAO extends BaseJdbcDao {
         List<Status> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 statusRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Statuses for customer {} equipment {} types {} with last returned page number {}",
-                    customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Statuses for customer {} equipment {} types {} with last returned page number {}",
+        LOG.debug("Found {} Statuses for customer {} equipment {} types {} with last returned page number {}",
                     pageItems.size(), customerId, equipmentIds, statusDataTypes, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 
@@ -604,13 +590,8 @@ public class StatusDAO extends BaseJdbcDao {
         List<Status> ret = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 statusRowMapper);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Statuses for customer {} equipment {} types {} ",
-                    customerId, equipmentIds, statusDataTypes);
-        } else {
-            LOG.debug("Found {} Statuses for customer {} equipment {} types {}",
+        LOG.debug("Found {} Statuses for customer {} equipment {} types {}",
                     ret.size(), customerId, equipmentIds, statusDataTypes);
-        }
         
         return ret;
 

@@ -329,11 +329,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         List<PortalUser> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 portalUserRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find PortalUsers for customer {}", customerId);
-        } else {
-            LOG.debug("Found PortalUsers for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found PortalUsers for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -357,7 +353,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<PortalUser> results = this.jdbcTemplate.query(query, portalUserIdSet.toArray(), portalUserRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", portalUserIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", portalUserIdSet, results.size());
         return results;
     }
 
@@ -433,13 +429,8 @@ public class PortalUserDAO extends BaseJdbcDao {
         List<PortalUser> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 portalUserRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find PortalUsers for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} PortalUsers for customer {} with last returned page number {}",
+        LOG.debug("Found {} PortalUsers for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 

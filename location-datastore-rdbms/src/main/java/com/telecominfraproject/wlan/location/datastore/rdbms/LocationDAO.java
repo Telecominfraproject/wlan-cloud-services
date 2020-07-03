@@ -308,11 +308,7 @@ public class LocationDAO extends BaseJdbcDao {
         List<Location> ret = this.jdbcTemplate.query(SQL_GET_BY_CUSTOMER_ID,
                 locationRowMapper, customerId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Locations for customer {}", customerId);
-        } else {
-            LOG.debug("Found Locations for customer {} : {}", customerId, ret);
-        }
+        LOG.debug("Found Locations for customer {} : {}", customerId, ret);
 
         return ret;
     }
@@ -323,11 +319,7 @@ public class LocationDAO extends BaseJdbcDao {
         List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_TOP_LEVEL,
                 locationRowMapper);
 
-        if (ret == null) {
-            LOG.error("Cannot find any top-level locations in the DB. This can't be good");
-        } else {
-            LOG.debug("Found all top-level locations: {}", ret);
-        }
+        LOG.debug("Found all top-level locations: {}", ret);
 
         return ret;
     }
@@ -338,11 +330,7 @@ public class LocationDAO extends BaseJdbcDao {
         List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_CHILDREN,
                 locationRowMapper, locationId);
 
-        if (ret == null) {
-            LOG.debug("Cannot find Locations that have parent {}", locationId);
-        } else {
-            LOG.debug("Found children Locations for parent {} : {}", locationId, ret);
-        }
+        LOG.debug("Found children Locations for parent {} : {}", locationId, ret);
 
         return ret;
     }
@@ -387,7 +375,7 @@ public class LocationDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<Location> results = this.jdbcTemplate.query(query, locationIdSet.toArray(), locationRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", locationIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", locationIdSet, results.size());
         return results;
     }
 
@@ -463,13 +451,8 @@ public class LocationDAO extends BaseJdbcDao {
         List<Location> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 locationRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Locations for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Locations for customer {} with last returned page number {}",
+        LOG.debug("Found {} Locations for customer {} with last returned page number {}",
                     pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 

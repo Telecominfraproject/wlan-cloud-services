@@ -335,7 +335,7 @@ public class GatewayDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, gatewayRecordIdSet.toArray(), gatewayRowMapper);
 
-        LOG.debug("get({}) returns {} record(s)", gatewayRecordIdSet, (null == results) ? 0 : results.size());
+        LOG.debug("get({}) returns {} record(s)", gatewayRecordIdSet, results.size());
         return results;
     }
 
@@ -410,13 +410,8 @@ public class GatewayDAO extends BaseJdbcDao {
         List<EquipmentGatewayRecord> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 gatewayRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find EquipmentGateways with last returned page number {}",
-                    context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} EquipmentGateways with last returned page number {}",
+        LOG.debug("Found {} EquipmentGateways with last returned page number {}",
                     pageItems.size(), context.getLastReturnedPageNumber());
-        }
 
         ret.setItems(pageItems);
 
@@ -440,7 +435,7 @@ public class GatewayDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL + " where hostname = ? ";
         List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, new Object[] {hostname}, gatewayRowMapper);
 
-        LOG.debug("getGateway({}) returns {} record(s)", hostname, (null == results) ? 0 : results.size());
+        LOG.debug("getGateway({}) returns {} record(s)", hostname, results.size());
         return results;
 	}
 
@@ -458,7 +453,7 @@ public class GatewayDAO extends BaseJdbcDao {
         }
 
 
-        LOG.debug("getGateway({}) returns {} record(s)", gatewayType, (null == results) ? 0 : results.size());
+        LOG.debug("getGateway({}) returns {} record(s)", gatewayType, results.size());
         return results;
 	}
 
@@ -469,7 +464,7 @@ public class GatewayDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL + ", equipment_routing r where r.gatewayId = equipment_gateway.id AND r.equipmentId = ? ";
         List<EquipmentGatewayRecord> results = this.jdbcTemplate.query(query, new Object[] {equipmentId}, gatewayRowMapper);
 
-        LOG.debug("getRegisteredGatewayRecordList({}) returns {} record(s)", equipmentId, (null == results) ? 0 : results.size());
+        LOG.debug("getRegisteredGatewayRecordList({}) returns {} record(s)", equipmentId, results.size());
         return results;
 	}
 
@@ -486,7 +481,7 @@ public class GatewayDAO extends BaseJdbcDao {
         String query = "delete from "+TABLE_NAME+ " where hostname = ? ";
         this.jdbcTemplate.update(query, new Object[] {hostname});
 
-        LOG.debug("deleteGateway({}) returns {} record(s)", hostname, (null == results) ? 0 : results.size());
+        LOG.debug("deleteGateway({}) returns {} record(s)", hostname, results.size());
         return results;
 	}
 }

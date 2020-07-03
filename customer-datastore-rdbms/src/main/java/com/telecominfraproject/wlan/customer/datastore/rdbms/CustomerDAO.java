@@ -237,7 +237,7 @@ public class CustomerDAO extends BaseJdbcDao {
         String query = SQL_GET_ALL_IN_SET + set;
         List<Customer> results = this.jdbcTemplate.query(query, customerRowMapper);
 
-        LOG.debug("getCustomersInSet() returns {} record(s)", (null == results) ? 0 : results.size());
+        LOG.debug("getCustomersInSet() returns {} record(s)", results.size());
         return results;
     }
 
