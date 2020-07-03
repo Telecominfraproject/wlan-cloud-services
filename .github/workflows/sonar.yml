@@ -1,0 +1,53 @@
+name: Run sonar analysis
+
+on:
+  repository_dispatch:
+    types: [ matrix-sonar ]
+
+env:
+  SONAR_URL: https://sonarcloud.io
+  SONAR_ORGANIZATION: telecominfraproject
+  MAVEN_OPTS: -Xmx3g -Xss2m # prevents java.lang.StackOverflowError
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        path: wlan-cloud-services
+        ref: master
+        fetch-depth: 0
+    - name: Checkout dependency Telecominfraproject/wlan-cloud-root
+      uses: actions/checkout@v2
+      with:
+        repository: Telecominfraproject/wlan-cloud-root
+        path: wlan-cloud-root
+        fetch-depth: 0
+    - name: Set up JDK 14
+      uses: actions/setup-java@v1
+      with:
+        java-version: 14
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository/
+        key: ${{ runner.os }}-m2
+    - name: Configure maven settings.xml
+      run: cp wlan-cloud-services/.github/workflows/maven_settings_template.xml /home/runner/.m2/settings.xml
+    - name: Maven build
+      working-directory: wlan-cloud-services/${{ github.event.client_payload.project }}
+      env:
+        MAVEN_REPO_USERNAME: build-pipeline
+        MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn clean install
+    - name: Run sonar analysis for ${{ github.event.client_payload.project }}
+      working-directory: wlan-cloud-services/${{ github.event.client_payload.project }}
+      env:
+        MAVEN_REPO_USERNAME: build-pipeline
+        MAVEN_REPO_PASSWORD: ${{ secrets.MAVEN_REPO_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn sonar:sonar -Dsonar.host.url=${{ env.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_LOGIN }} -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ github.event.client_payload.project }}
+
