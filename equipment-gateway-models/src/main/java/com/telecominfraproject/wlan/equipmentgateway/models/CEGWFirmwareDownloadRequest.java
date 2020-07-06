@@ -5,6 +5,8 @@ package com.telecominfraproject.wlan.equipmentgateway.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.firmware.models.ValidationMethod;
+
 /**
  * @author ekeddy
  *
@@ -25,15 +27,15 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
      * @param equipmentId
      * @param filePath
      * @param firmwareVersion
-     * @param validationMethod
+     * @param validationMethod2
      * @param validationCode
      */
     public CEGWFirmwareDownloadRequest(String qrCode, long equipmentId, String firmwareVersion, String filePath,
-            ValidationMethod validationMethod, String validationCode) {
+           ValidationMethod validationMethod2, String validationCode) {
         super(CEGWCommandType.FirmwareDownloadRequest, qrCode, equipmentId);
         this.setFirmwareVersion(firmwareVersion);
         this.setFilePath(filePath);
-        this.setValidationMethod(validationMethod);
+        this.setValidationMethod(validationMethod2);
         this.setValidationCode(validationCode);
     }
 

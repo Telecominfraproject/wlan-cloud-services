@@ -24,6 +24,12 @@
 			<artifactId>status-models</artifactId>
 			<version>${tip-wlan-cloud.release.version}</version>
 		</dependency>
+		
+			<dependency>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<artifactId>firmware-models</artifactId>
+			<version>${tip-wlan-cloud.release.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>
