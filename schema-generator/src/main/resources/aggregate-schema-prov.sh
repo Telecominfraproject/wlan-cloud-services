@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Usage of this script: (see https://connectustechnologies.atlassian.net/browse/TW-698)
-## ./src/main/resources/aggregate-schema.sh <GeneratedAggregatedFileName> <Jfrog-UserId>
+## ./src/main/resources/aggregate-schema-prov.sh <GeneratedAggregatedFileName> <Jfrog-UserId>
 #             <EncryptedJfrog-Password> <Jfrog repo URL> <TARGET_FILE_PATH in Jfrog repo>
 
 
@@ -12,7 +12,7 @@ cd $SCHEMA_DIR
 # Aggregates the sql files into one file
 # $1: Aggregated SQLFile
 generateSchemaFile() {
-  cat $SCHEMA_DIR/src/main/resources/user_create.sql >> $1
+  cat $SCHEMA_DIR/src/main/resources/user_create_prov.sql >> $1
   find ../. -type f -name "schema-postgresql.sql" | grep -v target |xargs cat >> $1
   echo "\q " >> $1
   mv $1 $SCHEMA_DIR/target

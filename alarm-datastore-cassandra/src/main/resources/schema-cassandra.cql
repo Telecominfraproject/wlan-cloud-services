@@ -1,5 +1,3 @@
-CREATE KEYSPACE IF NOT EXISTS tip_wlan_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
-
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.alarm (
     customerId int,
     equipmentId bigint,
