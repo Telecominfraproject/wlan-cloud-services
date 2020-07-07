@@ -477,7 +477,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         firmwareVersion_ap2220.setDescription("");
         firmwareVersion_ap2220.setModelId("ap2220");
         firmwareVersion_ap2220.setFilename(
-                "https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ap2220/ap2220-2020-06-25-ce03472.tar.gz");
+                "https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ap2220/ap2220-2020-06-25-ce03472.tar.gz");
         firmwareVersion_ap2220.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
         firmwareVersion_ap2220.setValidationCode("c69370aa5b6622d91a0fba3a5441f31c");
         firmwareVersion_ap2220.setReleaseDate(System.currentTimeMillis());
@@ -491,7 +491,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         firmwareVersion_ea8300.setDescription("");
         firmwareVersion_ea8300.setModelId("ea8300");
         firmwareVersion_ea8300.setFilename(
-                "https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz");
+                "https://tip-read:tip-read@tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz");
         firmwareVersion_ea8300.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
         firmwareVersion_ea8300.setValidationCode("b209deb9847bdf40a31e45edf2e5a8d7");
         firmwareVersion_ea8300.setReleaseDate(System.currentTimeMillis());
@@ -505,7 +505,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         firmwareVersion_ea8300ca.setDescription("");
         firmwareVersion_ea8300ca.setModelId("ea8300-ca");
         firmwareVersion_ea8300ca.setFilename(
-                "https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz");
+                "https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz");
         firmwareVersion_ea8300ca.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
         firmwareVersion_ea8300ca.setValidationCode("b209deb9847bdf40a31e45edf2e5a8d7");
         firmwareVersion_ea8300ca.setReleaseDate(System.currentTimeMillis());
@@ -519,7 +519,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         firmwareVersion_ecw5211.setDescription("");
         firmwareVersion_ecw5211.setModelId("ecw5211");
         firmwareVersion_ecw5211.setFilename(
-                "https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/ecw5211-2020-06-26-4ff7208.tar.gz");
+                "https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/ecw5211-2020-06-26-4ff7208.tar.gz");
         firmwareVersion_ecw5211.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
         firmwareVersion_ecw5211.setValidationCode("133072b0e8a440063109604375938fba");
         firmwareVersion_ecw5211.setReleaseDate(System.currentTimeMillis());
@@ -533,7 +533,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         firmwareVersion_ecw5410.setDescription("");
         firmwareVersion_ecw5410.setModelId("ecw5410");
         firmwareVersion_ecw5410.setFilename(
-                "https://tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/ecw5410-2020-06-25-ce03472.tar.gz");
+                "https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/ecw5410-2020-06-25-ce03472.tar.gz");
         firmwareVersion_ecw5410.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
         firmwareVersion_ecw5410.setValidationCode("2940ca34eeab85be18f3a4b79f4da6d9");
         firmwareVersion_ecw5410.setReleaseDate(System.currentTimeMillis());
