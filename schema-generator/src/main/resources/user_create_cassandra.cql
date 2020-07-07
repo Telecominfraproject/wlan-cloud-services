@@ -1,6 +1,6 @@
 CREATE ROLE IF NOT EXISTS tip_user
 WITH LOGIN = true
-| PASSWORD =  'tip_password';
+AND PASSWORD =  'tip_password';
 
 CREATE KEYSPACE IF NOT EXISTS tip_wlan_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
 

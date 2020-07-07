@@ -15,10 +15,10 @@
 
     <properties>
         <prov-postgres-sql-schema>prov_aggregated_schema.sql</prov-postgres-sql-schema>
-        <ssc-cassandra-sql-schema>ssc_aggregated_schema.sql</ssc-cassandra-sql-schema>
+        <ssc-cassandra-sql-schema>ssc_aggregated_schema.cql</ssc-cassandra-sql-schema>
         <jfrog-url>https://tip.jfrog.io/artifactory/tip-wlan-cloud-schemas</jfrog-url>
         <jfrog-postgres-target-file-path>${project.version}/sql/cloud-sdk-schema-postgresql.sql</jfrog-postgres-target-file-path>
-        <jfrog-cassandra-target-file-path>${project.version}/sql/cloud-sdk-schema-cassandra.sql</jfrog-cassandra-target-file-path>
+        <jfrog-cassandra-target-file-path>${project.version}/cql/cloud-sdk-schema-cassandra.cql</jfrog-cassandra-target-file-path>
     </properties>
 
     <build>
