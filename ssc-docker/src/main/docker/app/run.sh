@@ -8,8 +8,8 @@ CASSANDRA_TIP_PASSWORD="tip_password"
 
 DATABASE_PROPS=" "
 DATABASE_PROPS+=" -Ddatastax-java-driver.basic.contact-points.0=$CASSANDRA_HOST"
-DATABASE_PROPS+=" -Ddatastax-java-driver.advanced.auth-provider.username=$CASSANDRA_USER"
-DATABASE_PROPS+=" -Ddatastax-java-driver.advanced.auth-provider.password=$CASSANDRA_PASSWORD"
+DATABASE_PROPS+=" -Ddatastax-java-driver.advanced.auth-provider.username=$CASSANDRA_TIP_USER"
+DATABASE_PROPS+=" -Ddatastax-java-driver.advanced.auth-provider.password=$CASSANDRA_TIP_PASSWORD"
 
 export ALL_PROPS="$LOGGING_PROPS $DATABASE_PROPS"
 
