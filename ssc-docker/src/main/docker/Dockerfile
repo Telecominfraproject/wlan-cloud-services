@@ -8,6 +8,7 @@ RUN mkdir /app && mkdir /app/logs && mkdir /app/ssc
 COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/logback.xml /app/ssc/logback.xml
+COPY app/cassandra-application.conf /app/ssc/cassandra-application.conf
 
 RUN chmod +x /app/run.sh
 
