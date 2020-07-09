@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk13:alpine-jre
 
-LABEL maintainer="NetExperience as part of the Telecom Infrastructure Project"
+LABEL maintainer="TipWlan"
 LABEL version="1.0"
 LABEL description="This image runs the mqtt broker (mosquitto) and \
 a java process that hosts all cloud services (accessible via REST APIs) with the OpenSync gateway."

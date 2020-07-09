@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk13:alpine-jre
-MAINTAINER NetExperience
+MAINTAINER TipWlan
 
 # Update the package list and upgrade installed packages
 RUN apk update && apk upgrade && apk add bash
