@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Usage of this script: (see https://connectustechnologies.atlassian.net/browse/TW-698)
+## Usage of this script: 
 ## ./src/main/resources/aggregate-schema-cassandra.sh <GeneratedAggregatedFileName> <Jfrog-UserId>
 #             <EncryptedJfrog-Password> <Jfrog repo URL> <TARGET_FILE_PATH in Jfrog repo>
 

@@ -12,17 +12,17 @@
         <packaging>pom</packaging>
         <description>Aggregation of all cloud services modules - to build them in one shot.</description>
         <scm>
-                <connection>https://connectustechnologies.atlassian.net/</connection>
-                <developerConnection>https://connectustechnologies.atlassian.net/wiki/spaces/NaaS/overview</developerConnection>
-                <url>https://bitbucket.org/connectustechnologies/tip-wlan-cloud-services/</url>
+                <connection>https://example.com</connection>
+                <developerConnection>https://example.com</developerConnection>
+                <url>https://example.com</url>
         </scm>
         <issueManagement>
                 <system>Jira</system>
-                <url>https://connectustechnologies.atlassian.net</url>
+                <url>https://example.com</url>
         </issueManagement>
         <ciManagement>
                 <system>Crucible</system>
-                <url>https://crucible.connectus.ai</url>
+                <url>https://example.com</url>
         </ciManagement>
         <profiles>
                 <profile>

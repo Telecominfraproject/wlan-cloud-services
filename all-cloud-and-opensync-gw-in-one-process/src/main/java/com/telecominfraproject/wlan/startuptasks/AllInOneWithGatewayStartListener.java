@@ -320,7 +320,6 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration)profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
 		profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
 		profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
-
 		Profile enterpriseProfileAp = new Profile();
 		enterpriseProfileAp.setCustomerId(customer.getId());
 		enterpriseProfileAp.setName("EnterpriseApProfile");
