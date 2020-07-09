@@ -180,6 +180,7 @@
 
                                 <module>../provisioning-sp</module>
                                 <module>../dashboard-sp</module>
+                                <module>../equipment-alarms-sp</module>
                                 
                                 <module>../single-process-streams</module>
                                 <module>../kafka-streams</module>
