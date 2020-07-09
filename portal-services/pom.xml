@@ -104,6 +104,13 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
+    <!--  equipment gateway dependencies -->
+     <dependency>
+        <artifactId>equipment-gateway-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
       
     </dependencies>
 </project>

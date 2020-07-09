@@ -40,6 +40,9 @@ tags:
 - name: Equipment
   description: |
     Equipment (AccessPoints) can be bound to a customer and location.
+- name: Equipment Gateway
+  description: |
+    Equipment can receive commands - to download firmware, blink LEDs, etc. These commands are delivered to the target equipment via the opensync gateway to which that equipment connects.
 - name: Profile
   description: |
     Profiles for various services can be associated with equipment and with other profiles.
@@ -10927,3 +10930,35 @@ paths:
                 format: binary          
         500:
           $ref: '#/components/responses/GenericApiError'
+
+  /portal/equipmentGateway/requestFirmwareUpdate:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request firmware update for a particular equipment.
+      operationId: requestFirmwareUpdate
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for which the firmware update is being requested.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: firmwareVersionId
+        in: query
+        description: Id of the firmware version object.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          

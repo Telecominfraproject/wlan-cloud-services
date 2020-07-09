@@ -13,7 +13,7 @@
       deployment, used mainly in development and support persistence.</description>
 
 	<properties>
-		<start-class>com.telecominfraproject.wlan.server.AllCloudInOneServer</start-class>
+		<start-class>com.telecominfraproject.wlan.server.AllCloudInOneServerWithPersistence</start-class>
 	</properties>
   
     <dependencies>
