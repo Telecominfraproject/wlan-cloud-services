@@ -32,7 +32,7 @@ public class EquipmentElementConfigurationTests
       assertEquals(2, generated.getRadioMap().size());
 
       assertNotNull(generated.getAdvancedRadioMap());
-      assertEquals(3, generated.getAdvancedRadioMap().size());
+      assertEquals(4, generated.getAdvancedRadioMap().size());
    }
  
    @Test

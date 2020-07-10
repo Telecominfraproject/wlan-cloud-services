@@ -56,18 +56,13 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 	private ApElementConfiguration() {
 		super(EquipmentType.AP);
 
-		/* We populate the radio map */
+		/* Populate the radio maps for all valid radio types */
 		radioMap = new EnumMap<>(RadioType.class);
-		radioMap.put(RadioType.is5GHzL, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL));
-		radioMap.put(RadioType.is5GHzU, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU));
-		radioMap.put(RadioType.is2dot4GHz, ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
-
-		/* We populate the advanced radio map */
 		advancedRadioMap = new EnumMap<>(RadioType.class);
-		advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
-		advancedRadioMap.put(RadioType.is5GHzL, RadioConfiguration.createWithDefaults(RadioType.is5GHzL));
-		advancedRadioMap.put(RadioType.is5GHzU, RadioConfiguration.createWithDefaults(RadioType.is5GHzU));
-
+		for(RadioType radioType: RadioType.validValues()) {
+			radioMap.put(radioType, ElementRadioConfiguration.createWithDefaults(radioType));
+			advancedRadioMap.put(radioType, RadioConfiguration.createWithDefaults(radioType));
+		}
 	}
 
 	@Override
@@ -97,15 +92,15 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 		return this.advancedRadioMap;
 	}
 
-	/**
-	 * BIG ASS NOTE: The first element in the map is the 5ghz radio (ie: get(0)) and
-	 * 2.4ghz is the second element (ie: get(1))
-	 * 
-	 * @return
-	 */
-
 	public Map<RadioType, ElementRadioConfiguration> getRadioMap() {
 		return radioMap;
+	}
+	
+	public ElementRadioConfiguration getElementRadioConfiguration(RadioType radioType) {
+		if (radioMap == null) {
+			return null;
+		}
+		return radioMap.get(radioType);
 	}
 
 	public static ApElementConfiguration createWithDefaults(String elementVersion, ApModel model) {
