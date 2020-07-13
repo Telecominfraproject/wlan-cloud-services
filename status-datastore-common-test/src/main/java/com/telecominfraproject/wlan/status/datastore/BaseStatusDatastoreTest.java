@@ -38,7 +38,7 @@ public abstract class BaseStatusDatastoreTest {
     @Autowired
     protected StatusDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    protected static final AtomicLong testSequence = new AtomicLong(1);
 
     @Test
     public void testCRUD() {
@@ -175,13 +175,16 @@ public abstract class BaseStatusDatastoreTest {
        
        int apNameIdx = 0;
        
+       List<Status> allCreatedStatuses = new ArrayList<>(); 
+       
        for(int i = 0; i< 50; i++){
            mdl = createStatusObject();
            mdl.setCustomerId(customerId_1);
            ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
 
            apNameIdx++;
-           testInterface.update(mdl);
+           mdl = testInterface.update(mdl);
+           allCreatedStatuses.add(mdl);
        }
 
        for(int i = 0; i< 50; i++){
@@ -190,7 +193,8 @@ public abstract class BaseStatusDatastoreTest {
            ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
 
            apNameIdx++;
-           testInterface.update(mdl);
+           mdl = testInterface.update(mdl);
+           allCreatedStatuses.add(mdl);
        }
 
        //paginate over Statuses
@@ -277,6 +281,9 @@ public abstract class BaseStatusDatastoreTest {
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
+       //delete
+       allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
+
     }
     
     @Test
@@ -317,6 +324,8 @@ public abstract class BaseStatusDatastoreTest {
        threeStatusDataTypes.add(statusDataType_2);
        threeStatusDataTypes.add(statusDataType_3);
 
+       List<Status> allCreatedStatuses = new ArrayList<>(); 
+
        int apNameIdx = 0;
        
        for(int i = 0; i< equipmentIds_1.length; i++){
@@ -324,6 +333,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
+           
+           allCreatedStatuses.add(mdl);
            
            EquipmentAdminStatusData details1 = new EquipmentAdminStatusData();
            details1.setStatusCode(StatusCode.normal);
@@ -364,7 +375,8 @@ public abstract class BaseStatusDatastoreTest {
            ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
 
            apNameIdx++;
-           testInterface.update(mdl);
+           mdl = testInterface.update(mdl);
+           allCreatedStatuses.add(mdl);
        }
 
        //
@@ -550,6 +562,9 @@ public abstract class BaseStatusDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
 
+       //delete
+       allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
+
     }
 
     @Test
@@ -590,6 +605,8 @@ public abstract class BaseStatusDatastoreTest {
        threeStatusDataTypes.add(statusDataType_2);
        threeStatusDataTypes.add(statusDataType_3);
 
+       List<Status> allCreatedStatuses = new ArrayList<>(); 
+
        int apNameIdx = 0;
        
        for(int i = 0; i< equipmentIds_1.length; i++){
@@ -597,6 +614,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
+           
+           allCreatedStatuses.add(mdl);
            
            EquipmentAdminStatusData details1 = new EquipmentAdminStatusData();
            details1.setStatusCode(StatusCode.normal);
@@ -637,7 +656,9 @@ public abstract class BaseStatusDatastoreTest {
            ((EquipmentAdminStatusData) mdl.getDetails()).setStatusMessage("qr_"+apNameIdx);
 
            apNameIdx++;
-           testInterface.update(mdl);
+           mdl = testInterface.update(mdl);
+           allCreatedStatuses.add(mdl);
+
        }
 
 
@@ -736,9 +757,12 @@ public abstract class BaseStatusDatastoreTest {
 		assertEquals(twoEquipment, returnedEquipmentIds);
 		assertEquals(twoStatusDataTypes, returnedStatusDataTypes);
 
+       //delete
+       allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
+
 	}
     
-    private Status createStatusObject() {
+    protected Status createStatusObject() {
     	Status result = new Status();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);

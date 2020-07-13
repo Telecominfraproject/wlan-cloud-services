@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.status.datastore;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +41,16 @@ public interface StatusDatastore {
      * @param status
      * @return list of updated versions of the status objects
      */
-    List<Status> update(List<Status> status);
+    default List<Status> update(List<Status> statusList) {
+    	if(statusList == null || statusList.isEmpty()) {
+    		return Collections.emptyList();
+    	}
+    	
+    	List<Status> ret = new ArrayList<>(statusList.size());
+    	statusList.forEach(s -> ret.add(update(s)));
+    	
+    	return ret;
+    }
 
     /**
      * Retrieves a list of Status records for a given customer equipment.
@@ -71,7 +82,10 @@ public interface StatusDatastore {
      * call to the first page by setting its property maxItemsPerPage. For the subsequent calls of this method the next instance of the pagination context should be taken from the pagination response as is.
      * @return next page of matching Status objects.
      */
-    PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Status> context);
+	default PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+			PaginationContext<Status> context) {
+		return getForCustomer(customerId, null, null, sortBy, context);
+	}    
 
     /**
      * @param customerId - customer for which to retrieve status objects

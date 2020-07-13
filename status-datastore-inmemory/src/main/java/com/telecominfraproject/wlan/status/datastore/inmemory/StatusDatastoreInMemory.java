@@ -106,17 +106,7 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
 
     }
 
-    @Override
-    public List<Status> update(List<Status> statusList) {
-    	if(statusList == null || statusList.isEmpty()) {
-    		return Collections.emptyList();
-    	}
-    	
-    	List<Status> ret = new ArrayList<>(statusList.size());
-    	statusList.forEach(s -> ret.add(update(s)));
-    	
-    	return ret;
-    }
+
     
     @Override
     public List<Status> delete(int customerId, long equipmentId) {
@@ -194,15 +184,6 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
         }
     };
     
-    @Override
-    public PaginationResponse<Status> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
-
-    	PaginationFilter<Status> filter = (mdl) -> (mdl.getCustomerId() == customerId) ; 
-    	return getNextPage(filter, sortBy, context);
-
-    }   
-
     @Override
     public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
     		Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {

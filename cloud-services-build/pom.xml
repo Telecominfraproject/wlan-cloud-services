@@ -125,6 +125,7 @@
                                 <module>../status-datastore-inmemory</module>
                                 <module>../status-datastore-interface</module>
                                 <module>../status-datastore-rdbms</module>
+                                <module>../status-datastore-cassandra</module>
                                 <module>../status-models</module>
                                 <module>../status-service</module>
                                 <module>../status-service-interface</module>

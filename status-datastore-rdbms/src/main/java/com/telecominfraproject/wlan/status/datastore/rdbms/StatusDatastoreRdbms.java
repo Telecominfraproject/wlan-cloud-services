@@ -32,11 +32,6 @@ public class StatusDatastoreRdbms implements StatusDatastore {
     public Status update(Status status) {
         return statusDAO.update(status);
     }
-
-    @Override
-    public List<Status> update(List<Status> statusList) {
-        return statusDAO.update(statusList);
-    }
     
     @Override
     public List<Status> delete(int customerId, long equipmentId) {
@@ -47,18 +42,7 @@ public class StatusDatastoreRdbms implements StatusDatastore {
     public List<Status> get(int customerId, long equipmentId) {
     	return statusDAO.get(customerId, equipmentId);
     }
-    
-    @Override
-    public PaginationResponse<Status> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Status> context) {
-    	
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
-
-    	return statusDAO.getForCustomer( customerId, sortBy, context);
-    }
-    
+        
     @Override
     public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
     		Set<StatusDataType> statusDataTypes, List<ColumnAndSort> sortBy, PaginationContext<Status> context) {
