@@ -65,17 +65,17 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		if (radioType == RadioType.is5GHz) {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(36);
-			returnValue.setBackupChannelNumber(44);
+  			returnValue.setBackupChannelNumber(153);
 			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else if (radioType == RadioType.is5GHzL) {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(36);
-			returnValue.setBackupChannelNumber(44);
+			returnValue.setBackupChannelNumber(44);  
 			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else if (radioType == RadioType.is5GHzU) {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(149);
-			returnValue.setBackupChannelNumber(154);
+			returnValue.setBackupChannelNumber(154); 
 			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else {
 			returnValue.setChannelBandwidth(ChannelBandwidth.is20MHz);
