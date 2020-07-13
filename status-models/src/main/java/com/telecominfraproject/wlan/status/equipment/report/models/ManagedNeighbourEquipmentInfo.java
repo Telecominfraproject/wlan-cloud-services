@@ -40,6 +40,14 @@ public class ManagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 	    return this.radioInfo.get(radio);
 	}
 	
+	@JsonIgnore
+	public void setRadioInfo(RadioType radioType, NeighbourRadioInfo neighbourRadioInfo) {
+		if (this.radioInfo == null) {
+			this.radioInfo = new EnumMap<>(RadioType.class);
+		}
+	    this.radioInfo.put(radioType, neighbourRadioInfo);
+	}
+	
 	/**
 	 * This will return the "average" RSSI value for a specific radio based on the RSSIs
 	 * of it's independent SSIDs. 

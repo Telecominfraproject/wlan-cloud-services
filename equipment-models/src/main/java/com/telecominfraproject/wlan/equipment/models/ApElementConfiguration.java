@@ -97,15 +97,15 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 		return this.advancedRadioMap;
 	}
 
-	/**
-	 * BIG ASS NOTE: The first element in the map is the 5ghz radio (ie: get(0)) and
-	 * 2.4ghz is the second element (ie: get(1))
-	 * 
-	 * @return
-	 */
-
 	public Map<RadioType, ElementRadioConfiguration> getRadioMap() {
 		return radioMap;
+	}
+	
+	public ElementRadioConfiguration getElementRadioConfiguration(RadioType radioType) {
+		if (radioMap == null) {
+			return null;
+		}
+		return radioMap.get(radioType);
 	}
 
 	public static ApElementConfiguration createWithDefaults(String elementVersion, ApModel model) {

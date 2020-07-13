@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.status.network.models;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -15,7 +16,12 @@ public class RadioUtilizationDetails extends BaseJsonModel {
     private static final long serialVersionUID = 3034727832551606882L;
     
     private Map<RadioType, RadioUtilizationPerRadioDetails> perRadioDetails = new EnumMap<>(RadioType.class);
+    
 
+    public RadioUtilizationDetails() {
+    	// serialize
+    }
+    
     public Map<RadioType, RadioUtilizationPerRadioDetails> getPerRadioDetails() {
 		return perRadioDetails;
 	}
@@ -23,7 +29,7 @@ public class RadioUtilizationDetails extends BaseJsonModel {
 	public void setPerRadioDetails(Map<RadioType, RadioUtilizationPerRadioDetails> perRadioDetails) {
 		this.perRadioDetails = perRadioDetails;
 	}
-
+	
 	@Override
     public RadioUtilizationDetails clone() {
         RadioUtilizationDetails ret = (RadioUtilizationDetails) super.clone();
@@ -65,4 +71,31 @@ public class RadioUtilizationDetails extends BaseJsonModel {
         return this;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(perRadioDetails);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof RadioUtilizationDetails)) {
+            return false;
+        }
+        RadioUtilizationDetails other = (RadioUtilizationDetails) obj;
+        return Objects.equals(perRadioDetails, other.perRadioDetails);
+   }
+   
+   @Override
+   public boolean hasUnsupportedValue() {
+       if (super.hasUnsupportedValue()) {
+           return true;
+       }
+       return false;
+   }    
 }

@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.status.network.models;
 
+import java.util.Objects;
+
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
@@ -15,6 +17,10 @@ public class RadioUtilizationPerRadioDetails extends BaseJsonModel {
     private int avgAssocClientRx;
     private int avgUnassocClientRx;
     private int avgNonWifi;
+    
+    public RadioUtilizationPerRadioDetails() {
+    	// serialize
+    }
 
     public int getAvgAssocClientTx() {
         return avgAssocClientTx;
@@ -95,5 +101,35 @@ public class RadioUtilizationPerRadioDetails extends BaseJsonModel {
 
         return this;
     }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(avgAssocClientTx, avgUnassocClientTx, avgAssocClientRx, avgUnassocClientRx, avgNonWifi);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof RadioUtilizationPerRadioDetails)) {
+            return false;
+        }
+        RadioUtilizationPerRadioDetails other = (RadioUtilizationPerRadioDetails) obj;
+        return Objects.equals(avgAssocClientTx, other.avgAssocClientTx)
+                && Objects.equals(avgUnassocClientTx, other.avgUnassocClientTx) && Objects.equals(avgAssocClientRx, other.avgAssocClientRx) 
+                && Objects.equals(avgUnassocClientRx, other.avgUnassocClientRx) && Objects.equals(avgNonWifi, other.avgNonWifi);
+    }
+   
+   @Override
+   public boolean hasUnsupportedValue() {
+       if (super.hasUnsupportedValue()) {
+           return true;
+       }
+       return false;
+   }    
 
 }
