@@ -9,7 +9,7 @@
 **Running Sanity Tests:**
 1) Hover over collection and click the play arrow
 2) Click run. This will open the "Collection Runner"
-3) On Collection Runner, click "Run Profile-Equip..."
+3) On Collection Runner, click "Run ..."
 4) If everything works as it should, you should see 20 passed and 0 failed.
 
 **Common Codes:**
