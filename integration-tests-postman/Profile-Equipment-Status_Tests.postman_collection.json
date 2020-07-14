@@ -1,0 +1,1779 @@
+{
+	"info": {
+		"_postman_id": "e3d8a678-67db-41ff-8816-f6db4eb0374b",
+		"name": "Profile-Equipment-Status_Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Creates new Profile SSID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e53a4b84-1bf0-46a6-8a62-dd8ed7bb72c8",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// save the `id` returned in the response as an environment variable",
+							"var SSIDData = pm.response.json();",
+							"",
+							"var SSIDProfileData = SSIDData;",
+							"pm.environment.set(\"SSIDProfileData\", SSIDData);",
+							"var SSIDProfileID = SSIDData.id;",
+							"pm.environment.set(\"SSIDProfileID\", SSIDData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"model_type\": \"Profile\",\n  \"id\": 9,\n  \"customerId\": 100,\n  \"profileType\": \"ssid\",\n  \"name\": \"Eric-SSID-Profile\",\n  \"details\": {\n    \"model_type\": \"SsidConfiguration\",\n    \"ssid\": \"Eric-SSID-1594059439274\",\n    \"appliedRadios\": [\n      \"is2dot4GHz\",\n      \"is5GHzL\",\n      \"is5GHzU\"\n    ],\n    \"ssidAdminState\": \"enabled\",\n    \"secureMode\": \"wpaEAP\",\n    \"vlanId\": 1,\n    \"keyStr\": \"testing123\",\n    \"broadcastSsid\": \"enabled\",\n    \"keyRefresh\": 0,\n    \"noLocalSubnets\": false,\n    \"radiusServiceName\": \"Radius-Profile\",\n    \"captivePortalId\": null,\n    \"bandwidthLimitDown\": 0,\n    \"bandwidthLimitUp\": 0,\n    \"videoTrafficOnly\": false,\n    \"radioBasedConfigs\": {\n      \"is5GHz\": {\n        \"model_type\": \"RadioBasedSsidConfiguration\",\n        \"enable80211r\": null,\n        \"enable80211k\": null,\n        \"enable80211v\": null\n      },\n      \"is2dot4GHz\": {\n        \"model_type\": \"RadioBasedSsidConfiguration\",\n        \"enable80211r\": null,\n        \"enable80211k\": null,\n        \"enable80211v\": null\n      },\n      \"is5GHzU\": {\n        \"model_type\": \"RadioBasedSsidConfiguration\",\n        \"enable80211r\": null,\n        \"enable80211k\": null,\n        \"enable80211v\": null\n      },\n      \"is5GHzL\": {\n        \"model_type\": \"RadioBasedSsidConfiguration\",\n        \"enable80211r\": null,\n        \"enable80211k\": null,\n        \"enable80211v\": null\n      }\n    },\n    \"bonjourGatewayProfileId\": null,\n    \"enable80211w\": null,\n    \"wepConfig\": null,\n    \"forwardMode\": null,\n    \"profileType\": \"ssid\"\n  },\n  \"createdTimestamp\": 1594059439276,\n  \"lastModifiedTimestamp\": 1594059439276,\n  \"childProfileIds\": [\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				},
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				}
+			]
+		},
+		{
+			"name": "Confirm SSID profile exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "577d5176-c57e-49d8-9512-28f99162e137",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"id is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let savedProfileId = pm.environment.get(\"SSIDProfileID\");",
+							"    pm.expect(response.id).to.equal(savedProfileId);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "579ba789-e54d-4945-8243-862b0f555632",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profile?profileId={{SSIDProfileID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "profileId",
+							"value": "{{SSIDProfileID}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Creates new Profile Radius",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f1f0f739-b60f-4567-999a-6a1653420964",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// save the `id` returned in the response as an environment variable",
+							"var RadiusData = pm.response.json();",
+							"",
+							"var RadiusProfileData = RadiusData;",
+							"pm.environment.set(\"RadiusProfileData\", RadiusData);",
+							"var RadiusProfileID = RadiusData.id;",
+							"pm.environment.set(\"RadiusProfileID\", RadiusData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"model_type\": \"Profile\",\n  \"id\": 10,\n  \"customerId\": 100,\n  \"profileType\": \"radius\",\n  \"name\": \"Eric-Radius-Profile\",\n  \"details\": {\n    \"model_type\": \"RadiusProfile\",\n    \"subnetConfiguration\": null,\n    \"serviceRegionMap\": {\n      \"Ottawa\": {\n        \"model_type\": \"RadiusServiceRegion\",\n        \"serverMap\": {\n          \"Radius-Profile\": [\n            {\n              \"model_type\": \"RadiusServer\",\n              \"ipAddress\": \"192.168.0.1\",\n              \"secret\": \"testing123\",\n              \"authPort\": 1812,\n              \"timeout\": null\n            }\n          ]\n        },\n        \"regionName\": \"Ottawa\"\n      }\n    },\n    \"profileType\": \"radius\"\n  },\n  \"createdTimestamp\": 1594059439263,\n  \"lastModifiedTimestamp\": 1594059439263,\n  \"childProfileIds\": []\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Confirm Radius Profile exists",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ca6e45c5-a350-40c5-868c-ac3595a5c33d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "089905a7-fb50-4275-b7f5-1c9e3bb96dde",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"id is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let savedProfileId = pm.environment.get(\"RadiusProfileID\");",
+							"    pm.expect(response.id).to.equal(savedProfileId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profile?profileId={{RadiusProfileID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "profileId",
+							"value": "{{RadiusProfileID}}",
+							"description": "(Required) Profile ID"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Creates new Profile AP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "deb3177e-e65c-4f8c-9afd-b7687650319b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// save the `id` returned in the response as an environment variable",
+							"var APData = pm.response.json();",
+							"",
+							"var APProfileData = APData;",
+							"pm.environment.set(\"APProfileData\", APData);",
+							"var APProfileID = APData.id;",
+							"pm.environment.set(\"APProfileID\", APData.id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"model_type\": \"Profile\",\n  \"id\": 11,\n  \"customerId\": 100,\n  \"profileType\": \"equipment_ap\",\n  \"name\": \"Eric-AP-Profile\",\n  \"details\": {\n    \"model_type\": \"ApNetworkConfiguration\",\n    \"networkConfigVersion\": \"AP-1\",\n    \"equipmentType\": \"AP\",\n    \"vlanNative\": true,\n    \"vlan\": 0,\n    \"ntpServer\": {\n      \"model_type\": \"AutoOrManualString\",\n      \"auto\": true,\n      \"value\": \"pool.ntp.org\"\n    },\n    \"syslogRelay\": null,\n    \"rtlsSettings\": null,\n    \"syntheticClientEnabled\": true,\n    \"ledControlEnabled\": true,\n    \"equipmentDiscovery\": false,\n    \"radioMap\": {\n      \"is5GHz\": {\n        \"model_type\": \"RadioProfileConfiguration\",\n        \"bestApEnabled\": true,\n        \"bestAPSteerType\": \"both\"\n      },\n      \"is2dot4GHz\": {\n        \"model_type\": \"RadioProfileConfiguration\",\n        \"bestApEnabled\": true,\n        \"bestAPSteerType\": \"both\"\n      }\n    },\n    \"profileType\": \"equipment_ap\"\n  },\n  \"createdTimestamp\": 1594059439474,\n  \"lastModifiedTimestamp\": 1594059439474,\n  \"childProfileIds\": [\n\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Confirm Profile AP exists",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "33a7bf7a-0d9e-4db9-b2a6-ec35ab7e8cdf",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "c3de4ce1-569e-4ce6-8fbd-25e8384527a9",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"id is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let savedProfileId = pm.environment.get(\"APProfileID\");",
+							"    pm.expect(response.id).to.equal(savedProfileId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profile?profileId={{APProfileID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "profileId",
+							"value": "{{APProfileID}}",
+							"description": "(Required) Profile ID"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				},
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				}
+			]
+		},
+		{
+			"name": "Tie AP to SSID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "885a9784-ebfa-4e6a-9677-09075baf1491",
+						"exec": [
+							"let APData = pm.environment.get(\"APProfileData\");",
+							"",
+							"let SSIDID = pm.environment.get(\"SSIDProfileID\")",
+							"APData['childProfileIds'].push(SSIDID);",
+							"",
+							"var putBody = JSON.stringify(APData);",
+							"pm.environment.set(\"putBody\", JSON.stringify(APData));",
+							"",
+							"console.log(putBody);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "23a16ed7-2a36-41ba-a553-41b6dc0c37f8",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{putBody}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profile/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Confirm AP and SSID are linked",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fb6552f3-9045-4bc2-96e6-280e43b92411",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "713184ea-e975-4bd2-99b7-a53abd4230f2",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"id is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let linkedSSIDID = pm.environment.get(\"SSIDProfileID\");",
+							"    pm.expect(response.childProfileIds[0]).to.equal(linkedSSIDID);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profile?profileId={{APProfileID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "profileId",
+							"value": "{{APProfileID}}",
+							"description": "(Required) Profile ID"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				},
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				}
+			]
+		},
+		{
+			"name": "Tie SSID to Radius",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "784c8ac2-67b2-4f0a-9fc2-4e65facb0581",
+						"exec": [
+							"let SSIDData = pm.environment.get(\"SSIDProfileData\");",
+							"",
+							"let RadiusID = pm.environment.get(\"RadiusProfileID\")",
+							"SSIDData['childProfileIds'].push(RadiusID);",
+							"",
+							"var putBody = JSON.stringify(SSIDData);",
+							"pm.environment.set(\"putBody\", JSON.stringify(SSIDData));",
+							"",
+							"console.log(putBody);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "42a31129-ecfe-4d03-a93f-1764ec047fd6",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{putBody}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profile/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				},
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileType\": \"equipment_ap\",\n    \"customerId\": 2,\n    \"name\": \"example AP profile\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				}
+			]
+		},
+		{
+			"name": "Confirm SSID and Radius are linked Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "57561089-eeb4-4734-9459-2ec8555b52c3",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7c179359-5023-492c-b496-75ffde9349d1",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"id is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let linkedRadiusId = pm.environment.get(\"RadiusProfileID\");",
+							"    pm.expect(response.childProfileIds[0]).to.equal(linkedRadiusId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profile?profileId={{SSIDProfileID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "profileId",
+							"value": "{{SSIDProfileID}}",
+							"description": "(Required) Profile ID"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"in est in elit Duis\",\n \"path\": \"exercitation ut dolore\",\n \"timestamp\": -58377942\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile?profileId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							],
+							"query": [
+								{
+									"key": "profileId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"profileType\": \"equipment_ap\",\n \"customerId\": 2,\n \"name\": \"example AP profile\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get an AP - to link to",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2ab469ff-4889-4cce-bf84-27b7993cd9a5",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// save the `id` returned in the response as an environment variable",
+							"var APTemplate = pm.response.json();",
+							"",
+							"var APEquipmentTemplate = APTemplate;",
+							"pm.environment.set(\"APEquipmentTemplate\", APTemplate);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/equipment?equipmentId=2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"equipment"
+					],
+					"query": [
+						{
+							"key": "equipmentId",
+							"value": "2",
+							"description": "(Required) Equipment ID"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment?equipmentId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"equipment"
+							],
+							"query": [
+								{
+									"key": "equipmentId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"Excepteur velit ad\",\n \"path\": \"dolore est\",\n \"timestamp\": -50408857\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment?equipmentId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"equipment"
+							],
+							"query": [
+								{
+									"key": "equipmentId",
+									"value": "<long>"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"equipmentType\": \"AP\",\n \"customerId\": 2,\n \"profileId\": 1,\n \"locationId\": 2,\n \"inventoryId\": \"example_ap\",\n \"serial\": \"example_serial\",\n \"name\": \"example AP\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Link AP to AP Profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "91695167-0439-43d6-9acc-66e44168290d",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// save the `id` returned in the response as an environment variable",
+							"var APResponse = pm.response.json();",
+							"",
+							"var APEquipmentData = APResponse;",
+							"pm.environment.set(\"APEquipmentData\", APResponse);",
+							"var ApEquipmentId = APResponse.id;",
+							"pm.environment.set(\"ApEquipmentId\", APResponse.id);",
+							"",
+							"console.log(APEquipmentData);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "67e07aef-4004-437f-8c72-9768b6d462e9",
+						"exec": [
+							"let APEquipment = pm.environment.get(\"APEquipmentTemplate\");",
+							"",
+							"let APID = pm.environment.get(\"APProfileID\");",
+							"APEquipment.profileId = APID",
+							"",
+							"var putBody = JSON.stringify(APEquipment);",
+							"pm.environment.set(\"putBody\", JSON.stringify(APEquipment));",
+							"",
+							"console.log(putBody);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{putBody}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/equipment",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"equipment"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"equipmentType\": \"AP\",\n    \"customerId\": 2,\n    \"profileId\": 1,\n    \"locationId\": 2,\n    \"inventoryId\": \"example_ap\",\n    \"serial\": \"example_serial\",\n    \"name\": \"example AP\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"equipment"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"Excepteur velit ad\",\n \"path\": \"dolore est\",\n \"timestamp\": -50408857\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"equipmentType\": \"AP\",\n    \"customerId\": 2,\n    \"profileId\": 1,\n    \"locationId\": 2,\n    \"inventoryId\": \"example_ap\",\n    \"serial\": \"example_serial\",\n    \"name\": \"example AP\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/equipment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"equipment"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"equipmentType\": \"AP\",\n \"customerId\": 2,\n \"profileId\": 1,\n \"locationId\": 2,\n \"inventoryId\": \"example_ap\",\n \"serial\": \"example_serial\",\n \"name\": \"example AP\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Send status update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "80f11c40-649c-43b4-98de-d94f2a532f31",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var Response = pm.response.json();",
+							"",
+							"var APStatusUpdate = Response;",
+							"pm.environment.set(\"APStatusUpdate\", Response);",
+							"var statusDataType = APStatusUpdate.statusDataType;",
+							"pm.environment.set(\"statusDataType\", APStatusUpdate.statusDataType);",
+							"",
+							"console.log(statusDataType);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"model_type\": \"Status\",\n  \"customerId\": 2,\n  \"equipmentId\": 2,\n  \"statusDataType\": \"CUSTOMER_DASHBOARD\",\n  \"details\": {\n    \"model_type\": \"CustomerPortalDashboardStatus\",\n    \"timeBucketId\": 1594139400000,\n    \"timeBucketMs\": 300000,\n    \"equipmentInServiceCount\": 2,\n    \"equipmentWithClientsCount\": 2,\n    \"associatedClientsCountPerRadio\": {\n      \"is2dot4GHz\": 90,\n      \"is5GHzU\": 70,\n      \"is5GHzL\": 70\n    },\n    \"trafficBytesDownstream\": 80442340,\n    \"trafficBytesUpstream\": 19208759,\n    \"clientCountPerOui\": {\n      \"000001\": 30,\n      \"000000\": 8,\n      \"0F0F0F\": 42\n    },\n    \"totalProvisionedEquipment\": 10,\n    \"equipmentCountPerOui\": {\n      \"749CE3\": 50,\n      \"1CEA0B\": 1,\n      \"3C2C99\": 1\n    },\n    \"statusDataType\": \"CUSTOMER_DASHBOARD\"\n  },\n  \"createdTimestamp\": 1594139529086,\n  \"lastModifiedTimestamp\": 1594139529086\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"status"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model_type\": \"<string>\",\n    \"customerId\": \"<integer>\",\n    \"equipmentId\": \"<long>\",\n    \"statusDataType\": \"<string>\",\n    \"statusDetails\": {\n        \"model_type\": \"<string>\",\n        \"statusDataType\": \"<string>\",\n        \"activeBSSIDs\": [\n            {\n                \"model_type\": \"<string>\",\n                \"bssid\": \"<string>\",\n                \"ssid\": \"<string>\",\n                \"radioType\": \"<string>\",\n                \"numDevicesConnected\": \"<integer>\"\n            },\n            {\n                \"model_type\": \"<string>\",\n                \"bssid\": \"<string>\",\n                \"ssid\": \"<string>\",\n                \"radioType\": \"<string>\",\n                \"numDevicesConnected\": \"<integer>\"\n            }\n        ]\n    },\n    \"createdTimestamp\": \"<long>\",\n    \"lastModifiedTimestamp\": \"<long>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"status"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"incididunt aute cupidatat commodo ipsum\",\n \"path\": \"Ut non\",\n \"timestamp\": 38251629\n}"
+				},
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model_type\": \"<string>\",\n    \"customerId\": \"<integer>\",\n    \"equipmentId\": \"<long>\",\n    \"statusDataType\": \"<string>\",\n    \"statusDetails\": {\n        \"model_type\": \"<string>\",\n        \"statusDataType\": \"<string>\",\n        \"activeBSSIDs\": [\n            {\n                \"model_type\": \"<string>\",\n                \"bssid\": \"<string>\",\n                \"ssid\": \"<string>\",\n                \"radioType\": \"<string>\",\n                \"numDevicesConnected\": \"<integer>\"\n            },\n            {\n                \"model_type\": \"<string>\",\n                \"bssid\": \"<string>\",\n                \"ssid\": \"<string>\",\n                \"radioType\": \"<string>\",\n                \"numDevicesConnected\": \"<integer>\"\n            }\n        ]\n    },\n    \"createdTimestamp\": \"<long>\",\n    \"lastModifiedTimestamp\": \"<long>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"status"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"model_type\": \"<string>\",\n \"customerId\": \"<integer>\",\n \"equipmentId\": \"<long>\",\n \"statusDataType\": \"<string>\",\n \"statusDetails\": {\n  \"model_type\": \"<string>\",\n  \"statusDataType\": \"<string>\",\n  \"activeBSSIDs\": [\n   {\n    \"model_type\": \"<string>\",\n    \"bssid\": \"<string>\",\n    \"ssid\": \"<string>\",\n    \"radioType\": \"<string>\",\n    \"numDevicesConnected\": \"<integer>\"\n   },\n   {\n    \"model_type\": \"<string>\",\n    \"bssid\": \"<string>\",\n    \"ssid\": \"<string>\",\n    \"radioType\": \"<string>\",\n    \"numDevicesConnected\": \"<integer>\"\n   }\n  ]\n },\n \"createdTimestamp\": \"<long>\",\n \"lastModifiedTimestamp\": \"<long>\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get status update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "beef829c-1f4e-41a8-8257-37099710e6bf",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response is correct\", function () {",
+							"    let response = pm.response.json();",
+							"    let sentDataType = pm.environment.get(\"statusDataType\");",
+							"    pm.expect(response.statusDataType).to.equal(sentDataType);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/status/orNull?customerId=2&equipmentId=2&statusDataType={{statusDataType}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"status",
+						"orNull"
+					],
+					"query": [
+						{
+							"key": "customerId",
+							"value": "2",
+							"description": "(Required) Customer ID"
+						},
+						{
+							"key": "equipmentId",
+							"value": "2",
+							"description": "(Required) Equipment ID"
+						},
+						{
+							"key": "statusDataType",
+							"value": "{{statusDataType}}",
+							"description": "(Required) Status Data Type"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful operation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/status/orNull?customerId=<integer>&equipmentId=<long>&statusDataType=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"status",
+								"orNull"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "<integer>"
+								},
+								{
+									"key": "equipmentId",
+									"value": "<long>"
+								},
+								{
+									"key": "statusDataType",
+									"value": ""
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"model_type\": \"<string>\",\n \"customerId\": \"<integer>\",\n \"equipmentId\": \"<long>\",\n \"statusDataType\": \"<string>\",\n \"statusDetails\": {\n  \"model_type\": \"<string>\",\n  \"statusDataType\": \"<string>\",\n  \"activeBSSIDs\": [\n   {\n    \"model_type\": \"<string>\",\n    \"bssid\": \"<string>\",\n    \"ssid\": \"<string>\",\n    \"radioType\": \"<string>\",\n    \"numDevicesConnected\": \"<integer>\"\n   },\n   {\n    \"model_type\": \"<string>\",\n    \"bssid\": \"<string>\",\n    \"ssid\": \"<string>\",\n    \"radioType\": \"<string>\",\n    \"numDevicesConnected\": \"<integer>\"\n   }\n  ]\n },\n \"createdTimestamp\": \"<long>\",\n \"lastModifiedTimestamp\": \"<long>\"\n}"
+				},
+				{
+					"name": "this object is returned in the cases when an API throws an exception",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/status/orNull?customerId=<integer>&equipmentId=<long>&statusDataType=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"status",
+								"orNull"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "<integer>"
+								},
+								{
+									"key": "equipmentId",
+									"value": "<long>"
+								},
+								{
+									"key": "statusDataType",
+									"value": ""
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"exType\": \"IllegalStateException\",\n \"error\": \"incididunt aute cupidatat commodo ipsum\",\n \"path\": \"Ut non\",\n \"timestamp\": 38251629\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "accessToken",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "130084d0-9dde-4d66-9333-1c4f5558f8ed",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "caa0fc01-cee9-420d-a685-27a3c9786b58",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "ff91b142-12a0-4f2c-98af-13e68457979e",
+			"key": "baseUrl",
+			"value": "https://localhost:9091"
+		},
+		{
+			"id": "add1c03f-f15c-4664-91d5-b0bfb10fe8c0",
+			"key": "SSIDID",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}
