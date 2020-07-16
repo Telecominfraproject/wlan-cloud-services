@@ -7,3 +7,5 @@ insert into equipment_location (id, locationType, customerId, name, parentId, cr
 values (2, 2, 2, 'TipBuilding', 1, 0,0) ON CONFLICT (id) DO NOTHING;
 insert into equipment_location (id, locationType, customerId, name, parentId, createdTimestamp, lastModifiedTimestamp)
 values (3, 3, 2, 'FirstFloor', 2, 0,0) ON CONFLICT (id) DO NOTHING;
+insert into equipment_location (id, locationType, customerId, name, parentId, createdTimestamp, lastModifiedTimestamp)
+values (8, 1, 2, 'Toronto', null, 0,0) ON CONFLICT (id) DO NOTHING;
