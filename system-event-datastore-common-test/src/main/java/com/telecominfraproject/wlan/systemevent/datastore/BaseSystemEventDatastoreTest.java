@@ -32,7 +32,7 @@ public abstract class BaseSystemEventDatastoreTest {
     @Autowired
     protected SystemEventDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    protected static final AtomicLong testSequence = new AtomicLong(1);
 
     @Test
     public void testCRD() {
@@ -90,6 +90,8 @@ public abstract class BaseSystemEventDatastoreTest {
         long fromTime = 0;
         long toTime = baseTimestamp;
         
+        Set<Long> used_equipmentIds = new HashSet<>();
+
         //create System events
         
         //events to be tested
@@ -106,6 +108,7 @@ public abstract class BaseSystemEventDatastoreTest {
             apNameIdx++;
 
             testInterface.create(systemEventRecord);
+            used_equipmentIds.add(systemEventRecord.getEquipmentId());
         }
 
         //events outside the target time
@@ -122,6 +125,7 @@ public abstract class BaseSystemEventDatastoreTest {
             apNameIdx++;
 
             testInterface.create(systemEventRecord);
+            used_equipmentIds.add(systemEventRecord.getEquipmentId());
         }
         
         //events for another customer
@@ -138,6 +142,7 @@ public abstract class BaseSystemEventDatastoreTest {
             apNameIdx++;
 
             testInterface.create(systemEventRecord);
+            used_equipmentIds.add(systemEventRecord.getEquipmentId());
         }
 
         //paginate over events
@@ -216,7 +221,11 @@ public abstract class BaseSystemEventDatastoreTest {
         
         assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);        
 
-        testInterface.delete(System.currentTimeMillis());
+        //testInterface.delete(System.currentTimeMillis());
+        
+        used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
+        used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
+
      }
     
     
@@ -497,6 +506,9 @@ public abstract class BaseSystemEventDatastoreTest {
        
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
+
+       Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
+       Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
 
     }
     

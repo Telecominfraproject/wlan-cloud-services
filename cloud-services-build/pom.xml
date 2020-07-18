@@ -94,6 +94,7 @@
                                 <module>../service-metric-datastore-inmemory</module>
                                 <module>../service-metric-datastore-interface</module>
                                 <module>../service-metric-datastore-rdbms</module>
+                                <module>../service-metric-datastore-cassandra</module>
                                 <module>../service-metric-models</module>
                                 <module>../service-metric-service</module>
                                 <module>../service-metric-service-interface</module>
@@ -104,6 +105,7 @@
                                 <module>../system-event-datastore-inmemory</module>
                                 <module>../system-event-datastore-interface</module>
                                 <module>../system-event-datastore-rdbms</module>
+                                <module>../system-event-datastore-cassandra</module>
                                 <module>../system-event-models</module>
                                 <module>../system-event-service</module>
                                 <module>../system-event-service-interface</module>
@@ -136,6 +138,7 @@
                                 <module>../client-datastore-inmemory</module>
                                 <module>../client-datastore-interface</module>
                                 <module>../client-datastore-rdbms</module>
+                                <module>../client-datastore-cassandra</module>
                                 <module>../client-models</module>
                                 <module>../client-service</module>
                                 <module>../client-service-interface</module>
@@ -146,6 +149,7 @@
                                 <module>../routing-datastore-inmemory</module>
                                 <module>../routing-datastore-interface</module>
                                 <module>../routing-datastore-rdbms</module>
+                                <module>../routing-datastore-cassandra</module>
                                 <module>../routing-models</module>
                                 <module>../routing-service</module>
                                 <module>../routing-service-interface</module>

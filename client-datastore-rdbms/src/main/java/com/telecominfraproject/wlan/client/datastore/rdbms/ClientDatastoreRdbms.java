@@ -72,11 +72,6 @@ public class ClientDatastoreRdbms implements ClientDatastore {
 	}
 
 	@Override
-	public List<ClientSession> updateSessions(List<ClientSession> clientSessions) {
-		return clientSessionDAO.updateSessions(clientSessions);
-	}
-
-	@Override
 	public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
 		return clientSessionDAO.deleteSession(customerId, equipmentId, clientMac);
 	}

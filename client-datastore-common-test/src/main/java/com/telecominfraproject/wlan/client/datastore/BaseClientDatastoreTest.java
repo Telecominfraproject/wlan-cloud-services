@@ -38,7 +38,7 @@ public abstract class BaseClientDatastoreTest {
     @Autowired
     protected ClientDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(2);
+    protected static final AtomicLong testSequence = new AtomicLong(2);
 
     @Test
     public void testCRUD() {
@@ -164,6 +164,8 @@ public abstract class BaseClientDatastoreTest {
        Client mdl;
        int customerId_1 = (int) testSequence.incrementAndGet();
        int customerId_2 = (int) testSequence.incrementAndGet();
+
+       List<Client> created_models = new ArrayList<>();
        
        int apNameIdx = 0;
        
@@ -176,7 +178,8 @@ public abstract class BaseClientDatastoreTest {
            mdl.setMacAddress(new MacAddress((long)i));
 
            apNameIdx++;
-           testInterface.create(mdl);
+           mdl = testInterface.create(mdl);
+           created_models.add(mdl);
        }
 
        for(int i = 0; i< 50; i++){
@@ -188,7 +191,8 @@ public abstract class BaseClientDatastoreTest {
            mdl.setMacAddress(new MacAddress((long)i));
            
            apNameIdx++;
-           testInterface.create(mdl);
+           mdl = testInterface.create(mdl);
+           created_models.add(mdl);
        }
 
        //paginate over Clients
@@ -236,13 +240,6 @@ public abstract class BaseClientDatastoreTest {
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
-//       System.out.println("================================");
-//       for(Client pmdl: page3.getItems()){
-//           System.out.println(pmdl);
-//       }
-//       System.out.println("================================");
-//       System.out.println("Context: "+ page3.getContext());
-//       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
        PaginationResponse<Client> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
@@ -274,6 +271,8 @@ public abstract class BaseClientDatastoreTest {
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
        
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
+
+       created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
 
     }
 
@@ -332,6 +331,7 @@ public abstract class BaseClientDatastoreTest {
 
         //update non-existent
       	testInterface.updateSession(retrieved);
+      	testInterface.deleteSession(retrieved.getCustomerId(), retrieved.getEquipmentId(), retrieved.getMacAddress());
 
     }
     
@@ -438,6 +438,8 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(detailsToCreateList, createdDetailsList);
        
 
+       List<ClientSession> createdListExtra = new ArrayList<>(); 
+       
        for(int i = 0; i< 50; i++){
            mdl = new ClientSession();
            mdl.setCustomerId(customerId_2);
@@ -449,7 +451,8 @@ public abstract class BaseClientDatastoreTest {
            mdl.setMacAddress(new MacAddress((long)i));
            
            apNameIdx++;
-           testInterface.updateSession(mdl);
+           mdl = testInterface.updateSession(mdl);
+           createdListExtra.add(mdl);
        }
 
        //paginate over Clients
@@ -497,13 +500,6 @@ public abstract class BaseClientDatastoreTest {
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
-//       System.out.println("================================");
-//       for(Client pmdl: page3.getItems()){
-//           System.out.println(pmdl);
-//       }
-//       System.out.println("================================");
-//       System.out.println("Context: "+ page3.getContext());
-//       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
        PaginationResponse<ClientSession> page1EmptySort = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.emptyList(), context);
@@ -665,9 +661,11 @@ public abstract class BaseClientDatastoreTest {
 
        assertEquals(expectedPage1Eq_1Strings, actualPage1Loc_121Strings);
 
+       createdList.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
+       createdListExtra.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
     }
     
-    private ClientSession createClientSessionObject() {
+    protected ClientSession createClientSessionObject() {
     	ClientSession result = new ClientSession();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);
@@ -679,7 +677,7 @@ public abstract class BaseClientDatastoreTest {
     }
 
     
-    private Client createClientObject() {
+    protected Client createClientObject() {
     	Client result = new Client();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);

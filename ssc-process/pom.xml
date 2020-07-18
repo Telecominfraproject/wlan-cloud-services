@@ -60,8 +60,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to Cassandra -->
-        <artifactId>service-metric-datastore-inmemory</artifactId>
+        <artifactId>service-metric-datastore-cassandra</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -73,8 +72,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to Cassandra -->
-        <artifactId>system-event-datastore-inmemory</artifactId>
+        <artifactId>system-event-datastore-cassandra</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -98,8 +96,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to Cassandra -->
-        <artifactId>status-datastore-inmemory</artifactId>
+        <artifactId>status-datastore-cassandra</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -111,8 +108,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to Cassandra -->
-        <artifactId>client-datastore-inmemory</artifactId>
+        <artifactId>client-datastore-cassandra</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
@@ -124,8 +120,7 @@
       </dependency>
       
       <dependency>
-      <!-- Use in-memory DS for now, later switch to Cassandra -->
-        <artifactId>routing-datastore-inmemory</artifactId>
+        <artifactId>routing-datastore-cassandra</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>      

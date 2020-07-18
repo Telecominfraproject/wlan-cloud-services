@@ -38,7 +38,7 @@ public abstract class BaseServiceMetricDatastoreTest {
     @Autowired
     protected ServiceMetricDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    protected static final AtomicLong testSequence = new AtomicLong(1);
 
     @Test
     public void testCRD() {
@@ -105,6 +105,8 @@ public abstract class BaseServiceMetricDatastoreTest {
         
         //create 150 Service metrics
         
+        Set<Long> used_equipmentIds = new HashSet<>();
+        
         //metrics to be tested
         for(int i = 0; i< 50; i++){
         	ServiceMetric serviceMetric = new ServiceMetric();
@@ -120,6 +122,7 @@ public abstract class BaseServiceMetricDatastoreTest {
             apNameIdx++;
 
             testInterface.create(serviceMetric);
+            used_equipmentIds.add(serviceMetric.getEquipmentId());
         }
 
         //metrics outside the target time
@@ -137,6 +140,7 @@ public abstract class BaseServiceMetricDatastoreTest {
             apNameIdx++;
 
             testInterface.create(serviceMetric);
+            used_equipmentIds.add(serviceMetric.getEquipmentId());
         }
         
         //metrics for another customer
@@ -154,6 +158,7 @@ public abstract class BaseServiceMetricDatastoreTest {
             apNameIdx++;
 
             testInterface.create(serviceMetric);
+            used_equipmentIds.add(serviceMetric.getEquipmentId());
         }
 
         //paginate over Metrics
@@ -232,7 +237,9 @@ public abstract class BaseServiceMetricDatastoreTest {
         
         assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);        
 
-        testInterface.delete(System.currentTimeMillis());
+        used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
+        used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
+
      }
     
     
@@ -241,7 +248,7 @@ public abstract class BaseServiceMetricDatastoreTest {
        //create 30 Metrics for our customer_1: 3 metrics per 10 equipment 
        int customerId_1 = (int) testSequence.incrementAndGet();
        int customerId_2 = (int) testSequence.incrementAndGet();
-       
+     
        long[] equipmentIds_1 = new long[10];
        for(int i=0; i<10; i++) {
     	   equipmentIds_1[i] =  testSequence.incrementAndGet(); 
@@ -589,6 +596,8 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
 
+       Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
+       Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
 
     }
 

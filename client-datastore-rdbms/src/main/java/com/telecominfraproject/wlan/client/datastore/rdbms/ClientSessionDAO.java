@@ -290,13 +290,6 @@ public class ClientSessionDAO extends BaseJdbcDao {
         return clientSessionCopy;
     }
 
-	public List<ClientSession> updateSessions(List<ClientSession> sessionList) {
-		List<ClientSession> ret = new ArrayList<>();
-		if (sessionList != null) {
-			sessionList.forEach(s -> ret.add(updateSession(s)));
-		}
-		return ret;
-	}
 
     public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
         ClientSession client = getSessionOrNull(customerId, equipmentId, clientMac);

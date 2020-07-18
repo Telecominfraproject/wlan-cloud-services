@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.client.datastore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -53,8 +54,16 @@ public interface ClientDatastore {
     
     ClientSession getSessionOrNull(int customerId, long equipmentId, MacAddress clientMac);
     ClientSession updateSession(ClientSession clientSession);
-    List<ClientSession> updateSessions(List<ClientSession> clientSession);
+    
+	default List<ClientSession> updateSessions(List<ClientSession> sessionList) {
+		List<ClientSession> ret = new ArrayList<>();
+		if (sessionList != null) {
+			sessionList.forEach(s -> ret.add(updateSession(s)));
+		}
+		return ret;
+	}
 
+    
     ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac);
     
     /**

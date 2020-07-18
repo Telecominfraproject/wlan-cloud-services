@@ -36,7 +36,7 @@ public abstract class BaseRoutingDatastoreTest {
     @Autowired
     protected RoutingDatastore testInterface;
 
-    private static final AtomicLong testSequence = new AtomicLong(1);
+    protected static final AtomicLong testSequence = new AtomicLong(1);
 
     @Test
     public void testCRUD() {
@@ -194,6 +194,8 @@ public abstract class BaseRoutingDatastoreTest {
 	   gateway.setIpAddr("127.0.0.1");
 	   gateway.setPort(4242);
 	   gateway = testInterface.registerGateway(gateway);
+	   
+	   List<EquipmentRoutingRecord> createdRecords = new ArrayList<>(); 
        
        long eqId = 0;
        
@@ -204,7 +206,8 @@ public abstract class BaseRoutingDatastoreTest {
            mdl.setEquipmentId(eqId);
 
            eqId++;
-           testInterface.create(mdl);
+           mdl = testInterface.create(mdl);
+           createdRecords.add(mdl);
        }
 
        for(int i = 0; i< 50; i++){
@@ -214,7 +217,8 @@ public abstract class BaseRoutingDatastoreTest {
            mdl.setEquipmentId(eqId);
 
            eqId++;
-           testInterface.create(mdl);
+           mdl = testInterface.create(mdl);
+           createdRecords.add(mdl);
        }
 
        //paginate over Routings
@@ -262,13 +266,6 @@ public abstract class BaseRoutingDatastoreTest {
        
        assertEquals(expectedPage3Longs, actualPage3Longs);
 
-//       System.out.println("================================");
-//       for(EquipmentRoutingRecord pmdl: page3.getItems()){
-//           System.out.println(pmdl);
-//       }
-//       System.out.println("================================");
-//       System.out.println("Context: "+ page3.getContext());
-//       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
        PaginationResponse<EquipmentRoutingRecord> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
@@ -300,6 +297,9 @@ public abstract class BaseRoutingDatastoreTest {
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescLongs.add( ce.getEquipmentId()) );
        
        assertEquals(expectedPage1SingleSortDescLongs, actualPage1SingleSortDescLongs);
+
+       createdRecords.forEach(r -> testInterface.delete(r.getId()));
+       testInterface.deleteGateway(gateway.getId());
 
     }
     
@@ -442,9 +442,13 @@ public abstract class BaseRoutingDatastoreTest {
         assertTrue(retrievedRouteList.contains(routing1_1));
         assertTrue(retrievedRouteList.contains(routing1_2));
         assertFalse(retrievedRouteList.contains(routing1_3));
-        
 
-        //delete
+        //delete routes
+        testInterface.delete(routing1_1.getId());
+    	testInterface.delete(routing1_2.getId());
+    	testInterface.delete(routing1_3.getId());
+
+        //delete gateways
         retrievedList = testInterface.deleteGateway(gateway1.getHostname());
         assertNotNull(retrievedList);
         assertTrue(retrievedList.contains(gateway1));
@@ -465,10 +469,12 @@ public abstract class BaseRoutingDatastoreTest {
         }catch(DsEntityNotFoundException e ){
         	//expected it
         }
+        
+        testInterface.deleteGateway(gateway3.getId());
 
     }
  
-    private EquipmentRoutingRecord createEquipmentRoutingRecordObject() {
+    protected EquipmentRoutingRecord createEquipmentRoutingRecordObject() {
     	EquipmentRoutingRecord result = new EquipmentRoutingRecord();
         long nextId = testSequence.getAndIncrement();
         result.setCustomerId((int) nextId);

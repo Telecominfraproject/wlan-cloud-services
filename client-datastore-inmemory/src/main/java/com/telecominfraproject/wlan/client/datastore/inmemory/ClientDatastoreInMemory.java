@@ -281,17 +281,6 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         
         return sessionCopy.clone();
     }
-    
-    @Override
-    public List<ClientSession> updateSessions(List<ClientSession> clientSession) {
-    	List<ClientSession> ret = new ArrayList<>();
-
-    	if(clientSession!=null && !clientSession.isEmpty()) {
-    		clientSession.forEach(c -> ret.add(updateSession(c)));
-    	}
-    	
-    	return ret;
-    }
 
     @Override
     public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
