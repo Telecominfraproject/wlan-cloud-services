@@ -14,10 +14,12 @@
     <artifactId>schema-generator</artifactId>
 
     <properties>
-        <prov-postgres-sql-schema>prov_aggregated_schema.sql</prov-postgres-sql-schema>
+        <prov-postgres-user-db-sql-schema>prov_user_db_schema.sql</prov-postgres-user-db-sql-schema>
+        <prov-postgres-tables-sql-schema>prov_tables_aggregated_schema.sql</prov-postgres-tables-sql-schema>
         <ssc-cassandra-sql-schema>ssc_aggregated_schema.cql</ssc-cassandra-sql-schema>
         <jfrog-url>https://tip.jfrog.io/artifactory/tip-wlan-cloud-schemas</jfrog-url>
-        <jfrog-postgres-target-file-path>${project.version}/sql/cloud-sdk-schema-postgresql.sql</jfrog-postgres-target-file-path>
+        <jfrog-postgres-db-target-file-path>${project.version}/sql/cloud-sdk-schema-postgresql-db-user.sql</jfrog-postgres-db-target-file-path>
+        <jfrog-postgres-tables-target-file-path>${project.version}/sql/cloud-sdk-schema-postgresql-tables.sql</jfrog-postgres-tables-target-file-path>
         <jfrog-cassandra-target-file-path>${project.version}/cql/cloud-sdk-schema-cassandra.cql</jfrog-cassandra-target-file-path>
     </properties>
 
@@ -39,11 +41,13 @@
                             <executable>bash</executable>
                             <arguments>
                                 <argument>./src/main/resources/aggregate-schema-prov.sh</argument>
-                                <argument>${prov-postgres-sql-schema}</argument>
+                                <argument>${prov-postgres-user-db-sql-schema}</argument>
+                                <argument>${prov-postgres-tables-sql-schema}</argument>
                                 <argument>${schema-repository-user}</argument>
                                 <argument>${schema-repository-password}</argument>
                                 <argument>${jfrog-url}</argument>
-                                <argument>${jfrog-postgres-target-file-path}</argument>
+                                <argument>${jfrog-postgres-db-target-file-path}</argument>
+                                <argument>${jfrog-postgres-tables-target-file-path}</argument>
                             </arguments>
                         </configuration>
                    </execution>

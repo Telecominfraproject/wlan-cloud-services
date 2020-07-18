@@ -14,25 +14,29 @@ cd $SCHEMA_DIR
 # $1: Aggregated SQLFile
 generateSchemaFile() {
   cat $SCHEMA_DIR/src/main/resources/user_create_prov.sql >> $1
-  find ../. -type f -name "schema-postgresql.sql" | grep -v target |xargs cat >> $1
-  echo "\q " >> $1
-  mv $1 $SCHEMA_DIR/target
+  find ../. -type f -name "schema-postgresql.sql" | grep -v target |xargs cat >> $2
+  cat $SCHEMA_DIR/src/main/resources/default_values_prov.sql >> $2
+  mv $1 $2 $SCHEMA_DIR/target
 }
 
 # Deploys the sql files in JFrog Artifactory
-# $1: Aggregated SQLFile
-# $2: Artifactory Username
-# $3: Encrypted Artifactory Password
-# $4: Artifactory Target file Path. E.g.; "/0.0.1-SNAPSHOT/sql/cloud-sdk-schema-postgresql.sql"
+# $1: SQLFile to create DB and Tip User
+# $2: Aggregated SQLFile with DB Tables
+# $3: Artifactory Username
+# $4: Encrypted Artifactory Password
+# $5: Artifactory Target file Path for DB-User schema. E.g.; "/0.0.1-SNAPSHOT/sql/cloud-sdk-schema-postgresql.sql" -- this needs to be executed by Postgres user
+# $6: Artifactory Target file Path for creating Tables E.g.; "/0.0.1-SNAPSHOT/sql/cloud-sdk-schema-postgresql.sql" -- this needs to be executed by tip_user user
+# This is important since the Postgres user is being authenticated using client certs whereas Tip_user is authenticated using Password.
 deployToArtifactory() {
-  curl -u$2:$3 -T $SCHEMA_DIR/target/$1 "$4/$5"
+  curl -u$3:$4 -T $SCHEMA_DIR/target/$1 "$5/$6"
+  curl -u$3:$4 -T $SCHEMA_DIR/target/$2 "$5/$7"
 }
 
 #decryptPassword() {
 #  echo $1 |  openssl enc -aes-128-cbc -a -d -salt -pass pass:abcdef
 #}
 
-generateSchemaFile $1
+generateSchemaFile $1 $2
 
-deployToArtifactory $1 $2 $3 $4 $5
+deployToArtifactory $1 $2 $3 $4 $5 $6 $7
 

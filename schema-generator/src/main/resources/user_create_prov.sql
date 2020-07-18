@@ -11,7 +11,6 @@ CREATE USER tip_user WITH
 \l ;
 
 SELECT 'CREATE DATABASE prov_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'prov_db')\gexec
-\c prov_db ;
 
 GRANT ALL PRIVILEGES ON DATABASE prov_db TO tip_user;
 
