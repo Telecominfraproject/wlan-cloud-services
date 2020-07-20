@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,8 +89,10 @@ public class FirmwareServiceRemoteTest extends BaseRemoteTest {
         assertTrue(ret2.getId() > 0);
 
         // GET all
-        List<FirmwareVersion> results = remoteInterface.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP);
-        assertEquals(3, results.size());
+        List<FirmwareVersion> results = remoteInterface.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP, null);
+        assertTrue(results.contains(ret));
+        assertTrue(results.contains(ret2));
+
 
         // UPDATE test - success
         firmwareVersion = ret;
@@ -388,6 +391,90 @@ public class FirmwareServiceRemoteTest extends BaseRemoteTest {
 
         detailsList = remoteInterface.getFirmwareTrackAssignments(trackName3);
         assertTrue(detailsList.isEmpty());
+        
+    }
+    
+    @Test
+    public void testgetAllFirmwareModelIdsByEquipmentType() {
+
+        FirmwareVersion firmwareVersion1 = new FirmwareVersion();
+        firmwareVersion1.setEquipmentType(EquipmentType.AP);
+        firmwareVersion1.setVersionName("fvDAOTest123_1");
+        firmwareVersion1.setCommit("abc");
+        firmwareVersion1.setDescription("this is the description");
+        firmwareVersion1.setModelId("test_all_fw_models_model1");
+        firmwareVersion1.setFilename("filename1");
+        firmwareVersion1.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion1.setValidationCode("check1");
+        firmwareVersion1.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion1 = remoteInterface.createFirmwareVersion(firmwareVersion1);
+        
+        FirmwareVersion firmwareVersion2 = new FirmwareVersion();
+        firmwareVersion2.setEquipmentType(EquipmentType.AP);
+        firmwareVersion2.setVersionName("fvDAOTest123_2");
+        firmwareVersion2.setCommit("abc");
+        firmwareVersion2.setDescription("this is the description");
+        firmwareVersion2.setModelId("test_all_fw_models_model1");
+        firmwareVersion2.setFilename("filename2");
+        firmwareVersion2.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion2.setValidationCode("check1");
+        firmwareVersion2.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion2 = remoteInterface.createFirmwareVersion(firmwareVersion2);
+
+        FirmwareVersion firmwareVersion3 = new FirmwareVersion();
+        firmwareVersion3.setEquipmentType(EquipmentType.AP);
+        firmwareVersion3.setVersionName("fvDAOTest123_3");
+        firmwareVersion3.setCommit("abc");
+        firmwareVersion3.setDescription("this is the description");
+        firmwareVersion3.setModelId("test_all_fw_models_model2");
+        firmwareVersion3.setFilename("filename1");
+        firmwareVersion3.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion3.setValidationCode("check1");
+        firmwareVersion3.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion3 = remoteInterface.createFirmwareVersion(firmwareVersion3);
+
+        FirmwareVersion firmwareVersion4 = new FirmwareVersion();
+        firmwareVersion4.setEquipmentType(EquipmentType.SWITCH);
+        firmwareVersion4.setVersionName("fvDAOTest123_4");
+        firmwareVersion4.setCommit("abc");
+        firmwareVersion4.setDescription("this is the description");
+        firmwareVersion4.setModelId("test_all_fw_models_model3");
+        firmwareVersion4.setFilename("filename1");
+        firmwareVersion4.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion4.setValidationCode("check1");
+        firmwareVersion4.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion4 = remoteInterface.createFirmwareVersion(firmwareVersion4);
+
+        List<FirmwareVersion> allAPVersions = new ArrayList<>();
+        allAPVersions.add(firmwareVersion1);
+        allAPVersions.add(firmwareVersion2);
+        allAPVersions.add(firmwareVersion3);
+        
+        Set<String> allModelIds = new HashSet<>();
+        
+        allAPVersions.forEach(v -> allModelIds.add(v.getModelId()));
+        
+        Set<String> retrievedModelIds = new HashSet<>();
+        retrievedModelIds.addAll(remoteInterface.getAllFirmwareModelIdsByEquipmentType(EquipmentType.AP));
+        
+        assertTrue(retrievedModelIds.containsAll(allModelIds));
+        
+        retrievedModelIds.clear();
+        remoteInterface.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP, null).forEach(v -> retrievedModelIds.add(v.getModelId()));
+        assertTrue(retrievedModelIds.containsAll(allModelIds));
+
+        List<FirmwareVersion> retrievedVersions = remoteInterface.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP, firmwareVersion1.getModelId());
+        assertEquals(2, retrievedVersions.size());
+        assertTrue(retrievedVersions.contains(firmwareVersion1));
+        assertTrue(retrievedVersions.contains(firmwareVersion2));
+
+        //clean up
+        allAPVersions.forEach(v -> remoteInterface.deleteFirmwareVersion(v.getId()));
+        remoteInterface.deleteFirmwareVersion(firmwareVersion4.getId());
         
     }
 

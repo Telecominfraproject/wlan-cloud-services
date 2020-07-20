@@ -125,8 +125,15 @@ public class FirmwareVersionDAO extends BaseJdbcDao {
     private static final String SQL_UPDATE = "update " + TABLE_NAME + " set " + ALL_COLUMNS_UPDATE + " where id = ? "
             + " and ( lastModifiedTimestamp = ? or ? = true) ";
 
-    private static final String SQL_GET_BATCH = "select " + ALL_COLUMNS + " from " + TABLE_NAME;
+    private static final String SQL_GET_ALL = "select " + ALL_COLUMNS + " from " + TABLE_NAME;
+    
+    private static final String SQL_GET_BY_EQUIPMENT_TYPE = SQL_GET_ALL + " where equipmentType = ? order by createdTimestamp desc";
 
+    private static final String SQL_GET_BY_EQUIPMENT_TYPE_AND_MODEL = SQL_GET_ALL + " where equipmentType = ?  and modelId = ? order by createdTimestamp desc";
+
+    private static final String SQL_GET_MODEL_IDS_BY_EQUIPMENT_TYPE = "select distinct(modelId) from " + TABLE_NAME + " where equipmentType = ? ";
+
+    
     private static final RowMapper<FirmwareVersion> firmwareVersionRowMapper = new FirmwareVersionRowMapper();
 
     @Autowired(required = false)
@@ -290,7 +297,7 @@ public class FirmwareVersionDAO extends BaseJdbcDao {
     }
 
     public Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType() {
-        List<FirmwareVersion> results = this.jdbcTemplate.query(SQL_GET_BATCH, firmwareVersionRowMapper);
+        List<FirmwareVersion> results = this.jdbcTemplate.query(SQL_GET_ALL, firmwareVersionRowMapper);
         EnumMap<EquipmentType, List<FirmwareVersion>> resultMap = new EnumMap<>(EquipmentType.class);
         for (EquipmentType et : EquipmentType.values()) {
             resultMap.put(et, new ArrayList<>());
@@ -303,5 +310,24 @@ public class FirmwareVersionDAO extends BaseJdbcDao {
         LOG.debug("Found {} FirmwareVersions", results.size());
         return resultMap;
     }
+
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+		List<FirmwareVersion> results;
+		if(modelId == null) {
+			results = this.jdbcTemplate.query(SQL_GET_BY_EQUIPMENT_TYPE, firmwareVersionRowMapper, equipmentType.getId());
+		} else {
+			results = this.jdbcTemplate.query(SQL_GET_BY_EQUIPMENT_TYPE_AND_MODEL, firmwareVersionRowMapper, equipmentType.getId(), modelId);
+		}
+        
+        LOG.debug("Found {} FirmwareVersions", results.size());
+        return results;
+	}
+
+	public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+		List<String> results = this.jdbcTemplate.queryForList(SQL_GET_MODEL_IDS_BY_EQUIPMENT_TYPE, String.class, equipmentType.getId());
+        
+        LOG.debug("Found {} model ids for equipment {}", results.size(), equipmentType);
+        return results;
+	}
 
 }

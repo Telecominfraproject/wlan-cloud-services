@@ -2,8 +2,10 @@ package com.telecominfraproject.wlan.firmware.datastore.inmemory;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,6 +36,10 @@ public class FirmwareVersionDatastoreInMemory extends BaseInMemoryDatastore impl
     @Override
     public FirmwareVersion create(FirmwareVersion firmware) {
         
+    	if(firmware.getModelId() == null) {
+    		throw new IllegalArgumentException("modelId must be provided for the firmware");
+    	}
+    	
         FirmwareVersion firmwareCopy = firmware.clone();
         
         long id = firmwareVersionIdCounter.incrementAndGet();
@@ -98,6 +104,10 @@ public class FirmwareVersionDatastoreInMemory extends BaseInMemoryDatastore impl
     
     @Override
     public FirmwareVersion update(FirmwareVersion firmware) {
+    	if(firmware.getModelId() == null) {
+    		throw new IllegalArgumentException("modelId must be provided for the firmware");
+    	}
+
         FirmwareVersion existingFirmwareVersion = get(firmware.getId());
         
         if(existingFirmwareVersion.getLastModifiedTimestamp()!=firmware.getLastModifiedTimestamp()){
@@ -143,10 +153,36 @@ public class FirmwareVersionDatastoreInMemory extends BaseInMemoryDatastore impl
         }
         
         for (FirmwareVersion v : idToFirmwareVersionMap.values()) {
-            resultMap.get(v.getEquipmentType()).add(v);
+            resultMap.get(v.getEquipmentType()).add(v.clone());
         }
 
         return resultMap;
     }
 
+    @Override
+    public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+    	List<FirmwareVersion> ret = new ArrayList<>();
+    	
+        for (FirmwareVersion v : idToFirmwareVersionMap.values()) {
+        	if(v.getEquipmentType() == equipmentType && (modelId == null || v.getModelId().equals(modelId)) ){
+        		ret.add(v.clone());
+        	}
+        }
+
+        return ret;
+    }
+    
+    @Override
+    public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+    	Set<String> ret = new HashSet<>();
+    	
+        for (FirmwareVersion v : idToFirmwareVersionMap.values()) {
+        	if(v.getEquipmentType() == equipmentType ){
+        		ret.add(v.getModelId());
+        	}
+        }
+
+        return new ArrayList<>(ret);
+    }
+    
 }

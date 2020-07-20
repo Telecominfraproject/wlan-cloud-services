@@ -67,7 +67,13 @@ public class FirmwareDatastoreRdbms implements FirmwareDatastore {
 		return firmwareVersionDatastore.getAllGroupedByEquipmentType();
 	}
 
-
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+		return firmwareVersionDatastore.getAllFirmwareVersionsByEquipmentType(equipmentType, modelId);
+	}
+	
+	public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+		return firmwareVersionDatastore.getAllFirmwareModelIdsByEquipmentType(equipmentType);
+	}
 
     public FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrack) {
 		return firmwareTrackDatastore.createFirmwareTrack(firmwareTrack);

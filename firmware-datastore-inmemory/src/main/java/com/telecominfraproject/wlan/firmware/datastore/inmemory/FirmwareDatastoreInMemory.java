@@ -68,6 +68,15 @@ public class FirmwareDatastoreInMemory extends BaseInMemoryDatastore implements 
 		return firmwareVersionDatastore.getAllGroupedByEquipmentType();
 	}
 
+	@Override
+	public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+		return firmwareVersionDatastore.getAllFirmwareModelIdsByEquipmentType(equipmentType);
+	}
+	
+	@Override
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+		return firmwareVersionDatastore.getAllFirmwareVersionsByEquipmentType(equipmentType, modelId);
+	}
 
 
     public FirmwareTrackRecord createFirmwareTrack(FirmwareTrackRecord firmwareTrack) {

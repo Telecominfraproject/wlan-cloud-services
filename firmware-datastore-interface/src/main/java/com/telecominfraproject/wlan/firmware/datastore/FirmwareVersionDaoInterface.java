@@ -47,6 +47,19 @@ public interface FirmwareVersionDaoInterface {
      */
 	Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType();
 	
+    /**
+     * @param equipmentType - filter firmware versions by equipment type
+     * @param modelId - optional filter by equipment model, if null - then firmware versions for all the equipment models are returned
+     * @return list of firmware versions that satisfy the supplied filters
+     */
+    List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId);
+
+	/**
+	 * @param equipmentType
+	 * @return list of equipment models taken from the all known firmware versions 
+	 */
+	List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType);
+	
 	/**
 	 * Retrieve the firmware version entry by name.
 	 * @param targetSwVersion

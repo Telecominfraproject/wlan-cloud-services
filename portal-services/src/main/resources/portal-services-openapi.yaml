@@ -10223,8 +10223,38 @@ paths:
     get:
       tags:
       - Firmware Management
-      summary: Get FirmwareVersion By equipmentType
+      summary: Get FirmwareVersions filtered by equipmentType and optional equipment model
       operationId: getFirmwareVersionByEquipmentType
+      parameters:
+      - name: equipmentType
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/EquipmentType'
+      - name: modelId
+        description: optional filter by equipment model, if null - then firmware versions for all the equipment models are returned
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /portal/firmware/model/byEquipmentType:
+    get:
+      tags:
+      - Firmware Management
+      summary: Get equipment models from all known firmware versions filtered by equipmentType
+      operationId: getFirmwareModelIdsByEquipmentType
       parameters:
       - name: equipmentType
         in: query
@@ -10239,7 +10269,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FirmwareVersion'
+                  type: string
         500:
           $ref: '#/components/responses/GenericApiError'
           

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,8 @@ public abstract class BaseFirmwareDatastoreTest {
 
         // GET all
         Map<EquipmentType, List<FirmwareVersion>> results = firmwareDatastore.getAllGroupedByEquipmentType();
-        assertEquals(3, results.get(EquipmentType.AP).size());
+        assertTrue(results.get(EquipmentType.AP).contains(ret));
+        assertTrue(results.get(EquipmentType.AP).contains(ret2));
 
         // UPDATE test - success
         firmwareVersion = ret;
@@ -406,6 +408,90 @@ public abstract class BaseFirmwareDatastoreTest {
         
     }
 
+    @Test
+    public void testgetAllFirmwareModelIdsByEquipmentType() {
+
+        FirmwareVersion firmwareVersion1 = new FirmwareVersion();
+        firmwareVersion1.setEquipmentType(EquipmentType.AP);
+        firmwareVersion1.setVersionName("fvDAOTest123_1");
+        firmwareVersion1.setCommit("abc");
+        firmwareVersion1.setDescription("this is the description");
+        firmwareVersion1.setModelId("test_all_fw_models_model1");
+        firmwareVersion1.setFilename("filename1");
+        firmwareVersion1.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion1.setValidationCode("check1");
+        firmwareVersion1.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion1 = firmwareDatastore.create(firmwareVersion1);
+        
+        FirmwareVersion firmwareVersion2 = new FirmwareVersion();
+        firmwareVersion2.setEquipmentType(EquipmentType.AP);
+        firmwareVersion2.setVersionName("fvDAOTest123_2");
+        firmwareVersion2.setCommit("abc");
+        firmwareVersion2.setDescription("this is the description");
+        firmwareVersion2.setModelId("test_all_fw_models_model1");
+        firmwareVersion2.setFilename("filename2");
+        firmwareVersion2.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion2.setValidationCode("check1");
+        firmwareVersion2.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion2 = firmwareDatastore.create(firmwareVersion2);
+
+        FirmwareVersion firmwareVersion3 = new FirmwareVersion();
+        firmwareVersion3.setEquipmentType(EquipmentType.AP);
+        firmwareVersion3.setVersionName("fvDAOTest123_3");
+        firmwareVersion3.setCommit("abc");
+        firmwareVersion3.setDescription("this is the description");
+        firmwareVersion3.setModelId("test_all_fw_models_model2");
+        firmwareVersion3.setFilename("filename1");
+        firmwareVersion3.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion3.setValidationCode("check1");
+        firmwareVersion3.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion3 = firmwareDatastore.create(firmwareVersion3);
+
+        FirmwareVersion firmwareVersion4 = new FirmwareVersion();
+        firmwareVersion4.setEquipmentType(EquipmentType.SWITCH);
+        firmwareVersion4.setVersionName("fvDAOTest123_4");
+        firmwareVersion4.setCommit("abc");
+        firmwareVersion4.setDescription("this is the description");
+        firmwareVersion4.setModelId("test_all_fw_models_model3");
+        firmwareVersion4.setFilename("filename1");
+        firmwareVersion4.setValidationMethod(ValidationMethod.MD5_CHECKSUM);
+        firmwareVersion4.setValidationCode("check1");
+        firmwareVersion4.setReleaseDate(System.currentTimeMillis());
+
+        firmwareVersion4 = firmwareDatastore.create(firmwareVersion4);
+
+        List<FirmwareVersion> allAPVersions = new ArrayList<>();
+        allAPVersions.add(firmwareVersion1);
+        allAPVersions.add(firmwareVersion2);
+        allAPVersions.add(firmwareVersion3);
+        
+        Set<String> allModelIds = new HashSet<>();
+        
+        allAPVersions.forEach(v -> allModelIds.add(v.getModelId()));
+        
+        Set<String> retrievedModelIds = new HashSet<>();
+        retrievedModelIds.addAll(firmwareDatastore.getAllFirmwareModelIdsByEquipmentType(EquipmentType.AP));
+        
+        assertTrue(retrievedModelIds.containsAll(allModelIds));
+        
+        retrievedModelIds.clear();
+        firmwareDatastore.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP, null).forEach(v -> retrievedModelIds.add(v.getModelId()));
+        assertTrue(retrievedModelIds.containsAll(allModelIds));
+
+        List<FirmwareVersion> retrievedVersions = firmwareDatastore.getAllFirmwareVersionsByEquipmentType(EquipmentType.AP, firmwareVersion1.getModelId());
+        assertEquals(2, retrievedVersions.size());
+        assertTrue(retrievedVersions.contains(firmwareVersion1));
+        assertTrue(retrievedVersions.contains(firmwareVersion2));
+
+        //clean up
+        allAPVersions.forEach(v -> firmwareDatastore.delete(v.getId()));
+        firmwareDatastore.delete(firmwareVersion4.getId());
+        
+    }
+    
     private FirmwareVersion createFirmwareVersion(String version) {
         FirmwareVersion firmwareVersion = new FirmwareVersion();
         firmwareVersion.setEquipmentType(EquipmentType.AP);

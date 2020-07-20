@@ -385,23 +385,54 @@ paths:
     get:
       tags:
       - Firmware Data
-      summary: Get firmware version using equipmentType
+      summary: Get FirmwareVersions filtered by equipmentType and optional equipment model
       operationId: getFirmwareVersionByEquipmentType
       parameters:
       - name: equipmentType
         in: query
-        description: Equipment Type
+        required: true
+        schema:
+          $ref: '#/components/schemas/EquipmentType'
+      - name: modelId
+        description: optional filter by equipment model, if null - then firmware versions for all the equipment models are returned
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirmwareVersion'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
+  /api/firmware/model/byEquipmentType:
+    get:
+      tags:
+      - Firmware Data
+      summary: Get equipment models from all known firmware versions filtered by equipmentType
+      operationId: getFirmwareModelIdsByEquipmentType
+      parameters:
+      - name: equipmentType
+        in: query
         required: true
         schema:
           $ref: '#/components/schemas/EquipmentType'
       responses:
         200:
-          description: Successful operation
+          description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FirmwareVersion'
-        500: 
+                type: array
+                items:
+                  type: string
+        500:
           $ref: '#/components/responses/GenericApiError'
   
   /api/firmware/track:
@@ -688,6 +719,4 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CustomerFirmwareTrackRecord'
-
-
 

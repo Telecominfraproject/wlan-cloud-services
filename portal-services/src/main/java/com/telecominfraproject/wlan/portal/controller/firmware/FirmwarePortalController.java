@@ -72,12 +72,21 @@ public class FirmwarePortalController  {
     }
 
     @RequestMapping(value = "/version/byEquipmentType", method = RequestMethod.GET)
-    public ListOfFirmwareVersions getAllFirmwareVersionsByEquipmentType(@RequestParam EquipmentType equipmentType) {
-        LOG.debug("Retrieving all FirmwareVersions for type {} ", equipmentType);
-        List<FirmwareVersion> result = firmwareServiceInterface.getAllFirmwareVersionsByEquipmentType(equipmentType);
+    public ListOfFirmwareVersions getAllFirmwareVersionsByEquipmentType(
+    		@RequestParam EquipmentType equipmentType, 
+    		@RequestParam(required = false) String modelId) {
+        LOG.debug("Retrieving all FirmwareVersions for type {} model {}", equipmentType, modelId);
+        List<FirmwareVersion> result = firmwareServiceInterface.getAllFirmwareVersionsByEquipmentType(equipmentType, modelId);
         ListOfFirmwareVersions ret = new ListOfFirmwareVersions();
         ret.addAll(result);
         return ret;
+    }
+
+    @RequestMapping(value = "/model/byEquipmentType", method = RequestMethod.GET)
+    public List<String> getAllFirmwareModelIdsByEquipmentType(@RequestParam EquipmentType equipmentType) {
+        LOG.debug("Retrieving all known model ids of FirmwareVersions for type {} ", equipmentType);
+        List<String> result = firmwareServiceInterface.getAllFirmwareModelIdsByEquipmentType(equipmentType);
+        return result;
     }
 
     @RequestMapping(value = "/version", method = RequestMethod.PUT)

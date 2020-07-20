@@ -3,7 +3,7 @@ create table if not exists firmware_version (
     id BIGSERIAL PRIMARY KEY,
 
     equipmentType int not null,
-    modelId varchar(50),
+    modelId varchar(50) not null,
     versionName varchar(50) unique not null,
     commitTag varchar(20),
     description varchar(100),

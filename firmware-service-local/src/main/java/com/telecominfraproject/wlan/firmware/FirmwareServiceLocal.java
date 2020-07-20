@@ -35,8 +35,11 @@ public class FirmwareServiceLocal implements FirmwareServiceInterface {
 	public FirmwareVersion getFirmwareVersionByName(String versionName) {
 		return firmwareController.getFirmwareVersionByName(versionName);
 	}
-	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType) {
-		return firmwareController.getAllFirmwareVersionsByEquipmentType(equipmentType);
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+		return firmwareController.getAllFirmwareVersionsByEquipmentType(equipmentType, modelId);
+	}
+	public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+		return firmwareController.getAllFirmwareModelIdsByEquipmentType(equipmentType);
 	}
 	public FirmwareVersion updateFirmwareVersion(FirmwareVersion firmwareVersion) {
 		return firmwareController.updateFirmwareVersion(firmwareVersion);

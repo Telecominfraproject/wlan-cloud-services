@@ -17,7 +17,6 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
-import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
@@ -33,6 +32,7 @@ public class FirmwareServiceRemote extends BaseRemoteClient implements FirmwareS
     private static final ParameterizedTypeReference<List<FirmwareVersion>> FirmwareVersion_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<FirmwareVersion>>() {};
     private static final ParameterizedTypeReference<List<FirmwareTrackAssignmentDetails>> FirmwareTrackAssignmentDetails_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<FirmwareTrackAssignmentDetails>>() {};
     
+    private static final ParameterizedTypeReference<List<String>> STRING_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<String>>() {};
     
     private static final ParameterizedTypeReference<PaginationResponse<FirmwareVersion>> Firmware_Version_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<FirmwareVersion>>() {};
 
@@ -97,25 +97,46 @@ public class FirmwareServiceRemote extends BaseRemoteClient implements FirmwareS
 	}
 
 	@Override
-	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType) {
-        LOG.debug("getAllFirmwareVersionsByEquipmentType( {})", equipmentType);
+	public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId) {
+        LOG.debug("getAllFirmwareVersionsByEquipmentType( {}, {})", equipmentType, modelId);
 
         try {
             ResponseEntity<List<FirmwareVersion>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/version/byEquipmentType?equipmentType={equipmentType}", HttpMethod.GET,
-                    null, FirmwareVersion_LIST_CLASS_TOKEN, equipmentType);
+                    getBaseUrl() + "/version/byEquipmentType?equipmentType={equipmentType}&modelId={modelId}", HttpMethod.GET,
+                    null, FirmwareVersion_LIST_CLASS_TOKEN, equipmentType, modelId);
 
             List<FirmwareVersion> result = responseEntity.getBody();
             if (null == result) {
                 result = Collections.emptyList();
             }
-            LOG.debug("getAllFirmwareVersionsByEquipmentType({}) return {} entries", equipmentType, result.size());
+            LOG.debug("getAllFirmwareVersionsByEquipmentType({}, {}) return {} entries", equipmentType, modelId, result.size());
             return result;
         } catch (Exception exp) {
-            LOG.error("getAllFirmwareVersionsByEquipmentType({}) exception ", equipmentType, exp);
+            LOG.error("getAllFirmwareVersionsByEquipmentType({}, {}) exception ", equipmentType, modelId, exp);
             throw exp;
         }
 
+	}
+	
+	@Override
+	public List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType) {
+        LOG.debug("getAllFirmwareModelIdsByEquipmentType( {})", equipmentType);
+
+        try {
+            ResponseEntity<List<String>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/model/byEquipmentType?equipmentType={equipmentType}", HttpMethod.GET,
+                    null, STRING_LIST_CLASS_TOKEN, equipmentType);
+
+            List<String> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getAllFirmwareModelIdsByEquipmentType({}) return {} entries", equipmentType, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getAllFirmwareModelIdsByEquipmentType({}) exception ", equipmentType, exp);
+            throw exp;
+        }
 	}
 
 	@Override

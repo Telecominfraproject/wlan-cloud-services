@@ -6,7 +6,6 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
-import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
 
@@ -23,7 +22,12 @@ public interface FirmwareServiceInterface {
 
     FirmwareVersion getFirmwareVersionByName(String versionName);
 
-    List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType);
+    /**
+     * @param equipmentType - filter firmware versions by equipment type
+     * @param modelId - optional filter by equipment model, if null - then firmware versions for all the equipment models are returned
+     * @return list of firmware versions that satisfy the supplied filters
+     */
+    List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(EquipmentType equipmentType, String modelId);
 
     FirmwareVersion updateFirmwareVersion(FirmwareVersion firmwareVersion);
 
@@ -53,5 +57,11 @@ public interface FirmwareServiceInterface {
     CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record);
     CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(int customerId);
     CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting();
+
+	/**
+	 * @param equipmentType
+	 * @return list of equipment models taken from the all known firmware versions 
+	 */
+	List<String> getAllFirmwareModelIdsByEquipmentType(EquipmentType equipmentType);
     
 }

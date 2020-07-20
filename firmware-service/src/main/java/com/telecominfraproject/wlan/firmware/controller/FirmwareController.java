@@ -1,8 +1,6 @@
 package com.telecominfraproject.wlan.firmware.controller;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -109,19 +107,25 @@ public class FirmwareController {
     }
 
     @RequestMapping(value = "/version/byEquipmentType", method = RequestMethod.GET)
-    public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(@RequestParam EquipmentType equipmentType) {
-        LOG.debug("Retrieving all FirmwareVersions for type {} ", equipmentType);
-        Map<EquipmentType, List<FirmwareVersion>> retMap = firmwareDatastore.getAllGroupedByEquipmentType();
+    public List<FirmwareVersion> getAllFirmwareVersionsByEquipmentType(@RequestParam EquipmentType equipmentType, 
+    		@RequestParam(required = false) String modelId) {
+    	if("".equals(modelId)) {
+    		modelId = null;
+    	}
+        LOG.debug("Retrieving all FirmwareVersions for type {} model {}", equipmentType, modelId);
+        List<FirmwareVersion> ret = firmwareDatastore.getAllFirmwareVersionsByEquipmentType(equipmentType, modelId);
 
-        LOG.debug("Returning all FirmwareVersions for type {}, count={}", equipmentType,
-                retMap.get(equipmentType).size());
-
-        List<FirmwareVersion> ret = retMap.get(equipmentType);
-        if (ret == null) {
-            ret = Collections.emptyList();
-        }
+        LOG.debug("Returning all FirmwareVersions for type {} model {}, count={}", equipmentType, modelId, ret.size());
 
         return ret;
+    }
+
+
+    @RequestMapping(value = "/model/byEquipmentType", method = RequestMethod.GET)
+    public List<String> getAllFirmwareModelIdsByEquipmentType(@RequestParam EquipmentType equipmentType) {
+        LOG.debug("Retrieving all known model ids of FirmwareVersions for type {} ", equipmentType);
+        List<String> result = firmwareDatastore.getAllFirmwareModelIdsByEquipmentType(equipmentType);
+        return result;
     }
 
     @RequestMapping(value = "/version", method = RequestMethod.PUT)
