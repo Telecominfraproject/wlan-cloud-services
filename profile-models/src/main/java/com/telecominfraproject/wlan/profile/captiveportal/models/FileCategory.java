@@ -12,7 +12,7 @@ public enum FileCategory
     CaptivePortalBackground,
     ExternalPolicyConfiguration,
     UsernamePasswordList,
-    DeviceMacBlackList,
+    DeviceMacBlockList,
     DoNotSteerClientList,
     
     UNSUPPORTED;

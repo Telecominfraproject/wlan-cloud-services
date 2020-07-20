@@ -197,7 +197,7 @@ components:
             $ref: '#/components/schemas/ManagedFileInfo'
           backgroundFile:
             $ref: '#/components/schemas/ManagedFileInfo'
-          walledGardenWhitelist:
+          walledGardenAllowlist:
             type: array
             items:
               type: string
@@ -224,10 +224,10 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/TimedAccessUserRecord'
-          macWhiteList:
+          macAllowList:
             type: array
             items:
-              $ref: '#/components/schemas/MacWhitelistRecord'
+              $ref: '#/components/schemas/MacAllowlistRecord'
 
     ManagedFileInfo:
       type: object
@@ -256,7 +256,7 @@ components:
       - CaptivePortalBackground
       - ExternalPolicyConfiguration
       - UsernamePasswordList
-      - DeviceMacBlackList
+      - DeviceMacBlockList
       - DoNotSteerClientList
 
     FileType:
@@ -354,7 +354,7 @@ components:
         addressAsString:
           type: string
       
-    MacWhitelistRecord:
+    MacAllowlistRecord:
       type: object
       properties:
         macAddress:

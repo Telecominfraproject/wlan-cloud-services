@@ -88,7 +88,7 @@ public class CaptivePortalConfiguration extends ProfileDetails
     private int sessionTimeoutInMinutes;
     private ManagedFileInfo logoFile;
     private ManagedFileInfo backgroundFile;
-    private List<String> walledGardenWhitelist = new ArrayList<>();
+    private List<String> walledGardenAllowlist = new ArrayList<>();
     private ManagedFileInfo usernamePasswordFile;
     private CaptivePortalAuthenticationType authenticationType;
     private RadiusAuthenticationMethod radiusAuthMethod;
@@ -100,7 +100,7 @@ public class CaptivePortalConfiguration extends ProfileDetails
     private SessionExpiryType expiryType;
     
     private List<TimedAccessUserRecord> userList = new ArrayList<>();
-    private List<MacWhitelistRecord> macWhiteList = new ArrayList<>();
+    private List<MacAllowlistRecord> macAllowList = new ArrayList<>();
 
     public CaptivePortalConfiguration()
     {
@@ -189,15 +189,15 @@ public class CaptivePortalConfiguration extends ProfileDetails
         this.backgroundFile = backgroundFile;
     }
     
-    public List<String> getWalledGardenWhitelist() {
-        return walledGardenWhitelist;
+    public List<String> getWalledGardenAllowlist() {
+        return walledGardenAllowlist;
     }
 
-    public void setWalledGardenWhitelist(List<String> walledGardenWhitelist) {
-        if (walledGardenWhitelist == null) {
-            walledGardenWhitelist = new ArrayList<>();
+    public void setWalledGardenAllowlist(List<String> walledGardenAllowlist) {
+        if (walledGardenAllowlist == null) {
+            walledGardenAllowlist = new ArrayList<>();
         }
-        this.walledGardenWhitelist = walledGardenWhitelist;
+        this.walledGardenAllowlist = walledGardenAllowlist;
     }
 
     public CaptivePortalAuthenticationType getAuthenticationType() {
@@ -296,12 +296,12 @@ public class CaptivePortalConfiguration extends ProfileDetails
 		this.userList = userList;
 	}
 
-	public List<MacWhitelistRecord> getMacWhiteList() {
-		return macWhiteList;
+	public List<MacAllowlistRecord> getMacAllowList() {
+		return macAllowList;
 	}
 
-	public void setMacWhiteList(List<MacWhitelistRecord> macWhiteList) {
-		this.macWhiteList = macWhiteList;
+	public void setMacAllowList(List<MacAllowlistRecord> macAllowList) {
+		this.macAllowList = macAllowList;
 	}
 
     @Override
@@ -310,9 +310,9 @@ public class CaptivePortalConfiguration extends ProfileDetails
 		int result = super.hashCode();
 		result = prime * result + Objects.hash(authenticationType, backgroundFile, backgroundPosition, backgroundRepeat,
 				browserTitle, expiryType, externalCaptivePortalURL, externalPolicyFile, headerContent, logoFile,
-				macWhiteList, maxUsersWithSameCredentials, name, radiusAuthMethod, radiusServiceName, redirectURL,
+				macAllowList, maxUsersWithSameCredentials, name, radiusAuthMethod, radiusServiceName, redirectURL,
 				sessionTimeoutInMinutes, successPageMarkdownText, userAcceptancePolicy, userList, usernamePasswordFile,
-				walledGardenWhitelist);
+				walledGardenAllowlist);
 		return result;
 	}
 
@@ -334,7 +334,7 @@ public class CaptivePortalConfiguration extends ProfileDetails
 				&& Objects.equals(externalCaptivePortalURL, other.externalCaptivePortalURL)
 				&& Objects.equals(externalPolicyFile, other.externalPolicyFile)
 				&& Objects.equals(headerContent, other.headerContent) && Objects.equals(logoFile, other.logoFile)
-				&& Objects.equals(macWhiteList, other.macWhiteList)
+				&& Objects.equals(macAllowList, other.macAllowList)
 				&& maxUsersWithSameCredentials == other.maxUsersWithSameCredentials && Objects.equals(name, other.name)
 				&& radiusAuthMethod == other.radiusAuthMethod
 				&& Objects.equals(radiusServiceName, other.radiusServiceName)
@@ -344,28 +344,28 @@ public class CaptivePortalConfiguration extends ProfileDetails
 				&& Objects.equals(userAcceptancePolicy, other.userAcceptancePolicy)
 				&& Objects.equals(userList, other.userList)
 				&& Objects.equals(usernamePasswordFile, other.usernamePasswordFile)
-				&& Objects.equals(walledGardenWhitelist, other.walledGardenWhitelist);
+				&& Objects.equals(walledGardenAllowlist, other.walledGardenAllowlist);
 	}
 
 	@Override
     public CaptivePortalConfiguration clone() {
         CaptivePortalConfiguration ret = (CaptivePortalConfiguration)super.clone();
         
-        if (!CollectionUtils.isEmpty(this.walledGardenWhitelist)) {
+        if (!CollectionUtils.isEmpty(this.walledGardenAllowlist)) {
             List<String> newWalledGarden = new ArrayList<>();
-            for (String str : this.walledGardenWhitelist) {
+            for (String str : this.walledGardenAllowlist) {
                 newWalledGarden.add(str);
             }
             
-            ret.setWalledGardenWhitelist(newWalledGarden);
+            ret.setWalledGardenAllowlist(newWalledGarden);
         }
         
         if(userList!=null) {
         	ret.setUserList(new ArrayList<>(userList));
         }
 
-        if(macWhiteList!=null) {
-        	ret.setMacWhiteList(new ArrayList<>(macWhiteList));
+        if(macAllowList!=null) {
+        	ret.setMacAllowList(new ArrayList<>(macAllowList));
         }
 
         return ret;
@@ -390,7 +390,7 @@ public class CaptivePortalConfiguration extends ProfileDetails
     }
     
     public static void validateCaptivePortalProfile(CaptivePortalConfiguration config) {
-        if (config.getWalledGardenWhitelist() != null && config.getWalledGardenWhitelist().size() > MAX_WALLED_GARDEN_ENTRIES) 
+        if (config.getWalledGardenAllowlist() != null && config.getWalledGardenAllowlist().size() > MAX_WALLED_GARDEN_ENTRIES) 
         {
             throw new ConfigurationException("Unable to provision a Captive Portal with more than " +
                     MAX_WALLED_GARDEN_ENTRIES +
@@ -412,9 +412,9 @@ public class CaptivePortalConfiguration extends ProfileDetails
                     MAX_HEADER_LENGTH + " characters.");
         }
         
-        // Validate the format of the whitelist entries:
-        for (String s : config.getWalledGardenWhitelist()) {
-            validateWhitelistEntry(s);
+        // Validate the format of the allowlist entries:
+        for (String s : config.getWalledGardenAllowlist()) {
+            validateAllowlistEntry(s);
         }
         
         // Make sure the text of the body portions are not too long.
@@ -464,17 +464,17 @@ public class CaptivePortalConfiguration extends ProfileDetails
         }
     }
     
-    private static void validateWhitelistEntry(String entry) {
+    private static void validateAllowlistEntry(String entry) {
         if (entry.contains("/")) {
-            throw new ConfigurationException("Captive Portal Whitelist entres must not contain the / character");
+            throw new ConfigurationException("Captive Portal Allowlist entres must not contain the / character");
         }
         if (entry.length() > MAX_WALLED_GARDEN_ENTRY_LENGTH) {
-            throw new ConfigurationException("Captive Portal Whitelist entres must not exceed " + MAX_WALLED_GARDEN_ENTRY_LENGTH + " characters");
+            throw new ConfigurationException("Captive Portal Allowlist entres must not exceed " + MAX_WALLED_GARDEN_ENTRY_LENGTH + " characters");
         }
         
         if (entry.matches(IPV4_DOT_PATTERN)) {
             if (INVALID_ADDRESSES.contains(entry)) {
-                throw new ConfigurationException("Captive Portal Whitelist entries may not include: " + INVALID_ADDRESSES);
+                throw new ConfigurationException("Captive Portal Allowlist entries may not include: " + INVALID_ADDRESSES);
             }
             
             // Valid IPv4 with dot notation, W.X.Y.Z
@@ -485,7 +485,7 @@ public class CaptivePortalConfiguration extends ProfileDetails
             String[] entryParts = entry.split("-");
             for (String s : entryParts) {
                 if (INVALID_ADDRESSES.contains(s)) {
-                    throw new ConfigurationException("Captive Portal Whitelist entries may not include: " + INVALID_ADDRESSES);
+                    throw new ConfigurationException("Captive Portal Allowlist entries may not include: " + INVALID_ADDRESSES);
                 }
             }
             
@@ -496,24 +496,24 @@ public class CaptivePortalConfiguration extends ProfileDetails
         if (!entry.matches(IPV4_DOT_PATTERN) && (entry.matches(WILCARD_URL_2) || entry.matches(WILCARD_URL_3) || entry.matches(WILCARD_URL_4))) {
             char lastChar = entry.charAt(entry.length()-1);
             if (lastChar == '.' || lastChar == '*') {
-                throw new ConfigurationException("Captive Portal Whitelist entries may not end with the '.' or '*' character.");
+                throw new ConfigurationException("Captive Portal Allowlist entries may not end with the '.' or '*' character.");
             }
             
             String[] hostnameParts = entry.split("\\.");
 
             // hostname must contain at least two parts (e.g. google.com)
             if (hostnameParts.length < 2) {
-                throw new ConfigurationException("Captive Portal Whitelist entries must have at least 1 sub-domain");
+                throw new ConfigurationException("Captive Portal Allowlist entries must have at least 1 sub-domain");
             }
 
             for (String s : hostnameParts) {
                 // hostname labels must be between 1 and 63 characters
                 if (s.length() < 1 || s.length() > MAX_HOSTNAME_PART_LENGTH) {
-                    throw new ConfigurationException("Captive Portal Whitelist entry sections must not exceed " + MAX_HOSTNAME_PART_LENGTH + " characters.");
+                    throw new ConfigurationException("Captive Portal Allowlist entry sections must not exceed " + MAX_HOSTNAME_PART_LENGTH + " characters.");
                 }
                 
                 if (s.indexOf('*') >= 0 && !"*".equals(s)) {
-                    throw new ConfigurationException("Captive Portal Whitelist entry hostname labels must include a '*' wildcard character in combination with other characters");
+                    throw new ConfigurationException("Captive Portal Allowlist entry hostname labels must include a '*' wildcard character in combination with other characters");
                 }
             }
             
@@ -521,6 +521,6 @@ public class CaptivePortalConfiguration extends ProfileDetails
             return;
         }
         
-        throw new DsDataValidationException("'" + entry + "' is an invalid walled garden whitelist format.");
+        throw new DsDataValidationException("'" + entry + "' is an invalid walled garden allowlist format.");
     }    
 }

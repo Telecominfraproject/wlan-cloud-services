@@ -103,21 +103,21 @@ components:
           type: string
         doNotSteer:
           type: boolean
-        blacklistDetails:
-          $ref: '#/components/schemas/BlacklistDetails'
+        blocklistDetails:
+          $ref: '#/components/schemas/BlocklistDetails'
  
-    BlacklistDetails:
+    BlocklistDetails:
       type: object
       properties:
         enabled:
-          description: When enabled, blacklisting applies to the client, subject to the optional start/end times.
+          description: When enabled, blocking applies to the client, subject to the optional start/end times.
           type: boolean
         startTime:
-          description: Optional startTime when blacklisting becomes enabled.
+          description: Optional startTime when blocking becomes enabled.
           type: integer
           format: int64
         endTime:
-          description: Optional endTime when blacklisting ceases to be enabled
+          description: Optional endTime when blocking ceases to be enabled
           type: integer
           format: int64
  

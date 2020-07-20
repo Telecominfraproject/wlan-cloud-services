@@ -1036,7 +1036,7 @@ components:
             $ref: '#/components/schemas/ManagedFileInfo'
           backgroundFile:
             $ref: '#/components/schemas/ManagedFileInfo'
-          walledGardenWhitelist:
+          walledGardenAllowlist:
             type: array
             items:
               type: string
@@ -1063,10 +1063,10 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/TimedAccessUserRecord'
-          macWhiteList:
+          macAllowList:
             type: array
             items:
-              $ref: '#/components/schemas/MacWhitelistRecord'
+              $ref: '#/components/schemas/MacAllowlistRecord'
 
     ManagedFileInfo:
       type: object
@@ -1095,7 +1095,7 @@ components:
       - CaptivePortalBackground
       - ExternalPolicyConfiguration
       - UsernamePasswordList
-      - DeviceMacBlackList
+      - DeviceMacBlockList
       - DoNotSteerClientList
 
     FileType:
@@ -1197,7 +1197,7 @@ components:
         addressAsString:
           type: string
       
-    MacWhitelistRecord:
+    MacAllowlistRecord:
       type: object
       properties:
         macAddress:
@@ -3024,21 +3024,21 @@ components:
           type: string
         doNotSteer:
           type: boolean
-        blacklistDetails:
-          $ref: '#/components/schemas/BlacklistDetails'
+        blocklistDetails:
+          $ref: '#/components/schemas/BlocklistDetails'
 
-    BlacklistDetails:
+    BlocklistDetails:
       type: object
       properties:
         enabled:
-          description: When enabled, blacklisting applies to the client, subject to the optional start/end times.
+          description: When enabled, blocklisting applies to the client, subject to the optional start/end times.
           type: boolean
         startTime:
-          description: Optional startTime when blacklisting becomes enabled.
+          description: Optional startTime when blocklisting becomes enabled.
           type: integer
           format: int64
         endTime:
-          description: Optional endTime when blacklisting ceases to be enabled
+          description: Optional endTime when blocklisting ceases to be enabled
           type: integer
           format: int64
 
@@ -3135,7 +3135,7 @@ components:
       - DeauthAttackDetected # (42, De-Auth attack detected),
       - RulesCalledTooOften # (43, Rules are called too often on rule agent),
       - MspSuspended # (44, Managed Service Provider for the customer is suspended),
-      - TooManyBlacklistedDevices # (45, Too many black listed client devices provisioned),
+      - TooManyBlockedDevices # (45, Too many blocked client devices provisioned),
       - TooManyRogueAPs # (46, Too many rogue APs provisioned),
       - NeighbourScanStuckOn2g # (47, Neighbour scan is stuck on 2G Radio),
       - NeighbourScanStuckOn5g # (48, Neighbour scan is stuck on 5G Radio),

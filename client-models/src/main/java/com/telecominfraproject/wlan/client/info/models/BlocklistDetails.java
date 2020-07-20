@@ -8,9 +8,9 @@ import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 
 /**
  * 
- * The blacklisting attributes for a client device.
+ * The blocklisting attributes for a client device.
  * 
- * Blacklisting is enabled for a client when all the the following apply:
+ * Blocklisting is enabled for a client when all the the following apply:
  * <li> the enabled flag is set to true 
  * <li> the startTime is null or less than or equal to the current time 
  * <li> the endTime is null or greater than or equal to the current time
@@ -18,31 +18,31 @@ import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
  * @author ekeddy
  *
  */
-public class BlacklistDetails extends BaseJsonModel {
+public class BlocklistDetails extends BaseJsonModel {
 
     private static final long serialVersionUID = 2251097210417403911L;
 
     /**
-     * When enabled, blacklisting applies to the client, subject to
+     * When enabled, blocklisting applies to the client, subject to
      * the optional start/end times.
      */
     private boolean enabled;
     
     /**
-     * Optional startTime when blacklisting becomes enabled.
+     * Optional startTime when blocklisting becomes enabled.
      */
     private Long startTime;
     
     /**
-     * Optional endTime when blacklisting ceases to be enabled
+     * Optional endTime when blocklisting ceases to be enabled
      */
     private Long endTime;
     
 
-    public BlacklistDetails() {
+    public BlocklistDetails() {
     }
     
-    public BlacklistDetails(boolean enabled, Long startTime, Long endTime, PortalUserRole ownerType) {
+    public BlocklistDetails(boolean enabled, Long startTime, Long endTime, PortalUserRole ownerType) {
         this.enabled = enabled;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -77,17 +77,17 @@ public class BlacklistDetails extends BaseJsonModel {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof BlacklistDetails)) {
+		if (!(obj instanceof BlocklistDetails)) {
 			return false;
 		}
-		BlacklistDetails other = (BlacklistDetails) obj;
+		BlocklistDetails other = (BlocklistDetails) obj;
 		return enabled == other.enabled && Objects.equals(endTime, other.endTime)
 				&& Objects.equals(startTime, other.startTime);
 	}
 
 	@Override
-    public BlacklistDetails clone() {
-        BlacklistDetails ret = (BlacklistDetails) super.clone();
+    public BlocklistDetails clone() {
+        BlocklistDetails ret = (BlocklistDetails) super.clone();
         return ret;
     }    
     

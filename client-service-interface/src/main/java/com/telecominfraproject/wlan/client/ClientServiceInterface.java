@@ -79,6 +79,12 @@ public interface ClientServiceInterface {
      */
     PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
 
+    /**
+     * @param customerId
+     * @return list of Clients for the customer that are marked as blocked 
+     */
+    //List<Client> getBlockedClients(int customerId);
+
     //
     // Client Session -related methods
     //

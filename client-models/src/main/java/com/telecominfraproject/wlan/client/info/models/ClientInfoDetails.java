@@ -25,7 +25,7 @@ public class ClientInfoDetails extends ClientDetails {
     private String lastUsedCpUsername;
     private String lastUserAgent;
     private boolean doNotSteer;
-    private BlacklistDetails blacklistDetails;
+    private BlocklistDetails blocklistDetails;
     
     public ClientInfoDetails() {
         super();
@@ -72,12 +72,12 @@ public class ClientInfoDetails extends ClientDetails {
         this.hostName = hostName;
     }
     
-    public BlacklistDetails getBlacklistDetails() {
-        return blacklistDetails;
+    public BlocklistDetails getBlocklistDetails() {
+        return blocklistDetails;
     }
 
-    public void setBlacklistDetails(BlacklistDetails blacklistDetails) {
-        this.blacklistDetails = blacklistDetails;
+    public void setBlocklistDetails(BlocklistDetails blocklistDetails) {
+        this.blocklistDetails = blocklistDetails;
     }
 
 
@@ -132,8 +132,8 @@ public class ClientInfoDetails extends ClientDetails {
                 clientType = other.clientType;
                 changed = true;
             }
-            if(other.getBlacklistDetails() != null && (blacklistDetails == null || !blacklistDetails.equals(other.getBlacklistDetails()))) {
-                this.blacklistDetails = other.blacklistDetails;
+            if(other.getBlocklistDetails() != null && (blocklistDetails == null || !blocklistDetails.equals(other.getBlocklistDetails()))) {
+                this.blocklistDetails = other.blocklistDetails;
                 changed = true;
             }
             if(other.getLastUserAgent() != null && (lastUserAgent == null || !lastUserAgent.equals(other.getLastUserAgent()))) {
@@ -152,7 +152,7 @@ public class ClientInfoDetails extends ClientDetails {
     
     @Override
 	public int hashCode() {
-		return Objects.hash(alias, apFingerprint, blacklistDetails, clientType, doNotSteer, hostName,
+		return Objects.hash(alias, apFingerprint, blocklistDetails, clientType, doNotSteer, hostName,
 				lastUsedCpUsername, lastUserAgent, userName);
 	}
 
@@ -166,7 +166,7 @@ public class ClientInfoDetails extends ClientDetails {
 		}
 		ClientInfoDetails other = (ClientInfoDetails) obj;
 		return Objects.equals(alias, other.alias) && Objects.equals(apFingerprint, other.apFingerprint)
-				&& Objects.equals(blacklistDetails, other.blacklistDetails) && clientType == other.clientType
+				&& Objects.equals(blocklistDetails, other.blocklistDetails) && clientType == other.clientType
 				&& doNotSteer == other.doNotSteer && Objects.equals(hostName, other.hostName)
 				&& Objects.equals(lastUsedCpUsername, other.lastUsedCpUsername)
 				&& Objects.equals(lastUserAgent, other.lastUserAgent) && Objects.equals(userName, other.userName);
@@ -175,8 +175,8 @@ public class ClientInfoDetails extends ClientDetails {
 	@Override
     public ClientInfoDetails clone() {
         ClientInfoDetails ret = (ClientInfoDetails) super.clone();
-        if(this.blacklistDetails != null) {
-            ret.setBlacklistDetails(blacklistDetails.clone());
+        if(this.blocklistDetails != null) {
+            ret.setBlocklistDetails(blocklistDetails.clone());
         }
         return ret;
     }
@@ -187,7 +187,7 @@ public class ClientInfoDetails extends ClientDetails {
             return true;
         }
 
-        if (BaseJsonModel.hasUnsupportedValue(blacklistDetails)) {
+        if (BaseJsonModel.hasUnsupportedValue(blocklistDetails)) {
             return true;
         }
         return false;

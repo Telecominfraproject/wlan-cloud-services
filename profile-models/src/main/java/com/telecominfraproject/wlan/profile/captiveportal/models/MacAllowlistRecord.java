@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
-public class MacWhitelistRecord extends BaseJsonModel {
+public class MacAllowlistRecord extends BaseJsonModel {
     private static final long serialVersionUID = -7260315843621754323L;
 
     private MacAddress macAddress;
@@ -48,10 +48,10 @@ public class MacWhitelistRecord extends BaseJsonModel {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof MacWhitelistRecord)) {
+		if (!(obj instanceof MacAllowlistRecord)) {
 			return false;
 		}
-		MacWhitelistRecord other = (MacWhitelistRecord) obj;
+		MacAllowlistRecord other = (MacAllowlistRecord) obj;
 		return lastModifiedTimestamp == other.lastModifiedTimestamp && Objects.equals(macAddress, other.macAddress)
 				&& Objects.equals(notes, other.notes);
 	}

@@ -48,7 +48,7 @@ public enum AlarmCode {
     FailedCPAuthentications(40, "Captive portal authenticaiton request failed"),
     DisabledSSID(41, "SSID is disabled on equipment even though it is configured"),
     DeauthAttackDetected(42, "De-Auth attack detected"),
-    TooManyBlacklistedDevices(45, "Too many black listed client devices provisioned"),
+    TooManyBlockedDevices(45, "Too many blocked client devices provisioned"),
     TooManyRogueAPs(46, "Too many rogue APs provisioned"),
     NeighbourScanStuckOn2g(47, "Neighbour scan is stuck on 2G Radio"),
     NeighbourScanStuckOn5g(48, "Neighbour scan is stuck on 5G Radio"),
