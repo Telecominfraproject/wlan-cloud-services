@@ -30,6 +30,7 @@ import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
+import com.telecominfraproject.wlan.client.info.models.BlocklistDetails;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
@@ -164,6 +165,71 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
         	remoteInterface.delete(c.getCustomerId(), c.getMacAddress());
         }
         for (Client c : createdTestSet) {
+        	remoteInterface.delete(c.getCustomerId(), c.getMacAddress());
+        }
+
+    }
+    
+    @Test
+    public void testGetBlockedClients() {
+        Set<Client> createdNotBlockedSet = new HashSet<>();
+        Set<Client> createdBlockedSet = new HashSet<>();
+
+        //create test Clients
+        Client mdl;
+        int customerId_1 = getNextCustomerId();
+        int customerId_2 = getNextCustomerId();
+
+        int apNameIdx = 0;
+        
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_1);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            BlocklistDetails blocklistDetails = new BlocklistDetails();
+            blocklistDetails.setEnabled( i%2 == 0 );
+			details.setBlocklistDetails(blocklistDetails );
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress((long)i));
+
+            apNameIdx++;
+            mdl = remoteInterface.create(mdl);
+            if(blocklistDetails.isEnabled()) {
+            	createdBlockedSet.add(mdl);
+            } else {
+            	createdNotBlockedSet.add(mdl);
+            }
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_2);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress((long)i));
+            
+            apNameIdx++;
+            mdl = remoteInterface.create(mdl);
+            createdNotBlockedSet.add(mdl);
+        }
+        
+
+        List<Client> blockedClientsRetrieved = remoteInterface.getBlockedClients(customerId_1);
+        assertEquals(25, blockedClientsRetrieved.size());
+        assertEquals(createdBlockedSet, new HashSet<>(blockedClientsRetrieved));
+
+        // Make sure the clients from the non-blocked set are not in the list
+        for (Client c : blockedClientsRetrieved) {
+            assertTrue(!createdNotBlockedSet.contains(c));
+        }
+		
+        // Clean up after test
+        for (Client c : createdNotBlockedSet) {
+        	remoteInterface.delete(c.getCustomerId(), c.getMacAddress());
+        }
+        for (Client c : createdBlockedSet) {
         	remoteInterface.delete(c.getCustomerId(), c.getMacAddress());
         }
 

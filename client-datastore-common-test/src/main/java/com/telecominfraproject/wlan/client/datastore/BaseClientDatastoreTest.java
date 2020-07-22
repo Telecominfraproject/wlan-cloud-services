@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.telecominfraproject.wlan.client.info.models.BlocklistDetails;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
@@ -386,6 +387,160 @@ public abstract class BaseClientDatastoreTest {
         }
         for (ClientSession c : createdTestSet) {
         	testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress());
+        }
+
+    }
+    
+    
+    @Test
+    public void testGetBlockedClients() {
+        Set<Client> createdNotBlockedSet = new HashSet<>();
+        Set<Client> createdBlockedSet = new HashSet<>();
+
+        //create test Clients
+        Client mdl;
+        int customerId_1 = (int) testSequence.incrementAndGet();
+        int customerId_2 = (int) testSequence.incrementAndGet();
+
+        int apNameIdx = 0;
+        
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_1);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            BlocklistDetails blocklistDetails = new BlocklistDetails();
+            blocklistDetails.setEnabled( i%2 == 0 );
+			details.setBlocklistDetails(blocklistDetails );
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress((long)i));
+
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            if(blocklistDetails.isEnabled()) {
+            	createdBlockedSet.add(mdl);
+            } else {
+            	createdNotBlockedSet.add(mdl);
+            }
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_2);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress((long)i));
+            
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            createdNotBlockedSet.add(mdl);
+        }
+        
+
+        List<Client> blockedClientsRetrieved = testInterface.getBlockedClients(customerId_1);
+        assertEquals(25, blockedClientsRetrieved.size());
+        assertEquals(createdBlockedSet, new HashSet<>(blockedClientsRetrieved));
+
+        // Make sure the clients from the non-blocked set are not in the list
+        for (Client c : blockedClientsRetrieved) {
+            assertTrue(!createdNotBlockedSet.contains(c));
+        }
+		
+        // Clean up after test
+        for (Client c : createdNotBlockedSet) {
+        	testInterface.delete(c.getCustomerId(), c.getMacAddress());
+        }
+        for (Client c : createdBlockedSet) {
+        	testInterface.delete(c.getCustomerId(), c.getMacAddress());
+        }
+
+    }
+    
+    @Test
+    public void testUpdateBlockedClients() {
+        List<Client> createdNotBlockedList = new ArrayList<>();
+        List<Client> createdBlockedList = new ArrayList<>();
+
+        //create test Clients
+        Client mdl;
+        int customerId_1 = (int) testSequence.incrementAndGet();
+
+        int apNameIdx = 0;
+        
+        for(int i = 0; i< 4; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_1);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            BlocklistDetails blocklistDetails = new BlocklistDetails();
+            blocklistDetails.setEnabled( i%2 == 0 );
+			details.setBlocklistDetails(blocklistDetails );
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress((long)i));
+
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            if(blocklistDetails.isEnabled()) {
+            	createdBlockedList.add(mdl);
+                assertTrue(mdl.isNeedToUpdateBlocklist());
+            } else {
+            	createdNotBlockedList.add(mdl);
+                assertFalse(mdl.isNeedToUpdateBlocklist());
+            }
+        }
+
+
+        List<Client> blockedClientsRetrieved = testInterface.getBlockedClients(customerId_1);
+        assertEquals(2, blockedClientsRetrieved.size());
+        assertEquals(new HashSet<>(createdBlockedList), new HashSet<>(blockedClientsRetrieved));
+
+        Client c1 = blockedClientsRetrieved.get(0);
+        Client c2 = blockedClientsRetrieved.get(1);
+
+        //change blocked -> not blocked for the c1
+        ((ClientInfoDetails)c1.getDetails()).getBlocklistDetails().setEnabled(false);
+        assertFalse(c1.isNeedToUpdateBlocklist());
+        c1 = testInterface.update(c1);        
+        assertTrue(c1.isNeedToUpdateBlocklist());
+        
+        blockedClientsRetrieved = testInterface.getBlockedClients(customerId_1);
+        assertEquals(1, blockedClientsRetrieved.size());
+        assertEquals(c2, blockedClientsRetrieved.get(0));
+        assertFalse(blockedClientsRetrieved.get(0).isNeedToUpdateBlocklist());
+
+        //change not blocked -> blocked for the c1
+        ((ClientInfoDetails)c1.getDetails()).getBlocklistDetails().setEnabled(true);
+        c1.setNeedToUpdateBlocklist(false);
+        c1 = testInterface.update(c1);        
+        assertTrue(c1.isNeedToUpdateBlocklist());
+        
+        blockedClientsRetrieved = testInterface.getBlockedClients(customerId_1);
+        assertEquals(2, blockedClientsRetrieved.size());
+        assertTrue(blockedClientsRetrieved.contains(c1));
+        assertTrue(blockedClientsRetrieved.contains(c2));
+        assertFalse(blockedClientsRetrieved.get(0).isNeedToUpdateBlocklist());
+        assertFalse(blockedClientsRetrieved.get(1).isNeedToUpdateBlocklist());
+
+        //change other properties of c1, but do not touch blocked flag
+        ((ClientInfoDetails)c1.getDetails()).setAlias("my alias");
+        c1.setNeedToUpdateBlocklist(false);
+        c1 = testInterface.update(c1);        
+        assertFalse(c1.isNeedToUpdateBlocklist());
+        
+        blockedClientsRetrieved = testInterface.getBlockedClients(customerId_1);
+        assertEquals(2, blockedClientsRetrieved.size());
+        assertTrue(blockedClientsRetrieved.contains(c1));
+        assertTrue(blockedClientsRetrieved.contains(c2));
+        assertFalse(blockedClientsRetrieved.get(0).isNeedToUpdateBlocklist());
+        assertFalse(blockedClientsRetrieved.get(1).isNeedToUpdateBlocklist());
+
+        // Clean up after test
+        for (Client c : createdNotBlockedList) {
+        	testInterface.delete(c.getCustomerId(), c.getMacAddress());
+        }
+        for (Client c : createdBlockedList) {
+        	testInterface.delete(c.getCustomerId(), c.getMacAddress());
         }
 
     }

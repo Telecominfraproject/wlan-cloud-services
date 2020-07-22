@@ -21,6 +21,7 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
+import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -132,6 +133,14 @@ public class ClientDAO {
 
     private static final String CQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where  customerId = ? and "+ COL_ID +" in ";
 
+    private static final String CQL_GET_BLOCKED_LIST_BY_CUSTOMER_ID = 
+    		"select customerId, macAddress from client_blocklist where customerId = ? ";
+
+    private static final String CQL_INSERT_BLOCKED_LIST = 
+    		"insert into client_blocklist (customerId, macAddress) values (?, ?)";
+
+    private static final String CQL_DELETE_BLOCKED_LIST = 
+    		"delete from client_blocklist where customerId = ? and  macAddress = ?";
 
     private static final RowMapper<Client> clientRowMapper = new ClientRowMapper();
 
@@ -144,6 +153,10 @@ public class ClientDAO {
 	private PreparedStatement preparedStmt_update;
 	private PreparedStatement preparedStmt_delete;
 	private PreparedStatement preparedStmt_getPageForCustomer;
+    private PreparedStatement preparedStmt_getBlockedListForCustomer;
+    private PreparedStatement preparedStmt_insertBlockedList;
+    private PreparedStatement preparedStmt_deleteBlockedList;
+
 
 	@PostConstruct
 	private void postConstruct(){
@@ -155,6 +168,10 @@ public class ClientDAO {
 			preparedStmt_update = cqlSession.prepare(CQL_UPDATE);
 			preparedStmt_delete = cqlSession.prepare(CQL_DELETE);
         	preparedStmt_getPageForCustomer = cqlSession.prepare(CQL_GET_BY_CUSTOMER_ID);
+            preparedStmt_getBlockedListForCustomer = cqlSession.prepare(CQL_GET_BLOCKED_LIST_BY_CUSTOMER_ID);
+            preparedStmt_insertBlockedList = cqlSession.prepare(CQL_INSERT_BLOCKED_LIST);
+            preparedStmt_deleteBlockedList  = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
+
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
 			throw e;
@@ -180,7 +197,21 @@ public class ClientDAO {
                 client.getLastModifiedTimestamp()
 				
 				));
-		
+
+        //update blocked_client table, if needed
+		if((client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+				) {
+			
+			cqlSession.execute(preparedStmt_insertBlockedList.bind(
+				client.getCustomerId(),
+                client.getMacAddress().getAddressAsLong()));
+			
+			client.setNeedToUpdateBlocklist(true);
+
+		}
+
         LOG.debug("Stored Client {}", client);
 
         return client.clone();
@@ -209,6 +240,13 @@ public class ClientDAO {
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = client.getLastModifiedTimestamp();
         
+        Client existingClient = getOrNull(client.getCustomerId(), client.getMacAddress()); 
+
+        if(existingClient==null) {
+            LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
+            throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
+        }
+
 		ResultSet rs = cqlSession.execute(preparedStmt_update.bind(
 
                 //TODO: add remaining properties from Client here
@@ -225,36 +263,46 @@ public class ClientDAO {
         
 		
         if(!rs.wasApplied()){
+            long recordTimestamp = existingClient.getLastModifiedTimestamp();
             
-                //find out if record could not be updated because it does not exist or because it was modified concurrently
-            	rs = cqlSession.execute(preparedStmt_getLastmod.bind(
-                        client.getCustomerId(),
-                        client.getMacAddress().getAddressAsLong()
-                        ) );
-            	Row row = rs.one();
-            	
-            	if(row!=null) {
-	                long recordTimestamp = row.getLong(0);
-	                
-	                LOG.debug("Concurrent modification detected for Client with id {} {} expected version is {} but version in db was {}", 
-	                		client.getCustomerId(),
-	                		client.getMacAddress().getAddressAsLong(),
-	                        incomingLastModifiedTs,
-	                        recordTimestamp
-	                        );
-	                throw new DsConcurrentModificationException("Concurrent modification detected for Client with id " + 
-	                        client.getCustomerId() + " " +
-	                        client.getMacAddress().getAddressAsLong() + " " +
-	                        " expected version is " + incomingLastModifiedTs
-	                        +" but version in db was " + recordTimestamp
-	                        );
-            } else {
-                LOG.debug("Cannot find Client for {} {} ", client.getCustomerId(),  
-                		client.getMacAddress().getAddressAsLong());
-                throw new DsEntityNotFoundException("Client not found " +  
-                        client.getCustomerId() + " " +
-                        client.getMacAddress().getAddressAsLong());
-            }
+            LOG.debug("Concurrent modification detected for Client with id {} {} expected version is {} but version in db was {}", 
+                    client.getCustomerId(),
+                    client.getMacAddress().getAddressAsLong(),
+                    incomingLastModifiedTs,
+                    recordTimestamp
+                    );
+            throw new DsConcurrentModificationException("Concurrent modification detected for Client with id " 
+                    + client.getCustomerId() + " " + client.getMacAddress()
+                    +" expected version is " + incomingLastModifiedTs
+                    +" but version in db was " + recordTimestamp
+                    );
+        }
+        
+        //update client_blocklist table, if the blocking state of the client has changed
+        boolean existingClientBlocked = (existingClient.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails().isEnabled();
+
+        boolean updatedClientBlocked = (client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled();
+        
+        if(existingClientBlocked != updatedClientBlocked) {
+        	if(updatedClientBlocked) {
+        		//insert record into client_blocklist table
+        		cqlSession.execute(preparedStmt_insertBlockedList.bind(
+        				client.getCustomerId(),
+                        client.getMacAddress().getAddressAsLong()));
+        	} else {
+        		//delete record from client_blocklist table
+        		cqlSession.execute(preparedStmt_deleteBlockedList.bind(
+        				client.getCustomerId(),
+                        client.getMacAddress().getAddressAsLong()));
+        	}
+        	
+        	//notify the caller that block list needs to be updated
+			client.setNeedToUpdateBlocklist(true);
+
         }
         
 
@@ -272,6 +320,21 @@ public class ClientDAO {
         Client client = getOrNull(customerId, clientMac);
         if(client!=null) {
         	cqlSession.execute(preparedStmt_delete.bind(customerId, clientMac.getAddressAsLong()));
+        	
+            //update blocked_client table, if needed
+    		if((client.getDetails() instanceof ClientInfoDetails) 
+    				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+    				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+    				) {
+
+    			cqlSession.execute(preparedStmt_deleteBlockedList.bind(
+    				client.getCustomerId(),
+                    client.getMacAddress().getAddressAsLong()));
+    			
+    			client.setNeedToUpdateBlocklist(true);
+
+    		}
+
         } else {
         	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + clientMac);
         }
@@ -385,5 +448,25 @@ public class ClientDAO {
 
         return ret;	
     }
+
+	public List<Client> getBlockedClients(int customerId) {
+        LOG.debug("calling getBlockedClients({})", customerId);
+
+        //collect mac addresses of the blocked clients
+        Set<MacAddress> blockedMacs = new HashSet<>();
+		ResultSet rs = cqlSession.execute(preparedStmt_getBlockedListForCustomer.bind(customerId));		
+		rs.forEach( row -> blockedMacs.add(new MacAddress(row.getLong("macAddress")) ) );
+		
+		if(blockedMacs.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
+		//retrieve client details for the blocked macs
+		List<Client> results = get(customerId, blockedMacs);
+
+        LOG.debug("getBlockedClients({}) returns {} record(s)", customerId, results.size());
+        return results;
+        
+	}
 	
 }

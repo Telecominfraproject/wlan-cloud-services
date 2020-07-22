@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -64,7 +65,7 @@ public class ClientDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp", "customerId"));
     
     private static final String TABLE_NAME = "client";
-    private static final String TABLE_PREFIX = "s.";
+    private static final String TABLE_PREFIX = "c.";
     private static final String ALL_COLUMNS;
 
     private static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
@@ -126,6 +127,11 @@ public class ClientDAO extends BaseJdbcDao {
     		" from " + TABLE_NAME + " " + 
     		" where customerId = ? ";
 
+    private static final String SQL_GET_BLOCKED_CLIENTS = "select " + ALL_COLUMNS_WITH_PREFIX +
+    		" from " + TABLE_NAME + " c ,  client_blocklist cb " + 
+    		" where cb.customerId = ?  and c.customerId = cb.customerId and c.macAddress = cb.macAddress ";
+
+    
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
         " from "+TABLE_NAME+" " +
@@ -150,6 +156,9 @@ public class ClientDAO extends BaseJdbcDao {
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
+
+	private static final String SQL_INSERT_BLOCK_LIST = "insert into client_blocklist (customerId, macAddress) values (?, ?) ";
+	private static final String SQL_DELETE_BLOCK_LIST = "delete from client_blocklist where customerId = ? and macAddress = ? ";
 
 
     private static final RowMapper<Client> clientRowMapper = new ClientRowMapper();
@@ -186,6 +195,19 @@ public class ClientDAO extends BaseJdbcDao {
         }catch (DuplicateKeyException e) {
             throw new DsDuplicateEntityException(e);
         }
+
+        //update blocked_client table, if needed
+		if((client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+				) {
+
+			this.jdbcTemplate.update( SQL_INSERT_BLOCK_LIST, 
+					client.getCustomerId(), client.getMacAddress().getAddressAsLong());
+			
+			client.setNeedToUpdateBlocklist(true);
+		}
+        
         
         client.setCreatedTimestamp(ts);
         client.setLastModifiedTimestamp(ts);
@@ -220,6 +242,13 @@ public class ClientDAO extends BaseJdbcDao {
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = client.getLastModifiedTimestamp();
         
+        Client existingClient = getOrNull(client.getCustomerId(), client.getMacAddress()); 
+
+        if(existingClient==null) {
+            LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
+            throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
+        }
+
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
                 //TODO: add remaining properties from Client here
                 (client.getDetails()!=null)?client.getDetails().toZippedBytes():null ,
@@ -237,21 +266,13 @@ public class ClientDAO extends BaseJdbcDao {
         
         if(updateCount==0){
             
-            try{
-                
                 if(isSkipCheckForConcurrentUpdates()){
                     //in this case we did not request protection against concurrent updates,
                     //so the updateCount is 0 because record in db was not found
                     throw new EmptyResultDataAccessException(1);
                 }
                 
-                //find out if record could not be updated because it does not exist or because it was modified concurrently
-                long recordTimestamp = this.jdbcTemplate.queryForObject(
-                    SQL_GET_LASTMOD_BY_ID,
-                    Long.class,
-                    client.getCustomerId(),
-                    client.getMacAddress().getAddressAsLong()
-                    );
+                long recordTimestamp = existingClient.getLastModifiedTimestamp();
                 
                 LOG.debug("Concurrent modification detected for Client with id {} {} expected version is {} but version in db was {}", 
                         client.getCustomerId(),
@@ -265,11 +286,33 @@ public class ClientDAO extends BaseJdbcDao {
                         +" but version in db was " + recordTimestamp
                         );
                 
-            }catch (EmptyResultDataAccessException e) {
-                LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
-                throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
-            }
         }
+
+        //update client_blocklist table, if the blocking state of the client has changed
+        boolean existingClientBlocked = (existingClient.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails().isEnabled();
+
+        boolean updatedClientBlocked = (client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled();
+        
+        if(existingClientBlocked != updatedClientBlocked) {
+        	if(updatedClientBlocked) {
+        		//insert record into client_blocklist table
+    			this.jdbcTemplate.update( SQL_INSERT_BLOCK_LIST, 
+    					client.getCustomerId(), client.getMacAddress().getAddressAsLong());
+        	} else {
+        		//delete record from client_blocklist table
+    			this.jdbcTemplate.update( SQL_DELETE_BLOCK_LIST, 
+    					client.getCustomerId(), client.getMacAddress().getAddressAsLong());
+        	}
+
+        	//notify the caller that block list needs to be updated
+			client.setNeedToUpdateBlocklist(true);
+
+        }
+        
 
         //make a copy so that we don't accidentally update caller's version by reference
         Client clientCopy = client.clone();
@@ -289,6 +332,15 @@ public class ClientDAO extends BaseJdbcDao {
         	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + clientMac);
         }
 
+        //delete from client_blocklist table happens by foreign key cascade
+        //but we still need to tell the caller if the blocklist need to be updated
+        if((client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+				) {
+			client.setNeedToUpdateBlocklist(true);
+        }
+        
         LOG.debug("Deleted Client {} {}", customerId, clientMac);
 
         return client;
@@ -417,4 +469,15 @@ public class ClientDAO extends BaseJdbcDao {
 
         return ret;
     }
+
+
+	public List<Client> getBlockedClients(int customerId) {
+        LOG.debug("calling getBlockedClients({})", customerId);
+        
+        List<Client> results = this.jdbcTemplate.query(SQL_GET_BLOCKED_CLIENTS, clientRowMapper, customerId);
+
+        LOG.debug("getBlockedClients({}) returns {} record(s)", customerId, results.size());
+        return results;
+    }
+
 }

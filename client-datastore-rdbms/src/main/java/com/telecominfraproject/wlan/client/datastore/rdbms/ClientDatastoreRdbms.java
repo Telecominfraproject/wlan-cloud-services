@@ -51,6 +51,11 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     }
     
     @Override
+    public List<Client> getBlockedClients(int customerId) {
+    	return clientDAO.getBlockedClients(customerId);
+    }
+    
+    @Override
     public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
     		PaginationContext<Client> context) {
 

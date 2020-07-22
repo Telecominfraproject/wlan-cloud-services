@@ -48,6 +48,12 @@ public interface ClientDatastore {
      */
     PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
 
+    /**
+     * @param customerId
+     * @return list of Clients for the customer that are marked as blocked. This per-customer list of blocked clients is pushed to every AP, so it has to be limited in size. 
+     */
+    List<Client> getBlockedClients(int customerId);
+
     //
     // Client Session -related methods
     //

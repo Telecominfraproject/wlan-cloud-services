@@ -23,6 +23,20 @@ delete from client where customerId = 1 and macAddress = 1;
 
 
 -------------------------------------------------------------------------------- 
+-- Operations on client_blocklist
+--------------------------------------------------------------------------------
+insert into client_blocklist (customerId, macAddress) values ( 1, 1);
+insert into client_blocklist (customerId, macAddress) values ( 1, 2);
+insert into client_blocklist (customerId, macAddress) values ( 1, 3);
+
+select * from client_blocklist ;
+
+select customerId, macAddress from client_blocklist where customerId = 1 ;
+
+delete from client_blocklist where customerId = 1 and  macAddress = 2;
+
+
+-------------------------------------------------------------------------------- 
 -- Operations on client_session
 --------------------------------------------------------------------------------
 

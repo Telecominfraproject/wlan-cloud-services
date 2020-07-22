@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.client.datastore.ClientDatastore;
+import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -47,8 +48,20 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         idToClientMap.put(key, clientCopy);
         
         LOG.debug("Stored Client {}", clientCopy);
-        
-        return clientCopy.clone();
+
+        //clone it again to set the setNeedToUpdateBlocklist flag (we do not want to store that flag)
+		clientCopy = clientCopy.clone();
+
+        //update blocked_client table, if needed
+		if((client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+				) {
+			
+			clientCopy.setNeedToUpdateBlocklist(true);
+		}
+		
+        return clientCopy;
     }
 
 
@@ -89,15 +102,35 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
                     );
             
         }
-        
+
         Client clientCopy = client.clone();
+        
         clientCopy.setLastModifiedTimestamp(getNewLastModTs(client.getLastModifiedTimestamp()));
 
         idToClientMap.put(new CustomerMacKey(clientCopy), clientCopy);
         
         LOG.debug("Updated Client {}", clientCopy);
+
+        //clone it again to set the setNeedToUpdateBlocklist flag (we do not want to store that flag)
+        clientCopy = clientCopy.clone();
         
-        return clientCopy.clone();
+        //update client_blocklist table, if the blocking state of the client has changed
+        boolean existingClientBlocked = (existingClient.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)existingClient.getDetails()).getBlocklistDetails().isEnabled();
+
+        boolean updatedClientBlocked = (client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled();
+        
+        if(existingClientBlocked != updatedClientBlocked) {
+        	
+        	//notify the caller that block list needs to be updated
+        	clientCopy.setNeedToUpdateBlocklist(true);
+
+        }
+
+        return clientCopy;
     }
 
     @Override
@@ -110,7 +143,18 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + clientMac);
         }
         
-        return client.clone();
+        //update blocked_client table, if needed
+		if((client.getDetails() instanceof ClientInfoDetails) 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails()!=null 
+				&& ((ClientInfoDetails)client.getDetails()).getBlocklistDetails().isEnabled() 
+				) {
+			
+			client.setNeedToUpdateBlocklist(true);
+		}
+
+
+		//client is already cloned by the getOrNull method
+        return client;
     }
 
     @Override
@@ -133,6 +177,26 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     
     }
 
+    @Override
+    public List<Client> getBlockedClients(int customerId) {
+    	List<Client> ret = new ArrayList<>();
+    	
+	    	idToClientMap.forEach(
+	        		(k, c) -> {
+	        			if(k.customerId == customerId 
+	        					&& (c.getDetails() instanceof ClientInfoDetails) 
+	        					&& ((ClientInfoDetails)c.getDetails()).getBlocklistDetails()!=null 
+	        					&& ((ClientInfoDetails)c.getDetails()).getBlocklistDetails().isEnabled() 
+	        					) {
+				        	ret.add(c.clone());
+				        } }
+	        		);
+
+        LOG.debug("Found blocked Clients {}", ret);
+
+        return ret;
+    }
+    
     @Override
     public PaginationResponse<Client> getForCustomer(int customerId, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Client> context) {

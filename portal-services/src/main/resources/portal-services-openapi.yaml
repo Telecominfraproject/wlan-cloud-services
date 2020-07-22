@@ -9688,6 +9688,34 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
+
+  /portal/client/blocked:  
+    get:
+      tags:
+      - Clients
+      summary: Retrieves a list of Clients for the customer that are marked as blocked. This per-customer list of blocked clients is pushed to every AP, so it has to be limited in size.
+      operationId: getBlockedClients
+      parameters:
+      - name: customerId
+        in: query
+        description: Customer ID
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
+          
+
   /portal/client:
     put:
       tags:

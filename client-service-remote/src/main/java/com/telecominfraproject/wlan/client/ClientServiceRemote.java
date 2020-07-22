@@ -106,6 +106,27 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
         }
 
 	}
+    
+    @Override
+    public List<Client> getBlockedClients(int customerId) {
+        LOG.debug("getBlockedClients {}", customerId);
+
+        try {
+            ResponseEntity<List<Client>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/blocked?customerId={customerId}", HttpMethod.GET,
+                    null, Client_LIST_CLASS_TOKEN, customerId);
+
+            List<Client> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("getBlockedClients({}) return {} entries", customerId, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getBlockedClients({}) exception ", customerId, exp);
+            throw exp;
+        }
+    }
 
 	@Override
 	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,

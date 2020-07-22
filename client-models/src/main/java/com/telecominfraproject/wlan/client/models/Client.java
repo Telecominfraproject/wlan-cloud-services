@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.client.models;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
@@ -22,6 +23,10 @@ public class Client extends BaseJsonModel implements HasCustomerId {
     
     private long createdTimestamp;
     private long lastModifiedTimestamp;
+    
+	@JsonIgnore
+    //not-serializable flag, used to propagate the information to the datasource caller about whether to generate ClientBlockListChangedEvent
+    private boolean needToUpdateBlocklist;
     
 	public MacAddress getMacAddress() {
 		return macAddress;
@@ -61,6 +66,16 @@ public class Client extends BaseJsonModel implements HasCustomerId {
 
 	public void setDetails(ClientDetails details) {
 		this.details = details;
+	}
+
+	@JsonIgnore
+	public boolean isNeedToUpdateBlocklist() {
+		return needToUpdateBlocklist;
+	}
+
+	@JsonIgnore
+	public void setNeedToUpdateBlocklist(boolean needToUpdateBlocklist) {
+		this.needToUpdateBlocklist = needToUpdateBlocklist;
 	}
 
 	@Override

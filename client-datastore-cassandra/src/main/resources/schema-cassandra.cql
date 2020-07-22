@@ -13,6 +13,12 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client (
 
 CREATE INDEX IF NOT EXISTS idx_client_customerId ON tip_wlan_keyspace.client (customerId);
 
+CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_blocklist (
+    customerId int,
+    macAddress bigint,    
+    PRIMARY KEY ((customerId), macAddress)
+) WITH comment='Wireless client blocklist by MAC used by TIP WLAN CloudSDK';
+
 
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session (
     customerId int,

@@ -66,6 +66,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
       
+      <dependency>
+        <artifactId>client-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+      
       <!--  models used by the application logic of the stream processor -->
       <dependency>
         <artifactId>equipment-models</artifactId>

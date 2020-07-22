@@ -57,6 +57,8 @@ public enum CEGWCommandType {
 	 * For commands related to wds link of Mesh.
 	 */
 	WdsRequest,
+	
+	ClientBlocklistChangeNotification,
 
 	UNSUPPORTED;
 

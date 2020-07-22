@@ -58,6 +58,11 @@ public class ClientServiceLocal implements ClientServiceInterface {
 		return clientController.delete(customerId, macAddress);
 	}
 
+    @Override
+    public List<Client> getBlockedClients(int customerId) {
+    	return clientController.getBlockedClients(customerId);
+    }
+    
     //
     // Methods related to Client Sessions
     //

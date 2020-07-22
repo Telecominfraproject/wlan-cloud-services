@@ -73,7 +73,26 @@ public class ClientPortalController  {
         return ret;
 
     }
-    
+
+    @RequestMapping(value = "/client/blocked", method = RequestMethod.GET)
+    public ListOfClients getBlockedClients(@RequestParam int customerId) {
+        LOG.debug("getBlockedClients({})", customerId);
+        ListOfClients ret = new ListOfClients();
+        
+        try {
+        	
+            List<Client> result = clientServiceInterface.getBlockedClients(customerId);
+            LOG.debug("getBlockedClients({}) return {} entries", customerId, result.size());
+            ret.addAll(result);
+        } catch (Exception exp) {
+             LOG.error("getBlockedClients({}) exception ", customerId, exp);
+             throw exp;
+        }
+
+        return ret;
+
+    }
+
     @RequestMapping(value = "/client", method = RequestMethod.PUT)
     public Client updateClient(@RequestBody Client client) {
         LOG.debug("Updating client {}", client);

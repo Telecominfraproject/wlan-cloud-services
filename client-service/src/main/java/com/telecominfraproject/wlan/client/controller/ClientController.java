@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.client.datastore.ClientDatastore;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.models.events.ClientAddedEvent;
+import com.telecominfraproject.wlan.client.models.events.ClientBlockListChangedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientChangedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientRemovedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientSessionChangedEvent;
@@ -82,8 +83,14 @@ public class ClientController {
 
         LOG.debug("Created Client {}", ret);
 
-        ClientAddedEvent event = new ClientAddedEvent(ret);
-        publishEvent(event);
+        List<SystemEvent> events = new ArrayList<>();
+        events.add(new ClientAddedEvent(ret));
+        
+        if(ret.isNeedToUpdateBlocklist()) {
+        	events.add(new ClientBlockListChangedEvent(ret));
+        }
+        
+        publishEvents(events);
 
 
         return ret;
@@ -120,6 +127,26 @@ public class ClientController {
              throw exp;
         }
     }
+    
+    /**
+     * @param customerId
+     * @return list of Clients for the customer that are marked as blocked. This per-customer list of blocked clients is pushed to every AP, so it has to be limited in size. 
+     */
+    @RequestMapping(value = "/blocked", method = RequestMethod.GET)
+    public ListOfClients getBlockedClients(@RequestParam int customerId) {
+        LOG.debug("getBlockedClients({})", customerId);
+        try {
+            List<Client> result = clientDatastore.getBlockedClients(customerId);
+            LOG.debug("getBlockedClients({}) return {} entries", customerId, result.size());
+            ListOfClients ret = new ListOfClients();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getBlockedClients({}) exception ", customerId, exp);
+             throw exp;
+        }
+    }
+
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Client> getForCustomer(@RequestParam int customerId,
@@ -176,8 +203,16 @@ public class ClientController {
 
         LOG.debug("Updated Client {}", ret);
 
-        ClientChangedEvent event = new ClientChangedEvent(ret);
-        publishEvent(event);
+        List<SystemEvent> events = new ArrayList<>();
+        events.add(new ClientChangedEvent(ret));
+        
+        if(ret.isNeedToUpdateBlocklist()) {
+        	events.add(new ClientBlockListChangedEvent(ret));
+        }
+        
+        publishEvents(events);
+
+        
 
         return ret;
     }
@@ -197,8 +232,15 @@ public class ClientController {
 
         LOG.debug("Deleted Client {}", ret);
         
-        ClientRemovedEvent event = new ClientRemovedEvent(ret);
-        publishEvent(event);
+        List<SystemEvent> events = new ArrayList<>();
+        events.add(new ClientRemovedEvent(ret));
+        
+        if(ret.isNeedToUpdateBlocklist()) {
+        	events.add(new ClientBlockListChangedEvent(ret));
+        }
+        
+        publishEvents(events);
+
 
         return ret;
     }

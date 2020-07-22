@@ -81,9 +81,9 @@ public interface ClientServiceInterface {
 
     /**
      * @param customerId
-     * @return list of Clients for the customer that are marked as blocked 
+     * @return list of Clients for the customer that are marked as blocked. This per-customer list of blocked clients is pushed to every AP, so it has to be limited in size. 
      */
-    //List<Client> getBlockedClients(int customerId);
+    List<Client> getBlockedClients(int customerId);
 
     //
     // Client Session -related methods

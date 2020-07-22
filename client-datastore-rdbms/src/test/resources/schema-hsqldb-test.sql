@@ -16,6 +16,15 @@ create table client (
 
 create index idx_client_customerId on client (customerId);
 
+create table if not exists client_blocklist (
+    -- hsqldb     
+    customerId int,
+    macAddress bigint ,
+  
+    primary key (customerId, macAddress),
+    FOREIGN KEY (customerId, macAddress) REFERENCES client(customerId, macAddress) ON DELETE CASCADE
+);
+
 create table client_session (
     -- postgresql     
     macAddress bigint ,
