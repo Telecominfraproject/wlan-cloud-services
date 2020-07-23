@@ -1,5 +1,8 @@
 package com.telecominfraproject.wlan.status.datastore.cassandra;
 
+import static com.telecominfraproject.wlan.core.server.cassandra.CassandraUtils.getBindPlaceholders;
+import static com.telecominfraproject.wlan.core.server.cassandra.CassandraUtils.isPresent;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +42,7 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 
     private static final String[] ALL_COLUMNS_LIST = {        
             
-            //TODO: add colums from properties Status in here
+            //TODO: add columns from properties of Status in here
             "customerId",
             "equipmentId",
             "statusDataType",
@@ -124,7 +127,15 @@ public class StatusDatastoreCassandra implements StatusDatastore {
             + ALL_COLUMNS_UPDATE +
             " where  customerId = ? and equipmentId = ? and statusDataType = ? "
             ;
-    
+
+        private static final String CQL_GET_KEYS_FOR_CUSTOMER_AND_EQUIPMENT =
+                "select customerId, equipmentId, statusDataType from status where customerId = ? and equipmentId = ?";
+
+        private static final String CQL_INSERT_BY_DATATYPE =
+                "insert into status_by_datatype (customerId, equipmentId, statusDataType) values ( ?, ?, ? )";
+
+        private static final String CQL_DELETE_BY_DATATYPE =
+                "delete from status_by_datatype where customerId = ? and equipmentId = ? and statusDataType = ?";
 
     private static final RowMapper<Status> statusRowMapper = new StatusRowMapper();
     
@@ -136,6 +147,9 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 	private PreparedStatement preparedStmt_update;
 	private PreparedStatement preparedStmt_delete;
 	private PreparedStatement preparedStmt_getByCustomerAndEquipment;
+	private PreparedStatement preparedStmt_insertByDataType;
+	private PreparedStatement preparedStmt_deleteByDataType;
+	private PreparedStatement preparedStmt_getKeysByCustomerAndEquipment;
 
 	@PostConstruct
 	private void postConstruct(){
@@ -145,6 +159,11 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 		preparedStmt_update = cqlSession.prepare(CQL_UPDATE);
 		preparedStmt_delete = cqlSession.prepare(CQL_DELETE);
 		preparedStmt_getByCustomerAndEquipment = cqlSession.prepare(CQL_GET_BY_CUSTOMER_AND_EQUIPMENT_ID);
+		
+		preparedStmt_insertByDataType = cqlSession.prepare(CQL_INSERT_BY_DATATYPE);
+		preparedStmt_deleteByDataType = cqlSession.prepare(CQL_DELETE_BY_DATATYPE);
+		preparedStmt_getKeysByCustomerAndEquipment = cqlSession.prepare(CQL_GET_KEYS_FOR_CUSTOMER_AND_EQUIPMENT);
+
 	}
 	
 	public Status create(Status status) {
@@ -168,7 +187,13 @@ public class StatusDatastoreCassandra implements StatusDatastore {
                 status.getLastModifiedTimestamp()
 				
 				));
-		
+
+		cqlSession.execute(preparedStmt_insertByDataType.bind(
+                status.getCustomerId(),
+                status.getEquipmentId(),
+                status.getStatusDataType().getId()
+                ));
+
         LOG.debug("Stored Status {}", status);
 
         return status.clone();
@@ -217,6 +242,13 @@ public class StatusDatastoreCassandra implements StatusDatastore {
                 status.getStatusDataType().getId()
         ));
 
+		cqlSession.execute(preparedStmt_insertByDataType.bind(
+                status.getCustomerId(),
+                status.getEquipmentId(),
+                status.getStatusDataType().getId()
+                ));
+
+
         //make a copy so that we don't accidentally update caller's version by reference
         Status statusCopy = status.clone();
         statusCopy.setLastModifiedTimestamp(newLastModifiedTs);
@@ -232,6 +264,17 @@ public class StatusDatastoreCassandra implements StatusDatastore {
         List<Status> ret = get(customerId, equipmentId);
         
         cqlSession.execute(preparedStmt_delete.bind(customerId, equipmentId));
+        
+        //clear the index table
+		ResultSet rs = cqlSession.execute(preparedStmt_getKeysByCustomerAndEquipment.bind(customerId, equipmentId ));
+		
+		rs.forEach( row -> 
+				cqlSession.execute(preparedStmt_deleteByDataType.bind(
+		                row.getInt("customerId"),
+		                row.getLong("equipmentId"),
+		                row.getInt("statusDataType")
+                ))
+				 );
 
         LOG.debug("Deleted Statuses {}", ret);
                 
@@ -318,6 +361,50 @@ public class StatusDatastoreCassandra implements StatusDatastore {
         
 	}
 
+	private List<Status> getPage(int customerId, Set<Long> equipmentIds, Set<Integer>  statusDataTypes) {
+		//select * from status where customerId = 1 and equipmentId in (1,2) and statusDataType in(1,2) ;
+		List<Status> ret = new ArrayList<>();
+		
+		ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        queryArgs.addAll(equipmentIds);
+        queryArgs.addAll(statusDataTypes);
+
+		PreparedStatement preparedStmt = cqlSession.prepare("select * from status where customerId = ? "
+				+ "and equipmentId  in "+getBindPlaceholders(equipmentIds)
+				+" and statusDataType in " + getBindPlaceholders(statusDataTypes));	
+		ResultSet rs = cqlSession.execute(preparedStmt.bind(queryArgs.toArray()));
+		
+		Row row;
+		while((row = rs.one()) !=null) {
+			ret.add(statusRowMapper.mapRow(row));
+		}
+
+		return ret;
+	}
+	
+	private static enum FilterOptions {
+		/**
+		 * All filters are provided and not empty - customerId, equipmentIds and dataTypes. This is the most efficient way to query, does not use index tables, goes through the status table directly
+		 */
+		all_filters, 
+		/**
+		 * Only customerId is provided. Uses idx_status_customerId index. Goes through the status table directly.
+		 */
+		customer,   
+		/**
+		 * Only customerId and equipmentIds are provided.  Goes through the status table directly. 
+		 */
+		equipment,   
+		/**
+		 * Only customerId and dataTypes are provided. First iterate through the status_by_datatype table, collect a page of keys, then use getPage() method to read from the status table.
+		 */
+		customer_dataType,  
+		/**
+		 * Note: this case is covered by the all_filters element above. Keeping it here only in case we need to extend ways of filtering. May remove it and the corresponding index table in the future. Only customerId, equipmentIds and dataTypes are provided. 
+		 */
+		equipment_dataType,  
+	}
 
 	@Override
 	public PaginationResponse<Status> getForCustomer(int customerId, Set<Long> equipmentIds,
@@ -337,45 +424,50 @@ public class StatusDatastoreCassandra implements StatusDatastore {
         LOG.debug("Looking up Statuses for customer {} with last returned page number {}", 
                 customerId, context.getLastReturnedPageNumber());
 
-        String query = CQL_GET_BY_CUSTOMER_ID;
-    	
-        // add filters for the query
+        //select the index table based on provided inputs, create a query and bind variables
+        FilterOptions filterOptions = null;
+        String query = null;
         ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
 
-        //add equipmentId filters
-        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+        if(isPresent(equipmentIds) && isPresent(statusDataTypes)) {
+        	filterOptions = FilterOptions.all_filters;
+			query = "select * from status where customerId = ? "
+					+ " and equipmentId in "+getBindPlaceholders(equipmentIds)
+					+" and statusDataType in "+getBindPlaceholders(statusDataTypes) ;
+            queryArgs.add(customerId);
             queryArgs.addAll(equipmentIds);
-
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query += strb.toString();
-        }
+            statusDataTypes.forEach(dt -> queryArgs.add(dt.getId()));
+        } else if(!isPresent(equipmentIds) && !isPresent(statusDataTypes)) {
+        	filterOptions = FilterOptions.customer;
+        	query = "select * from status where customerId = ? ";
+            queryArgs.add(customerId);
+        } else if(isPresent(equipmentIds) && !isPresent(statusDataTypes)) {
+        	filterOptions = FilterOptions.equipment;
+        	query = "select * from status where customerId = ? "
+        			+ " and equipmentId in "+getBindPlaceholders(equipmentIds);
+            queryArgs.add(customerId);
+            queryArgs.addAll(equipmentIds);
+        } else if(!isPresent(equipmentIds) && isPresent(statusDataTypes)) {
+        	filterOptions = FilterOptions.customer_dataType;
+        	query = "select * from status_by_datatype where customerId = ? "
+        			+ " and statusDataType in "+getBindPlaceholders(statusDataTypes);
+            queryArgs.add(customerId);
+            statusDataTypes.forEach(dt -> queryArgs.add(dt.getId()));
+        } else if(isPresent(equipmentIds) && isPresent(statusDataTypes)) {
+        	filterOptions = FilterOptions.equipment_dataType;
+			query = "select * from status where customerId = ? "
+					+ " and equipmentId in "+getBindPlaceholders(equipmentIds)
+					+" and statusDataType in "+getBindPlaceholders(statusDataTypes) ;
+            queryArgs.add(customerId);
+            queryArgs.addAll(equipmentIds);
+            statusDataTypes.forEach(dt -> queryArgs.add(dt.getId()));
+        } 
         
-        //add statusDataType filters
-        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
-        	statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+        //this is to protect the future code changes - when new filter operations are added
+        if(filterOptions == null){
+        	throw new IllegalStateException("Unknown combination of query filters");
+        }
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and statusDataType in (");
-            for (int i = 0; i < statusDataTypes.size(); i++) {
-                strb.append("?");
-                if (i < statusDataTypes.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query += strb.toString();
-        }        
         
         // add sorting options for the query
         // Cassandra allows very limited support for ordering results
@@ -408,11 +500,36 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 
 		List<Status> pageItems = new ArrayList<>();
 		
-		// iterate through the current page
-		while (rs.getAvailableWithoutFetching() > 0) {
-		  pageItems.add(statusRowMapper.mapRow(rs.one()));
-		}
+		switch(filterOptions) {
+		case all_filters:
+		case customer:
+		case equipment:
+		case equipment_dataType:
+			// iterate through the current page directly
+			while (rs.getAvailableWithoutFetching() > 0) {
+			  pageItems.add(statusRowMapper.mapRow(rs.one()));
+			}
+			break;		
+		case customer_dataType:
+			//the query was against the index table 
+			//find all the keys for the page, then retrieve records for them from system_event table
+			Set<Long> equipmentIdsIdx = new HashSet<>();
+			Set<Integer> dataTypesIdx = new HashSet<>();
+			Row row;
+			while (rs.getAvailableWithoutFetching() > 0) {
+				row = rs.one();
+				equipmentIdsIdx.add(row.getLong("equipmentId"));
+				dataTypesIdx.add(row.getInt("statusDataType"));
+			}
 
+			List<Status> pageOfStatuses = getPage(customerId, equipmentIdsIdx, dataTypesIdx);
+			pageItems.addAll(pageOfStatuses);			
+			break;
+		default:
+			LOG.warn("Unknown filter option:", filterOptions);
+			throw new IllegalArgumentException("Unknown filter option " + filterOptions);
+		}
+		
         if (pageItems.isEmpty()) {
             LOG.debug("Cannot find Statuses for customer {} with last returned page number {}",
                     customerId, context.getLastReturnedPageNumber());

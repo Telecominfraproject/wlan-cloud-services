@@ -15,3 +15,11 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.status (
 -- this is needed to support retrieval of all statuses for a customer
 CREATE INDEX IF NOT EXISTS idx_status_customerId ON tip_wlan_keyspace.status (customerId);
 
+CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.status_by_datatype (
+    customerId int,
+    equipmentId bigint,
+    statusDataType int,
+        
+    PRIMARY KEY ((customerId, statusDataType), equipmentId)
+) WITH comment='Index table to look up status objects by the statusDataType - TIP WLAN CloudSDK';
+

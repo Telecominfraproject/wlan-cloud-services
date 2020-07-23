@@ -294,9 +294,11 @@ public abstract class BaseStatusDatastoreTest {
        int customerId_1 = (int) testSequence.incrementAndGet();
        int customerId_2 = (int) testSequence.incrementAndGet();
        
+       Set<Long> equipmentIds_1_set = new HashSet<>();
        long[] equipmentIds_1 = new long[10];
        for(int i=0; i<10; i++) {
-    	   equipmentIds_1[i] =  testSequence.incrementAndGet(); 
+    	   equipmentIds_1[i] =  testSequence.incrementAndGet();
+    	   equipmentIds_1_set.add(equipmentIds_1[i]);
        }
 
        StatusDataType statusDataType_1 = StatusDataType.EQUIPMENT_ADMIN;
@@ -437,6 +439,26 @@ public abstract class BaseStatusDatastoreTest {
        Set<Long> returnedEquipmentIds = new HashSet<>();
        Set<StatusDataType> returnedStatusDataTypes = new HashSet<>();
        
+       //Paginate over all Equipment and one status
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       page1 = testInterface.getForCustomer(customerId_1, null, oneStatusDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(customerId_1, null, oneStatusDataType, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+		page1.getItems().forEach(e -> {
+			assertEquals(customerId_1, e.getCustomerId());
+			assertTrue(equipmentIds_1_set.contains(e.getEquipmentId()));
+			assertTrue(oneStatusDataType.contains(e.getStatusDataType()));
+		});
+		       
+        assertFalse(page1.getContext().isLastPage());
+        assertTrue(page2.getContext().isLastPage());
+
        //Paginate over oneEquipment and all statuses
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
