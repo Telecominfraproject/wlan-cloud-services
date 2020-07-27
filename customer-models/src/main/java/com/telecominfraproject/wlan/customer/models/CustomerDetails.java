@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.customer.models;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
@@ -13,6 +15,7 @@ public class CustomerDetails extends BaseJsonModel{
     private static final long serialVersionUID = 3061657893135029599L;
 
     private EquipmentAutoProvisioningSettings autoProvisioning;
+    private Set<Integer> bannedChannels = new HashSet<>();
 
     @Override
     public CustomerDetails clone() {
@@ -39,7 +42,8 @@ public class CustomerDetails extends BaseJsonModel{
 			return false;
 		}
 		CustomerDetails other = (CustomerDetails) obj;
-		return Objects.equals(autoProvisioning, other.autoProvisioning);
+		return Objects.equals(autoProvisioning, other.autoProvisioning) &&
+				Objects.equals(bannedChannels, other.bannedChannels);
 	}
 
 	public EquipmentAutoProvisioningSettings getAutoProvisioning() {
@@ -48,6 +52,14 @@ public class CustomerDetails extends BaseJsonModel{
 
 	public void setAutoProvisioning(EquipmentAutoProvisioningSettings autoProvisioning) {
 		this.autoProvisioning = autoProvisioning;
+	}
+
+	public Set<Integer> getBannedChannels() {
+		return bannedChannels;
+	}
+
+	public void setBannedChannels(Set<Integer> bannedChannels) {
+		this.bannedChannels = bannedChannels;
 	}
     
 	
