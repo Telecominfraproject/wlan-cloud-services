@@ -99,6 +99,8 @@ public class ClientPortalController  {
         if(ret == null) {
         	ret = clientServiceInterface.create(client);
         } else {
+        	//to match the OpenAPI docs: last update always wins for this operation
+        	client.setLastModifiedTimestamp(ret.getLastModifiedTimestamp());
         	ret = clientServiceInterface.update(client);
         }
 
