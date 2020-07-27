@@ -244,7 +244,7 @@ public class ClientDAO {
 
         if(existingClient==null) {
             LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
-            throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
+            throw new DsEntityNotFoundException("Client not found " + client.getCustomerId() + " " + client.getMacAddress());
         }
 
 		ResultSet rs = cqlSession.execute(preparedStmt_update.bind(

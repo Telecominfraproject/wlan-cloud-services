@@ -21,7 +21,6 @@ import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-import com.telecominfraproject.wlan.location.models.Location;
 
 /**
  * @author dtoptygin
@@ -96,8 +95,12 @@ public class ClientPortalController  {
     @RequestMapping(value = "/client", method = RequestMethod.PUT)
     public Client updateClient(@RequestBody Client client) {
         LOG.debug("Updating client {}", client);
-
-        Client ret = clientServiceInterface.update(client);
+        Client ret = clientServiceInterface.getOrNull(client.getCustomerId(), client.getMacAddress());
+        if(ret == null) {
+        	ret = clientServiceInterface.create(client);
+        } else {
+        	ret = clientServiceInterface.update(client);
+        }
 
         return ret;
     }

@@ -246,7 +246,7 @@ public class ClientDAO extends BaseJdbcDao {
 
         if(existingClient==null) {
             LOG.debug("Cannot find Client for {} {}", client.getCustomerId(), client.getMacAddress());
-            throw new DsEntityNotFoundException("Client not found " + + client.getCustomerId() + " " + client.getMacAddress());
+            throw new DsEntityNotFoundException("Client not found " + client.getCustomerId() + " " + client.getMacAddress());
         }
 
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
