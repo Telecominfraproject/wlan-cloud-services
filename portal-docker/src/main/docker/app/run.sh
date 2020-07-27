@@ -2,6 +2,11 @@
 
 LOGGING_PROPS=" -Dlogging.config=file:/app/portal/logback.xml"
 
+FILE_STORE_DIRECTORY="${FILE_STORE_DIRECTORY_INTERNAL:=/tmp/filestore}"
+
+FILE_STORE_PROPS=" "
+FILE_STORE_PROPS+=" -Dtip.wlan.fileStoreDirectory=$FILE_STORE_DIRECTORY"
+
 # SSC_URL: something like https://${SSC_SERVER_HOST}:9031
 SSC_URL=${SSC_RELEASE_URL}
 # PROV_URL: something like https://${PROV_SERVER_HOST}:9091
@@ -25,6 +30,6 @@ HOST_PROPS+=" -Dtip.wlan.manufacturerServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.equipmentServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
 
-export ALL_PROPS="$LOGGING_PROPS $HOST_PROPS"
+export ALL_PROPS="$LOGGING_PROPS $HOST_PROPS $FILE_STORE_PROPS"
 
 java $ALL_PROPS -jar app.jar
