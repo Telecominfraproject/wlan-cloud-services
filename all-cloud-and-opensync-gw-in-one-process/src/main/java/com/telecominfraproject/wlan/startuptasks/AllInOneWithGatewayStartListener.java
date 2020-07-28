@@ -297,7 +297,6 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		profileCaptivePortal.setDetails(captivePortalConfig);
 		profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
 		
-		
 		Profile profileAp_3_radios = new Profile();
 		profileAp_3_radios.setCustomerId(customer.getId());
 		profileAp_3_radios.setName("ApProfile-3-radios");

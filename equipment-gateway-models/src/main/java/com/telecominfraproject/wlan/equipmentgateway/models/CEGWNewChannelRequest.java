@@ -1,6 +1,11 @@
 package com.telecominfraproject.wlan.equipmentgateway.models;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 
 public class CEGWNewChannelRequest extends EquipmentCommand {
     /**
@@ -10,40 +15,47 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
     /**
      *
      */
-    private Integer newBackupChannel2g;
-    private Integer newBackupChannel5g;
+    private Map<RadioType, Integer> newBackupChannels = new EnumMap<>(RadioType.class);
 
     protected CEGWNewChannelRequest() {
         // serial
     }
 
-    public CEGWNewChannelRequest(String qrCode, long equipmentId, Integer newBackupChannel2g,
-            Integer newBackupChannel5g) {
-        super(CEGWCommandType.NewChannelRequest, qrCode, equipmentId);
-        this.newBackupChannel2g = newBackupChannel2g;
-        this.newBackupChannel5g = newBackupChannel5g;
+    public CEGWNewChannelRequest(String inventoryId, long equipmentId, Map<RadioType, Integer> newBackupChannels) {
+        super(CEGWCommandType.NewChannelRequest, inventoryId, equipmentId);
+        this.newBackupChannels = newBackupChannels;
     }
 
-    public Integer getNewBackupChannel2g() {
-        return newBackupChannel2g;
+    @JsonIgnore
+    public Integer getNewBackupChannel(RadioType radioType) {
+        return newBackupChannels.get(radioType);
+    }
+    
+    @JsonIgnore
+    public void setNewBackupChannel(RadioType radioType, Integer newBackupChannel) {
+    	if (this.newBackupChannels == null) {
+    		this.newBackupChannels = new EnumMap<>(RadioType.class);
+    	}
+        this.newBackupChannels.put(radioType, newBackupChannel);
     }
 
-    public Integer getNewBackupChannel5g() {
-        return newBackupChannel5g;
+    public Map<RadioType, Integer> getNewBackupChannels() {
+        return newBackupChannels;
     }
 
-    public void setNewBackupChannel2g(Integer newBackupChannel2g) {
-        this.newBackupChannel2g = newBackupChannel2g;
-    }
-
-    public void setNewBackupChannel5g(Integer newBackupChannel5g) {
-        this.newBackupChannel5g = newBackupChannel5g;
+    public void setNewBackupChannels(Map<RadioType, Integer> newBackupChannels) {
+        this.newBackupChannels = newBackupChannels;
     }
 
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
+        }
+        if (newBackupChannels != null && !newBackupChannels.isEmpty()) {
+            if (newBackupChannels.get(RadioType.UNSUPPORTED) != null) {
+                return true;
+            }
         }
         return false;
     }
@@ -52,7 +64,7 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(newBackupChannel2g, newBackupChannel5g);
+        result = prime * result + Objects.hash(newBackupChannels);
         return result;
     }
 
@@ -68,8 +80,7 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
             return false;
         }
         CEGWNewChannelRequest other = (CEGWNewChannelRequest) obj;
-        return Objects.equals(newBackupChannel2g, other.newBackupChannel2g)
-                && Objects.equals(newBackupChannel5g, other.newBackupChannel5g);
+        return Objects.equals(newBackupChannels, other.newBackupChannels);
     }
 
 }
