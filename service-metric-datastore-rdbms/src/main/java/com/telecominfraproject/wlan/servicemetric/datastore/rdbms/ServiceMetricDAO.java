@@ -48,6 +48,7 @@ public class ServiceMetricDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties ServiceMetric in here
         "customerId",
+        "locationId",
         "equipmentId",
         "clientMac",
         "dataType",
@@ -59,6 +60,7 @@ public class ServiceMetricDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(
     		"customerId",
+    		"locationId",
             "equipmentId",
             "clientMac",
             "dataType",
@@ -165,6 +167,7 @@ public class ServiceMetricDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from ServiceMetric here 
                         ps.setInt(colIdx++, serviceMetric.getCustomerId());
+                        ps.setLong(colIdx++, serviceMetric.getLocationId());
                         ps.setLong(colIdx++, serviceMetric.getEquipmentId());
                         ps.setLong(colIdx++, serviceMetric.getClientMac());
                         ps.setInt(colIdx++, serviceMetric.getDataType().getId());
@@ -365,6 +368,7 @@ public class ServiceMetricDAO extends BaseJdbcDao {
                             
                             //TODO: add remaining properties from ServiceMetric here 
                             ps.setInt(colIdx++, serviceMetric.getCustomerId());
+                            ps.setLong(colIdx++, serviceMetric.getLocationId());
                             ps.setLong(colIdx++, serviceMetric.getEquipmentId());
                             ps.setLong(colIdx++, serviceMetric.getClientMac());
                             ps.setInt(colIdx++, serviceMetric.getDataType().getId());

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.service_metric (
 
     createdTimestamp bigint,
 
+    locationId bigint,
     details blob,
     
     PRIMARY KEY ((customerId, equipmentId, dayOfYear), clientMac, dataType, createdTimestamp)

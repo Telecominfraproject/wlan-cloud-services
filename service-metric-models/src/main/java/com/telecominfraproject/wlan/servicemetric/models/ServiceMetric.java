@@ -20,6 +20,7 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 	
     private int customerId;
 	private long equipmentId;
+	private long locationId;
 	private long clientMac;
 	private ServiceMetricDataType dataType;
     private long createdTimestamp;    
@@ -73,6 +74,14 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 
 	public void setClientMac(long clientMac) {
 		this.clientMac = clientMac;
+	}
+
+	public long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(long locationId) {
+		this.locationId = locationId;
 	}
 
 	public ServiceMetricDetails getDetails() {

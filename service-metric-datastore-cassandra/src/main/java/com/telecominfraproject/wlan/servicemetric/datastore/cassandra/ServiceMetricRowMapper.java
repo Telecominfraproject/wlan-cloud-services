@@ -25,6 +25,7 @@ public class ServiceMetricRowMapper implements RowMapper<ServiceMetric> {
     	ServiceMetric serviceMetric = new ServiceMetric();
 
         serviceMetric.setCustomerId(row.getInt("customerId"));
+        serviceMetric.setLocationId(row.getLong("locationId"));
         serviceMetric.setEquipmentId(row.getLong("equipmentId"));
         serviceMetric.setClientMac(row.getLong("clientMac"));
 

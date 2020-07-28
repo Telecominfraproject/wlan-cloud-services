@@ -4,6 +4,7 @@ create table service_metric (
      -- hsqldb 
   
     customerId int,
+    locationId bigint not null,
     equipmentId bigint not null,
     clientMac bigint not null,
     dataType int not null,
@@ -11,7 +12,7 @@ create table service_metric (
     
     details varbinary(65535),
     
-    primary key (customerId, equipmentId, clientMac, dataType, createdTimestamp)
+    primary key (customerId, locationId, equipmentId, clientMac, dataType, createdTimestamp)
   
 );
 

@@ -47,6 +47,7 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
             
             //TODO: add columns from properties of ServiceMetric in here
             "customerId",
+            "locationId",
             "equipmentId",
             "dayOfYear",
             "clientMac",
@@ -57,7 +58,7 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
         
         private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
 
-        private static final Set<String> columnsToSkipForInsertInIndex = new HashSet<>(Arrays.asList("details"));
+        private static final Set<String> columnsToSkipForInsertInIndex = new HashSet<>(Arrays.asList("details", "locationId"));
 
         private static final String TABLE_NAME = "service_metric";
         private static final String ALL_COLUMNS;
@@ -209,6 +210,7 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
 		cqlSession.execute(preparedStmt_create.bind(
                 //TODO: add remaining properties from ServiceMetric here 
                 serviceMetric.getCustomerId(),
+                serviceMetric.getLocationId(),
                 serviceMetric.getEquipmentId(),
                 dayOfYear,
                 serviceMetric.getClientMac(),

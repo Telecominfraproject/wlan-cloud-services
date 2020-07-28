@@ -1,5 +1,6 @@
 insert into service_metric (
     customerId,     
+    locationId,     
     equipmentId,     
     clientMac,
     dataType,
@@ -7,6 +8,7 @@ insert into service_metric (
     details
 ) values (
     1,
+    0,
     1,
     0,
     1,
