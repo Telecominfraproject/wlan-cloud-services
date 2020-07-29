@@ -324,13 +324,8 @@ public class ServiceMetricDAO extends BaseJdbcDao {
         List<ServiceMetric> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 serviceMetricRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find ServiceMetrics for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} ServiceMetrics for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} ServiceMetrics for customer {} with last returned page number {}",
+                pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

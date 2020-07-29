@@ -555,13 +555,8 @@ public class AlarmDAO extends BaseJdbcDao {
         List<Alarm> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 alarmRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find Alarms for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Alarms for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} Alarms for customer {} with last returned page number {}",
+                pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

@@ -347,13 +347,8 @@ public class SystemEventDAO extends BaseJdbcDao {
         List<SystemEventRecord> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 systemEventRecordRowMapper);
 
-        if (pageItems == null) {
-            LOG.debug("Cannot find SystemEventRecord for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} SystemEventRecord for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
-        }
+        LOG.debug("Found {} SystemEventRecord for customer {} with last returned page number {}",
+                pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 
