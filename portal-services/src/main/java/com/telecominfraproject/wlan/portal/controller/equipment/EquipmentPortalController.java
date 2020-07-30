@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.client.ClientServiceInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -24,6 +26,7 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
+import com.telecominfraproject.wlan.status.StatusServiceInterface;
 
 /**
  * @author dtoptygin
@@ -48,6 +51,16 @@ public class EquipmentPortalController  {
 
     @Autowired
     private EquipmentServiceInterface equipmentServiceInterface;
+
+    @Autowired
+    private AlarmServiceInterface alarmServiceInterface;
+
+    @Autowired
+    private StatusServiceInterface statusServiceInterface;
+
+    @Autowired
+    private ClientServiceInterface clientServiceInterface;
+
 
     @RequestMapping(value = "/equipment", method = RequestMethod.GET)
     public Equipment getEquipment(@RequestParam long equipmentId) {
@@ -96,6 +109,21 @@ public class EquipmentPortalController  {
         LOG.debug("Deleting equipment {}", equipmentId);
 
         Equipment ret = equipmentServiceInterface.delete(equipmentId);
+
+        if(ret!= null && ret.getCustomerId() > 0) {
+            try {
+                alarmServiceInterface.delete(ret.getCustomerId(), equipmentId);
+            }catch (RuntimeException e) {
+                LOG.error("Cannot delete alarms for equipment {} ", equipmentId);
+            }
+            
+            try {
+                statusServiceInterface.delete(ret.getCustomerId(), equipmentId);
+            }catch (RuntimeException e) {
+                LOG.error("Cannot delete status for equipment {} ", equipmentId);
+            }
+            
+        }
 
         return ret;
     }
