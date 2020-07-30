@@ -109,6 +109,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
     
+     <dependency>
+        <artifactId>adoption-metrics-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+    
       <dependency>
             <artifactId>filestore-service</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
@@ -196,6 +202,18 @@
       
       <dependency>
         <artifactId>manufacturer-datastore-rdbms</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+     <dependency>
+        <artifactId>adoption-metrics-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+     <dependency>
+        <artifactId>adoption-metrics-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>

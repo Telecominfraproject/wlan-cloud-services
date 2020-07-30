@@ -24,6 +24,7 @@ HOST_PROPS+=" -Dtip.wlan.locationServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.manufacturerServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.equipmentServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
+HOST_PROPS+=" -Dtip.wlan.adoptionMetricsServiceBaseUrl=$PROV_URL"
 
 export ALL_PROPS="$LOGGING_PROPS $HOST_PROPS"
 

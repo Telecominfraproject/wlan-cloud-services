@@ -15,6 +15,7 @@ servers:
   - url: https://192.168.0.143:7071
     description: Local Dev server - opensync gateway
   - url: https://wlan-portal-svc.tip.lab.connectus.ai
+  - url: https://wlan-portal-svc.zone3.lab.connectus.ai
 
 tags:
 - name: Data Model Overview
@@ -76,6 +77,9 @@ tags:
 - name: File Services
   description: |
     Simple filestore service that allows stand-alone CloudSDK to serve firmware images to the APs. Supports only single level directory. Files can be stored and retrieved with webtoken auth by the portal and with client certificate auth by the AP.
+- name: Service Adoption Metrics
+  description: |
+    APIs to retrieve aggregated metrics for WiFi service adoption.
 
 components:
   securitySchemes:
@@ -7893,6 +7897,43 @@ components:
 
 
 #
+# Objects related to service adoption metrics
+#
+    ServiceAdoptionMetrics:
+      properties:
+        year:
+          type: integer
+          format: int32
+        month:
+          type: integer
+          format: int32
+        weekOfYear:
+          type: integer
+          format: int32
+        dayOfYear:
+          type: integer
+          format: int32
+        customerId:
+          type: integer
+          format: int32
+        locationId:
+          type: integer
+          format: int64
+        equipmentId:
+          type: integer
+          format: int64
+        numUniqueConnectedMacs:
+          description: number of unique connected MAC addresses for the data point. Note - this number is accurate only at the lowest level of granularity - per AP per day. In case of aggregations - per location/customer or per week/month - this number is just a sum of corresponding datapoints, and it does not account for non-unique MACs in those cases.
+          type: integer
+          format: int64
+        numBytesUpstream:
+          type: integer
+          format: int64
+        numBytesDownstream:
+          type: integer
+          format: int64
+
+#
 # Objects related to pagination
 #
 
@@ -11019,4 +11060,187 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
+          
+  /portal/adoptionMetrics/perEquipmentPerDay:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get daily service adoption metrics for a given year filtered by specified equipment ids
+      operationId: getAdoptionMetricsPerEquipmentPerDay
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: filter by equipment ids.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/adoptionMetrics/perLocationPerDay:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get daily service adoption metrics for a given year aggregated by location and filtered by specified location ids
+      operationId: getAdoptionMetricsPerLocationPerDay
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: locationIds
+        in: query
+        description: filter by location ids.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'    
+          
+  /portal/adoptionMetrics/perCustomerPerDay:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get daily service adoption metrics for a given year aggregated by customer and filtered by specified customer ids
+      operationId: getAdoptionMetricsPerCustomerPerDay
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: customerIds
+        in: query
+        description: filter by customer ids.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'    
+          
+  /portal/adoptionMetrics/allPerMonth:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get monthly service adoption metrics for a given year
+      operationId: getAdoptionMetricsAllPerMonth
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+        
+  /portal/adoptionMetrics/allPerWeek:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get weekly service adoption metrics for a given year
+      operationId: getAdoptionMetricsAllPerWeek
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'          
+          
+  /portal/adoptionMetrics/allPerDay:
+    get:
+      tags:
+      - Service Adoption Metrics
+      summary: Get daily service adoption metrics for a given year
+      operationId: getAdoptionMetricsAllPerDay
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceAdoptionMetrics'
+        500:
+          $ref: '#/components/responses/GenericApiError'          
           

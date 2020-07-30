@@ -108,6 +108,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
     
+     <dependency>
+        <artifactId>adoption-metrics-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+    
       <dependency>
             <artifactId>filestore-service</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
@@ -205,6 +211,20 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
+     <dependency>
+        <artifactId>adoption-metrics-service</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
+     <dependency>
+      <!-- Use in-memory DS for now, later switch to RDBMS -->
+        <artifactId>adoption-metrics-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
 
       <dependency>
         <artifactId>cloud-event-dispatcher-local</artifactId>

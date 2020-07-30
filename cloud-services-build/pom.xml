@@ -176,6 +176,16 @@
                                 <module>../manufacturer-service-local</module>
                                 <module>../manufacturer-service-remote</module>
 
+                                <module>../adoption-metrics-datastore-common-test</module>
+                                <module>../adoption-metrics-datastore-inmemory</module>
+                                <module>../adoption-metrics-datastore-interface</module>
+                                <module>../adoption-metrics-datastore-rdbms</module>
+                                <module>../adoption-metrics-models</module>
+                                <module>../adoption-metrics-service</module>
+                                <module>../adoption-metrics-service-interface</module>
+                                <module>../adoption-metrics-service-local</module>
+                                <module>../adoption-metrics-service-remote</module>
+
                                 <module>../equipment-gateway-models</module>
                                 <module>../equipment-gateway-service-interface</module>
                                 <module>../equipment-gateway-service-local</module>
