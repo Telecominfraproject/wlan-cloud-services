@@ -16,6 +16,7 @@ public class CustomerDetails extends BaseJsonModel{
 
     private EquipmentAutoProvisioningSettings autoProvisioning;
     private Set<Integer> bannedChannels = new HashSet<>();
+    private String clientFingerPrintsDbUrl;
 
     @Override
     public CustomerDetails clone() {
@@ -61,6 +62,14 @@ public class CustomerDetails extends BaseJsonModel{
 	public void setBannedChannels(Set<Integer> bannedChannels) {
 		this.bannedChannels = bannedChannels;
 	}
+
+    public String getClientFingerPrintsDbUrl() {
+        return clientFingerPrintsDbUrl;
+    }
+
+    public void setClientFingerPrintsDbUrl(String clientFingerPrintsDbUrl) {
+        this.clientFingerPrintsDbUrl = clientFingerPrintsDbUrl;
+    }
     
 	
 }
