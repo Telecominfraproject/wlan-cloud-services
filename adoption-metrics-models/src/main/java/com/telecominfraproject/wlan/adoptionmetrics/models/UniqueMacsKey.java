@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.adoptionmetrics.datastore.inmemory;
+package com.telecominfraproject.wlan.adoptionmetrics.models;
 
 import java.util.Objects;
 
@@ -10,7 +10,16 @@ public class UniqueMacsKey {
     private long locationId;
     private long equipmentId;
 
-    
+    public UniqueMacsKey() {
+    }
+
+    public UniqueMacsKey( long timestampMs, int customerId, long locationId, long equipmentId ) {
+        this.timestampMs = timestampMs;
+        this.customerId = customerId;
+        this.locationId = locationId;
+        this.equipmentId = equipmentId;
+    }
+
     public long getTimestampMs() {
         return timestampMs;
     }

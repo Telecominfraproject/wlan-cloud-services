@@ -227,6 +227,24 @@ public class AdoptionMetricsServiceRemote extends BaseRemoteClient implements Ad
     }
     
     @Override
+    public GenericResponse finalizeUniqueMacsCount(int year, int dayOfYear) {
+        LOG.debug("calling finalizeUniqueMacsCount {} {} ", year, dayOfYear);
+
+        ResponseEntity<GenericResponse> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/uniqueMacs/finalize?year={year}&dayOfYear={dayOfYear}", 
+                HttpMethod.POST,
+                null, GenericResponse.class, 
+                year, dayOfYear);
+
+        
+        GenericResponse ret = responseEntity.getBody();
+        
+        LOG.debug("completed finalizeUniqueMacsCount {} ", ret);
+        
+        return ret;
+    }
+    
+    @Override
     public long getUniqueMacsCount(int year, int dayOfYear, int customerId, long locationId, long equipmentId) {
         LOG.debug("calling getUniqueMacs {} {} {} {} {} ", year, dayOfYear, customerId, locationId, equipmentId);
 

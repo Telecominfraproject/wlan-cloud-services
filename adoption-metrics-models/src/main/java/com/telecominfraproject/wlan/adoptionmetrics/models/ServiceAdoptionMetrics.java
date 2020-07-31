@@ -1,9 +1,11 @@
 package com.telecominfraproject.wlan.adoptionmetrics.models;
 
+import java.util.Calendar;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.utils.DateTimeUtils;
 
 /**
  * @author dtoptygin
@@ -36,6 +38,27 @@ public class ServiceAdoptionMetrics extends BaseJsonModel implements HasCustomer
         this.month = month;
         this.weekOfYear = weekOfYear;
         this.dayOfYear = dayOfYear;
+
+        this.customerId = customerId;
+        this.locationId = locationId;
+        this.equipmentId = equipmentId;
+
+        this.numUniqueConnectedMacs = numUniqueConnectedMacs;
+        this.numBytesUpstream = numBytesUpstream;
+        this.numBytesDownstream = numBytesDownstream;
+
+    }
+    
+    public ServiceAdoptionMetrics(long timestampMs,  int customerId, long locationId, long equipmentId,
+            long numUniqueConnectedMacs, long numBytesUpstream, long numBytesDownstream) {
+        
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+        calendar.setTimeInMillis(timestampMs);
+        
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH);
+        this.weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+        this.dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
 
         this.customerId = customerId;
         this.locationId = locationId;
@@ -156,7 +179,7 @@ public class ServiceAdoptionMetrics extends BaseJsonModel implements HasCustomer
                 && year == other.year;
     }
     
-    public void addCounters(ServiceAdoptionMetrics other) {
+    public synchronized void addCounters(ServiceAdoptionMetrics other) {
         this.numBytesDownstream += other.numBytesDownstream;
         this.numBytesUpstream += other.numBytesUpstream;
         this.numUniqueConnectedMacs += other.numUniqueConnectedMacs;

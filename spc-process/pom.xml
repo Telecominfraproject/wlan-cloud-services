@@ -58,6 +58,12 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
+
+      <dependency>
+        <artifactId>adoption-metrics-sp</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
       
       <!-- Remote interfaces used by the stream processors -->
       

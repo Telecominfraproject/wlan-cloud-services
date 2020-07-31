@@ -37,4 +37,11 @@ public interface AdoptionMetricsServiceInterface {
 
     GenericResponse deleteUniqueMacs(long createdBeforeTimestampMs, int customerId, long locationId, long equipmentId);
 
+    /**
+     * For the given day update all the adoption metrics with the exact count of unique mac addresses seen.
+     * @param year
+     * @param dayOfYear
+     */
+    GenericResponse finalizeUniqueMacsCount(int year, int dayOfYear);
+
 }

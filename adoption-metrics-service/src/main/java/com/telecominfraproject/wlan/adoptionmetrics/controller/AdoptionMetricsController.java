@@ -141,5 +141,13 @@ public class AdoptionMetricsController {
         return new GenericResponse(true, "");
     }
 
+    @RequestMapping(value = "/uniqueMacs/finalize", method=RequestMethod.POST)
+    public GenericResponse finalizeUniqueMacsCount(int year, int dayOfYear) {
+        LOG.debug("finalizeUniqueMacs {} {}", year, dayOfYear);
+        adoptionMetricsDatastore.finalizeUniqueMacsCount(year, dayOfYear);
+
+        return new GenericResponse(true, "");
+    }
+
     
 }

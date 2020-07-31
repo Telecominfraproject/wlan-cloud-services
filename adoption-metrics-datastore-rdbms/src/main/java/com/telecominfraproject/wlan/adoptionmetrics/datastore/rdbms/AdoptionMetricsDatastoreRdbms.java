@@ -68,4 +68,8 @@ public class AdoptionMetricsDatastoreRdbms implements AdoptionMetricsDatastore {
         adoptionMetricsDAO.deleteUniqueMacs(createdBeforeTimestampMs, customerId, locationId, equipmentId);
     }
 
+    @Override
+    public void finalizeUniqueMacsCount(int year, int dayOfYear) {
+        adoptionMetricsDAO.finalizeUniqueMacsCount(year, dayOfYear);
+    }
 }

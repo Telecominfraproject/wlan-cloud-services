@@ -1,8 +1,9 @@
-package com.telecominfraproject.wlan.adoptionmetrics.datastore.inmemory;
+package com.telecominfraproject.wlan.adoptionmetrics.models;
 
+import java.util.Calendar;
 import java.util.Objects;
 
-import com.telecominfraproject.wlan.adoptionmetrics.models.ServiceAdoptionMetrics;
+import com.telecominfraproject.wlan.core.model.utils.DateTimeUtils;
 
 public class ServiceAdoptionMetricsKey {
 
@@ -24,6 +25,36 @@ public class ServiceAdoptionMetricsKey {
         this.customerId = metrics.getCustomerId();
         this.locationId = metrics.getLocationId();
         this.equipmentId = metrics.getEquipmentId();
+    }
+    
+    public ServiceAdoptionMetricsKey(long timestampMs,  int customerId, long locationId, long equipmentId) {
+        
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+        calendar.setTimeInMillis(timestampMs);
+        
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH);
+        this.weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+        this.dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
+
+        this.customerId = customerId;
+        this.locationId = locationId;
+        this.equipmentId = equipmentId;
+
+    }
+
+    public long getTimestampMs() {
+
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+       
+        calendar.set(Calendar.YEAR, this.year);
+        calendar.set(Calendar.DAY_OF_YEAR, this.dayOfYear);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 1);
+
+        return calendar.getTimeInMillis();
+        
     }
     
     public int getYear() {

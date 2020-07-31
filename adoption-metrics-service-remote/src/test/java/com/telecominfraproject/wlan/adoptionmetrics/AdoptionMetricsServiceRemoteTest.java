@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -240,5 +241,112 @@ public class AdoptionMetricsServiceRemoteTest extends BaseRemoteTest {
         remoteInterface.deleteUniqueMacs(timestampMs + 1 , customerId_1, locationId_1, equipmentId_1);
         uniqMacs = remoteInterface.getUniqueMacsCount(year, dayOfYear, customerId_1, locationId_1, equipmentId_1);
         assertEquals(0, uniqMacs);
+    }
+    
+    @Test
+    public void testFinalizeUniqueMacs() {
+        int customerId_1 = getNextCustomerId();
+        long locationId_1 = getNextLocationId();
+        long equipmentId_1 = getNextEquipmentId();
+    
+        Set<Long> clientMacSet_1 = new HashSet<>();
+        clientMacSet_1.add(1L);
+        clientMacSet_1.add(2L);
+        clientMacSet_1.add(3L);
+               
+        int year = 2010;
+        int dayOfYear = 11;
+        
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 1);  
+        
+        long timestampMs = calendar.getTimeInMillis();
+
+        List<ServiceAdoptionMetrics> samList = new ArrayList<>();
+        
+        samList.add(new ServiceAdoptionMetrics(2010, 1, 2, 11, customerId_1, locationId_1, equipmentId_1, 10, 20, 30));
+        samList.add(new ServiceAdoptionMetrics(2010, 1, 2, 12, customerId_1, locationId_1, equipmentId_1, 100, 200, 300));
+        
+        //create initial metrics
+        remoteInterface.update(samList);
+        
+        List<ServiceAdoptionMetrics> ret = remoteInterface.get(2010, Collections.singleton(equipmentId_1));
+        assertEquals(2, ret.size());
+        ret.forEach((m) -> {
+            assertEquals(1, m.getMonth() );
+            assertEquals(2, m.getWeekOfYear() );
+            assertTrue(m.getDayOfYear() == 11 || m.getDayOfYear() == 12);
+            assertEquals(customerId_1, m.getCustomerId() );
+            assertEquals(locationId_1, m.getLocationId() );
+            assertEquals(equipmentId_1, m.getEquipmentId() );
+            
+            assertTrue(m.getNumUniqueConnectedMacs() == 10 || m.getNumUniqueConnectedMacs() == 100);
+            assertTrue(m.getNumBytesUpstream() == 20 || m.getNumBytesUpstream() == 200);
+            assertTrue(m.getNumBytesDownstream() == 30 || m.getNumBytesDownstream() == 300);
+        } );
+
+
+        //check that initial count of unique macs for the day is 0
+        long uniqMacs = remoteInterface.getUniqueMacsCount(year, dayOfYear, customerId_1, locationId_1, equipmentId_1);
+        assertEquals(0, uniqMacs);
+        
+        //create an initial set of macs for the day
+        remoteInterface.updateUniqueMacs(timestampMs , customerId_1, locationId_1, equipmentId_1, clientMacSet_1);
+        uniqMacs = remoteInterface.getUniqueMacsCount(year, dayOfYear, customerId_1, locationId_1, equipmentId_1);
+        assertEquals(3, uniqMacs);
+
+        //update the set of macs for the day with some duplicates
+        clientMacSet_1.add(4L);
+        remoteInterface.updateUniqueMacs(timestampMs , customerId_1, locationId_1, equipmentId_1, clientMacSet_1);
+        uniqMacs = remoteInterface.getUniqueMacsCount(year, dayOfYear, customerId_1, locationId_1, equipmentId_1);
+        assertEquals(4, uniqMacs);
+
+        //finalize mac counts for the day
+        remoteInterface.finalizeUniqueMacsCount(year, dayOfYear);
+
+        //after finalizing the unique mac counts are cleared
+        uniqMacs = remoteInterface.getUniqueMacsCount(year, dayOfYear, customerId_1, locationId_1, equipmentId_1);
+        assertEquals(0, uniqMacs);
+
+        //test counts after finalizing unique macs
+        ret = remoteInterface.get(2010, Collections.singleton(equipmentId_1));
+        assertEquals(2, ret.size());
+        ret.forEach((m) -> {
+            assertEquals(1, m.getMonth() );
+            assertEquals(2, m.getWeekOfYear() );
+            assertTrue(m.getDayOfYear() == 11 || m.getDayOfYear() == 12);
+            assertEquals(customerId_1, m.getCustomerId() );
+            assertEquals(locationId_1, m.getLocationId() );
+            assertEquals(equipmentId_1, m.getEquipmentId() );
+            
+            assertTrue( ( m.getNumUniqueConnectedMacs() == 4 && m.getDayOfYear() == 11 ) || m.getNumUniqueConnectedMacs() == 100 /*this number did not change because there were no unique macs present for that day*/);
+            assertTrue(m.getNumBytesUpstream() == 20 || m.getNumBytesUpstream() == 200);
+            assertTrue(m.getNumBytesDownstream() == 30 || m.getNumBytesDownstream() == 300);
+        } );
+        
+        //finalize again mac counts for the day - should be the no-op since themacs were cleared by the first finalize attempt
+        remoteInterface.finalizeUniqueMacsCount(year, dayOfYear);
+
+        //re-test counts after finalizing unique macs - the counts should remain the same
+        ret = remoteInterface.get(2010, Collections.singleton(equipmentId_1));
+        assertEquals(2, ret.size());
+        ret.forEach((m) -> {
+            assertEquals(1, m.getMonth() );
+            assertEquals(2, m.getWeekOfYear() );
+            assertTrue(m.getDayOfYear() == 11 || m.getDayOfYear() == 12);
+            assertEquals(customerId_1, m.getCustomerId() );
+            assertEquals(locationId_1, m.getLocationId() );
+            assertEquals(equipmentId_1, m.getEquipmentId() );
+            
+            assertTrue( ( m.getNumUniqueConnectedMacs() == 4 && m.getDayOfYear() == 11 ) || m.getNumUniqueConnectedMacs() == 100  /*this number did not change because there were no unique macs present for that day*/);
+            assertTrue(m.getNumBytesUpstream() == 20 || m.getNumBytesUpstream() == 200);
+            assertTrue(m.getNumBytesDownstream() == 30 || m.getNumBytesDownstream() == 300);
+        } );
+        
+
     }
 }

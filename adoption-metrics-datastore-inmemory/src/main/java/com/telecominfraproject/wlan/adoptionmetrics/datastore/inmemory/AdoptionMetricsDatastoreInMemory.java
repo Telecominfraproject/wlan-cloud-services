@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.adoptionmetrics.datastore.AdoptionMetricsDatastore;
 import com.telecominfraproject.wlan.adoptionmetrics.models.ServiceAdoptionMetrics;
+import com.telecominfraproject.wlan.adoptionmetrics.models.ServiceAdoptionMetricsKey;
+import com.telecominfraproject.wlan.adoptionmetrics.models.UniqueMacsKey;
 import com.telecominfraproject.wlan.core.model.utils.DateTimeUtils;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
 
@@ -242,6 +244,30 @@ public class AdoptionMetricsDatastoreInMemory extends BaseInMemoryDatastore impl
         return ret.size();
     }
 
+    @Override
+    public void finalizeUniqueMacsCount(int year, int dayOfYear) {
+        
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);  
+        
+        long toTs = calendar.getTimeInMillis();
+
+        idToServiceAdoptionMetricsMap.forEach((k,v) -> {
+            if(k.getYear() == year && k.getDayOfYear() == dayOfYear) {
+                long numUniq = getUniqueMacsCount(year, dayOfYear, k.getCustomerId(), k.getLocationId(), k.getEquipmentId());
+                if(numUniq>0) {
+                    v.setNumUniqueConnectedMacs(numUniq);
+                }
+                
+                deleteUniqueMacs(toTs, k.getCustomerId(), k.getLocationId(), k.getEquipmentId());
+            }
+        });
+    }
+    
     @Override
     public void deleteUniqueMacs(long createdBeforeTimestampMs, int customerId, long locationId, long equipmentId) {
         

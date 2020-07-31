@@ -74,4 +74,8 @@ public class AdoptionMetricsServiceLocal implements AdoptionMetricsServiceInterf
         return controller.deleteUniqueMacs(createdBeforeTimestampMs, customerId, locationId, equipmentId);
     }
 
+    @Override
+    public GenericResponse finalizeUniqueMacsCount(int year, int dayOfYear) {
+        return controller.finalizeUniqueMacsCount(year, dayOfYear);
+    }
 }

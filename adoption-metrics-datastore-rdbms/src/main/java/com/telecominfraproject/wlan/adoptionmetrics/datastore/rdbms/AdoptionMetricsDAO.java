@@ -179,11 +179,27 @@ public class AdoptionMetricsDAO extends BaseJdbcDao {
             "SELECT COUNT(*) FROM (SELECT DISTINCT clientMac FROM adoption_metrics_uniq_macs where metric_timestamp >= ? and metric_timestamp <= ? and customerId = ? and locationId = ? and equipmentId = ?) AS temp "
             ;
 
+    private static final String SQL_COUNT_ALL_UNIQ_MACS = 
+            "select count(1) FROM adoption_metrics_uniq_macs where metric_timestamp >= ? and metric_timestamp <= ? "
+            ;
+
+    
     private static final String SQL_DELETE_UNIQ_MACS = 
             "delete FROM adoption_metrics_uniq_macs where metric_timestamp <= ? and customerId = ? and locationId = ? and equipmentId = ? "
             ; 
     
     private static final RowMapper<ServiceAdoptionMetrics> serviceAdoptionMetricsRowMapper = new AdoptionMetricsRowMapper();
+
+    private static final String SQL_FINALIZE_UNIQ_MACS = 
+            "update adoption_metrics_counters c set numUniqueConnectedMacs ="
+                + " ( SELECT COUNT(*) FROM (SELECT DISTINCT clientMac "
+                + " FROM adoption_metrics_uniq_macs where metric_timestamp >= ? and metric_timestamp <= ? "
+                + " and customerId = c.customerId and locationId = c.locationId and equipmentId = c.equipmentId) AS temp ) "
+            + " where c.year = ? and c.dayOfYear = ? ";
+
+    private static final String SQL_FINALIZE_DELETE_UNIQ_MACS = 
+            "delete FROM adoption_metrics_uniq_macs where metric_timestamp >= ? and metric_timestamp <= ? "
+            ;
 
     private boolean usingPostgresDb = false;
 
@@ -480,4 +496,39 @@ public class AdoptionMetricsDAO extends BaseJdbcDao {
 
         LOG.debug("deleteUniqueMacs({}, {}, {}, {}) deleted {}  records", createdBeforeTimestampMs, customerId, locationId, equipmentId, result);        
     }
+    
+    public void finalizeUniqueMacsCount(int year, int dayOfYear) {
+        LOG.debug("calling finalizeUniqueMacsCount({}, {})", year, dayOfYear);
+                        
+        Calendar calendar = Calendar.getInstance(DateTimeUtils.TZ_GMT);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        long fromTs = calendar.getTimeInMillis();
+        
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);  
+        
+        long toTs = calendar.getTimeInMillis();
+        
+        //verify if there are unique mac entries present. if not - nothing to do here
+        // where metric_timestamp >= 0 and metric_timestamp <= 10;
+        long countOfUniqMacs = this.jdbcTemplate.queryForObject(SQL_COUNT_ALL_UNIQ_MACS, Long.class,  fromTs, toTs);
+        if(countOfUniqMacs > 0) {
+            //update counts of the unique MACs on adoption_metrics_counters from the records accumulated in adoption_metrics_uniq_macs
+            this.jdbcTemplate.update(SQL_FINALIZE_UNIQ_MACS, fromTs, toTs, year, dayOfYear );
+    
+            //delete unique macs for the day
+            this.jdbcTemplate.update(SQL_FINALIZE_DELETE_UNIQ_MACS, fromTs, toTs);
+        } else {
+            LOG.debug("No unique client macs found for {} {} , nothing to finalize", year, dayOfYear);
+        }
+        
+        LOG.debug("finalizeUniqueMacsCount({}, {}) done ", year, dayOfYear);
+        
+    }    
 }
