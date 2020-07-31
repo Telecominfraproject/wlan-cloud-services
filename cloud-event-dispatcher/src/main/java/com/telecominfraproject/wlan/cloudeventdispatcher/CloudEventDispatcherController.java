@@ -34,6 +34,11 @@ public class CloudEventDispatcherController {
 
         LOG.debug("calling publishMetric {}", metricRecord);
         
+        long ts = System.currentTimeMillis();
+        if (metricRecord.getCreatedTimestamp() == 0) {
+            metricRecord.setCreatedTimestamp(ts);
+        }
+
         metricStream.publish(metricRecord);
         serviceMetricInterface.create(metricRecord);
         
@@ -49,6 +54,17 @@ public class CloudEventDispatcherController {
 
         LOG.debug("calling publishMetrics {}", metricList);
 
+        if(metricList==null || metricList.isEmpty()) {
+            return new GenericResponse(true, "empty metrics");
+        }
+        
+        long ts = System.currentTimeMillis();
+        metricList.forEach(m -> {
+            if (m.getCreatedTimestamp() == 0) {
+                m.setCreatedTimestamp(ts);
+            }
+        });
+
         metricStream.publish(metricList);
         serviceMetricInterface.create(metricList);
         
@@ -62,7 +78,12 @@ public class CloudEventDispatcherController {
     @RequestMapping(value="/event", method=RequestMethod.POST)
     public GenericResponse publishEvent(@RequestBody SystemEventRecord systemEventRecord) {
         LOG.debug("calling publishEvent {}", systemEventRecord);
-                       
+
+        long ts = System.currentTimeMillis();
+        if (systemEventRecord.getEventTimestamp() == 0) {
+            systemEventRecord.setEventTimestamp(ts);
+        }
+
         systemEventStream.publish(systemEventRecord);
         systemEventInterface.create(systemEventRecord);
         
@@ -76,6 +97,17 @@ public class CloudEventDispatcherController {
     public GenericResponse publishEvents(@RequestBody List<SystemEventRecord> systemEventRecords) {
 
         LOG.debug("calling publishEvents {}", systemEventRecords.size());
+
+        if(systemEventRecords==null || systemEventRecords.isEmpty()) {
+            return new GenericResponse(true, "empty event list");
+        }
+        
+        long ts = System.currentTimeMillis();
+        systemEventRecords.forEach(m -> {
+            if (m.getEventTimestamp() == 0) {
+                m.setEventTimestamp(ts);
+            }
+        });
 
         systemEventStream.publish(systemEventRecords);
         systemEventInterface.create(systemEventRecords);
