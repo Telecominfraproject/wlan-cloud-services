@@ -456,3 +456,34 @@ paths:
                 format: int64
         500:
           $ref: '#/components/responses/GenericApiError'
+
+  /api/adoptionMetrics/uniqueMacs/finalize:
+    post:
+      tags:
+      - Service Adoption Metrics
+      summary: finalize stored unique macs counts for a given day and clean up individual mac records
+      operationId: finalizeUniqueMacs
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: dayOfYear
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
