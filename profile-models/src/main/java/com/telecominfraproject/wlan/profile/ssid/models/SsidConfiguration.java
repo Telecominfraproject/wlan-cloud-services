@@ -23,21 +23,20 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
  * @author dtoptygin
  *
  */
-public class SsidConfiguration extends ProfileDetails implements PushableConfiguration<SsidConfiguration>
-{
+public class SsidConfiguration extends ProfileDetails implements PushableConfiguration<SsidConfiguration> {
 
     private static final long serialVersionUID = 980346612233615236L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SsidConfiguration.class);
-    
+
     /* Defaults */
     final static Integer DEFAULT_KEY_REFRESH = 0;
     final static Integer DEFAULT_VLAN = null;
     final static StateSetting DEFAULT_BROADCAST_SSID = StateSetting.enabled;
     final static Integer BANDWIDTH_LIMIT_NO_LIMIT = 0;
     final static Integer BANDWIDTH_LIMIT_MAX = 800;
-    final static String  DEFAULT_SSID_NAME = "Default-SSID";
-    
+    final static String DEFAULT_SSID_NAME = "Default-SSID";
+
     private String ssid;
     private Set<RadioType> appliedRadios = new HashSet<>();
     private StateSetting ssidAdminState;
@@ -50,18 +49,20 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private Boolean noLocalSubnets;
     private String radiusServiceName;
     private Long captivePortalId;
-    
+
     private Integer bandwidthLimitDown;
     private Integer bandwidthLimitUp;
+    private Integer clientBandwidthLimitDown;
+    private Integer clientBandwidthLimitUp;
     private Boolean videoTrafficOnly;
-    
+
     private Map<RadioType, RadioBasedSsidConfiguration> radioBasedConfigs;
     private Long bonjourGatewayProfileId;
-    
+
     private Boolean enable80211w;
-    
+
     private WepConfiguration wepConfig;
-    
+
     private NetworkForwardMode forwardMode;
 
     /**
@@ -72,22 +73,24 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     /**
-     * @param noLocalSubnets the noLocalSubnets to set
+     * @param noLocalSubnets
+     *            the noLocalSubnets to set
      */
     public void setNoLocalSubnets(Boolean noLocalSubnets) {
         this.noLocalSubnets = noLocalSubnets;
     }
 
-    private SsidConfiguration()
-    {
+    private SsidConfiguration() {
         /**
          * 
-         * BATTLESTAR GALLACTICA WAS A HORRIBLE SERIES (now I have your attention)
+         * BATTLESTAR GALLACTICA WAS A HORRIBLE SERIES (now I have your
+         * attention)
          * 
-         * SUPER IMPORTANT NOTICE:  
+         * SUPER IMPORTANT NOTICE:
          * 
-         * If you modify these values, make sure you update the timestamp in DefaultableConfiguration otherwise
-         * they won't be downloaded when an AP reconnects.
+         * If you modify these values, make sure you update the timestamp in
+         * DefaultableConfiguration otherwise they won't be downloaded when an
+         * AP reconnects.
          * 
          */
         long timestamp = System.currentTimeMillis();
@@ -100,15 +103,17 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setSsidAdminState(StateSetting.enabled);
         setNoLocalSubnets(false);
         setBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT);
+        setClientBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT); 
         setBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
+        setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT); 
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
     }
-        
+
     @Override
     public ProfileType getProfileType() {
-    	return ProfileType.ssid;
+        return ProfileType.ssid;
     }
 
     public String getSsid() {
@@ -120,14 +125,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     public Set<RadioType> getAppliedRadios() {
-		return appliedRadios;
-	}
+        return appliedRadios;
+    }
 
-	public void setAppliedRadios(Set<RadioType> appliedRadios) {
-		this.appliedRadios = appliedRadios;
-	}
+    public void setAppliedRadios(Set<RadioType> appliedRadios) {
+        this.appliedRadios = appliedRadios;
+    }
 
-	public StateSetting getSsidAdminState() {
+    public StateSetting getSsidAdminState() {
         return ssidAdminState;
     }
 
@@ -143,16 +148,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.secureMode = secureMode;
     }
 
-    public Integer getKeyRefresh()
-    {
-       return this.keyRefresh;
+    public Integer getKeyRefresh() {
+        return this.keyRefresh;
     }
-    
-    public void setKeyRefresh(Integer refresh)
-    {
-       this.keyRefresh = refresh;
+
+    public void setKeyRefresh(Integer refresh) {
+        this.keyRefresh = refresh;
     }
-    
+
     public Integer getVlanId() {
         return vlanId;
     }
@@ -169,16 +172,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.keyStr = keyStr;
     }
 
-    public StateSetting getBroadcastSsid()
-    {
-       return this.broadcastSsid;
+    public StateSetting getBroadcastSsid() {
+        return this.broadcastSsid;
     }
-    
-    public void setBroadcastSsid(StateSetting bSsid)
-    {
-       this.broadcastSsid = bSsid;
+
+    public void setBroadcastSsid(StateSetting bSsid) {
+        this.broadcastSsid = bSsid;
     }
-        
+
     public Long getCaptivePortalId() {
         return captivePortalId;
     }
@@ -193,17 +194,43 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public void setBandwidthLimitDown(Integer bandwidthLimitDown) {
         if (bandwidthLimitDown < BANDWIDTH_LIMIT_NO_LIMIT) {
-            LOG.debug("Unable to set bandwidth limit down less than {}. Using default value of NO LIMIT.", BANDWIDTH_LIMIT_NO_LIMIT);
+            LOG.debug("Unable to set bandwidth limit down less than {}. Using default value of NO LIMIT.",
+                    BANDWIDTH_LIMIT_NO_LIMIT);
             this.bandwidthLimitDown = BANDWIDTH_LIMIT_NO_LIMIT;
             return;
         }
         if (bandwidthLimitDown > BANDWIDTH_LIMIT_MAX) {
-            LOG.debug("Unable to set bandwidth limit down greater than {}. Using max value of {} Mbps.", BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
+            LOG.debug("Unable to set bandwidth limit down greater than {}. Using max value of {} Mbps.",
+                    BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
             this.bandwidthLimitDown = BANDWIDTH_LIMIT_MAX;
             return;
         }
-        
+
         this.bandwidthLimitDown = bandwidthLimitDown;
+    }
+
+    public Integer getClientBandwidthLimitDown() {
+        return clientBandwidthLimitDown;
+    }
+
+    public void setClientBandwidthLimitDown(Integer clientBandwidthLimitDown) {
+
+        if (clientBandwidthLimitDown < BANDWIDTH_LIMIT_NO_LIMIT) {
+            LOG.debug("Unable to set client download bandwidth to less than {}. Using default value of NO LIMIT.",
+                    BANDWIDTH_LIMIT_NO_LIMIT);
+            this.clientBandwidthLimitDown = BANDWIDTH_LIMIT_NO_LIMIT;
+            return;
+        }
+
+        if (clientBandwidthLimitDown > getBandwidthLimitDown()) {
+            LOG.debug(
+                    "Unable to set client download bandwidth greater than the Profile's download bandwith limit {}. Using max value of {} Mbps.",
+                    getBandwidthLimitDown(), getBandwidthLimitDown());
+            this.clientBandwidthLimitDown = getBandwidthLimitDown();
+            return;
+        }
+
+        this.clientBandwidthLimitDown = clientBandwidthLimitDown;
     }
 
     public Integer getBandwidthLimitUp() {
@@ -212,26 +239,49 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public void setBandwidthLimitUp(Integer bandwidthLimitUp) {
         if (bandwidthLimitUp < BANDWIDTH_LIMIT_NO_LIMIT) {
-            LOG.debug("Unable to set bandwidth limit up less than {}. Using default value of NO LIMIT.", BANDWIDTH_LIMIT_NO_LIMIT);
+            LOG.debug("Unable to set bandwidth limit up less than {}. Using default value of NO LIMIT.",
+                    BANDWIDTH_LIMIT_NO_LIMIT);
             this.bandwidthLimitUp = BANDWIDTH_LIMIT_NO_LIMIT;
             return;
         }
         if (bandwidthLimitUp > BANDWIDTH_LIMIT_MAX) {
-            LOG.debug("Unable to set bandwidth limit up greater than {}. Using max value of {} Mbps.", BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
+            LOG.debug("Unable to set bandwidth limit up greater than {}. Using max value of {} Mbps.",
+                    BANDWIDTH_LIMIT_MAX, BANDWIDTH_LIMIT_MAX);
             this.bandwidthLimitUp = BANDWIDTH_LIMIT_MAX;
             return;
         }
         this.bandwidthLimitUp = bandwidthLimitUp;
     }
 
-    public Map<RadioType, RadioBasedSsidConfiguration> getRadioBasedConfigs() 
-    {
+    public Integer getClientBandwidthLimitUp() {
+        return clientBandwidthLimitUp;
+    }
+
+    public void setClientBandwidthLimitUp(Integer clientBandwidthLimitUp) {
+        if (clientBandwidthLimitUp < BANDWIDTH_LIMIT_NO_LIMIT) {
+            LOG.debug("Unable to set client upload bandwidth to less than {}. Using default value of NO LIMIT.",
+                    BANDWIDTH_LIMIT_NO_LIMIT);
+            this.clientBandwidthLimitUp = BANDWIDTH_LIMIT_NO_LIMIT;
+            return;
+        }
+
+        if (clientBandwidthLimitUp > getBandwidthLimitUp()) {
+            LOG.debug(
+                    "Unable to set client upload bandwidth greater than the Profile's upload bandwidth limit {}. Using max value of {} Mbps.",
+                    getBandwidthLimitUp(), getBandwidthLimitUp());
+            this.clientBandwidthLimitUp = getBandwidthLimitUp();
+            return;
+        }
+
+        this.clientBandwidthLimitUp = clientBandwidthLimitUp;
+    }
+
+    public Map<RadioType, RadioBasedSsidConfiguration> getRadioBasedConfigs() {
         // This should never trigger. But I get so scared sometimes.
-        if(radioBasedConfigs == null)
-        {
+        if (radioBasedConfigs == null) {
             radioBasedConfigs = initRadioBasedConfig();
         }
-        
+
         return radioBasedConfigs;
     }
 
@@ -247,29 +297,25 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.enable80211w = enable80211w;
     }
 
-    public static SsidConfiguration createWithDefaults()
-    {
-       SsidConfiguration returnValue = new SsidConfiguration();
-       return returnValue;
+    public static SsidConfiguration createWithDefaults() {
+        SsidConfiguration returnValue = new SsidConfiguration();
+        return returnValue;
     }
-    
-    
+
     @Override
-    public boolean needsToBeUpdatedOnDevice(SsidConfiguration obj)
-    {
+    public boolean needsToBeUpdatedOnDevice(SsidConfiguration obj) {
         return !sameStuffWillBePushedToDevice(obj);
     }
-    
-    
+
     /**
-     * This is a renamed "equals" which ONLY contains the fields that would have triggered 
-     * a push to the device (ie: when we change a profile name, we don't want to push).
+     * This is a renamed "equals" which ONLY contains the fields that would have
+     * triggered a push to the device (ie: when we change a profile name, we
+     * don't want to push).
      * 
      * @param obj
      * @return
      */
-    public boolean sameStuffWillBePushedToDevice(SsidConfiguration obj) 
-    {
+    public boolean sameStuffWillBePushedToDevice(SsidConfiguration obj) {
         if (this == obj) {
             return true;
         }
@@ -288,7 +334,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         } else if (!appliedRadios.equals(other.appliedRadios)) {
             return false;
         }
-        
+
         if (broadcastSsid != other.broadcastSsid) {
             return false;
         }
@@ -368,12 +414,22 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         } else if (!bandwidthLimitUp.equals(other.bandwidthLimitUp)) {
             return false;
         }
-        else if(!Objects.equals(this.radioBasedConfigs, other.radioBasedConfigs))
-        {
+        if (clientBandwidthLimitDown == null) {
+            if (other.clientBandwidthLimitDown != null) {
+                return false;
+            }
+        } else if (!clientBandwidthLimitDown.equals(other.clientBandwidthLimitDown)) {
             return false;
         }
-        else if(!Objects.equals(this.enable80211w, other.enable80211w))
-        {
+        if (clientBandwidthLimitUp == null) {
+            if (other.clientBandwidthLimitUp != null) {
+                return false;
+            }
+        } else if (!clientBandwidthLimitUp.equals(other.clientBandwidthLimitUp)) {
+            return false;
+        } else if (!Objects.equals(this.radioBasedConfigs, other.radioBasedConfigs)) {
+            return false;
+        } else if (!Objects.equals(this.enable80211w, other.enable80211w)) {
             return false;
         }
         if (!Objects.equals(this.wepConfig, other.wepConfig)) {
@@ -382,58 +438,58 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         if (!Objects.equals(this.forwardMode, other.forwardMode)) {
             return false;
         }
-        if(!Objects.equals(this.videoTrafficOnly, other.videoTrafficOnly))
-        {
+        if (!Objects.equals(this.videoTrafficOnly, other.videoTrafficOnly)) {
             return false;
         }
-        
+
         return true;
     }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, clientBandwidthLimitDown,
+                clientBandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid, captivePortalId, enable80211w,
+                forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusServiceName, secureMode, ssid,
+                ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
+    }
 
     @Override
-	public int hashCode() {
-		return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
-				captivePortalId, enable80211w, forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs,
-				radiusServiceName, secureMode, ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
-	}
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof SsidConfiguration)) {
+            return false;
+        }
+        SsidConfiguration other = (SsidConfiguration) obj;
+        return Objects.equals(appliedRadios, other.appliedRadios)
+                && Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
+                && Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
+                && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
+                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
+                && Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
+                && broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
+                && Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
+                && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
+                && Objects.equals(noLocalSubnets, other.noLocalSubnets)
+                && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
+                && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
+                && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
+                && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
+                && Objects.equals(wepConfig, other.wepConfig);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof SsidConfiguration)) {
-			return false;
-		}
-		SsidConfiguration other = (SsidConfiguration) obj;
-		return Objects.equals(appliedRadios, other.appliedRadios)
-				&& Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
-				&& Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
-				&& Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
-				&& broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
-				&& Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
-				&& Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
-				&& Objects.equals(noLocalSubnets, other.noLocalSubnets)
-				&& Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
-				&& Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
-				&& Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
-				&& Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
-				&& Objects.equals(wepConfig, other.wepConfig);
-	}
-
-	@Override
+    @Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
-        
+
         if (this.wepConfig != null) {
             returnValue.setWepConfig(this.getWepConfig().clone());
         }
-        
+
         return returnValue;
     }
-    
+
     public String getRadiusServiceName() {
         return radiusServiceName;
     }
@@ -444,17 +500,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public static enum SecureMode {
 
-        open(0L),
-        wpaPSK(1L),
-        wpa2PSK(2L),
-        wpaRadius(3L),
-        wpa2Radius(4L),
-        wpa2OnlyPSK(5L),
-        wpa2OnlyRadius(6L),
-        wep(7L),
-        wpaEAP(8L),
-        wpa2EAP(9L),
-        wpa2OnlyEAP(10L),
+        open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(
+                7L), wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L),
 
         UNSUPPORTED(-1L);
 
@@ -473,8 +520,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             if (ELEMENTS.isEmpty()) {
                 synchronized (ELEMENTS) {
                     if (ELEMENTS.isEmpty()) {
-                        //initialize elements map
-                        for(SecureMode met : SecureMode.values()) {
+                        // initialize elements map
+                        for (SecureMode met : SecureMode.values()) {
                             ELEMENTS.put(met.getId(), met);
                         }
                     }
@@ -482,45 +529,42 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             }
             return ELEMENTS.get(enumId);
         }
-        
+
         @JsonCreator
         public static SecureMode getByName(String value) {
             return JsonDeserializationUtils.deserializEnum(value, SecureMode.class, UNSUPPORTED);
         }
-        
+
         public static boolean isUnsupported(Object value) {
             return UNSUPPORTED.equals(value);
         }
-        
-        public static boolean isWPA2_Enterprise_or_Personal(SecureMode mode)
-        {
-            return mode == wpa2OnlyPSK || mode == wpa2OnlyRadius; 
+
+        public static boolean isWPA2_Enterprise_or_Personal(SecureMode mode) {
+            return mode == wpa2OnlyPSK || mode == wpa2OnlyRadius;
         }
-        
-        
+
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        
-        if (appliedRadios==null || appliedRadios.isEmpty() || StateSetting.isUnsupported(ssidAdminState)
+
+        if (appliedRadios == null || appliedRadios.isEmpty() || StateSetting.isUnsupported(ssidAdminState)
                 || SecureMode.isUnsupported(secureMode) || StateSetting.isUnsupported(broadcastSsid)
-                || NetworkForwardMode.isUnsupported(this.forwardMode) 
-                || hasUnsupportedValue(wepConfig)) {
+                || NetworkForwardMode.isUnsupported(this.forwardMode) || hasUnsupportedValue(wepConfig)) {
             return true;
         }
-        
+
         boolean hasUnsupported = false;
-        for(RadioType rt: appliedRadios) {
-        	if(RadioType.isUnsupported(rt)){ 
-        		hasUnsupported = true;
-        		break;
-        	} 
+        for (RadioType rt : appliedRadios) {
+            if (RadioType.isUnsupported(rt)) {
+                hasUnsupported = true;
+                break;
+            }
         }
-        
+
         return hasUnsupported;
     }
 
@@ -542,7 +586,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     /**
-     * @param bonjourGatewayProfileId the bonjourGatewayProfileId to set
+     * @param bonjourGatewayProfileId
+     *            the bonjourGatewayProfileId to set
      */
     public void setBonjourGatewayProfileId(Long bonjourGatewayProfileId) {
         this.bonjourGatewayProfileId = bonjourGatewayProfileId;
@@ -564,7 +609,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     /**
-     * @param forwardMode the forwardMode to set
+     * @param forwardMode
+     *            the forwardMode to set
      */
     public void setForwardMode(NetworkForwardMode forwardMode) {
         this.forwardMode = forwardMode;

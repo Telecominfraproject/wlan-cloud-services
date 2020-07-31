@@ -654,6 +654,12 @@ components:
           bandwidthLimitUp:
             type: integer
             format: int64
+          clientBandwidthLimitDown:
+            type: integer
+            format: int64
+          clientBandwidthLimitUp:
+            type: integer
+            format: int64
           videoTrafficOnly:
             type: boolean
           radioBasedConfigs:
