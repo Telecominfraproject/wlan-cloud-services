@@ -26,7 +26,7 @@ create table if not exists firmware_track(
     lastModifiedTimestamp bigint not null
 );
 insert into firmware_track (trackname, createdtimestamp, lastmodifiedtimestamp, maintenancewindow)
-values ('DEFAULT', 1541694284000, 1541694284000, '{"_type":"EmptySchedule","timezone":null}');
+values ('DEFAULT', 1541694284000, 1541694284000, '{"model_type":"EmptySchedule","timezone":null}')  ON CONFLICT DO NOTHING ;
 
 create table if not exists firmware_track_assignment (
     trackId bigint not null,
