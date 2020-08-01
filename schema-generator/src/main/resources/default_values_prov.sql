@@ -15,6 +15,15 @@ values (3, 3, 2, 'FirstFloor', 2, 0,0) ON CONFLICT (id) DO NOTHING;
 insert into equipment_location (id, locationType, customerId, name, parentId, createdTimestamp, lastModifiedTimestamp)
 values (8, 1, 2, 'Toronto', null, 0,0) ON CONFLICT (id) DO NOTHING;
 
+-- Default Portal User
+-- testuser@tip.com/tippassword - role: CustomerIT
+INSERT INTO portal_user (id, customerId, username, password, role, details, createdTimestamp, lastModifiedTimestamp)
+VALUES (1, 2, testuser@tip.com, qzsJoR0IfoDMlnpetYIC9I5onT5naYUg1azRtvBXxCdHJTcFfkbZeHiE712LfkNZmbG5zV1l1IEzh6nh7pbvh., 1, null, 0, 0) ON CONFLICT (id) DO NOTHING;
+
+-- superuser@tip.com/superpassword - role: SuperUser
+INSERT INTO portal_user (id, customerId, username, password, role, details, createdTimestamp, lastModifiedTimestamp)
+VALUES (2, 2, superuser@tip.com, Fxheoz7xKpgatnx5rjYTSDfrK2RkrSrkMhWEcuXKxOtYGtu3KDRW1SdmL0j1/aPGo2zhvnmqnxtEYULM1gGFq., 2147483647, null, 0, 0) ON CONFLICT (id) DO NOTHING;
+
 -- Creating Radius Profile
 INSERT INTO "profile" (id, customerId, profileType, name, details, createdTimestamp, lastModifiedTimestamp)
 VALUES(9, 2, 5, 'Radius-Profile', decode('504b0304140008080800b1adf6500000000000000000000000000100000061758f410bc2300c85ff4bce73d809327713cfea98de44a4ba380b5b3bd25491b1ff6eb72a78d05bf892f7f25e078d29b13ef1b345c8a090a57236277355354204d69d35f2cae8abaa1c49564643a65d5dfb15d25d5db0c0cac3b56c21eb60cb2c1f72987eb8eebe05100c90deca7032f97cce0e7f2d90bc56b5cbb224b4d6afc42289c53c8da7b1185d2f84ec31a365a52b91cc3c958e6fb921cf452a92085835681c872efdb18f80c6581bd90cdfde3d7acfdb90681f62d01803fa17504b0708a6bc3b75bc00000037010000504b01021400140008080800b1adf650a6bc3b75bc0000003701000001000000000000000000000000000000000061504b050600000000010001002f000000eb0000000000', 'hex'),
