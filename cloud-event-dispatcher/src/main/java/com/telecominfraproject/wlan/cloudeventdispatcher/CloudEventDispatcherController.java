@@ -1,6 +1,7 @@
 	package com.telecominfraproject.wlan.cloudeventdispatcher;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +59,10 @@ public class CloudEventDispatcherController {
             return new GenericResponse(true, "empty metrics");
         }
         
-        long ts = System.currentTimeMillis();
+        AtomicLong ts = new AtomicLong(System.currentTimeMillis());
         metricList.forEach(m -> {
             if (m.getCreatedTimestamp() == 0) {
-                m.setCreatedTimestamp(ts);
+                m.setCreatedTimestamp(ts.incrementAndGet());
             }
         });
 
@@ -102,10 +103,10 @@ public class CloudEventDispatcherController {
             return new GenericResponse(true, "empty event list");
         }
         
-        long ts = System.currentTimeMillis();
+        AtomicLong ts = new AtomicLong(System.currentTimeMillis());
         systemEventRecords.forEach(m -> {
             if (m.getEventTimestamp() == 0) {
-                m.setEventTimestamp(ts);
+                m.setEventTimestamp(ts.incrementAndGet());
             }
         });
 
