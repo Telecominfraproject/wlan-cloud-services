@@ -15,7 +15,7 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
  */
 public enum AlarmCode {
     LimitedCloudConnectivity(3, "Equipment is connected, however it's not reporting status or metrics"),
-    AccessPointIsUnreachable(4, "Equipment it not reachable from cloud"),
+    AccessPointIsUnreachable(4, "Equipment is not reachable from cloud"),
     NoMetricsReceived(6, "Equipment is not report metrics"),
     NoiseFloor2G(7, "Noise floor is too high on 2G radio"),
     ChannelUtilization2G(8, "Channel utilization is too high on 2G radio"),
