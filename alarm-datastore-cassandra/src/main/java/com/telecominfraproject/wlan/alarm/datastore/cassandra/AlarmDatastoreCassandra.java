@@ -7,9 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 
@@ -114,7 +117,10 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
             "select " + ALL_COLUMNS +
             " from "+TABLE_NAME+" " +
             " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?";
-        
+
+        private static final String CQL_GET_ALL_NO_DETAILS = 
+                "select customerId, equipmentId, alarmCode, createdTimestamp from alarm " ; 
+
         private static final String CQL_GET_BY_CUSTOMER_ID = 
         		"select " + ALL_COLUMNS +
         		" from " + TABLE_NAME + " " + 
@@ -163,6 +169,8 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         
         private static final String CQL_GET_CUSTOMER_ALARM_COUNT_BY_CUSTOMER_ID = "select alarmCode, alarmCount from alarm_counts_by_customer where customerId = ? ";
         
+        private static final String CQL_UPDATE_CUSTOMER_ALARM_COUNT = "update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? ";
+        private static final String CQL_UPDATE_EQUIPMENT_ALARM_COUNT = "update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? ";
 
 
     private static final RowMapper<Alarm> alarmRowMapper = new AlarmRowMapper();
@@ -171,6 +179,7 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 	private CqlSession cqlSession;
 	
 	private PreparedStatement preparedStmt_getOrNull;
+    private PreparedStatement preparedStmt_getAllNoDetails;
 	private PreparedStatement preparedStmt_create;
 	private PreparedStatement preparedStmt_update;
 	private PreparedStatement preparedStmt_getLastmod;
@@ -181,10 +190,15 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 
 	private PreparedStatement preparedStmt_incrementAlarmCountByCustomer;
 	private PreparedStatement preparedStmt_decrementAlarmCountByCustomer;
+	
+    private PreparedStatement preparedStmt_updateAlarmCountByEquipment;
+    private PreparedStatement preparedStmt_updateAlarmCountByCustomer;
+	
 
 	@PostConstruct
 	private void postConstruct(){
 		preparedStmt_getOrNull = cqlSession.prepare(CQL_GET_BY_ID);
+        preparedStmt_getAllNoDetails = cqlSession.prepare(CQL_GET_ALL_NO_DETAILS);
 		preparedStmt_create = cqlSession.prepare(CQL_INSERT);
 		preparedStmt_update = cqlSession.prepare(CQL_UPDATE);
 		preparedStmt_getLastmod = cqlSession.prepare(CQL_GET_LASTMOD_BY_ID);
@@ -194,6 +208,10 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 		preparedStmt_decrementAlarmCountByEquipment = cqlSession.prepare(CQL_DECREMENT_EQUIPMENT_ALARM_COUNT);
 		preparedStmt_incrementAlarmCountByCustomer= cqlSession.prepare(CQL_INCREMENT_CUSTOMER_ALARM_COUNT);
 		preparedStmt_decrementAlarmCountByCustomer = cqlSession.prepare(CQL_DECREMENT_CUSTOMER_ALARM_COUNT);
+
+		preparedStmt_updateAlarmCountByEquipment = cqlSession.prepare(CQL_UPDATE_EQUIPMENT_ALARM_COUNT);
+		preparedStmt_updateAlarmCountByCustomer= cqlSession.prepare(CQL_UPDATE_CUSTOMER_ALARM_COUNT);
+
 	}
 	
 	@Override
@@ -422,6 +440,136 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         });
         
         return ret;
+	}
+	
+	@Override
+	public void resetAlarmCounters() {
+        LOG.debug("Resetting Alarm counters ");
+	    
+        //count real alarms per-customer and per equipment
+        Map<Integer, AlarmCounts> alarmCountsPerCustomerMap = new HashMap<>();
+
+        //select customerId, equipmentId, alarmCode, createdTimestamp from alarm
+        ResultSet rs = cqlSession.execute(preparedStmt_getAllNoDetails.bind());
+        
+        rs.forEach(row -> {
+            int customerId = row.getInt(0);
+            long equipmentId = row.getLong(1);
+            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
+
+            AlarmCounts alarmCounts = alarmCountsPerCustomerMap.get(customerId);
+            if(alarmCounts == null) {
+                alarmCounts = new AlarmCounts();
+                alarmCounts.setCustomerId(customerId);
+                alarmCountsPerCustomerMap.put(customerId, alarmCounts);
+            }
+
+            alarmCounts.addToCounter(equipmentId, alarmCode, 1);
+            
+        });
+        
+        //read existing counters alarms per-customer
+        Map<Integer, AlarmCounts> existingCustomerCountsPerCustomerMap = new HashMap<>();
+        rs = cqlSession.execute(cqlSession.prepare("select customerid, alarmcode, alarmcount from alarm_counts_by_customer ").bind());
+        
+        rs.forEach(row -> {
+            int customerId = row.getInt(0);
+            AlarmCode alarmCode = AlarmCode.getById(row.getInt(1));
+            long count = row.getLong(2);
+
+            AlarmCounts alarmCounts = existingCustomerCountsPerCustomerMap.get(customerId);
+            if(alarmCounts == null) {
+                alarmCounts = new AlarmCounts();
+                alarmCounts.setCustomerId(customerId);
+                existingCustomerCountsPerCustomerMap.put(customerId, alarmCounts);
+            }
+
+            alarmCounts.addToCounter(0, alarmCode, (int) count);
+            
+        });
+
+        //read existing counters alarms per equipment
+        Map<Integer, AlarmCounts> existingEquipmentCountsPerCustomerMap = new HashMap<>();
+        rs = cqlSession.execute(cqlSession.prepare("select customerid, equipmentid, alarmcode, alarmcount from alarm_counts_by_equipment ").bind());
+        
+        rs.forEach(row -> {
+            int customerId = row.getInt(0);
+            long equipmentId = row.getLong(1);
+            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
+            long count = row.getLong(3);
+
+            AlarmCounts alarmCounts = existingEquipmentCountsPerCustomerMap.get(customerId);
+            if(alarmCounts == null) {
+                alarmCounts = new AlarmCounts();
+                alarmCounts.setCustomerId(customerId);
+                existingEquipmentCountsPerCustomerMap.put(customerId, alarmCounts);
+            }
+
+            alarmCounts.addToCounter(equipmentId, alarmCode, (int) count);
+            
+        });
+
+        //set existing counters per customer - first to 0, then to new computed values
+        existingCustomerCountsPerCustomerMap.values().forEach(customerCounts -> {
+            AlarmCounts realAlarmCounts = alarmCountsPerCustomerMap.get(customerCounts.getCustomerId());
+            customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, existingCount) -> {
+                int realCount = realAlarmCounts != null ? realAlarmCounts.getTotalCountsPerAlarmCodeMap().getOrDefault(alarmCode, new AtomicInteger(0)).get(): 0;
+                //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
+                cqlSession.execute(preparedStmt_updateAlarmCountByCustomer.bind( (long) (0L - existingCount.get() + realCount), customerCounts.getCustomerId(), alarmCode.getId()));
+            });            
+        });
+
+        //set existing counters per equipment - first to 0, then to new computed values
+        existingEquipmentCountsPerCustomerMap.values().forEach(customerCounts -> {
+            int customerId = customerCounts.getCustomerId();
+            AlarmCounts realAlarmCounts = alarmCountsPerCustomerMap.get(customerId);
+            
+            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
+                
+                perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
+                    int realCount = 0;
+                    if(realAlarmCounts != null && realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId)!=null ) {
+                        realCount  = realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId).getOrDefault(alarmCode, new AtomicInteger(0)).get();
+                    }
+                    //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ?  
+                    cqlSession.execute(preparedStmt_updateAlarmCountByEquipment.bind( (long) ( 0L - existingCount.get() + realCount), customerId, eqId, alarmCode.getId()));
+                });            
+                
+            });
+            
+        });
+        
+        //process new customer counts that are not present in existing counts
+        alarmCountsPerCustomerMap.values().forEach(customerCounts -> {
+            AlarmCounts existingAlarmCounts = existingCustomerCountsPerCustomerMap.get(customerCounts.getCustomerId());
+            if(existingAlarmCounts == null) {
+                customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, newCount) -> {
+                    //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
+                    cqlSession.execute(preparedStmt_updateAlarmCountByCustomer.bind((long) newCount.get(), customerCounts.getCustomerId(), alarmCode.getId()));
+                });
+            }
+        });
+        
+
+        //process new equipment counts that are not present in existing counts
+        alarmCountsPerCustomerMap.values().forEach(customerCounts -> {
+            int customerId = customerCounts.getCustomerId();
+            AlarmCounts existingAlarmCounts = existingEquipmentCountsPerCustomerMap.get(customerId);
+            
+            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
+                if(existingAlarmCounts == null || existingAlarmCounts.getCountsPerEquipmentIdMap().get(eqId) == null) {                
+                    perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
+                        //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ?  
+                        cqlSession.execute(preparedStmt_updateAlarmCountByEquipment.bind((long) existingCount.get(), customerId, eqId, alarmCode.getId()));
+                    });
+                }
+                
+            });
+            
+        });
+
+        
+        LOG.debug("Completed resetting Alarm counters ");
 	}
 
 	@Override

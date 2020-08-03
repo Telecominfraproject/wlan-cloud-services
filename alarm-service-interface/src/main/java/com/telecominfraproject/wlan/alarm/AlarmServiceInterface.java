@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.alarm;
 import java.util.List;
 import java.util.Set;
 
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -113,4 +114,11 @@ public interface AlarmServiceInterface {
      */
     AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet);
 
+    /**
+     * In some datastores (i.e. Cassandra) it makes sense to store counts of alarms in a separate table for fast retrieval by UI.
+     * Unfortunately, there are some situations where those counters get out of sync with the real alarm counts.
+     * This method is here to re-calculate the counter values and bring them in-sync with the real alarms.
+     */
+    GenericResponse resetAlarmCounters() ;
+    
 }

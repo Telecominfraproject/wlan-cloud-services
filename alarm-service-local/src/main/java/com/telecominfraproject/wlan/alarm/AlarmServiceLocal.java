@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -78,5 +79,10 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
 	@Override
 	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
 		return alarmController.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+	}
+	
+	@Override
+	public GenericResponse resetAlarmCounters() {
+	    return alarmController.resetAlarmCounters();
 	}
 }

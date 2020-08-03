@@ -17,6 +17,7 @@ import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -125,6 +126,10 @@ public class AlarmPortalController  {
         return ret;
     }
 
+    @RequestMapping(value = "/alarm/resetCounts", method = RequestMethod.POST)
+    public GenericResponse resetAlarmCounters() {
+        return alarmServiceInterface.resetAlarmCounters();
+    }
 
     
 }

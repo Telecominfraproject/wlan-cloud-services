@@ -70,4 +70,12 @@ public interface AlarmDatastore {
      */
     AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet);
 
+    /**
+     * In some datastores (i.e. Cassandra) it makes sense to store counts of alarms in a separate table for fast retrieval by UI.
+     * Unfortunately, there are some situations where those counters get out of sync with the real alarm counts.
+     * This method is here to re-calculate the counter values and bring them in-sync with the real alarms.
+     */
+    default void resetAlarmCounters() {
+        //only Cassandra datastore needs to implement this
+    }
 }

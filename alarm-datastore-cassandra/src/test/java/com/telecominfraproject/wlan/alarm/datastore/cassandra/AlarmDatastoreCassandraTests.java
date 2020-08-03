@@ -57,6 +57,8 @@ public class AlarmDatastoreCassandraTests extends BaseAlarmDatastoreTest {
        long pastTimestamp = 0;
        Set<Long> equipmentIds_c2 = new HashSet<>();
        
+       testInterface.resetAlarmCounters();
+       
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
            mdl.setCustomerId(customerId_1);
@@ -72,6 +74,8 @@ public class AlarmDatastoreCassandraTests extends BaseAlarmDatastoreTest {
            apNameIdx++;
            testInterface.create(mdl);
        }
+
+       testInterface.resetAlarmCounters();
 
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
@@ -203,9 +207,14 @@ public class AlarmDatastoreCassandraTests extends BaseAlarmDatastoreTest {
        page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
+       testInterface.resetAlarmCounters();
+
        //clean up after the test
        equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId));
        equipmentIds_c2.forEach(eqId -> testInterface.delete(customerId_2, eqId));
+       
+       testInterface.resetAlarmCounters();
+
     }
     
 }
