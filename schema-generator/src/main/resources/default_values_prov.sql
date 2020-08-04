@@ -18,11 +18,11 @@ values (8, 1, 2, 'Toronto', null, 0,0) ON CONFLICT (id) DO NOTHING;
 -- Default Portal User
 -- testuser@tip.com/tippassword - role: CustomerIT
 INSERT INTO portal_user (id, customerId, username, password, role, details, createdTimestamp, lastModifiedTimestamp)
-VALUES (1, 2, testuser@tip.com, qzsJoR0IfoDMlnpetYIC9I5onT5naYUg1azRtvBXxCdHJTcFfkbZeHiE712LfkNZmbG5zV1l1IEzh6nh7pbvh., 1, null, 0, 0) ON CONFLICT (id) DO NOTHING;
+VALUES (1, 2, 'testuser@tip.com', 'qzsJoR0IfoDMlnpetYIC9I5onT5naYUg1azRtvBXxCdHJTcFfkbZeHiE712LfkNZmbG5zV1l1IEzh6nh7pbvh.', 1, null, 0, 0) ON CONFLICT (id) DO NOTHING;
 
 -- superuser@tip.com/superpassword - role: SuperUser
 INSERT INTO portal_user (id, customerId, username, password, role, details, createdTimestamp, lastModifiedTimestamp)
-VALUES (2, 2, superuser@tip.com, Fxheoz7xKpgatnx5rjYTSDfrK2RkrSrkMhWEcuXKxOtYGtu3KDRW1SdmL0j1/aPGo2zhvnmqnxtEYULM1gGFq., 2147483647, null, 0, 0) ON CONFLICT (id) DO NOTHING;
+VALUES (2, 2, 'superuser@tip.com', 'Fxheoz7xKpgatnx5rjYTSDfrK2RkrSrkMhWEcuXKxOtYGtu3KDRW1SdmL0j1/aPGo2zhvnmqnxtEYULM1gGFq.', 2147483647, null, 0, 0) ON CONFLICT (id) DO NOTHING;
 
 -- Creating Radius Profile
 INSERT INTO "profile" (id, customerId, profileType, name, details, createdTimestamp, lastModifiedTimestamp)
@@ -99,4 +99,4 @@ WHERE
 --
 ---- Create Customer Track Assignment entities
 --INSERT INTO customer_track_assignment (trackId, customerId, settings, createdTimestamp, lastModifiedTimestamp)
---VALUES (1, 2, '{\"autoUpgradeDeprecatedDuringMaintenance\":2,\"autoUpgradeDeprecatedOnBind\":0,\"autoUpgradeUnknownDuringMaintenance\":2,\"autoUpgradeUnknownOnBind\":2}', 0, 0) ON CONFLICT (customerId) DO NOTHING;
+--VALUES (1, 2, '{"autoUpgradeDeprecatedDuringMaintenance": "DEFAULT","autoUpgradeDeprecatedOnBind": "ALWAYS","autoUpgradeUnknownDuringMaintenance": "DEFAULT","autoUpgradeUnknownOnBind": "DEFAULT"}', 0, 0) ON CONFLICT (customerId) DO NOTHING;
