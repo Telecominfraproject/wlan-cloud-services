@@ -1,4 +1,4 @@
--- CREATING DEFAULT VALUES IN THE TABLES
+-- CREATING DEFAULT VALUES IN THE TABLES FOR POSTGRES
 
 -- Create Default Customer
 INSERT INTO "customer_info" (id, email, name, details, createdTimestamp, lastModifiedTimestamp)
