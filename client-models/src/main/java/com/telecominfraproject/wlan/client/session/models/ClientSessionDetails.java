@@ -63,6 +63,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     private Long priorSessionId;
     private Long priorEquipmentId;
     private String classificationName;
+    private AssociationState associationState;
 
     public long getSessionId() {
         return sessionId;
@@ -191,14 +192,13 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Long getLastRxTimestamp() {
-        if(lastRxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastRxTimestamp() != null) {
+        if (lastRxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastRxTimestamp() != null) {
             return Math.max(lastRxTimestamp, getMetricDetails().getLastRxTimestamp());
-        }
-        else if(lastRxTimestamp != null) {
+        } else if (lastRxTimestamp != null) {
             return lastRxTimestamp;
         }
 
-        return getMetricDetails()==null?null:getMetricDetails().getLastRxTimestamp();
+        return getMetricDetails() == null ? null : getMetricDetails().getLastRxTimestamp();
     }
 
     public void setLastRxTimestamp(Long lastRxTimestamp) {
@@ -206,13 +206,12 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Long getLastTxTimestamp() {
-        if(lastTxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastTxTimestamp() != null) {
+        if (lastTxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastTxTimestamp() != null) {
             return Math.max(lastTxTimestamp, getMetricDetails().getLastTxTimestamp());
-        }
-        else if(lastTxTimestamp != null) {
+        } else if (lastTxTimestamp != null) {
             return lastTxTimestamp;
         }
-        return getMetricDetails()==null?null:getMetricDetails().getLastTxTimestamp();
+        return getMetricDetails() == null ? null : getMetricDetails().getLastTxTimestamp();
     }
 
     public void setLastTxTimestamp(Long lastTxTimestamp) {
@@ -268,12 +267,12 @@ public class ClientSessionDetails extends BaseJsonModel {
 
     /**
      * RADIUS 802.1x EAP_Success timestamp
+     * 
      * @return
      */
     public Long getEapSuccessTimestamp() {
         return this.eapDetails == null ? null : eapDetails.getEapSuccessTimestamp();
     }
-
 
     @Deprecated
     public void setEapSuccessTimestamp(Long eapSuccessTimestamp) {
@@ -381,7 +380,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     public void setIs11RUsed(Boolean is11rUsed) {
         is11RUsed = is11rUsed;
     }
-    
+
     public Boolean getIs11KUsed() {
         return is11KUsed;
     }
@@ -421,7 +420,6 @@ public class ClientSessionDetails extends BaseJsonModel {
     public void setPreviousValidSessionId(Long previousValidSessionId) {
         this.previousValidSessionId = previousValidSessionId;
     }
-
 
     public ClientFailureDetails getLastFailureDetails() {
         return lastFailureDetails;
@@ -482,39 +480,51 @@ public class ClientSessionDetails extends BaseJsonModel {
         return Math.max(lastRxTimestamp, lastTxTimestamp);
     }
 
+    public void setAssociationState(AssociationState associationState) {
+        this.associationState = associationState;
+    }
+
     /**
      * Returns an association state which is based on event timestamps.
      * 
      * @return
      */
-    @JsonIgnore
+
     public AssociationState getAssociationState() {
+        return associationState;
+    }
+
+    @JsonIgnore
+    public AssociationState calculateAssociationState() {
+
         if (timeoutTimestamp != null) {
             return AssociationState.AP_Timeout;
         }
-        if (getDisconnectTimestamp() != null && (
-                getDisconnectByApInternalReasonCode()==null || 
-                getDisconnectByApInternalReasonCode().intValue()!=53)) {
+        if (getDisconnectTimestamp() != null && (getDisconnectByApInternalReasonCode() == null
+                || getDisconnectByApInternalReasonCode().intValue() != 53)) {
             return AssociationState.Disconnected;
         }
 
-        if (getLastEventTimestamp() != null && getLastEventTimestamp() < System.currentTimeMillis() - CLOUD_SESSION_TIMEOUT) {
+        if (getLastEventTimestamp() != null
+                && getLastEventTimestamp() < System.currentTimeMillis() - CLOUD_SESSION_TIMEOUT) {
             // No event seen for a while, assume they are gone.
-            if(getDisconnectTimestamp() != null) {
+            if (getDisconnectTimestamp() != null) {
                 return AssociationState.Disconnected;
             }
             return AssociationState.Cloud_Timeout;
-            
+
         }
-        if (firstDataRcvdTimestamp != null || firstDataSentTimestamp != null || (getMetricDetails() != null && (getMetricDetails().getLastRxTimestamp() != null || getMetricDetails().getLastTxTimestamp() != null) )) {
+        if (firstDataRcvdTimestamp != null || firstDataSentTimestamp != null
+                || (getMetricDetails() != null && (getMetricDetails().getLastRxTimestamp() != null
+                        || getMetricDetails().getLastTxTimestamp() != null))) {
             return AssociationState.Active_Data;
         }
         if (assocTimestamp != null) {
             return AssociationState._802_11_Associated;
         } else
             return AssociationState._802_11_Authenticated;
-    }
 
+    }
 
     @Override
     public ClientSessionDetails clone() {
@@ -525,76 +535,79 @@ public class ClientSessionDetails extends BaseJsonModel {
         if (this.eapDetails != null) {
             ret.setEapDetails(this.eapDetails.clone());
         }
-        if(this.metricDetails != null) {
+        if (this.metricDetails != null) {
             ret.setMetricDetails(this.metricDetails.clone());
         }
-        if(this.lastFailureDetails != null) {
+        if (this.lastFailureDetails != null) {
             ret.setLastFailureDetails(this.lastFailureDetails.clone());
         }
-        if(this.firstFailureDetails != null) {
+        if (this.firstFailureDetails != null) {
             ret.setFirstFailureDetails(this.firstFailureDetails.clone());
         }
         return ret;
     }
 
     @Override
-	public int hashCode() {
-		return Objects.hash(apFingerprint, assocInternalSC, assocRssi, assocTimestamp, associationStatus, authTimestamp,
-				classificationName, cpUsername, dhcpDetails, disconnectByApInternalReasonCode, disconnectByApReasonCode,
-				disconnectByApTimestamp, disconnectByClientInternalReasonCode, disconnectByClientReasonCode,
-				disconnectByClientTimestamp, dynamicVlan, eapDetails, firstDataRcvdTimestamp, firstDataSentTimestamp,
-				firstFailureDetails, hostname, ipAddress, ipTimestamp, is11KUsed, is11RUsed, is11VUsed, isReassociation,
-				lastEventTimestamp, lastFailureDetails, lastRxTimestamp, lastTxTimestamp, metricDetails,
-				portEnabledTimestamp, previousValidSessionId, priorEquipmentId, priorSessionId, radioType,
-				radiusUsername, securityType, sessionId, ssid, steerType, timeoutTimestamp, userAgentStr);
-	}
+    public int hashCode() {
+        return Objects.hash(apFingerprint, assocInternalSC, assocRssi, assocTimestamp, associationStatus, authTimestamp,
+                classificationName, cpUsername, dhcpDetails, disconnectByApInternalReasonCode, disconnectByApReasonCode,
+                disconnectByApTimestamp, disconnectByClientInternalReasonCode, disconnectByClientReasonCode,
+                disconnectByClientTimestamp, dynamicVlan, eapDetails, firstDataRcvdTimestamp, firstDataSentTimestamp,
+                firstFailureDetails, hostname, ipAddress, ipTimestamp, is11KUsed, is11RUsed, is11VUsed, isReassociation,
+                lastEventTimestamp, lastFailureDetails, lastRxTimestamp, lastTxTimestamp, metricDetails,
+                portEnabledTimestamp, previousValidSessionId, priorEquipmentId, priorSessionId, radioType,
+                radiusUsername, securityType, sessionId, ssid, steerType, timeoutTimestamp, userAgentStr,
+                associationState);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof ClientSessionDetails)) {
-			return false;
-		}
-		ClientSessionDetails other = (ClientSessionDetails) obj;
-		return Objects.equals(apFingerprint, other.apFingerprint)
-				&& Objects.equals(assocInternalSC, other.assocInternalSC) && Objects.equals(assocRssi, other.assocRssi)
-				&& Objects.equals(assocTimestamp, other.assocTimestamp)
-				&& Objects.equals(associationStatus, other.associationStatus)
-				&& Objects.equals(authTimestamp, other.authTimestamp)
-				&& Objects.equals(classificationName, other.classificationName)
-				&& Objects.equals(cpUsername, other.cpUsername) && Objects.equals(dhcpDetails, other.dhcpDetails)
-				&& Objects.equals(disconnectByApInternalReasonCode, other.disconnectByApInternalReasonCode)
-				&& Objects.equals(disconnectByApReasonCode, other.disconnectByApReasonCode)
-				&& Objects.equals(disconnectByApTimestamp, other.disconnectByApTimestamp)
-				&& Objects.equals(disconnectByClientInternalReasonCode, other.disconnectByClientInternalReasonCode)
-				&& Objects.equals(disconnectByClientReasonCode, other.disconnectByClientReasonCode)
-				&& Objects.equals(disconnectByClientTimestamp, other.disconnectByClientTimestamp)
-				&& Objects.equals(dynamicVlan, other.dynamicVlan) && Objects.equals(eapDetails, other.eapDetails)
-				&& Objects.equals(firstDataRcvdTimestamp, other.firstDataRcvdTimestamp)
-				&& Objects.equals(firstDataSentTimestamp, other.firstDataSentTimestamp)
-				&& Objects.equals(firstFailureDetails, other.firstFailureDetails)
-				&& Objects.equals(hostname, other.hostname) && Objects.equals(ipAddress, other.ipAddress)
-				&& Objects.equals(ipTimestamp, other.ipTimestamp) && Objects.equals(is11KUsed, other.is11KUsed)
-				&& Objects.equals(is11RUsed, other.is11RUsed) && Objects.equals(is11VUsed, other.is11VUsed)
-				&& Objects.equals(isReassociation, other.isReassociation)
-				&& Objects.equals(lastEventTimestamp, other.lastEventTimestamp)
-				&& Objects.equals(lastFailureDetails, other.lastFailureDetails)
-				&& Objects.equals(lastRxTimestamp, other.lastRxTimestamp)
-				&& Objects.equals(lastTxTimestamp, other.lastTxTimestamp)
-				&& Objects.equals(metricDetails, other.metricDetails)
-				&& Objects.equals(portEnabledTimestamp, other.portEnabledTimestamp)
-				&& Objects.equals(previousValidSessionId, other.previousValidSessionId)
-				&& Objects.equals(priorEquipmentId, other.priorEquipmentId)
-				&& Objects.equals(priorSessionId, other.priorSessionId) && radioType == other.radioType
-				&& Objects.equals(radiusUsername, other.radiusUsername) && securityType == other.securityType
-				&& sessionId == other.sessionId && Objects.equals(ssid, other.ssid) && steerType == other.steerType
-				&& Objects.equals(timeoutTimestamp, other.timeoutTimestamp)
-				&& Objects.equals(userAgentStr, other.userAgentStr);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ClientSessionDetails)) {
+            return false;
+        }
+        ClientSessionDetails other = (ClientSessionDetails) obj;
+        return Objects.equals(apFingerprint, other.apFingerprint)
+                && Objects.equals(assocInternalSC, other.assocInternalSC) && Objects.equals(assocRssi, other.assocRssi)
+                && Objects.equals(assocTimestamp, other.assocTimestamp)
+                && Objects.equals(associationStatus, other.associationStatus)
+                && Objects.equals(authTimestamp, other.authTimestamp)
+                && Objects.equals(classificationName, other.classificationName)
+                && Objects.equals(cpUsername, other.cpUsername) && Objects.equals(dhcpDetails, other.dhcpDetails)
+                && Objects.equals(disconnectByApInternalReasonCode, other.disconnectByApInternalReasonCode)
+                && Objects.equals(disconnectByApReasonCode, other.disconnectByApReasonCode)
+                && Objects.equals(disconnectByApTimestamp, other.disconnectByApTimestamp)
+                && Objects.equals(disconnectByClientInternalReasonCode, other.disconnectByClientInternalReasonCode)
+                && Objects.equals(disconnectByClientReasonCode, other.disconnectByClientReasonCode)
+                && Objects.equals(disconnectByClientTimestamp, other.disconnectByClientTimestamp)
+                && Objects.equals(dynamicVlan, other.dynamicVlan) && Objects.equals(eapDetails, other.eapDetails)
+                && Objects.equals(firstDataRcvdTimestamp, other.firstDataRcvdTimestamp)
+                && Objects.equals(firstDataSentTimestamp, other.firstDataSentTimestamp)
+                && Objects.equals(firstFailureDetails, other.firstFailureDetails)
+                && Objects.equals(hostname, other.hostname) && Objects.equals(ipAddress, other.ipAddress)
+                && Objects.equals(ipTimestamp, other.ipTimestamp) && Objects.equals(is11KUsed, other.is11KUsed)
+                && Objects.equals(is11RUsed, other.is11RUsed) && Objects.equals(is11VUsed, other.is11VUsed)
+                && Objects.equals(isReassociation, other.isReassociation)
+                && Objects.equals(lastEventTimestamp, other.lastEventTimestamp)
+                && Objects.equals(lastFailureDetails, other.lastFailureDetails)
+                && Objects.equals(lastRxTimestamp, other.lastRxTimestamp)
+                && Objects.equals(lastTxTimestamp, other.lastTxTimestamp)
+                && Objects.equals(metricDetails, other.metricDetails)
+                && Objects.equals(portEnabledTimestamp, other.portEnabledTimestamp)
+                && Objects.equals(previousValidSessionId, other.previousValidSessionId)
+                && Objects.equals(priorEquipmentId, other.priorEquipmentId)
+                && Objects.equals(priorSessionId, other.priorSessionId) && radioType == other.radioType
+                && Objects.equals(radiusUsername, other.radiusUsername) && securityType == other.securityType
+                && sessionId == other.sessionId && Objects.equals(ssid, other.ssid) && steerType == other.steerType
+                && Objects.equals(timeoutTimestamp, other.timeoutTimestamp)
+                && Objects.equals(userAgentStr, other.userAgentStr)
+                && Objects.equals(associationState, other.associationState);
 
-	/**
+    }
+
+    /**
      * Merge the updated session information
      * 
      * @param latest
@@ -666,54 +679,46 @@ public class ClientSessionDetails extends BaseJsonModel {
         }
         if (null != latest.metricDetails) {
             this.metricDetails = latest.metricDetails;
-        } 
+        }
 
         if (null != latest.getIsReassociation()) {
             this.isReassociation = latest.getIsReassociation();
         }
 
-        if(null != latest.getDynamicVlan())
-        {
+        if (null != latest.getDynamicVlan()) {
             this.dynamicVlan = latest.getDynamicVlan();
         }
-        if(null != latest.getAssocRssi())
-        {
-        	this.assocRssi = latest.getAssocRssi();
+        if (null != latest.getAssocRssi()) {
+            this.assocRssi = latest.getAssocRssi();
         }
-        if(null != latest.getPriorSessionId())
-        {
-        	this.priorSessionId = latest.getPriorSessionId();
+        if (null != latest.getPriorSessionId()) {
+            this.priorSessionId = latest.getPriorSessionId();
         }
-        if(null != latest.getPriorEquipmentId())
-        {
-        	this.priorEquipmentId = latest.getPriorEquipmentId();
-        }
-      
-        if(null != latest.getIs11KUsed())
-        {
-        	this.is11KUsed = latest.getIs11KUsed();
-        }
-        if(null != latest.getIs11RUsed())
-        {
-        	this.is11RUsed = latest.getIs11RUsed();
-        }
-        if(null != latest.getIs11VUsed())
-        {
-        	this.is11VUsed = latest.getIs11VUsed();
+        if (null != latest.getPriorEquipmentId()) {
+            this.priorEquipmentId = latest.getPriorEquipmentId();
         }
 
-        if( latestTimestampIsFirst(latest.disconnectByClientTimestamp, this.disconnectByClientTimestamp) ) {
+        if (null != latest.getIs11KUsed()) {
+            this.is11KUsed = latest.getIs11KUsed();
+        }
+        if (null != latest.getIs11RUsed()) {
+            this.is11RUsed = latest.getIs11RUsed();
+        }
+        if (null != latest.getIs11VUsed()) {
+            this.is11VUsed = latest.getIs11VUsed();
+        }
+
+        if (latestTimestampIsFirst(latest.disconnectByClientTimestamp, this.disconnectByClientTimestamp)) {
             this.disconnectByClientTimestamp = latest.disconnectByClientTimestamp;
             this.disconnectByClientReasonCode = latest.disconnectByClientReasonCode;
             this.disconnectByClientInternalReasonCode = latest.disconnectByClientInternalReasonCode;
         }
 
-        if( latestTimestampIsFirst(latest.disconnectByApTimestamp, this.disconnectByApTimestamp) ) {
+        if (latestTimestampIsFirst(latest.disconnectByApTimestamp, this.disconnectByApTimestamp)) {
             this.disconnectByApTimestamp = latest.disconnectByApTimestamp;
             this.disconnectByApReasonCode = latest.disconnectByApReasonCode;
             this.disconnectByApInternalReasonCode = latest.disconnectByApInternalReasonCode;
         }
-
 
         if (null != latest.getPortEnabledTimestamp()) {
             // Take the latest settings.
@@ -733,27 +738,29 @@ public class ClientSessionDetails extends BaseJsonModel {
             this.previousValidSessionId = latest.getPreviousValidSessionId();
         }
 
-        if (null != latest.lastFailureDetails && 
-                (this.lastFailureDetails == null || this.lastFailureDetails.getFailureTimestamp() < latest.lastFailureDetails.getFailureTimestamp())) {
+        if (null != latest.lastFailureDetails && (this.lastFailureDetails == null
+                || this.lastFailureDetails.getFailureTimestamp() < latest.lastFailureDetails.getFailureTimestamp())) {
             this.lastFailureDetails = latest.lastFailureDetails;
         }
 
-        if (null != latest.firstFailureDetails && 
-                (this.firstFailureDetails == null || this.firstFailureDetails.getFailureTimestamp() > latest.firstFailureDetails.getFailureTimestamp())) {
+        if (null != latest.firstFailureDetails && (this.firstFailureDetails == null
+                || this.firstFailureDetails.getFailureTimestamp() > latest.firstFailureDetails.getFailureTimestamp())) {
             this.firstFailureDetails = latest.firstFailureDetails;
         }
 
         if (null != latest.associationStatus) {
             this.associationStatus = latest.associationStatus;
         }
-        
-        if(null != latest.getUserAgentStr())
-        {
+
+        if (null != latest.associationState) {
+            this.associationState = latest.associationState;
+        }
+
+        if (null != latest.getUserAgentStr()) {
             this.userAgentStr = latest.getUserAgentStr();
         }
-        
-    }
 
+    }
 
     private void createEapDetailsIfNull() {
         if (eapDetails == null)
@@ -767,9 +774,8 @@ public class ClientSessionDetails extends BaseJsonModel {
         }
 
         if (SecurityType.isUnsupported(securityType) || SteerType.isUnsupported(steerType)
-                || RadioType.isUnsupported(radioType)
-                || hasUnsupportedValue(dhcpDetails) || hasUnsupportedValue(eapDetails)
-                || hasUnsupportedValue(lastFailureDetails)
+                || RadioType.isUnsupported(radioType) || hasUnsupportedValue(dhcpDetails)
+                || hasUnsupportedValue(eapDetails) || hasUnsupportedValue(lastFailureDetails)
                 || hasUnsupportedValue(firstFailureDetails)) {
             return true;
         }
@@ -777,7 +783,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     private static boolean latestTimestampIsFirst(Long latest, Long existing) {
-        if(latest == null) {
+        if (latest == null) {
             return false;
         }
         return (existing == null) || (latest > existing);
@@ -808,42 +814,38 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Integer getAssocRssi() {
-		return assocRssi;
-	}
+        return assocRssi;
+    }
 
-	public void setAssocRssi(Integer assocRssi) {
-		this.assocRssi = assocRssi;
-	}
+    public void setAssocRssi(Integer assocRssi) {
+        this.assocRssi = assocRssi;
+    }
 
-	public Long getPriorSessionId() {
-		return priorSessionId;
-	}
+    public Long getPriorSessionId() {
+        return priorSessionId;
+    }
 
-	public void setPriorSessionId(Long priorSessionId) {
-		this.priorSessionId = priorSessionId;
-	}
+    public void setPriorSessionId(Long priorSessionId) {
+        this.priorSessionId = priorSessionId;
+    }
 
-	public Long getPriorEquipmentId() {
-		return priorEquipmentId;
-	}
+    public Long getPriorEquipmentId() {
+        return priorEquipmentId;
+    }
 
-	public void setPriorEquipmentId(Long priorEquipmentId) {
-		this.priorEquipmentId = priorEquipmentId;
-	}
+    public void setPriorEquipmentId(Long priorEquipmentId) {
+        this.priorEquipmentId = priorEquipmentId;
+    }
 
-	@JsonIgnore
-    public String getModel()
-    {
+    @JsonIgnore
+    public String getModel() {
         String userAgentModel = UserAgentOsMapper.getPlatform(this.userAgentStr, this.apFingerprint);
-        
-        if(userAgentModel == null)
-        {
+
+        if (userAgentModel == null) {
             return this.apFingerprint;
-        }
-        else
-        {
+        } else {
             return userAgentModel;
         }
     }
-    
+
 }
