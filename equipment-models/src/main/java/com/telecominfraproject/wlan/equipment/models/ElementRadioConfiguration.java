@@ -91,9 +91,9 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		// Tx power default was discussed with Shaikh (set to 18)
 		setEirpTxPower(AutoOrManualValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
 		setAutoChannelSelection(true);
-		setRxCellSizeDb(AutoOrManualValue.createAutomaticInstance(DEFAULT_RX_CELL_SIZE_DB));
-		setProbeResponseThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
-		setClientDisconnectThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
+		setRxCellSizeDb(AutoOrManualValue.createManualInstance(DEFAULT_RX_CELL_SIZE_DB));
+		setProbeResponseThresholdDb(AutoOrManualValue.createManualInstance(-90));
+		setClientDisconnectThresholdDb(AutoOrManualValue.createManualInstance(-90));
 		setBestApEnabled(null);
 		setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
 		setPerimeterDetectionEnabled(true);
