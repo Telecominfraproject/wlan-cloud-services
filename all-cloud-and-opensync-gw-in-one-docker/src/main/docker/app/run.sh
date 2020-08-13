@@ -37,7 +37,8 @@ OVSDB_PROPS+=" -Dtip.wlan.ovsdb.wifi-device.radio2=$OVSDB_DEVICE_RADIO_2"
 echo OVSDB_PROPS $OVSDB_PROPS
 
 MQTT_PROPS=" "
-MQTT_PROPS+=" -Dtip.wlan.mqttBroker.address=tip-wlan-opensync-mqtt-broker"
+MQTT_PROPS+=" -Dtip.wlan.mqttBroker.address.internal=tip-wlan-opensync-mqtt-broker-internal"
+MQTT_PROPS+=" -Dtip.wlan.mqttBroker.address.external=tip-wlan-opensync-mqtt-broker-external"
 MQTT_PROPS+=" -Dtip.wlan.mqttBroker.listenPort=1883"
 
 LOGGING_PROPS=" -Dlogging.config=file:/app/opensync/logback.xml"
