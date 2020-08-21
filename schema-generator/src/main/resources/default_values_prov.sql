@@ -59,25 +59,40 @@ WHERE
  );
 
 -- Create Firmware Version related entities
-INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
-VALUES (1, 1, 'ap2220', 'ap2220-2020-06-25-ce03472', 'ce03472', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ap2220/ap2220-2020-06-25-ce03472.tar.gz',
- 1, 'c69370aa5b6622d91a0fba3a5441f31c', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
+--INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
+--VALUES (1, 1, 'ap2220', 'ap2220-2020-06-25-ce03472', 'ce03472', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ap2220/ap2220-2020-06-25-ce03472.tar.gz',
+-- 1, 'c69370aa5b6622d91a0fba3a5441f31c', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
 
+-- Only run the update clause if created at time 0; i.e.; it's created from here
 INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
-VALUES (2, 1, 'ea8300', 'ea8300-2020-06-25-ce03472', 'ce03472', '', 'https://tip-read:tip-read@tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz',
- 1, 'b209deb9847bdf40a31e45edf2e5a8d7', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
+VALUES (2, 1, 'EA8300', 'ea8300-2020-08-18-pending-5d9ea41', '5d9ea41', 'EA8300 Firmware Version', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/dev/ea8300-2020-08-18-pending-5d9ea41.tar.gz',
+ 1, '19494befa87eb6bb90a64fd515634263', EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000, 0, 0 ) ON CONFLICT (id) DO UPDATE
+ SET equipmentType=1, modelId='EA8300', commitTag='5d9ea41', validationCode='19494befa87eb6bb90a64fd515634263',
+ description='EA8300 Firmware Version', filename='https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/dev/ea8300-2020-08-18-pending-5d9ea41.tar.gz',
+ releaseDate= EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000
+ WHERE firmware_version.createdTimestamp=0;
 
-INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
-VALUES (3, 1, 'ea8300-ca', 'ea8300-2020-06-25-ce03472-ca', 'ce03472', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz',
- 1, 'b209deb9847bdf40a31e45edf2e5a8d7', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
+--INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
+--VALUES (3, 1, 'ea8300-ca', 'ea8300-2020-06-25-ce03472-ca', 'ce03472', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ea8300/ea8300-2020-06-25-ce03472.tar.gz',
+-- 1, 'b209deb9847bdf40a31e45edf2e5a8d7', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
 
+-- Only run the update clause if created at time 0; i.e.; it's created from here
 INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
-VALUES (4, 1, 'ecw5211', 'ecw5211-2020-06-26-4ff7208', '4ff7208', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/ecw5211-2020-06-26-4ff7208.tar.gz',
- 1, '133072b0e8a440063109604375938fba', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
+VALUES (4, 1, 'ECW5211', 'ecw5211-2020-08-18-pending-5d9ea41', '5d9ea41', 'ECW5211 Firmware Version', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/dev/ecw5211-2020-08-18-pending-5d9ea41.tar.gz',
+ 1, '1ab76e9adb33bf96276f3f346049e1a4d65952b4', EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000, 0, 0 ) ON CONFLICT (id) DO UPDATE
+ SET equipmentType=1, modelId='ECW5211', versionName='ecw5211-2020-08-18-pending-5d9ea41', commitTag='5d9ea41', validationCode='1ab76e9adb33bf96276f3f346049e1a4d65952b4',
+ description='ECW5211 Firmware Version', filename='https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5211/dev/ecw5211-2020-08-18-pending-5d9ea41.tar.gz',
+ releaseDate= EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000
+ WHERE firmware_version.createdTimestamp=0;
 
+-- Only run the update clause if created at time 0; i.e.; it's created from here
 INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)
-VALUES (5, 1, 'ecw5410', 'ecw5410-2020-06-25-ce03472', 'ce03472', '', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/ecw5410-2020-06-25-ce03472.tar.gz',
- 1, '2940ca34eeab85be18f3a4b79f4da6d9', EXTRACT(EPOCH FROM TIMESTAMP '2020-07-31 10:40:28.876944') * 1000, 0, 0 ) ON CONFLICT (id) DO NOTHING;
+VALUES (5, 1, 'ECW5410', 'ecw5410-2020-08-18-pending-175558b', '175558b', 'ECW5410 Firmware Version', 'https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/dev/ecw5410-2020-08-18-pending-175558b.tar.gz',
+ 1, '5d944896e54f96422dd0da921d4dd310', EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000, 0, 0 ) ON CONFLICT (id) DO UPDATE
+ SET equipmentType=1, modelId='ECW5410', versionName='ecw5410-2020-08-18-pending-175558b', commitTag='175558b', validationCode='5d944896e54f96422dd0da921d4dd310',
+ description='ECW5410 Firmware Version', filename='https://tip-read:tip-read@tip.jfrog.io/artifactory/tip-wlan-ap-firmware/ecw5410/dev/ecw5410-2020-08-18-pending-175558b.tar.gz',
+ releaseDate= EXTRACT(EPOCH FROM TIMESTAMP '2020-08-18 06:00:00') * 1000
+ WHERE firmware_version.createdTimestamp=0;
 
 -- Create Firmware Track Assignment related entities
 INSERT INTO firmware_track_assignment (trackId, firmwareId, defaultForTrack, deprecated, createdTimestamp, lastModifiedTimestamp)
