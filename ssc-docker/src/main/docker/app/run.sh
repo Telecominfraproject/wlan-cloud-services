@@ -27,6 +27,9 @@ HOST_PROPS+=" -Dtip.wlan.manufacturerServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.equipmentServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
 
-export ALL_PROPS="$LOGGING_PROPS $DATABASE_PROPS $HOST_PROPS"
+REMOTE_DEBUG_PORT=5008
+REMOTE_DEBUG=" -agentlib:jdwp=transport=dt_socket,server=y,address=*:$REMOTE_DEBUG_PORT,suspend=n"
+
+export ALL_PROPS="$LOGGING_PROPS $DATABASE_PROPS $HOST_PROPS $REMOTE_DEBUG"
 
 java $ALL_PROPS -jar app.jar
