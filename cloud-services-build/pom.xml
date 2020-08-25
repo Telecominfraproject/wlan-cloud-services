@@ -188,6 +188,7 @@
 
                                 <module>../equipment-gateway-models</module>
                                 <module>../equipment-gateway-service-interface</module>
+                                <module>../equipment-gateway-service-empty</module>
                                 <module>../equipment-gateway-service-local</module>
                                 <module>../equipment-gateway-service-remote</module>
 

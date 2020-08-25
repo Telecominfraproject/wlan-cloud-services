@@ -1,10 +1,5 @@
 package com.telecominfraproject.wlan.equipmentgateway.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +14,12 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
 import com.telecominfraproject.wlan.routing.RoutingServiceInterface;
 import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class EquipmentGatewayServiceRemote  extends BaseRemoteClient implements EquipmentGatewayServiceInterface {
@@ -89,23 +90,23 @@ public class EquipmentGatewayServiceRemote  extends BaseRemoteClient implements 
     	
     	// TODO resolve multiple responses per-command, if any 
     	//	(i.e. if one GW replied that equipment route is not found, and another GW replied with success, then the result should be success)
-    	    	
     	return ret;
     }
     
 
-    public List<EquipmentCommandResponse> sendCommands(String gatewayHost, int gatewayPort, List<CEGWBaseCommand> commands) {
-    	
+    private List<EquipmentCommandResponse> sendCommands(String gatewayHost, int gatewayPort, List<CEGWBaseCommand> commands) {
         HttpEntity<String> request = new HttpEntity<>(commands.toString(), headers);
-
         LOG.debug("Sending to gateway {}:{} commands {}", gatewayHost, gatewayPort, commands);
-        
-        ResponseEntity<List<EquipmentCommandResponse>> responseEntity = restTemplate.exchange(
-        		getProtocol() + "://" + gatewayHost + ":" + gatewayPort + "/api/commands",
-                HttpMethod.POST, request, EquipmentCommandResponse_LIST_CLASS_TOKEN);
-        
-        List<EquipmentCommandResponse> ret =  responseEntity.getBody();
-
+		List<EquipmentCommandResponse> ret = null;
+		try {
+			ResponseEntity<List<EquipmentCommandResponse>> responseEntity = restTemplate.exchange(
+					getProtocol() + "://" + gatewayHost + ":" + gatewayPort + "/api/commands",
+					HttpMethod.POST, request, EquipmentCommandResponse_LIST_CLASS_TOKEN);
+			ret = responseEntity.getBody();
+		} catch (Exception ex) {
+			LOG.error(" Unable to send commands to gatewayHost {}. Error: {}", gatewayHost, ex.getMessage());
+            ret = Collections.emptyList();
+		}
         LOG.debug("Response from gateway {}:{}  {}", gatewayHost, gatewayPort, ret);
         
     	return ret;
