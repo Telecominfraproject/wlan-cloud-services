@@ -738,6 +738,20 @@ public class StatusServiceRemoteTest extends BaseRemoteTest {
 		assertEquals(oneEquipment, returnedEquipmentIds);
 		assertEquals(threeStatusDataTypes, returnedStatusDataTypes);
 
+       // verify one equipment, all data types - null instead of empty set
+       returnedEquipmentIds.clear();
+       returnedStatusDataTypes.clear();
+       results = remoteInterface.getForEquipment(customerId_1, oneEquipment, null);
+       assertEquals(3, results.size());
+       results.forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedStatusDataTypes.add(e.getStatusDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(threeStatusDataTypes, returnedStatusDataTypes);
+
        
        // verify two equipment, all data types
        returnedEquipmentIds.clear();
