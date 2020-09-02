@@ -24,6 +24,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
     </dependency>
     
+    <!-- PortForwarding Gateway - to support remote ssh connections to APs -->
+	<dependency>
+		<artifactId>port-forwarding-gateway</artifactId>
+		<groupId>com.telecominfraproject.wlan</groupId>
+		<version>${tip-wlan-cloud.release.version}</version>
+	</dependency>    
     
      <!-- portal services -->
       <dependency>

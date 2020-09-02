@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.telecominfraproject.wlan</groupId>
+    <artifactId>tip-wlan-cloud-root-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../wlan-cloud-root</relativePath>
+  </parent>
+
+  <artifactId>port-forwarding-gateway-remote</artifactId>
+  <name>port-forwarding-gateway-remote</name>
+    <description>Remote client for accessing port forwarding gateway, uses REST.</description>
+    
+	<dependencies>
+		<dependency>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<artifactId>base-client</artifactId>
+			<version>${tip-wlan-cloud.release.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<artifactId>port-forwarding-gateway-interface</artifactId>
+			<version>${tip-wlan-cloud.release.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<artifactId>port-forwarding-gateway</artifactId>
+			<version>${tip-wlan-cloud.release.version}</version>
+			<scope>test</scope>
+		</dependency>
+	    <dependency>
+	        <groupId>com.telecominfraproject.wlan</groupId>
+	        <artifactId>base-remote-tests</artifactId>
+	        <version>${tip-wlan-cloud.release.version}</version>
+	        <scope>test</scope>
+	    </dependency>		
+	</dependencies>  
+</project>

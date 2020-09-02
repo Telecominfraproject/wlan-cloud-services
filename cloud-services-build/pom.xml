@@ -202,6 +202,12 @@
                                 <module>../single-process-streams</module>
                                 <module>../kafka-streams</module>
                                 <module>../kafka-streams-consumer</module>
+
+                                <module>../port-forwarding-gateway</module>
+                                <module>../port-forwarding-gateway-interface</module>
+                                <module>../port-forwarding-gateway-local</module>
+                                <module>../port-forwarding-gateway-remote</module>
+                                <module>../port-forwarding-gateway-process</module>
                                 
                                 <module>../portal-services</module>
                                 <module>../prov-process</module>
