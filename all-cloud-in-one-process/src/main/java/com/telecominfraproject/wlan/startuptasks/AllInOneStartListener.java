@@ -80,6 +80,7 @@ import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApPerformance;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.EthernetLinkState;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.RadioUtilization;
+import com.telecominfraproject.wlan.servicemetric.client.models.ClientMetrics;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
@@ -143,6 +144,10 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     @Value("${tip.wlan.numClientsPerApToCreateOnStartup:0}")
     private int numClientsPerApToCreateOnStartup;
+    
+    @Value("${tip.wlan.numMetricsPerEquipmentToCreateOnStartup:5}")
+    private int numMetricsPerEquipmentToCreateOnStartup;
+    
 
     @Override
     public void run(ApplicationArguments args) {
@@ -644,96 +649,178 @@ public class AllInOneStartListener implements ApplicationRunner {
     private void createServiceMetrics(Equipment equipment) {
         List<ServiceMetric> metricRecordList = new ArrayList<>();
 
-        ServiceMetric smr = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
-        metricRecordList.add(smr);
+        for(int mCnt=0; mCnt<numMetricsPerEquipmentToCreateOnStartup; mCnt++) {
+            ServiceMetric smr = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
+            metricRecordList.add(smr);
+    
+            ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
+            smr.setDetails(apNodeMetrics);
+            ApPerformance apPerformance = new ApPerformance();
+            apNodeMetrics.setApPerformance(apPerformance);
+    
+            smr.setCreatedTimestamp(System.currentTimeMillis() - mCnt*60000);
+            apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
+            apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
+            apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
+    
+            apPerformance.setCpuTemperature(getRandomInt(25, 90));
+            apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98) });
+    
+            apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
+    
+            apPerformance.setFreeMemory(getRandomInt(30000000, 70000000));
+            apPerformance.setUpTime(getRandomLong(30000000, 70000000));
+    
+            apNodeMetrics.setRxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setTxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setRxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setTxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setRxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setTxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
+            apNodeMetrics.setPeriodLengthSec(60);
+    
+            apNodeMetrics.setNoiseFloor(RadioType.is2dot4GHz, Integer.valueOf(-98));
+            apNodeMetrics.setNoiseFloor(RadioType.is5GHzL, Integer.valueOf(-98));
+            apNodeMetrics.setNoiseFloor(RadioType.is5GHzU, Integer.valueOf(-98));
+    
+            List<MacAddress> clientMacAddresses_2g = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+                        getRandomByte(), getRandomByte() });
+                clientMacAddresses_2g.add(macAddress);
+            }
+            apNodeMetrics.setClientMacAddresses(RadioType.is2dot4GHz, clientMacAddresses_2g);
+    
+            List<MacAddress> clientMacAddresses_5gl = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+                        getRandomByte(), getRandomByte() });
+                clientMacAddresses_5gl.add(macAddress);
+            }
+            apNodeMetrics.setClientMacAddresses(RadioType.is5GHzL, clientMacAddresses_5gl);
+    
+            List<MacAddress> clientMacAddresses_5gu = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
+                        getRandomByte(), getRandomByte() });
+                clientMacAddresses_5gu.add(macAddress);
+            }
+            apNodeMetrics.setClientMacAddresses(RadioType.is5GHzU, clientMacAddresses_5gu);
+    
+            apNodeMetrics.setRadioUtilization(RadioType.is2dot4GHz, new ArrayList<>());
+            apNodeMetrics.setRadioUtilization(RadioType.is5GHzL, new ArrayList<>());
+            apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
+    
+            int numRadioUtilReports = getRandomInt(5, 10);
+    
+            for (int i = 0; i < numRadioUtilReports; i++) {
+                RadioUtilization radioUtil = new RadioUtilization();
+                int surveyDurationMs = getRandomInt(5000, 10000);
+                int busyTx = getRandomInt(0, surveyDurationMs / 3);
+                int busyRx = getRandomInt(0, surveyDurationMs / 3);
+                int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
+    
+                radioUtil.setTimestampSeconds((int) ((smr.getCreatedTimestamp() - surveyDurationMs) / 1000));
+                radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
+                radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
+                radioUtil.setNonWifi(100 * (busy - busyTx - busyRx) / surveyDurationMs);
+    
+                switch (i % 3) {
+                case 0:
+                    apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
+                    break;
+                case 1:
+                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
+                    break;
+                case 2:
+                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
+                    break;
+                default:
+                    // do nothing
+                }
+            }
+            
+            //now create sample ClientMetrics for this equipment
+            
+            for(MacAddress clientMac: clientMacAddresses_2g) {
+                ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
+                metricRecordList.add(smrClient);
+        
+                ClientMetrics clientMetrics = new ClientMetrics();
+                smrClient.setDetails(clientMetrics);
+                smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
+                smrClient.setClientMac(clientMac.getAddressAsLong());
 
-        ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
-        smr.setDetails(apNodeMetrics);
-        ApPerformance apPerformance = new ApPerformance();
-        apNodeMetrics.setApPerformance(apPerformance);
+                clientMetrics.setPeriodLengthSec(60);
+                clientMetrics.setRadioType(RadioType.is2dot4GHz);
+                
+                clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
+                clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
 
-        smr.setCreatedTimestamp(System.currentTimeMillis());
-        apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
-        apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
-        apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
+                clientMetrics.setSessionId(getRandomLong(3000000, 7000000));
 
-        apPerformance.setCpuTemperature(getRandomInt(25, 90));
-        apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98) });
+                clientMetrics.setTxRetries(getRandomInt(30, 70));
+                clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
+                clientMetrics.setSnr(getRandomInt(-70, -30));
+                clientMetrics.setRssi(getRandomInt(20, 70));
 
-        apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
+            }
+            
+            for(MacAddress clientMac: clientMacAddresses_5gl) {
+                ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
+                metricRecordList.add(smrClient);
+        
+                ClientMetrics clientMetrics = new ClientMetrics();
+                smrClient.setDetails(clientMetrics);
+                smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
+                smrClient.setClientMac(clientMac.getAddressAsLong());
 
-        apPerformance.setFreeMemory(getRandomInt(30000000, 70000000));
-        apPerformance.setUpTime(getRandomLong(30000000, 70000000));
+                clientMetrics.setPeriodLengthSec(60);
+                clientMetrics.setRadioType(RadioType.is5GHzL);
+                
+                clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
+                clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
 
-        apNodeMetrics.setRxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setTxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setRxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setTxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setRxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setTxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
-        apNodeMetrics.setPeriodLengthSec(60);
+                clientMetrics.setSessionId(getRandomLong(3000000, 7000000));
 
-        apNodeMetrics.setNoiseFloor(RadioType.is2dot4GHz, Integer.valueOf(-98));
-        apNodeMetrics.setNoiseFloor(RadioType.is5GHzL, Integer.valueOf(-98));
-        apNodeMetrics.setNoiseFloor(RadioType.is5GHzU, Integer.valueOf(-98));
+                clientMetrics.setTxRetries(getRandomInt(30, 70));
+                clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
+                clientMetrics.setSnr(getRandomInt(-70, -30));
+                clientMetrics.setRssi(getRandomInt(20, 70));
 
-        List<MacAddress> clientMacAddresses_2g = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
-                    getRandomByte(), getRandomByte() });
-            clientMacAddresses_2g.add(macAddress);
-        }
-        apNodeMetrics.setClientMacAddresses(RadioType.is2dot4GHz, clientMacAddresses_2g);
-
-        List<MacAddress> clientMacAddresses_5gl = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
-                    getRandomByte(), getRandomByte() });
-            clientMacAddresses_5gl.add(macAddress);
-        }
-        apNodeMetrics.setClientMacAddresses(RadioType.is5GHzL, clientMacAddresses_5gl);
-
-        List<MacAddress> clientMacAddresses_5gu = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
-                    getRandomByte(), getRandomByte() });
-            clientMacAddresses_5gu.add(macAddress);
-        }
-        apNodeMetrics.setClientMacAddresses(RadioType.is5GHzU, clientMacAddresses_5gu);
-
-        apNodeMetrics.setRadioUtilization(RadioType.is2dot4GHz, new ArrayList<>());
-        apNodeMetrics.setRadioUtilization(RadioType.is5GHzL, new ArrayList<>());
-        apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
-
-        int numRadioUtilReports = getRandomInt(5, 10);
-
-        for (int i = 0; i < numRadioUtilReports; i++) {
-            RadioUtilization radioUtil = new RadioUtilization();
-            int surveyDurationMs = getRandomInt(5000, 10000);
-            int busyTx = getRandomInt(0, surveyDurationMs / 3);
-            int busyRx = getRandomInt(0, surveyDurationMs / 3);
-            int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
-
-            radioUtil.setTimestampSeconds((int) ((System.currentTimeMillis() - surveyDurationMs) / 1000));
-            radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
-            radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
-            radioUtil.setNonWifi(100 * (busy - busyTx - busyRx) / surveyDurationMs);
-
-            switch (i % 3) {
-            case 0:
-                apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
-                break;
-            case 1:
-                apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
-                break;
-            case 2:
-                apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
-                break;
-            default:
-                // do nothing
+            }
+        
+            for(MacAddress clientMac: clientMacAddresses_5gu) {
+                ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
+                metricRecordList.add(smrClient);
+        
+                ClientMetrics clientMetrics = new ClientMetrics();
+                smrClient.setDetails(clientMetrics);
+                smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
+                smrClient.setClientMac(clientMac.getAddressAsLong());
+    
+                clientMetrics.setPeriodLengthSec(60);
+                clientMetrics.setRadioType(RadioType.is5GHzU);
+                
+                clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
+                clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
+                clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
+    
+                clientMetrics.setSessionId(getRandomLong(3000000, 7000000));
+    
+                clientMetrics.setTxRetries(getRandomInt(30, 70));
+                clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
+                clientMetrics.setSnr(getRandomInt(-70, -30));
+                clientMetrics.setRssi(getRandomInt(20, 70));
+    
             }
         }
-
+        
         serviceMetricInterface.create(metricRecordList);
     }
 
