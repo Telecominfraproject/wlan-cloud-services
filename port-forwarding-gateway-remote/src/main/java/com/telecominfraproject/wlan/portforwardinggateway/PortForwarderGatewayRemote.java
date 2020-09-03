@@ -86,6 +86,34 @@ public class PortForwarderGatewayRemote extends BaseRemoteClient implements Port
         return result;
     }
     
+    @Override
+    public String startAgent(String inventoryId) {
+        //    @RequestMapping(value = "/startAgent/inventoryId/{inventoryId}/", method = RequestMethod.POST)
+        LOG.debug("startAgent({})", inventoryId);
+
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(getBaseUrl()
+                + "/startAgent/inventoryId/{inventoryId}/", String.class, inventoryId);
+
+        String result = responseEntity.getBody();
+        
+        LOG.debug("startAgent({}) : {}", inventoryId, result);
+        return result;
+    }
+    
+    @Override
+    public String stopAgent(String inventoryId) {
+        //@RequestMapping(value = "/stopAgent/inventoryId/{inventoryId}/", method = RequestMethod.POST)
+        LOG.debug("stopAgent({})", inventoryId);
+
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(getBaseUrl()
+                + "/stopAgent/inventoryId/{inventoryId}/", String.class, inventoryId);
+
+        String result = responseEntity.getBody();
+        
+        LOG.debug("stopAgent({}) : {}", inventoryId, result);
+        return result;
+
+    }
     
     public String getBaseUrl() {
         if (baseUrl == null) {

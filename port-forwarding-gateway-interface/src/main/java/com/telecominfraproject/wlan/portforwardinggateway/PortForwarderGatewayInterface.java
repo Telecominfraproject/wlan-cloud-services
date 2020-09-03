@@ -16,6 +16,8 @@ public interface PortForwarderGatewayInterface {
     List<String> listSessions();
 
     String agentStatus(String inventoryId);
+    String startAgent(String inventoryId);
+    String stopAgent(String inventoryId);
 
     /**
      * Return the service information

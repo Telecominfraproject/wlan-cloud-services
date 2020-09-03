@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.core.model.service.CloudServiceInformation;
 import com.telecominfraproject.wlan.core.server.container.ConnectorProperties;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWStartDebugEngine;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWStopDebugEngine;
+import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
+import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.portforwardinggateway.websocket.PortForwarderWebSocketHandler;
 
 /**
@@ -30,6 +37,12 @@ public class PortForwarderController {
     private @Autowired ApplicationContext appContext;
     private @Autowired ConnectorProperties connectorProperties;
     private PortForwarderWebSocketHandler forwarderWebSocketHandler;
+    
+    @Autowired
+    private EquipmentGatewayServiceInterface equipmentGatewayServiceInterface;
+
+    @Autowired
+    private EquipmentServiceInterface equipmentServiceInterface;
 
     @RequestMapping(value = "/createSession/inventoryId/{inventoryId}/port/{port}/", method = RequestMethod.POST)
     public String createSession(@PathVariable String inventoryId, @PathVariable int port) {
@@ -71,6 +84,49 @@ public class PortForwarderController {
     public CloudServiceInformation getServerInformation() {
         return new CloudServiceInformation(connectorProperties.getExternalHostName(), connectorProperties.getExternalPort());
     }
+    
+    @RequestMapping(value = "/startAgent/inventoryId/{inventoryId}/", method = RequestMethod.POST)
+    public String startAgent(@PathVariable String inventoryId) {
+        LOG.debug("startAgent {}", inventoryId);
+
+        Equipment equipment = equipmentServiceInterface.getByInventoryIdOrNull(inventoryId);
+        if(equipment == null) {
+            throw new IllegalStateException("Cannot find equipment "+ inventoryId);
+        }
+
+        CEGWStartDebugEngine startAgentRequest = new CEGWStartDebugEngine(inventoryId, equipment.getId(),
+                connectorProperties.getExternalHostName(), connectorProperties.getExternalPort());
+
+        EquipmentCommandResponse cmdResponse = equipmentGatewayServiceInterface.sendCommand(startAgentRequest);
+        LOG.debug("startAgent Response {}", cmdResponse);
+        
+        String result = (cmdResponse.getResultCode() == CEGWCommandResultCode.Success) ? "success"
+                : ("Failure : " + cmdResponse.getResultCode() + " - " + cmdResponse.getResultDetail());
+
+        return result;
+    }
+
+    @RequestMapping(value = "/stopAgent/inventoryId/{inventoryId}/", method = RequestMethod.POST)
+    public String stopAgent(@PathVariable String inventoryId) {
+        LOG.debug("stopAgent {}", inventoryId);
+
+        Equipment equipment = equipmentServiceInterface.getByInventoryIdOrNull(inventoryId);
+        if(equipment == null) {
+            throw new IllegalStateException("Cannot find equipment "+ inventoryId);
+        }
+
+        CEGWStopDebugEngine stopAgentRequest = new CEGWStopDebugEngine(inventoryId, equipment.getId());
+
+        EquipmentCommandResponse cmdResponse = equipmentGatewayServiceInterface.sendCommand(stopAgentRequest);
+        LOG.debug("stopAgent Response {}", cmdResponse);
+        
+        String result = (cmdResponse.getResultCode() == CEGWCommandResultCode.Success) ? "success"
+                : ("Failure : " + cmdResponse.getResultCode() + " - " + cmdResponse.getResultDetail());
+
+        return result;
+
+    }
+
     
     private PortForwarderWebSocketHandler getForwarder() {
         if (forwarderWebSocketHandler == null) {
