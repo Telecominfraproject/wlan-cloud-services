@@ -42,5 +42,13 @@ public class PortForwarderGatewayLocal implements PortForwarderGatewayInterface 
         return portForwarderController.getServerInformation();
     }
     
+    @Override
+    public String startAgent(String inventoryId) {
+        return portForwarderController.startAgent(inventoryId);
+    }
 
+    @Override
+    public String stopAgent(String inventoryId) {
+        return portForwarderController.stopAgent(inventoryId);
+    }
 }
