@@ -6,7 +6,7 @@ public enum CEGWCommandType {
 	/**
 	 * Notification to CE for configuration change
 	 */
-	Unknown, ConfigChangeNotification, FirmwareDownloadRequest, StartDebugEngine, StopDebugEngine, FirmwareFlashRequest,
+	Unknown, ConfigChangeNotification, FirmwareDownloadRequest, ChangeRedirectorHost, StartDebugEngine, StopDebugEngine, FirmwareFlashRequest,
 	RebootRequest, BlinkRequest, CloseSessionRequest, NeighbourhoodReport, ClientDeauthRequest, CellSizeRequest,
 	NewChannelRequest, ReportCurrentAPCRequest, FileUpdateRequest, InterferenceThresholdUpdateRequest,
 	BestApConfigurationUpdateRequest,
