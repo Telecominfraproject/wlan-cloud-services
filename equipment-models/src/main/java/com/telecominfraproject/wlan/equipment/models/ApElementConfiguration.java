@@ -168,6 +168,9 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 		if (previousVersion instanceof ApElementConfiguration) {
 			ApElementConfiguration casted = (ApElementConfiguration) previousVersion;
 			return !Objects.equals(this, casted);
+		} else if (previousVersion instanceof Equipment) {
+			ApElementConfiguration casted = (ApElementConfiguration) ((Equipment) previousVersion).getDetails();
+			return !Objects.equals(this, casted);
 		}
 		return true;
 	}
