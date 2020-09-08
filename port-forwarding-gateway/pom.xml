@@ -31,6 +31,17 @@
             <groupId>com.telecominfraproject.wlan</groupId>
             <version>${tip-wlan-cloud.release.version}</version>
         </dependency>
+        <dependency>
+            <artifactId>status-service-interface</artifactId>
+            <groupId>com.telecominfraproject.wlan</groupId>
+            <version>${tip-wlan-cloud.release.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>cloud-event-dispatcher-interface</artifactId>
+            <groupId>com.telecominfraproject.wlan</groupId>
+            <version>${tip-wlan-cloud.release.version}</version>
+        </dependency>
+        
 		
 		<!-- websocket dependencies -->
 		<dependency>

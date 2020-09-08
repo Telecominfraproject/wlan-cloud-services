@@ -76,6 +76,10 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
             
             String token = Long.toString(System.currentTimeMillis()) + Long.toString(Math.round(1000000 * Math.random()));
             String encryptedToken = TokenUtils.encrypt(token, tokenEncryptionKey, TokenEncoder.Base62TokenEncoder);
+            // we're using @ symbol to append host name to the end of the local session Id,
+            // so here we're making sure that '@' does not appear in the local session Id
+            // and so that we can parse it out later
+            encryptedToken.replace("@", "A");
             forwarderSession.setSecurityToken(encryptedToken);
             
             final WebSocketSession webSocketSession = webSocketSessionMap.get(forwarderSession.getInventoryId());
@@ -288,6 +292,10 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
         sessionIdToForwarderSessionMap.remove(forwarderSession.getSessionId());
 
         LOG.info("[{}] Stopped forwarder session {}", forwarderSession.getInventoryId(), sessionId);
+    }
+    
+    public ForwarderSession getForwardingSession(String sessionId) {
+        return sessionIdToForwarderSessionMap.get(sessionId);
     }
     
     public List<String> getForwardingSessions(){
