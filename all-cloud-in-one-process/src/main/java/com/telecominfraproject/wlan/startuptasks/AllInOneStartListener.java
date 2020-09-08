@@ -5,6 +5,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
+import com.telecominfraproject.wlan.core.model.service.bonjour.BonjourService;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.models.CustomerDetails;
 import com.telecominfraproject.wlan.customer.models.EquipmentAutoProvisioningSettings;
@@ -62,6 +64,8 @@ import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
+import com.telecominfraproject.wlan.profile.bonjour.models.BonjourGatewayProfile;
+import com.telecominfraproject.wlan.profile.bonjour.models.BonjourServiceSet;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
@@ -314,7 +318,39 @@ public class AllInOneStartListener implements ApplicationRunner {
         captivePortalConfig.setUserAcceptancePolicy("Use this network at your own risk. No warranty of any kind.");
         profileCaptivePortal.setDetails(captivePortalConfig);
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
-
+        
+        //BonjourGateway profile
+        Profile bonjourProfile = new Profile();
+        bonjourProfile.setCustomerId(customer.getId());
+        bonjourProfile.setName("Bonjour-gateway");
+        bonjourProfile.setProfileType(ProfileType.bonjour);
+        BonjourGatewayProfile bonjourGatewayConfig = new BonjourGatewayProfile();
+        bonjourGatewayConfig.setProfileDescription("Bonjour Gateway Configuration for Design Testing");
+        BonjourServiceSet bonjourServiceSet = new BonjourServiceSet();
+        bonjourServiceSet.setVlanId((short)1);
+        bonjourServiceSet.addServiceName(BonjourService.SFTP.getServiceName());
+        bonjourServiceSet.addServiceName(BonjourService.SSH.getServiceName());
+        bonjourServiceSet.addServiceName(BonjourService.AirPort.getServiceName()); 
+        bonjourGatewayConfig.addBonjourServiceSet(bonjourServiceSet);
+        bonjourProfile.setDetails(bonjourGatewayConfig);
+        bonjourProfile = profileServiceInterface.create(bonjourProfile);
+        
+        
+        Profile profileSsid_3_radios_plusBonjour = new Profile();
+        profileSsid_3_radios_plusBonjour.setCustomerId(customer.getId());
+        profileSsid_3_radios_plusBonjour.setName("TipWlan-3-radios-bonjour");
+        profileSsid_3_radios_plusBonjour.setProfileType(ProfileType.ssid);
+        SsidConfiguration ssidConfig_3_radios_plusBonjour = SsidConfiguration.createWithDefaults();
+        ssidConfig_3_radios_plusBonjour.setBonjourGatewayProfileId(bonjourProfile.getId());
+        ssidConfig_3_radios_plusBonjour.setVlanId(1);
+        profileSsid_3_radios_plusBonjour.getChildProfileIds().add(bonjourProfile.getId());
+        // reuse from existing 3 radio applied
+        ssidConfig_3_radios_plusBonjour.setAppliedRadios(appliedRadios_3_radios);
+        ssidConfig_3_radios_plusBonjour.setSsid("TipWlan-3-radios-bonjour");
+        profileSsid_3_radios_plusBonjour.setDetails(ssidConfig_3_radios_plusBonjour);
+        profileSsid_3_radios_plusBonjour = profileServiceInterface.create(profileSsid_3_radios_plusBonjour);
+        
+        
         Profile profileAp_3_radios = new Profile();
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
@@ -573,7 +609,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         CustomerFirmwareTrackRecord customerTrack = new CustomerFirmwareTrackRecord(track.getRecordId(),
                 customer.getId());
         customerTrack.getSettings().setAutoUpgradeDeprecatedDuringMaintenance(TrackFlag.DEFAULT);
-        customerTrack.getSettings().setAutoUpgradeDeprecatedOnBind(TrackFlag.ALWAYS);
+        customerTrack.getSettings().setAutoUpgradeDeprecatedOnBind(TrackFlag.DEFAULT);
         customerTrack.getSettings().setAutoUpgradeUnknownDuringMaintenance(TrackFlag.DEFAULT);
         customerTrack.getSettings().setAutoUpgradeUnknownOnBind(TrackFlag.DEFAULT);
 
