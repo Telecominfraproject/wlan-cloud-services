@@ -1,0 +1,39 @@
+@startuml
+autonumber
+participant "Developer's\n Box" as dev_box
+participant "Port Forwarder\n Gateway" as fwd_gateway
+participant "OpenSync\n Gateway" as ce_gateway
+
+participant "Access Point" as ap
+
+activate dev_box
+
+dev_box -> fwd_gateway: REST API:\n Start port forwarding agent\n on dev-ap-0001
+fwd_gateway -> ce_gateway: REST API:\n Start port forwarding agent\n on dev-ap-0001
+ce_gateway -> ap: OpenSync:\n Open port forwarding connection
+ap -> ap: Start forwarding agent 
+fwd_gateway -> dev_box: return
+ap -> fwd_gateway: Websocket: connect
+
+deactivate dev_box  
+dev_box -> dev_box: Wait until Websocket session is established\n poll Port Forwarder Gateway\n using REST API: agentStatus
+
+activate dev_box
+... **after Websocket session is established** ...
+
+dev_box -> fwd_gateway: REST API: Create forwarding session for port 22 (SSH)
+fwd_gateway -> ap: Websocket: tell forwarding agent to\n connect to local AP port 22 (ssh)
+ap -> ap: connect to local port 22 (ssh) and\n move packets between local port \n22 and the websocket session
+fwd_gateway -> fwd_gateway: pick random port number to be used\n as forwarding port, and generate security\n token for the session  
+fwd_gateway -> fwd_gateway: Start listening on forwarding port
+fwd_gateway -> dev_box: return sessionId, security token and forwarding port
+deactivate dev_box
+
+dev_box -> dev_box: start customized SSHs 
+activate dev_box
+dev_box -> fwd_gateway: Connect to the forwarding port\n using SSH with security token.\n SSH is used as a SOCKS server\n to allow other connections to ride over it
+fwd_gateway -> fwd_gateway: move packets between\n the websocket session and the forwarding port
+deactivate dev_box
+... ** at this point the TCP packets are flowing between the developer's SSH and the AP - via the Port Forwarder Gateway ** ...
+
+@enduml
