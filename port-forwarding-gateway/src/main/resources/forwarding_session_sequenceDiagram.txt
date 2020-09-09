@@ -1,0 +1,114 @@
+@startuml
+participant "Developer\n Box" as dev_box
+
+box #LightBlue
+participant "Port Forwarder\n Gateway" as fwd_gateway
+participant "Socket on Forwarding\n Port" as fwd_port
+end box
+
+participant "OpenSync\n Gateway" as ce_gateway
+
+box "Access Point"
+participant "OpenSync" as opensync
+participant "Forwarding\n Agent" as fwd_agent
+participant "Socket\n on port 22" as ap_socket
+end box
+
+== Forwarding Session Initialization ==
+
+dev_box -> fwd_gateway: Start port forwarding session\n for ap-123 on port 22 
+fwd_gateway -> ce_gateway: Start port forwarding session\n for ap-123 on port 22
+ce_gateway -> opensync: Start forwarding agent
+opensync -> fwd_agent: Start agent
+activate fwd_agent
+fwd_agent -> fwd_gateway: connect via websocket
+deactivate fwd_agent
+
+fwd_gateway -> fwd_gateway: Start port forwarding session
+activate fwd_gateway
+fwd_gateway -> fwd_gateway: Generate security token
+fwd_gateway -> fwd_gateway: Allocate local forwarding port
+fwd_gateway -> fwd_port: Listen for incoming\n connections
+fwd_gateway -> fwd_gateway: Forwarding session id in the form:\n forwarding_port-security_token-ap_id-ap_port\ne.g.\n59842-1419872213412670181-dev-ap-0001-22
+deactivate fwd_gateway
+
+fwd_gateway -> dev_box: session id
+... **Wait for developer to connect with SSH to forwarding port** ...
+
+== Connecting with SSH ==
+
+[-> dev_box: start ssh
+activate dev_box
+dev_box -> fwd_port: connect and send security token
+fwd_port->fwd_gateway: verify security token
+fwd_gateway -> fwd_port: stop accepting new \nconnections on this port
+
+alt successful case
+fwd_gateway -> fwd_agent: websocket text message "connect_to_CE_port:22"
+activate fwd_agent
+fwd_agent -> ap_socket: connect
+fwd_agent -> fwd_gateway: websocket text message "connected_to_CE_port:22"
+deactivate fwd_agent
+
+[-> dev_box: outgoing\ntcp binary packet
+group process outgoing tcp packets
+dev_box -> fwd_port: tcp binary packet
+fwd_port -> fwd_gateway: read tcp packet
+fwd_gateway -> fwd_agent: websocket binary message\n"<4 bytes dest port><tcp binary packet>"
+activate fwd_agent
+fwd_agent -> fwd_agent: read websocket\n binary message
+fwd_agent -> fwd_agent: extract 4 bytes dest port\n and tcp binary packet
+fwd_agent -> ap_socket: forward tcp binary\n packet to dest port
+deactivate fwd_agent
+end
+
+group process incoming tcp packets
+ap_socket <-]: tcp packet
+fwd_agent <- ap_socket: read tcp packet 
+
+fwd_agent -> fwd_gateway: websocket binary message\n"<4 bytes src port><tcp binary packet>"
+activate fwd_gateway
+fwd_gateway -> fwd_gateway: read websocket\n binary message
+fwd_gateway -> fwd_gateway: extract 4 bytes src port\n and tcp binary packet
+fwd_gateway -> fwd_port: forward tcp binary\n packet
+fwd_port -> dev_box: tcp binary packet
+deactivate fwd_gateway
+end
+[<-dev_box: incoming\n tcp binary packet
+
+fwd_gateway -> dev_box: ssh session established
+
+else token mismatch
+fwd_gateway -> fwd_gateway: terminate forwarding session
+fwd_gateway -> dev_box: ssh session could not be established
+end
+
+deactivate dev_box
+
+== Forwarding Session Termination ==
+dev_box -> fwd_gateway: Stop port forwarding session\n for ap-123 on port 22 
+fwd_gateway -> fwd_gateway: Stop port forwarding session
+fwd_gateway -> fwd_agent: websocket text message "disconnect_from_CE_port:22"
+fwd_agent -> ap_socket: close socket
+fwd_agent -> fwd_gateway: websocket text message "disconnected_from_CE_port:22"
+fwd_gateway -> fwd_port: close socket
+
+== IO Error on Forwarding Port ==
+fwd_port -> fwd_gateway: IO Error
+fwd_gateway -> fwd_agent: websocket text message "disconnect_from_CE_port:22"
+activate fwd_agent
+fwd_agent -> ap_socket: close socket
+fwd_agent -> fwd_gateway: websocket text message "disconnected_from_CE_port:22"
+deactivate fwd_agent
+fwd_gateway -> fwd_port: close socket
+
+== IO Error on CE Port ==
+ap_socket -> fwd_agent: IO Error
+activate fwd_agent
+fwd_agent -> fwd_gateway: websocket text message "dropped_from_CE_port:22"
+fwd_agent -> ap_socket: close socket
+deactivate fwd_agent
+fwd_gateway -> fwd_port: close socket
+
+
+@enduml

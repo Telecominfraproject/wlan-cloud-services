@@ -1,0 +1,115 @@
+@startuml
+participant "Developer\n Box" as dev_box
+participant "Port Forwarder\n Gateway" as fwd_gateway
+participant "OpenSync\n Gateway" as ce_gateway
+
+participant "Equipment Status\n DataStore" as equipment_and_network_status_ds
+participant "System Event\n DataStore" as system_event_ds
+
+box "Access Point"
+participant "OpenSync" as opensync
+participant "Forwarding\n Agent" as fwd_agent
+participant "Abnormal\n Condition\n Watchdog" as fwd_agent_watchdog
+end box
+
+== Forwarding Agent Start On Command from developer ==
+
+dev_box -> fwd_gateway: Start\n port forwarding agent\n on dev-ap-0001
+
+alt OpenSync connection to OpenSync Gateway exists
+	fwd_gateway -> ce_gateway: Start\n port forwarding agent\n on dev-ap-0001
+	
+	ce_gateway -> opensync: Start forwarding agent
+	alt Forwarding agent is not yet running 
+		opensync -> fwd_agent: Start agent
+		opensync -> ce_gateway: Started agent
+		fwd_agent -> fwd_gateway: connect via websocket
+	else Forwarding agent already running
+		opensync -> ce_gateway: Agent was already started
+	else Error starting forwarding agent
+		opensync -> ce_gateway: Error Starting Forwarding Agent
+	end
+	
+	ce_gateway -> ce_gateway: wait for reply from opensync or timeout
+	alt Received reply from opensync
+		ce_gateway -> fwd_gateway: reply
+		fwd_gateway -> dev_box: reply
+	else Timeout
+		ce_gateway -> fwd_gateway: timeout
+		fwd_gateway -> dev_box: timeout
+	end
+else No OpenSync connection to OpenSync Gateway
+	fwd_gateway -> dev_box: no route to CE
+end
+
+dev_box -> fwd_gateway: Start\n port forwarding session\n User (certificate CN)=developer1 
+fwd_gateway -> fwd_gateway: Start port forwarding session\n User (certificate CN)=developer1
+alt Forwarding Agent is running and connected via websocket
+	fwd_gateway -> equipment_and_network_status_ds: Started forwarding session\n on dev-ap-0001,\n User (certificate CN)=developer1
+	fwd_gateway -> system_event_ds: Started forwarding session\n on dev-ap-0001\n, User (certificate CN)=developer1 
+	fwd_gateway -> fwd_gateway: Forwarding session id in the form:\n forwarding_port-security_token-ap_id-ap_port\ne.g.\n59842-1419872213412670181-dev-ap-0001-22
+	
+	fwd_gateway -> dev_box: session id
+	dev_box -> dev_box : start SSH session
+	dev_box -> fwd_gateway: connect SSH
+	fwd_gateway -> fwd_agent: forward SSH packets via websocket
+else  Forwarding Agent is NOT running or NOT connected via websocket
+	fwd_gateway -> fwd_gateway: cannot start forwarding session - agent is not running
+	fwd_gateway -> dev_box: cannot start\n forwarding session
+end
+
+== Forwarding Agent Start On Abnormal AP condition ==
+fwd_agent_watchdog -> fwd_agent_watchdog: detect abnormal condition
+fwd_agent_watchdog -> fwd_agent: are you running?
+alt Forwarding Agent is not running
+	 fwd_agent_watchdog -> fwd_agent: start
+	 fwd_agent -> fwd_gateway: connect via websocket
+	 fwd_agent -> fwd_agent: wait for forwarding session
+else Forwarding Agent is running
+	 fwd_agent_watchdog -> fwd_agent_watchdog: keep monitoring
+end	 
+
+== Normal Termination Of Forwarding Agent when SSH Session is stopped ==
+... **SSH session goes on** ...
+
+dev_box -> dev_box : stop SSH session
+dev_box -> fwd_gateway : disconnect socket
+fwd_gateway -> fwd_gateway : detect SSH session disconnect
+fwd_gateway -> equipment_and_network_status_ds: Stopped forwarding session\n on dev-ap-0001,\n User (certificate CN)=developer1
+fwd_gateway -> system_event_ds: Stopped forwarding session\n on dev-ap-0001,\n User (certificate CN)=developer1 
+fwd_gateway -> fwd_agent: send disconnect message via websocket
+fwd_agent -> fwd_agent: disconnect from local socket
+dev_box -> dev_box: wait 3 sec
+dev_box -> fwd_gateway: stop forwarding agent
+fwd_gateway -> ce_gateway: stop forwarding agent
+ce_gateway -> opensync: stop forwarding agent
+opensync -> fwd_agent: stop
+fwd_agent -> fwd_agent: stop
+
+== Behaviour of Forwarding Agent when websocket connection gets interrupted ==
+... **SSH session goes on** ...
+
+fwd_agent <-> fwd_gateway : broken socket connection
+fwd_gateway -> fwd_gateway : detect websocket disconnect
+fwd_gateway -> equipment_and_network_status_ds: Stopped forwarding session\n on dev-ap-0001,\n User (certificate CN)=developer1
+fwd_gateway -> system_event_ds: Stopped forwarding session\n on dev-ap-0001,\n User (certificate CN)=developer1
+fwd_gateway -> dev_box: disconnect SSH socket 
+dev_box -> dev_box : drop SSH session
+
+... **At the same time on AP side** ...
+
+fwd_agent -> fwd_agent : detect websocket disconnect
+fwd_agent -> fwd_agent: disconnect from local socket
+fwd_agent -> fwd_gateway: re-establish websocket connection
+fwd_agent -> fwd_agent: wait for new forwarding session
+
+== Termination Of Forwarding Agent when idle timeout is triggered ==
+fwd_agent -> fwd_gateway: establish websocket connection
+fwd_agent -> fwd_agent: wait for new forwarding session
+fwd_agent -> fwd_agent: No forwarding session \ncreated after N seconds
+fwd_agent -> fwd_agent: disconnect websocket 
+fwd_agent -> fwd_agent: stop forwarding agent
+
+
+
+@enduml
