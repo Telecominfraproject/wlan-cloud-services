@@ -1,24 +1,33 @@
 1. get source for open-ssh portable project (see https://www.openssh.com/portable.html)
-git clone https://github.com/openssh/openssh-portable
+$ git clone https://github.com/openssh/openssh-portable
+
 
 2. install autoconf package using mac ports
 port search --name --glob 'autoconf*'
 sudo port install autoconf
 
 3. build ssh
-autoreconf
-./configure
-make
+$ autoreconf
+-- running configure with no flags on mac produced the error: *** working libcrypto not found, check config.log
+-- $ ./configure 
+$ ./configure --with-ssl-dir=/opt/local
+$ make
 
+-- if it still fails, try installing openssl port
+-- $ sudo port install openssl
+-- if all else fails, try building openssl from scratch:
+--  see the following repo:
+-- $ git clone https://github.com/openssl/openssl
 
 4. change connect banner:
+The spec is located at http://www.ietf.org/rfc/rfc4253.txt
 --- ( thanks to YongLi for finding this ) ---
 section 4.2
       SSH-protoversion-softwareversion SP comments CR LF
 --- ---
 
 New place to edit:
-vim sshconnect.c 
+$ vim sshconnect.c 
 in ssh_login function - modify to include comments passed in from command line as per http://www.ietf.org/rfc/rfc4253.txt
 
 Original (~line 1291):
@@ -31,7 +40,8 @@ Modified:
     if ((r = kex_exchange_identification(ssh, timeout_ms, getenv("SSH_BANNER_COMMENTS") )) != 0)
         sshpkt_fatal(ssh, r, "banner exchange");
         
+5. re-build ssh with the code changes above
 
-5. use modified ssh:
+6. use modified ssh:
 
-export SSH_BANNER_COMMENTS="secret_token_123" ; /Users/user/openssh-src/openssh-portable/ssh -p 56425 user@127.0.0.1
+$ export SSH_BANNER_COMMENTS="secret_token_123" ; /Users/user/openssh-portable/ssh -p 56425 user@127.0.0.1
