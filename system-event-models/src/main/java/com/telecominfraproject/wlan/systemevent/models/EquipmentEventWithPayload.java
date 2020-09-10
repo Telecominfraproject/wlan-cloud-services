@@ -6,16 +6,17 @@ import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
 
 /**
  * @author dtoptygin
+ * @param <T>
  *
  */
-public abstract class EquipmentEvent extends CustomerEvent implements HasEquipmentId {
+public abstract class EquipmentEventWithPayload<T> extends CustomerEventWithPayload<T> implements HasEquipmentId {
 
     private static final long serialVersionUID = -3139345444294000637L;
 
     private long equipmentId;
 
-    protected EquipmentEvent(int customerId, long equipmentId, long eventTimestamp) {
-        super(customerId, eventTimestamp);
+    protected EquipmentEventWithPayload(int customerId, long equipmentId, long eventTimestamp, T payload) {
+        super(customerId, eventTimestamp, payload);
         this.equipmentId = equipmentId;
     }
 
@@ -28,8 +29,8 @@ public abstract class EquipmentEvent extends CustomerEvent implements HasEquipme
     }
 
     @Override
-    public EquipmentEvent clone() {
-        EquipmentEvent ret = (EquipmentEvent) super.clone();
+    public EquipmentEventWithPayload<T> clone() {
+        EquipmentEventWithPayload<T> ret = (EquipmentEventWithPayload<T>) super.clone();
         return ret;
     }
 
@@ -57,7 +58,8 @@ public abstract class EquipmentEvent extends CustomerEvent implements HasEquipme
             return false;
         }
 
-		EquipmentEvent other = (EquipmentEvent) obj;
+        @SuppressWarnings("unchecked")
+		EquipmentEventWithPayload<T> other = (EquipmentEventWithPayload<T>) obj;
         if (equipmentId != other.equipmentId) {
             return false;
         }

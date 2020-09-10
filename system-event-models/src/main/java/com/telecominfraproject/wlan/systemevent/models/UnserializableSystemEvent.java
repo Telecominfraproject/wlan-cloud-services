@@ -1,6 +1,6 @@
 package com.telecominfraproject.wlan.systemevent.models;
 
-public class UnserializableSystemEvent extends EquipmentEvent<String> {
+public class UnserializableSystemEvent extends EquipmentEventWithPayload<String> {
 
 	private static final long serialVersionUID = -4671657885329062531L;
 

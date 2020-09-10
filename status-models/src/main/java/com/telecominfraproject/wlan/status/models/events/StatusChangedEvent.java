@@ -1,13 +1,13 @@
 package com.telecominfraproject.wlan.status.models.events;
 
 import com.telecominfraproject.wlan.status.models.Status;
-import com.telecominfraproject.wlan.systemevent.models.EquipmentEvent;
+import com.telecominfraproject.wlan.systemevent.models.EquipmentEventWithPayload;
 
 /**
  * @author dtoptygin
  *
  */
-public class StatusChangedEvent extends EquipmentEvent<Status> {
+public class StatusChangedEvent extends EquipmentEventWithPayload<Status> {
     private static final long serialVersionUID = 7142209997917559985L;
 
     public StatusChangedEvent(Status status){

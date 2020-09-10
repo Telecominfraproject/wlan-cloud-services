@@ -2,7 +2,7 @@ package com.telecominfraproject.wlan.systemevent.models;
 
 import java.util.Objects;
 
-public class TestSystemEvent extends EquipmentEvent<String> {
+public class TestSystemEvent extends EquipmentEventWithPayload<String> {
     private static final long serialVersionUID = -2430769929028051157L;
 
     public TestSystemEvent(int customerId, long equipmentId, long eventTimestamp, String payload) {

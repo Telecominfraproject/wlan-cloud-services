@@ -1,13 +1,13 @@
 package com.telecominfraproject.wlan.portaluser.models.events;
 
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
-import com.telecominfraproject.wlan.systemevent.models.CustomerEvent;
+import com.telecominfraproject.wlan.systemevent.models.CustomerEventWithPayload;
 
 /**
  * @author dtoptygin
  *
  */
-public class PortalUserChangedEvent extends CustomerEvent<PortalUser> {
+public class PortalUserChangedEvent extends CustomerEventWithPayload<PortalUser> {
     private static final long serialVersionUID = 7142209997917559985L;
 
     public PortalUserChangedEvent(PortalUser portalUser){

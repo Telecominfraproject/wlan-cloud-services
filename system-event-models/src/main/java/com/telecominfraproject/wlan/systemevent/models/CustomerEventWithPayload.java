@@ -9,15 +9,17 @@ import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
  * @param <T> 
  *
  */
-public abstract class CustomerEvent extends SystemEvent implements HasCustomerId {
+public abstract class CustomerEventWithPayload<T> extends SystemEvent implements HasCustomerId {
 
     private static final long serialVersionUID = -6866253868015569466L;
     
     private int customerId;
+    private T payload;
 
-    protected CustomerEvent(int customerId, long eventTimestamp) {
+    protected CustomerEventWithPayload(int customerId, long eventTimestamp, T payload) {
         super(eventTimestamp);
         this.customerId = customerId;
+        this.payload = payload;
     }
     
     public int getCustomerId() {
@@ -28,10 +30,18 @@ public abstract class CustomerEvent extends SystemEvent implements HasCustomerId
         this.customerId = customerId;
     }
     
+    public T getPayload() {
+    	return payload;
+    }
+
+    public void setPayload(T payload) {
+    	this.payload = payload;
+    }
 
     @Override
-    public CustomerEvent clone() {
-		CustomerEvent ret = (CustomerEvent) super.clone();
+    public CustomerEventWithPayload<T> clone() {
+        @SuppressWarnings("unchecked")
+		CustomerEventWithPayload<T> ret = (CustomerEventWithPayload<T>) super.clone();
         
         return ret;
     }
@@ -49,10 +59,11 @@ public abstract class CustomerEvent extends SystemEvent implements HasCustomerId
         if (!super.equals(obj)) {
             return false;
         }
-        if (!(obj instanceof CustomerEvent)) {
+        if (!(obj instanceof CustomerEventWithPayload)) {
             return false;
         }
-		CustomerEvent other = (CustomerEvent) obj;
+        @SuppressWarnings("unchecked")
+		CustomerEventWithPayload<T> other = (CustomerEventWithPayload<T>) obj;
         if (customerId != other.customerId) {
             return false;
         }

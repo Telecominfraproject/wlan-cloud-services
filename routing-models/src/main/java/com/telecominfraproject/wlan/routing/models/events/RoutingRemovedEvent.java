@@ -1,13 +1,13 @@
 package com.telecominfraproject.wlan.routing.models.events;
 
 import com.telecominfraproject.wlan.routing.models.EquipmentRoutingRecord;
-import com.telecominfraproject.wlan.systemevent.models.EquipmentEvent;
+import com.telecominfraproject.wlan.systemevent.models.EquipmentEventWithPayload;
 
 /**
  * @author dtoptygin
  *
  */
-public class RoutingRemovedEvent extends EquipmentEvent<EquipmentRoutingRecord> {
+public class RoutingRemovedEvent extends EquipmentEventWithPayload<EquipmentRoutingRecord> {
     private static final long serialVersionUID = 7142208488887559985L;
 
     public RoutingRemovedEvent(EquipmentRoutingRecord routing){

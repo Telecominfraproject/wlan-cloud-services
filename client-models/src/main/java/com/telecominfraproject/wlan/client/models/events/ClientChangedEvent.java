@@ -1,13 +1,13 @@
 package com.telecominfraproject.wlan.client.models.events;
 
 import com.telecominfraproject.wlan.client.models.Client;
-import com.telecominfraproject.wlan.systemevent.models.CustomerEvent;
+import com.telecominfraproject.wlan.systemevent.models.CustomerEventWithPayload;
 
 /**
  * @author dtoptygin
  *
  */
-public class ClientChangedEvent extends CustomerEvent<Client> {
+public class ClientChangedEvent extends CustomerEventWithPayload<Client> {
     private static final long serialVersionUID = 7142209997917559985L;
 
     public ClientChangedEvent(Client client){
