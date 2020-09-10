@@ -106,7 +106,7 @@ public class PortForwarderController {
         ForwarderSession forwarderSession = getForwarder().getForwardingSession(localSessionId);
         
         if(forwarderSession==null){
-            throw new IllegalStateException("Could not find session" + localSessionId);
+            throw new IllegalStateException("Could not find session " + localSessionId);
         }
 
         getForwarder().stopForwarderSession(localSessionId);
