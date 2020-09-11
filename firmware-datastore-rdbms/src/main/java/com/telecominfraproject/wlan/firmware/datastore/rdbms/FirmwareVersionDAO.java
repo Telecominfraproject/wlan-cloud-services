@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -298,7 +299,7 @@ public class FirmwareVersionDAO extends BaseJdbcDao {
 
     public Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType() {
         List<FirmwareVersion> results = this.jdbcTemplate.query(SQL_GET_ALL, firmwareVersionRowMapper);
-        EnumMap<EquipmentType, List<FirmwareVersion>> resultMap = new EnumMap<>(EquipmentType.class);
+        Map<EquipmentType, List<FirmwareVersion>> resultMap = new HashMap<>();
         for (EquipmentType et : EquipmentType.values()) {
             resultMap.put(et, new ArrayList<>());
         }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 
 /**
@@ -81,6 +82,16 @@ public class ServiceMetricDataType implements EnumWithId {
     @Override
     public String getName() {
         return name;
+    }
+
+    @JsonIgnore
+    public String name() {
+        return name;
+    }
+
+    @JsonIgnore
+    public static ServiceMetricDataType[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new ServiceMetricDataType[0]);
     }
 
     public static ServiceMetricDataType getById(int enumId){

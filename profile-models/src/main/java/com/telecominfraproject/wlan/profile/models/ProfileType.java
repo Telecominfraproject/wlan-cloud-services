@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 
 /**
@@ -80,6 +81,16 @@ public class ProfileType implements EnumWithId {
     @Override
     public String getName() {
         return name;
+    }
+
+    @JsonIgnore
+    public String name() {
+        return name;
+    }
+
+    @JsonIgnore
+    public static ProfileType[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new ProfileType[0]);
     }
 
     public static ProfileType getById(int enumId){

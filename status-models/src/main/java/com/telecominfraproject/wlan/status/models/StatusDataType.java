@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 
 /**
@@ -116,6 +117,16 @@ public class StatusDataType implements EnumWithId {
     @Override
     public String getName() {
         return name;
+    }
+
+    @JsonIgnore
+    public String name() {
+        return name;
+    }
+
+    @JsonIgnore
+    public static StatusDataType[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new StatusDataType[0]);
     }
 
     public static StatusDataType getById(int enumId){

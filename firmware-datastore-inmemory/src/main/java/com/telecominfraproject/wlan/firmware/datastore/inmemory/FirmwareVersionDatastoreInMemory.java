@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.firmware.datastore.inmemory;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class FirmwareVersionDatastoreInMemory extends BaseInMemoryDatastore impl
     @Override
     public Map<EquipmentType, List<FirmwareVersion>> getAllGroupedByEquipmentType() {
     	
-        EnumMap<EquipmentType, List<FirmwareVersion>> resultMap = new EnumMap<>(EquipmentType.class);
+        Map<EquipmentType, List<FirmwareVersion>> resultMap = new HashMap<>();
         
         for (EquipmentType et : EquipmentType.values()) {
             resultMap.put(et, new ArrayList<>());
