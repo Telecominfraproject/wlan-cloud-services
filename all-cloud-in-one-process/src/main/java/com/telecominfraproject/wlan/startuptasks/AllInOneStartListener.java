@@ -1,9 +1,16 @@
 package com.telecominfraproject.wlan.startuptasks;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -39,6 +46,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
+import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
 import com.telecominfraproject.wlan.core.model.service.bonjour.BonjourService;
@@ -68,7 +76,12 @@ import com.telecominfraproject.wlan.profile.bonjour.models.BonjourGatewayProfile
 import com.telecominfraproject.wlan.profile.bonjour.models.BonjourServiceSet;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
+import com.telecominfraproject.wlan.profile.captiveportal.models.FileCategory;
+import com.telecominfraproject.wlan.profile.captiveportal.models.FileType;
+import com.telecominfraproject.wlan.profile.captiveportal.models.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
+import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
+import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
@@ -148,10 +161,10 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     @Value("${tip.wlan.numClientsPerApToCreateOnStartup:0}")
     private int numClientsPerApToCreateOnStartup;
-    
+
     @Value("${tip.wlan.numMetricsPerEquipmentToCreateOnStartup:5}")
     private int numMetricsPerEquipmentToCreateOnStartup;
-    
+
 
     @Override
     public void run(ApplicationArguments args) {
@@ -308,6 +321,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         Profile profileCaptivePortal = new Profile();
         profileCaptivePortal.setCustomerId(customer.getId());
         profileCaptivePortal.setName("Captive-portal");
+        profileCaptivePortal.setProfileType(ProfileType.captive_portal);
+
         CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
         captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
         captivePortalConfig.setBrowserTitle("Access the network as Guest");
@@ -316,10 +331,22 @@ public class AllInOneStartListener implements ApplicationRunner {
         captivePortalConfig.setName(profileCaptivePortal.getName());
         captivePortalConfig.setSuccessPageMarkdownText("Welcome to the network");
         captivePortalConfig.setUserAcceptancePolicy("Use this network at your own risk. No warranty of any kind.");
+
+        List<TimedAccessUserRecord> userList = new ArrayList<>();
+        constructCaptivePortalUserList(userList);
+        captivePortalConfig.setUserList(userList);
+
+        ManagedFileInfo info = new ManagedFileInfo();
+        info.setAltSlot(true);
+        info.setApExportUrl("userList");
+        info.setFileCategory(FileCategory.UsernamePasswordList);
+        info.setFileType(FileType.TEXT);
+        captivePortalConfig.setUsernamePasswordFile(info);
         profileCaptivePortal.setDetails(captivePortalConfig);
+
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
-        
-        //BonjourGateway profile
+
+        // BonjourGateway profile
         Profile bonjourProfile = new Profile();
         bonjourProfile.setCustomerId(customer.getId());
         bonjourProfile.setName("Bonjour-gateway");
@@ -327,15 +354,15 @@ public class AllInOneStartListener implements ApplicationRunner {
         BonjourGatewayProfile bonjourGatewayConfig = new BonjourGatewayProfile();
         bonjourGatewayConfig.setProfileDescription("Bonjour Gateway Configuration for Design Testing");
         BonjourServiceSet bonjourServiceSet = new BonjourServiceSet();
-        bonjourServiceSet.setVlanId((short)1);
+        bonjourServiceSet.setVlanId((short) 1);
         bonjourServiceSet.addServiceName(BonjourService.SFTP.getServiceName());
         bonjourServiceSet.addServiceName(BonjourService.SSH.getServiceName());
-        bonjourServiceSet.addServiceName(BonjourService.AirPort.getServiceName()); 
+        bonjourServiceSet.addServiceName(BonjourService.AirPort.getServiceName());
         bonjourGatewayConfig.addBonjourServiceSet(bonjourServiceSet);
         bonjourProfile.setDetails(bonjourGatewayConfig);
         bonjourProfile = profileServiceInterface.create(bonjourProfile);
-        
-        
+
+
         Profile profileSsid_3_radios_plusBonjour = new Profile();
         profileSsid_3_radios_plusBonjour.setCustomerId(customer.getId());
         profileSsid_3_radios_plusBonjour.setName("TipWlan-3-radios-bonjour");
@@ -349,13 +376,13 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_3_radios_plusBonjour.setSsid("TipWlan-3-radios-bonjour");
         profileSsid_3_radios_plusBonjour.setDetails(ssidConfig_3_radios_plusBonjour);
         profileSsid_3_radios_plusBonjour = profileServiceInterface.create(profileSsid_3_radios_plusBonjour);
-        
-        
+
+
         Profile profileAp_3_radios = new Profile();
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
         profileAp_3_radios.setDetails(ApNetworkConfiguration.createWithDefaults());
-	
+
         Map<RadioType, RadioProfileConfiguration> radioProfileMap_3_radios = new HashMap<>();
         radioProfileMap_3_radios.put(RadioType.is2dot4GHz,
                 RadioProfileConfiguration.createWithDefaults(RadioType.is2dot4GHz));
@@ -447,20 +474,20 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             String eqModel;
             switch (i % 4) {
-            case 0:
-                eqModel = "ea8300";
-                break;
-            case 1:
-                eqModel = "ecw5211";
-                break;
-            case 2:
-                eqModel = "ecw5410";
-                break;
-            case 3:
-                eqModel = "ap2220";
-                break;
-            default:
-                eqModel = "ap2220";
+                case 0:
+                    eqModel = "ea8300";
+                    break;
+                case 1:
+                    eqModel = "ecw5211";
+                    break;
+                case 2:
+                    eqModel = "ecw5410";
+                    break;
+                case 3:
+                    eqModel = "ap2220";
+                    break;
+                default:
+                    eqModel = "ap2220";
             }
             equipment.getDetails().setEquipmentModel(eqModel);
 
@@ -508,6 +535,116 @@ public class AllInOneStartListener implements ApplicationRunner {
             ssidProfiles.forEach(p -> ssidConfigs2.add((SsidConfiguration) p.getDetails()));
             LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
         }
+
+    }
+
+    protected void constructCaptivePortalUserList(List<TimedAccessUserRecord> userList) {
+
+        TimedAccessUserRecord userRecord1 = new TimedAccessUserRecord();
+        userRecord1.setActivationTime(System.currentTimeMillis());
+        userRecord1.setExpirationTime(System.currentTimeMillis() + 1000 * 60 * 60 * 8); // 8
+        // hr
+        userRecord1.setPassword("testing123");
+        userRecord1.setUsername("customer");
+        TimedAccessUserDetails userDetails1 = new TimedAccessUserDetails();
+        userDetails1.setFirstName("Pac");
+        userDetails1.setLastName("Man");
+        userDetails1.setPasswordNeedsReset(false);
+        userRecord1.setUserDetails(userDetails1);
+        userRecord1.setNumDevices(1);
+
+        MacAddress macAddress = new MacAddress("7C:AB:60:E6:EA:4E");
+        List<MacAddress> userMacAddresses1 = new ArrayList<>();
+        userMacAddresses1.add(macAddress);
+        userRecord1.setUserMacAddresses(userMacAddresses1);
+        userList.add(userRecord1);
+
+        TimedAccessUserRecord userRecord2 = new TimedAccessUserRecord();
+        userRecord2.setActivationTime(System.currentTimeMillis());
+        userRecord2.setExpirationTime(System.currentTimeMillis() + 1000 * 60 * 60); // 1
+                                                                                    // hr
+        userRecord2.setPassword("testing123");
+        userRecord2.setUsername("customer");
+        TimedAccessUserDetails userDetails2 = new TimedAccessUserDetails();
+        userDetails2.setFirstName("Q");
+        userDetails2.setLastName("Bert");
+        userDetails2.setPasswordNeedsReset(false);
+        userRecord2.setUserDetails(userDetails2);
+
+        MacAddress macAddress2 = new MacAddress("C0:9A:D0:76:A8:68");
+        List<MacAddress> userMacAddresses2 = new ArrayList<>();
+
+        userMacAddresses2.add(macAddress2);
+        userRecord2.setUserMacAddresses(userMacAddresses2);
+        userList.add(userRecord2);
+
+        TimedAccessUserRecord userRecord3 = new TimedAccessUserRecord();
+        userRecord3.setActivationTime(System.currentTimeMillis());
+        userRecord3.setExpirationTime(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7); // 1
+        // week
+        userRecord3.setPassword("testing1234");
+        userRecord3.setUsername("customer2");
+        TimedAccessUserDetails userDetails3 = new TimedAccessUserDetails();
+        userDetails3.setFirstName("Duke");
+        userDetails3.setLastName("Nukem");
+        userDetails3.setPasswordNeedsReset(false);
+        userRecord3.setUserDetails(userDetails3);
+        userRecord3.setNumDevices(1);
+
+        MacAddress macAddress3 = new MacAddress("7C:AB:60:E6:EA:4D");
+        List<MacAddress> userMacAddresses3 = new ArrayList<>();
+        userMacAddresses3.add(macAddress3);
+        userRecord3.setUserMacAddresses(userMacAddresses3);
+        userList.add(userRecord3);
+
+        TimedAccessUserRecord userRecord4 = new TimedAccessUserRecord();
+        userRecord4.setActivationTime(System.currentTimeMillis());
+        userRecord4.setExpirationTime(System.currentTimeMillis() + 1000 * 60 * 60 * 24); // 1
+        // day
+        userRecord4.setPassword("testing1234");
+        userRecord4.setUsername("customer2");
+        TimedAccessUserDetails userDetails4 = new TimedAccessUserDetails();
+        userDetails4.setFirstName("Missile");
+        userDetails4.setLastName("Commander");
+        userDetails4.setPasswordNeedsReset(false);
+        userRecord4.setUserDetails(userDetails4);
+
+        MacAddress macAddress4 = new MacAddress("C0:9A:D0:76:A8:63");
+        List<MacAddress> userMacAddresses4 = new ArrayList<>();
+
+        userMacAddresses4.add(macAddress4);
+        userRecord4.setUserMacAddresses(userMacAddresses4);
+        userList.add(userRecord4);
+
+
+        Path path = Paths.get("/tmp/tip-wlan-filestore/userList");
+
+        try {
+            Files.deleteIfExists(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for (TimedAccessUserRecord userRecord : userList) {
+
+            byte[] bytes = ("username=" + userRecord.getUsername() + ", password=" + userRecord.getPassword()
+                    + ", firstname=" + userRecord.getUserDetails().getFirstName() + ", lastname="
+                    + userRecord.getUserDetails().getLastName() + System.lineSeparator()).getBytes();
+            try {
+                Files.write(path, bytes, StandardOpenOption.APPEND);
+                System.out.println("Successfully written data to the file");
+            } catch (NoSuchFileException e) {
+                try {
+                    Files.write(path, bytes);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+
+        }    
 
     }
 
@@ -614,7 +751,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         customerTrack.getSettings().setAutoUpgradeUnknownOnBind(TrackFlag.DEFAULT);
 
         customerTrack = firmwareInterface.createCustomerFirmwareTrackRecord(customerTrack);
-        
+
     }
 
     private void createDashboardStatus(Customer customer, List<Equipment> equipmentList) {
@@ -685,28 +822,28 @@ public class AllInOneStartListener implements ApplicationRunner {
     private void createServiceMetrics(Equipment equipment) {
         List<ServiceMetric> metricRecordList = new ArrayList<>();
 
-        for(int mCnt=0; mCnt<numMetricsPerEquipmentToCreateOnStartup; mCnt++) {
+        for (int mCnt = 0; mCnt < numMetricsPerEquipmentToCreateOnStartup; mCnt++) {
             ServiceMetric smr = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
             metricRecordList.add(smr);
-    
+
             ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
             smr.setDetails(apNodeMetrics);
             ApPerformance apPerformance = new ApPerformance();
             apNodeMetrics.setApPerformance(apPerformance);
-    
-            smr.setCreatedTimestamp(System.currentTimeMillis() - mCnt*60000);
+
+            smr.setCreatedTimestamp(System.currentTimeMillis() - mCnt * 60000);
             apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
             apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
             apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
-    
+
             apPerformance.setCpuTemperature(getRandomInt(25, 90));
             apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98) });
-    
+
             apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
-    
+
             apPerformance.setFreeMemory(getRandomInt(30000000, 70000000));
             apPerformance.setUpTime(getRandomLong(30000000, 70000000));
-    
+
             apNodeMetrics.setRxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
             apNodeMetrics.setTxBytes(RadioType.is2dot4GHz, getRandomLong(1000000, 10000000));
             apNodeMetrics.setRxBytes(RadioType.is5GHzL, getRandomLong(1000000, 10000000));
@@ -714,11 +851,11 @@ public class AllInOneStartListener implements ApplicationRunner {
             apNodeMetrics.setRxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
             apNodeMetrics.setTxBytes(RadioType.is5GHzU, getRandomLong(1000000, 10000000));
             apNodeMetrics.setPeriodLengthSec(60);
-    
+
             apNodeMetrics.setNoiseFloor(RadioType.is2dot4GHz, Integer.valueOf(-98));
             apNodeMetrics.setNoiseFloor(RadioType.is5GHzL, Integer.valueOf(-98));
             apNodeMetrics.setNoiseFloor(RadioType.is5GHzU, Integer.valueOf(-98));
-    
+
             List<MacAddress> clientMacAddresses_2g = new ArrayList<>();
             for (int i = 0; i < 6; i++) {
                 MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
@@ -726,7 +863,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMacAddresses_2g.add(macAddress);
             }
             apNodeMetrics.setClientMacAddresses(RadioType.is2dot4GHz, clientMacAddresses_2g);
-    
+
             List<MacAddress> clientMacAddresses_5gl = new ArrayList<>();
             for (int i = 0; i < 6; i++) {
                 MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
@@ -734,7 +871,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMacAddresses_5gl.add(macAddress);
             }
             apNodeMetrics.setClientMacAddresses(RadioType.is5GHzL, clientMacAddresses_5gl);
-    
+
             List<MacAddress> clientMacAddresses_5gu = new ArrayList<>();
             for (int i = 0; i < 6; i++) {
                 MacAddress macAddress = new MacAddress(new byte[] { 0x74, (byte) 0x9C, getRandomByte(), getRandomByte(),
@@ -742,46 +879,46 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMacAddresses_5gu.add(macAddress);
             }
             apNodeMetrics.setClientMacAddresses(RadioType.is5GHzU, clientMacAddresses_5gu);
-    
+
             apNodeMetrics.setRadioUtilization(RadioType.is2dot4GHz, new ArrayList<>());
             apNodeMetrics.setRadioUtilization(RadioType.is5GHzL, new ArrayList<>());
             apNodeMetrics.setRadioUtilization(RadioType.is5GHzU, new ArrayList<>());
-    
+
             int numRadioUtilReports = getRandomInt(5, 10);
-    
+
             for (int i = 0; i < numRadioUtilReports; i++) {
                 RadioUtilization radioUtil = new RadioUtilization();
                 int surveyDurationMs = getRandomInt(5000, 10000);
                 int busyTx = getRandomInt(0, surveyDurationMs / 3);
                 int busyRx = getRandomInt(0, surveyDurationMs / 3);
                 int busy = getRandomInt(busyTx + busyRx, surveyDurationMs);
-    
+
                 radioUtil.setTimestampSeconds((int) ((smr.getCreatedTimestamp() - surveyDurationMs) / 1000));
                 radioUtil.setAssocClientTx(100 * busyTx / surveyDurationMs);
                 radioUtil.setAssocClientRx(100 * busyRx / surveyDurationMs);
                 radioUtil.setNonWifi(100 * (busy - busyTx - busyRx) / surveyDurationMs);
-    
+
                 switch (i % 3) {
-                case 0:
-                    apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
-                    break;
-                case 1:
-                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
-                    break;
-                case 2:
-                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
-                    break;
-                default:
-                    // do nothing
+                    case 0:
+                        apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
+                        break;
+                    case 1:
+                        apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
+                        break;
+                    case 2:
+                        apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
+                        break;
+                    default:
+                        // do nothing
                 }
             }
-            
-            //now create sample ClientMetrics for this equipment
-            
-            for(MacAddress clientMac: clientMacAddresses_2g) {
+
+            // now create sample ClientMetrics for this equipment
+
+            for (MacAddress clientMac : clientMacAddresses_2g) {
                 ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
                 metricRecordList.add(smrClient);
-        
+
                 ClientMetrics clientMetrics = new ClientMetrics();
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
@@ -789,7 +926,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is2dot4GHz);
-                
+
                 clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
@@ -803,11 +940,11 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMetrics.setRssi(getRandomInt(20, 70));
 
             }
-            
-            for(MacAddress clientMac: clientMacAddresses_5gl) {
+
+            for (MacAddress clientMac : clientMacAddresses_5gl) {
                 ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
                 metricRecordList.add(smrClient);
-        
+
                 ClientMetrics clientMetrics = new ClientMetrics();
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
@@ -815,7 +952,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzL);
-                
+
                 clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
@@ -829,34 +966,34 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMetrics.setRssi(getRandomInt(20, 70));
 
             }
-        
-            for(MacAddress clientMac: clientMacAddresses_5gu) {
+
+            for (MacAddress clientMac : clientMacAddresses_5gu) {
                 ServiceMetric smrClient = new ServiceMetric(equipment.getCustomerId(), equipment.getId());
                 metricRecordList.add(smrClient);
-        
+
                 ClientMetrics clientMetrics = new ClientMetrics();
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
-    
+
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzU);
-                
+
                 clientMetrics.setNumRxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
                 clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
-    
+
                 clientMetrics.setSessionId(getRandomLong(3000000, 7000000));
-    
+
                 clientMetrics.setTxRetries(getRandomInt(30, 70));
                 clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
                 clientMetrics.setSnr(getRandomInt(-70, -30));
                 clientMetrics.setRssi(getRandomInt(20, 70));
-    
+
             }
         }
-        
+
         serviceMetricInterface.create(metricRecordList);
     }
 
@@ -885,17 +1022,17 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             int idx = (int) (macAddress.getAddressAsLong() % 3);
             switch (idx) {
-            case 0:
-                radioType = RadioType.is2dot4GHz;
-                break;
-            case 1:
-                radioType = RadioType.is5GHzL;
-                break;
-            case 2:
-                radioType = RadioType.is5GHzU;
-                break;
-            default:
-                radioType = RadioType.is5GHzL;
+                case 0:
+                    radioType = RadioType.is2dot4GHz;
+                    break;
+                case 1:
+                    radioType = RadioType.is5GHzL;
+                    break;
+                case 2:
+                    radioType = RadioType.is5GHzU;
+                    break;
+                default:
+                    radioType = RadioType.is5GHzL;
             }
 
             clientSession = new ClientSession();

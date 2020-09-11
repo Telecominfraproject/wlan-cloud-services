@@ -10,7 +10,8 @@ public enum FileType
 {
     PNG(".png"),
     JPG(".jpg"),
-    PROTOBUF(".pb");
+    PROTOBUF(".pb"),
+    TEXT(".txt");
     
     private final String extension;
     
