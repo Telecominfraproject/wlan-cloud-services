@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.alarm.models;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +12,7 @@ public class AlarmCounts extends BaseJsonModel {
 	
 	private int customerId;
 	private Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap = new HashMap<>();
-	private Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap = new EnumMap<>(AlarmCode.class);
+	private Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap = new HashMap<>();
 	
 	public int getCustomerId() {
 		return customerId;
@@ -47,7 +46,7 @@ public class AlarmCounts extends BaseJsonModel {
 			//update per-equipmentId counts only for real equipmentIds
 			Map<AlarmCode, AtomicInteger> perEquipmentMap = countsPerEquipmentIdMap.get(equipmentId);
 			if(perEquipmentMap == null) {
-				perEquipmentMap = new EnumMap<>(AlarmCode.class);
+				perEquipmentMap = new HashMap<>();
 				countsPerEquipmentIdMap.put(equipmentId, perEquipmentMap);
 			}
 			

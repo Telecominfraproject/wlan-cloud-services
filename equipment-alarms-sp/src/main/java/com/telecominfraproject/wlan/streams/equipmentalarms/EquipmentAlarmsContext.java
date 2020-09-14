@@ -106,34 +106,26 @@ public class EquipmentAlarmsContext {
 		AtomicInteger count = new AtomicInteger();
 		
 		//check alarms against thresholds
-		switch(alarmCode) {
-		case AccessPointIsUnreachable:
+		if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
 			ret = cpuUtilSamples.isEmpty();
-			break;
-		case CPUTemperature:
+		} else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
 				ret = avg >= temperatureThresholdInC ;
 			} 
-			break;
-		case CPUUtilization:
+		} else if(alarmCode.getId() == AlarmCode.CPUUtilization.getId()) {
 			cpuUtilSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
 				ret = avg >= cpuUtilThresholdPct ;
 			} 
-			break;
-		case MemoryUtilization:
+		} else if(alarmCode.getId() == AlarmCode.MemoryUtilization.getId()) {
 			memoryUtilSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
 				ret = avg >= memoryUtilThresholdPct ;
 			} 
-			break;			
-		default:
-				//do nothing
-				break;
 		}
 		
 		return ret;
@@ -151,11 +143,9 @@ public class EquipmentAlarmsContext {
 		AtomicInteger count = new AtomicInteger();
 		
 		//check alarms against thresholds
-		switch(alarmCode) {
-		case AccessPointIsUnreachable:
+        if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
 			ret = !cpuUtilSamples.isEmpty();
-			break;
-		case CPUTemperature:
+        } else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
@@ -164,8 +154,7 @@ public class EquipmentAlarmsContext {
 				//no new data available, but the alarm exists -> clear the alarm
 				ret = true;
 			}
-			break;
-		case CPUUtilization:
+        } else if(alarmCode.getId() == AlarmCode.CPUUtilization.getId()) {
 			cpuUtilSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
@@ -174,8 +163,7 @@ public class EquipmentAlarmsContext {
 				//no new data available, but the alarm exists -> clear the alarm
 				ret = true;
 			} 
-			break;
-		case MemoryUtilization:
+        } else if(alarmCode.getId() == AlarmCode.MemoryUtilization.getId()) {
 			memoryUtilSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
 				int avg = sum.get() / count.get();
@@ -184,10 +172,6 @@ public class EquipmentAlarmsContext {
 				//no new data available, but the alarm exists -> clear the alarm
 				ret = true;
 			} 
-			break;			
-		default:
-				//do nothing
-				break;
 		}
 		
 		return ret;

@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.alarm.models;
 
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.telecominfraproject.wlan.status.models.StatusCode;
 
@@ -9,7 +10,7 @@ import com.telecominfraproject.wlan.status.models.StatusCode;
  *
  */
 public class AlarmCodeToSeverityMap {
-    private static EnumMap<AlarmCode,StatusCode> mapping = new EnumMap<>(AlarmCode.class);
+    private static Map<AlarmCode,StatusCode> mapping = new HashMap<>();
 
     static {
 
