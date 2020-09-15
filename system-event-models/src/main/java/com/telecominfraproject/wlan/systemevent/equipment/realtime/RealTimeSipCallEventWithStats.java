@@ -70,18 +70,18 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     }
 
     public boolean hasValidSipCallId() {
-        return sipCallId != null && sipCallId != 0;
+        return (sipCallId != null) && (sipCallId != 0);
     }
 
     public boolean hasValidAssociationId() {
-        return associationId != null && associationId != 0;
+        return (associationId != null) && (associationId != 0);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(associationId, macAddress, sipCallId, statuses);
+        result = (prime * result) + Objects.hash(associationId, macAddress, sipCallId, statuses);
         return result;
     }
 
@@ -105,8 +105,8 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     public RealTimeSipCallEventWithStats clone() {
         RealTimeSipCallEventWithStats result = (RealTimeSipCallEventWithStats) super.clone();
         if (result.statuses != null) {
-            result.statuses = new ArrayList<>(this.statuses.size());
-            for (RtpFlowStats status : this.statuses) {
+            result.statuses = new ArrayList<>(statuses.size());
+            for (RtpFlowStats status : statuses) {
                 result.statuses.add(status.clone());
             }
         }

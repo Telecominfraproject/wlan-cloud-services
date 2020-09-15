@@ -43,7 +43,7 @@ public class RealTimeSipCallStopEvent extends RealTimeSipCallEventWithStats {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(callDuration, reason);
+        result = (prime * result) + Objects.hash(callDuration, reason);
         return result;
     }
 
@@ -59,9 +59,9 @@ public class RealTimeSipCallStopEvent extends RealTimeSipCallEventWithStats {
             return false;
         }
         RealTimeSipCallStopEvent other = (RealTimeSipCallStopEvent) obj;
-        return Objects.equals(callDuration, other.callDuration) && this.reason == other.reason;
+        return Objects.equals(callDuration, other.callDuration) && (reason == other.reason);
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -72,6 +72,6 @@ public class RealTimeSipCallStopEvent extends RealTimeSipCallEventWithStats {
         }
         return false;
     }
-    
+
 
 }

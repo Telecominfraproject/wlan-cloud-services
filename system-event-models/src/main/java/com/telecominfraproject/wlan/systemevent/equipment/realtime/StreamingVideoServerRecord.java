@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 public class StreamingVideoServerRecord extends BaseJsonModel {
+
     /**
      * 
      */
@@ -86,9 +87,7 @@ public class StreamingVideoServerRecord extends BaseJsonModel {
 
     @Override
     public boolean hasUnsupportedValue() {
-        if (super.hasUnsupportedValue()) {
-            return true;
-        } else if (this.type != null && StreamingVideoType.isUnsupported(this.type)) {
+        if (super.hasUnsupportedValue() || ((type != null) && StreamingVideoType.isUnsupported(type))) {
             return true;
         }
 
@@ -99,30 +98,37 @@ public class StreamingVideoServerRecord extends BaseJsonModel {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + customerId;
-        result = prime * result + (int) (equipmentId ^ (equipmentId >>> 32));
-        result = prime * result + ((ipAddr == null) ? 0 : ipAddr.hashCode());
+        result = (prime * result) + customerId;
+        result = (prime * result) + (int) (equipmentId ^ (equipmentId >>> 32));
+        result = (prime * result) + ((ipAddr == null) ? 0 : ipAddr.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         StreamingVideoServerRecord other = (StreamingVideoServerRecord) obj;
-        if (customerId != other.customerId)
+        if (customerId != other.customerId) {
             return false;
-        if (equipmentId != other.equipmentId)
+        }
+        if (equipmentId != other.equipmentId) {
             return false;
+        }
         if (ipAddr == null) {
-            if (other.ipAddr != null)
+            if (other.ipAddr != null) {
                 return false;
-        } else if (!ipAddr.equals(other.ipAddr))
+            }
+        } else if (!ipAddr.equals(other.ipAddr)) {
             return false;
+        }
         return true;
     }
 

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 public class RtpFlowStats extends BaseJsonModel {
+
     /**
      * Raw value contains 1 bit flag and 7 bit block PT, only use when Primary
      * CODEC is redundant (RFC2198)
@@ -16,6 +17,7 @@ public class RtpFlowStats extends BaseJsonModel {
      *
      */
     public static class RTPBlockCodec extends BaseJsonModel {
+
         /**
          * 
          */
@@ -31,13 +33,13 @@ public class RtpFlowStats extends BaseJsonModel {
         }
 
         public RTPBlockCodec(int raw) {
-            this.rawValue = raw;
+            rawValue = raw;
         }
 
         public RTPBlockCodec(boolean isLast, int codec) {
-            this.rawValue = (ptValueMask & codec);
+            rawValue = (ptValueMask & codec);
             if (!isLast) {
-                this.rawValue |= firstBitMask;
+                rawValue |= firstBitMask;
             }
         }
 
@@ -87,7 +89,7 @@ public class RtpFlowStats extends BaseJsonModel {
     private Integer mosMultipliedBy100;
     private byte[] blockCodecs;
     /**
-     * Total number of RTP packet 
+     * Total number of RTP packet
      */
     private Integer totalPacket;
     /**
@@ -95,29 +97,34 @@ public class RtpFlowStats extends BaseJsonModel {
      */
     private Integer totalPacketLost;
     /**
-     * First sequence number for RTP packet, used to calculate consecutive packet lost during Roaming.
+     * First sequence number for RTP packet, used to calculate consecutive
+     * packet lost during Roaming.
      */
     private Integer firstRTPSeq;
     /**
-     * Last sequence number for RTP packet, used to calculate consecutive packet lost during Roaming.
+     * Last sequence number for RTP packet, used to calculate consecutive packet
+     * lost during Roaming.
      */
     private Integer lastRTPSeq;
-    
+
     private Integer statsIndex;
 
     public RtpFlowStats() {
         // nothing
     }
 
+    @Override
     public RtpFlowStats clone() {
         RtpFlowStats result = (RtpFlowStats) super.clone();
         if (null != result.blockCodecs) {
-            result.blockCodecs = Arrays.copyOf(this.blockCodecs, this.blockCodecs.length);
+            result.blockCodecs = Arrays.copyOf(blockCodecs, blockCodecs.length);
         }
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -227,7 +234,7 @@ public class RtpFlowStats extends BaseJsonModel {
      * @return raw value
      */
     public byte[] getBlockCodecs() {
-        return this.blockCodecs;
+        return blockCodecs;
     }
 
     @JsonIgnore
@@ -244,11 +251,11 @@ public class RtpFlowStats extends BaseJsonModel {
 
     @JsonIgnore
     public List<RTPBlockCodec> getDecodedBlockCodecs() {
-        if (null == this.blockCodecs) {
+        if (null == blockCodecs) {
             return Collections.emptyList();
         }
-        List<RTPBlockCodec> result = new ArrayList<>(this.blockCodecs.length);
-        for (byte raw : this.blockCodecs) {
+        List<RTPBlockCodec> result = new ArrayList<>(blockCodecs.length);
+        for (byte raw : blockCodecs) {
             result.add(new RTPBlockCodec(raw));
         }
         return result;
@@ -282,27 +289,29 @@ public class RtpFlowStats extends BaseJsonModel {
         return packetLossPercentage;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(blockCodecs);
-        result = prime * result + ((codec == null) ? 0 : codec.hashCode());
-        result = prime * result + ((direction == null) ? 0 : direction.hashCode());
-        result = prime * result + ((firstRTPSeq == null) ? 0 : firstRTPSeq.hashCode());
-        result = prime * result + ((flowType == null) ? 0 : flowType.hashCode());
-        result = prime * result + ((jitter == null) ? 0 : jitter.hashCode());
-        result = prime * result + ((lastRTPSeq == null) ? 0 : lastRTPSeq.hashCode());
-        result = prime * result + ((latency == null) ? 0 : latency.hashCode());
-        result = prime * result + ((mosMultipliedBy100 == null) ? 0 : mosMultipliedBy100.hashCode());
-        result = prime * result + ((packetLossConsecutive == null) ? 0 : packetLossConsecutive.hashCode());
-        result = prime * result + ((packetLossPercentage == null) ? 0 : packetLossPercentage.hashCode());
-        result = prime * result + ((statsIndex == null) ? 0 : statsIndex.hashCode());
-        result = prime * result + ((totalPacket == null) ? 0 : totalPacket.hashCode());
-        result = prime * result + ((totalPacketLost == null) ? 0 : totalPacketLost.hashCode());
+        result = (prime * result) + Arrays.hashCode(blockCodecs);
+        result = (prime * result) + ((codec == null) ? 0 : codec.hashCode());
+        result = (prime * result) + ((direction == null) ? 0 : direction.hashCode());
+        result = (prime * result) + ((firstRTPSeq == null) ? 0 : firstRTPSeq.hashCode());
+        result = (prime * result) + ((flowType == null) ? 0 : flowType.hashCode());
+        result = (prime * result) + ((jitter == null) ? 0 : jitter.hashCode());
+        result = (prime * result) + ((lastRTPSeq == null) ? 0 : lastRTPSeq.hashCode());
+        result = (prime * result) + ((latency == null) ? 0 : latency.hashCode());
+        result = (prime * result) + ((mosMultipliedBy100 == null) ? 0 : mosMultipliedBy100.hashCode());
+        result = (prime * result) + ((packetLossConsecutive == null) ? 0 : packetLossConsecutive.hashCode());
+        result = (prime * result) + ((packetLossPercentage == null) ? 0 : packetLossPercentage.hashCode());
+        result = (prime * result) + ((statsIndex == null) ? 0 : statsIndex.hashCode());
+        result = (prime * result) + ((totalPacket == null) ? 0 : totalPacket.hashCode());
+        result = (prime * result) + ((totalPacketLost == null) ? 0 : totalPacketLost.hashCode());
         return result;
     }
 
@@ -381,7 +390,7 @@ public class RtpFlowStats extends BaseJsonModel {
     public void setStatsIndex(Integer statsIndex) {
         this.statsIndex = statsIndex;
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -393,5 +402,5 @@ public class RtpFlowStats extends BaseJsonModel {
         }
         return false;
     }
-    
+
 }

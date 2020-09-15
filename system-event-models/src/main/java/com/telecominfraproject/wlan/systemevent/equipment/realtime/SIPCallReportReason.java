@@ -8,19 +8,20 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
  *
  */
 public enum SIPCallReportReason {
+
     /**
-     * Report of a roaming away from an existing AP.
-     * Report message contains the statistics gathered on the existing AP.
+     * Report of a roaming away from an existing AP. Report message contains the
+     * statistics gathered on the existing AP.
      */
     ROAMED_FROM,
     /**
-     * Report of a roaming into a new AP.
-     * Report message contains WiFi association id only.
+     * Report of a roaming into a new AP. Report message contains WiFi
+     * association id only.
      */
     ROAMED_TO,
     /**
-     * Report the MOS from SIP publish.
-     * Report message contains the MOS from SIP publish message
+     * Report the MOS from SIP publish. Report message contains the MOS from SIP
+     * publish message
      */
     GOT_PUBLISH,
 

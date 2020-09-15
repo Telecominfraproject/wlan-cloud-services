@@ -15,7 +15,7 @@ public class RealTimeEventType implements EnumWithId {
     private static Object lock = new Object();
     private static final Map<Integer, RealTimeEventType> ELEMENTS = new ConcurrentHashMap<>();
     private static final Map<String, RealTimeEventType> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
-    
+
     public static final RealTimeEventType RRM_Cell_Size = new RealTimeEventType(1, "RRM_Cell_Size"),
             STA_Client_Auth = new RealTimeEventType(2, "STA_Client_Auth"),
             STA_Client_Assoc = new RealTimeEventType(3, "STA_Client_Assoc"),

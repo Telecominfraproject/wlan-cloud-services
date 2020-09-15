@@ -6,6 +6,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
 public abstract class RealTimeEvent extends SystemEvent {
+
     /**
      * 
      */
@@ -34,13 +35,13 @@ public abstract class RealTimeEvent extends SystemEvent {
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.eventType = eventType;
-        this.eventTimestamp = timestamp;
+        eventTimestamp = timestamp;
     }
 
     protected RealTimeEvent(RealTimeEventType eventType, Long timestamp) {
         super(timestamp);
         this.eventType = eventType;
-        this.eventTimestamp = timestamp;
+        eventTimestamp = timestamp;
     }
 
     @Override
@@ -60,8 +61,7 @@ public abstract class RealTimeEvent extends SystemEvent {
             return false;
         }
         RealTimeEvent other = (RealTimeEvent) obj;
-        return Objects.equals(eventTimestamp, other.eventTimestamp)
-                && this.eventType == other.eventType;
+        return Objects.equals(eventTimestamp, other.eventTimestamp) && (eventType == other.eventType);
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class RealTimeEvent extends SystemEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(eventTimestamp, eventType);
+        result = (prime * result) + Objects.hash(eventTimestamp, eventType);
         return result;
     }
 

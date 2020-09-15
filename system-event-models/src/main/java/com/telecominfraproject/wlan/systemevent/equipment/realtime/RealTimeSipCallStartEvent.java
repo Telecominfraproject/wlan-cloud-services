@@ -23,14 +23,6 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     private String providerDomain;
     private String deviceInfo;
 
-    /**
-     * Used by JSON encoder / decoder.
-     */
-    @Deprecated
-    public RealTimeSipCallStartEvent() {
-        this(0L);
-    }
-
     public RealTimeSipCallStartEvent(int customerId, long equipmentId, Long timestamp) {
         super(RealTimeEventType.SipCallStart, customerId, equipmentId, timestamp);
     }
@@ -91,7 +83,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + Objects.hash(associationId, codecs, deviceInfo, macAddress, providerDomain, sipCallId);
         return result;
     }
@@ -131,11 +123,11 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     }
 
     public boolean hasValidSipCallId() {
-        return sipCallId != null && sipCallId != 0;
+        return (sipCallId != null) && (sipCallId != 0);
     }
 
     public boolean hasValidAssociationId() {
-        return associationId != null && associationId != 0;
+        return (associationId != null) && (associationId != 0);
     }
 
     @Override
