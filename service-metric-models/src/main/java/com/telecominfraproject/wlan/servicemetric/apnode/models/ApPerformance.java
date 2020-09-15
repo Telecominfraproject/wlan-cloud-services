@@ -25,7 +25,7 @@ public class ApPerformance extends BaseJsonModel {
      * CPU utilization in percentage, one per byte
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private byte[] cpuUtilized;
+    private int[] cpuUtilized;
 
     /**
      * AP uptime in seconds
@@ -152,7 +152,7 @@ public class ApPerformance extends BaseJsonModel {
             return null;
         }
         Float ret = 0f;
-        for (byte b : cpuUtilized) {
+        for (int b : cpuUtilized) {
             ret += b;
         }
         return ret / cpuUtilized.length;
@@ -180,7 +180,7 @@ public class ApPerformance extends BaseJsonModel {
         return cpuTemperature;
     }
 
-    public byte[] getCpuUtilized() {
+    public int[] getCpuUtilized() {
         return cpuUtilized;
     }
 
@@ -248,7 +248,7 @@ public class ApPerformance extends BaseJsonModel {
         this.cpuTemperature = cpuTemperature;
     }
 
-    public void setCpuUtilized(byte[] cpuUtilized) {
+    public void setCpuUtilized(int[] cpuUtilized) {
         this.cpuUtilized = cpuUtilized;
     }
 
@@ -271,4 +271,5 @@ public class ApPerformance extends BaseJsonModel {
     public void setUpTime(Long upTime) {
         this.upTime = upTime;
     }
+    
 }

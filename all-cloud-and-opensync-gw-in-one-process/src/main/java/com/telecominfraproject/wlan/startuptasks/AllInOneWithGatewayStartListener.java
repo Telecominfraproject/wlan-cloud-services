@@ -595,7 +595,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
 
 		apPerformance.setCpuTemperature(getRandomInt(25, 90));
-		apPerformance.setCpuUtilized(new byte[] { (byte) getRandomInt(5, 98), (byte) getRandomInt(5, 98) });
+		apPerformance.setCpuUtilized(new int[] { getRandomInt(5, 98), getRandomInt(5, 98) });
 
 		apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
 

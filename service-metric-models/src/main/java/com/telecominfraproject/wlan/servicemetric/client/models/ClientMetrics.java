@@ -37,8 +37,8 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Integer txRetries;
     private Integer rxDuplicatePackets;
     private Integer rateCount;
-    private byte[] rates;
-    private byte[] mcs;
+    private int[] rates;
+    private int[] mcs;
     private Integer vhtMcs;
     private Integer snr;
     private Integer rssi;
@@ -974,7 +974,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         return lastTxMcsIdx;
     }
 
-    public byte[] getMcs() {
+    public int[] getMcs() {
         return mcs;
     }
 
@@ -1167,7 +1167,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         return rateCount;
     }
 
-    public byte[] getRates() {
+    public int[] getRates() {
         return rates;
     }
 
@@ -1333,7 +1333,7 @@ public class ClientMetrics extends ServiceMetricDetails {
     }
 
 
-    public void setMcs(byte[] mcs) {
+    public void setMcs(int[] mcs) {
         this.mcs = mcs;
     }
 
@@ -1513,7 +1513,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         this.rateCount = rateCount;
     }
 
-    public void setRates(byte[] rates) {
+    public void setRates(int[] rates) {
         this.rates = rates;
     }
 
