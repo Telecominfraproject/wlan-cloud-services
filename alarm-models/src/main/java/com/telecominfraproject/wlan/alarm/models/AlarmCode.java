@@ -4,11 +4,16 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
+import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
  * All available Alarm codes that can be handled by the CloudSDK. 
@@ -35,6 +40,8 @@ import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
  *
  */
 public class AlarmCode implements EnumWithId {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AlarmCode.class);
 
     private static Object lock = new Object();
     private static final Map<Integer, AlarmCode> ELEMENTS = new ConcurrentHashMap<>();
@@ -100,35 +107,17 @@ public class AlarmCode implements EnumWithId {
     UNSUPPORTED = new AlarmCode(-1, "UNSUPPORTED", "Alarm code is not supported by this release")
     ;
     
-    
-    public static AlarmCode[] validValues() {
-        if (VALID_VALUES.isEmpty()) {
-            synchronized (VALID_VALUES) {
-                if (VALID_VALUES.isEmpty()) {
-                    for (AlarmCode met : AlarmCode.values()) {
-                        // skip un-supported
-                        if (isUnsupported(met)) {
-                            continue;
-                        }
-                        // skip deprecated
-                        try {
-                            Field field = AlarmCode.class.getField(met.name());
-                            if (field.isAnnotationPresent(Deprecated.class)) {
-                                continue;
-                            }
-                        } catch (NoSuchFieldException e) {
-                            continue;
-                        } catch (SecurityException e) {
-                            continue;
-                        }
-
-                        VALID_VALUES.put(met.getId(), met);
-                    }
-                }                
+    static {
+        //try to load all the subclasses explicitly - to avoid timing issues when items coming from subclasses may be registered some time later, after the parent class is loaded 
+        Set<Class<? extends AlarmCode>> subclasses = BaseJsonModel.getReflections().getSubTypesOf(AlarmCode.class);
+        for(Class<?> cls: subclasses) {
+            try {
+                Class.forName(cls.getName());
+            } catch (ClassNotFoundException e) {
+                LOG.warn("Cannot load class {} : {}", cls.getName(), e);
             }
         }
-        return VALID_VALUES.values().toArray(new AlarmCode[VALID_VALUES.size()]);
-    }
+    }  
     
     private final int id;
     private final String name;
@@ -137,6 +126,9 @@ public class AlarmCode implements EnumWithId {
     protected AlarmCode(int id, String name, String description){
         
         synchronized(lock) {
+            
+            LOG.debug("Registering AlarmCode by {} : {}", this.getClass().getSimpleName(), name);
+            
             this.id = id;
             this.name = name;
             this.description = description;
@@ -157,15 +149,27 @@ public class AlarmCode implements EnumWithId {
             //add the item to VALID_VALUES if it's not UNSUPPORTED and not @Deprecated
             if(!name.equals("UNSUPPORTED")){
                 // skip deprecated
-                try {
-                    Field field = AlarmCode.class.getField(name);
-                    if (!field.isAnnotationPresent(Deprecated.class)) {
-                        VALID_VALUES.put(id, this);
+                // make sure to look for the field definition in current class and in all its parents
+                Class<?> cls = this.getClass();
+                while(cls!=null) {
+                    try {
+                        Field field = cls.getField(name);
+                        
+                        if (!field.isAnnotationPresent(Deprecated.class)) {
+                            VALID_VALUES.put(id, this);
+                        }
+                        
+                        break;
+                                                
+                    } catch (NoSuchFieldException e) {
+                        //do nothing
+                    } catch (SecurityException e) {
+                        //do nothing
                     }
-                } catch (NoSuchFieldException e) {
-                    //do nothing
-                } catch (SecurityException e) {
-                    //do nothing
+                    
+                    //prepare for the next iteration
+                    cls = cls.getSuperclass();
+
                 }
             }
 
@@ -195,6 +199,10 @@ public class AlarmCode implements EnumWithId {
     @JsonIgnore
     public static AlarmCode[] values() {
         return new ArrayList<>(ELEMENTS.values()).toArray(new AlarmCode[0]);
+    }
+
+    public static AlarmCode[] validValues() {
+        return VALID_VALUES.values().toArray(new AlarmCode[VALID_VALUES.size()]);
     }
 
     public static AlarmCode getById(int enumId){
