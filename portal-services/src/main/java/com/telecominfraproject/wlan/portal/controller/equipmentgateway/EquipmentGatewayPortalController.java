@@ -13,13 +13,16 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWFirmwareDownloadRequest;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWRebootRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.firmware.FirmwareServiceInterface;
 import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentResetMethod;
 
 /**
  * @author dtoptygin
+ * @author mikehansen
  *
  */
 @RestController
@@ -55,6 +58,63 @@ public class EquipmentGatewayPortalController  {
         	return new GenericResponse(true,"");
         } else {
         	return new GenericResponse(false, "Failed to request firmware update: "+ response.getResultCode() + " " + response.getResultDetail());
+        }
+    }
+    
+    @RequestMapping(value = "/equipmentGateway/requestApReboot", method = RequestMethod.POST)
+    public GenericResponse requestApReboot(@RequestParam long equipmentId) {
+        LOG.debug("requestApReboot {}", equipmentId);
+
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);
+       // No config change, just plain reboot
+        CEGWRebootRequest apRebootRequest = new CEGWRebootRequest(equipment.getInventoryId(),
+                equipment.getId(), false, EquipmentResetMethod.NoReset);
+
+        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apRebootRequest);
+        LOG.debug("AP reboot response {}", response);
+
+        if(response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true,"");
+        } else {
+            return new GenericResponse(false, "Failed to trigger AP reboot: "+ response.getResultCode() + " " + response.getResultDetail());
+        }
+    }
+    
+    @RequestMapping(value = "/equipmentGateway/requestApSwitchSoftwareBank", method = RequestMethod.POST)
+    public GenericResponse requestApSwitchSoftwareBank(@RequestParam long equipmentId) {
+        LOG.debug("requestApSwitchSoftwareBank {}", equipmentId);
+
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);
+       // Reboot, switch active/inactive software bank
+        CEGWRebootRequest apSwitchSoftwareBank = new CEGWRebootRequest(equipment.getInventoryId(),
+                equipment.getId(), true, EquipmentResetMethod.NoReset);
+
+        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apSwitchSoftwareBank);
+        LOG.debug("AP switch software bank response {}", response);
+
+        if(response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true,"");
+        } else {
+            return new GenericResponse(false, "Failed to trigger AP switch software bank: "+ response.getResultCode() + " " + response.getResultDetail());
+        }
+    }
+    
+    @RequestMapping(value = "/equipmentGateway/requestApFactoryReset", method = RequestMethod.POST)
+    public GenericResponse requestApFactoryReset(@RequestParam long equipmentId) {
+        LOG.debug("requestApFactoryReset {}", equipmentId);
+
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);
+       // Reboot Ap with factory settings
+        CEGWRebootRequest apFactoryReset = new CEGWRebootRequest(equipment.getInventoryId(),
+                equipment.getId(), false, EquipmentResetMethod.FactoryReset);
+
+        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apFactoryReset);
+        LOG.debug("AP factory reset response {}", response);
+
+        if(response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true,"");
+        } else {
+            return new GenericResponse(false, "Failed to trigger AP factory reset: "+ response.getResultCode() + " " + response.getResultDetail());
         }
     }
 

@@ -11116,6 +11116,78 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
+  /portal/equipmentGateway/requestApReboot:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request reboot for a particular equipment.
+      operationId: requestApReboot
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for which the reboot is being requested.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/equipmentGateway/requestApSwitchSoftwareBank:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request switch of active/inactive sw bank for a particular equipment.
+      operationId: requestApSwitchSoftwareBank
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for which the switch is being requested.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'        
+          
+  /portal/equipmentGateway/requestApFactoryReset:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request factory reset for a particular equipment.
+      operationId: requestApFactoryReset
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for which the factory reset is being requested.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError' 
+                 
   /portal/adoptionMetrics/perEquipmentPerDay:
     get:
       tags:
