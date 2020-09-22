@@ -128,6 +128,18 @@ components:
       discriminator:
         propertyName: model_type
 
+    ActiveScanSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanFrequencySeconds:
+          type: integer
+          format: int32
+        scanDurationMillis:
+          type: integer
+          format: int32
+
     AntennaType:
       type: string
       enum:
@@ -251,6 +263,16 @@ components:
           $ref: '#/components/schemas/ElementRadioConfiguration'
         is2dot4GHz:
           $ref: '#/components/schemas/ElementRadioConfiguration'
+          
+    ChannelBandwidth:
+      description: On 2.4GHz radio only auto or is20MHz values can be used. On 5GHz radio all values can be used. 
+      type: string
+      enum:
+        - auto
+        - is20MHz
+        - is40MHz
+        - is80MHz
+        - is160MHz
 
     RadioType:
       type: string
@@ -337,6 +359,10 @@ components:
           description: "Backup channel (this is never set by the customer: it's deduced from the primary channel (either manual or auto)"
           type: integer
           format: int32
+        autoChannelSelection:
+          type: boolean
+        channelBandwidth:
+          $ref: '#/components/schemas/ChannelBandwidth'
         bannedChannels:
           type: array
           items:
@@ -347,8 +373,6 @@ components:
           items:
             type: integer
             format: int32
-        autoChannelSelection:
-          type: boolean
         rxCellSizeDb:
           $ref: '#/components/schemas/AutoOrManualValue'
         probeResponseThresholdDb:
@@ -404,12 +428,34 @@ components:
         - rate18mbps
         - rate24mbps
 
+    MulticastRate:
+      type: string
+      enum:
+        - auto
+        - rate6mbps
+        - rate9mbps
+        - rate12mbps
+        - rate18mbps
+        - rate24mbps
+        - rate36mbps
+        - rate48mbps
+        - rate54mbps
+
     RadioMode:
       type: string
       enum:
         - modeN
         - modeAC
         - modeGN
+
+    MimoMode:
+      type: string
+      enum:
+        - none
+        - oneByOne
+        - twoByTwo
+        - threeByThree
+        - fourByFour
 
     RadioConfiguration:
       properties:
@@ -420,22 +466,41 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
+        rtsCtsThreshold:
+          type: integer
+          format: int32
+        autoChannelSelection:
+          $ref: '#/components/schemas/StateSetting'
         radioMode:
           $ref: '#/components/schemas/RadioMode'
+        mimoMode:
+          $ref: '#/components/schemas/MimoMode'
         wmmState:
           $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
+        maxNumClients:
+          type: integer
+          format: int32
         stationIsolation:
           $ref: '#/components/schemas/StateSetting'
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
+        activeScanSettings:
+          $ref: '#/components/schemas/ActiveScanSettings'
         channelHopSettings:
           $ref: '#/components/schemas/ChannelHopSettings'
         bestApSettings:
           $ref: '#/components/schemas/RadioBestApSettings'
+        forceScanDuringVoice:
+          $ref: '#/components/schemas/StateSetting'
         legacyBSSRate:
           $ref: '#/components/schemas/StateSetting'
+        beaconInterval:
+          type: integer
+          format: int32
         deauthAttackDetection:
           type: boolean
 

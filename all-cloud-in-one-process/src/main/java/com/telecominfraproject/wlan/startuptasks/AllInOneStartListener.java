@@ -5,12 +5,14 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +46,7 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
+import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
 import com.telecominfraproject.wlan.core.model.service.bonjour.BonjourService;
@@ -84,7 +87,6 @@ import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
-import com.telecominfraproject.wlan.profile.network.models.RfConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
@@ -314,29 +316,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
         profileSsid_2_radios.setDetails(ssidConfig_2_radios);
         profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
-        
-        Profile profileRf_2_radios = new Profile();
-        profileRf_2_radios.setCustomerId(customer.getId());
-        profileRf_2_radios.setName("TipWlan-Rf-cloud-2-radios");
-        RfConfiguration rfConfig_2_radios = RfConfiguration.createWithDefaults();
-        for (RadioType radioType: RadioType.validValues()) {
-        	rfConfig_2_radios.getRfConfig(radioType).setRf("TipWlan-Rf-cloud-2-radios");
-        }
-        //rfConfig_2_radios.getRfConfigMap().remove(RadioType.is5GHzL);
-        //rfConfig_2_radios.getRfConfigMap().remove(RadioType.is5GHzU);
-        profileRf_2_radios.setDetails(rfConfig_2_radios);
-        profileRf_2_radios = profileServiceInterface.create(profileRf_2_radios);
-        
-        Profile profileRf_3_radios = new Profile();
-        profileRf_3_radios.setCustomerId(customer.getId());
-        profileRf_3_radios.setName("TipWlan-Rf-cloud-3-radios");
-        RfConfiguration rfConfig_3_radios = RfConfiguration.createWithDefaults();
-        for (RadioType radioType: RadioType.validValues()) {
-        	rfConfig_3_radios.getRfConfig(radioType).setRf("TipWlan-Rf-cloud-3-radios");
-        }
-        //rfConfig_3_radios.getRfConfigMap().remove(RadioType.is5GHz);
-        profileRf_3_radios.setDetails(rfConfig_3_radios);
-        profileRf_3_radios = profileServiceInterface.create(profileRf_3_radios);
 
         // Captive portal profile
         Profile profileCaptivePortal = new Profile();
@@ -413,7 +392,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileRf_3_radios.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         Profile profileAp_2_radios = new Profile();
@@ -426,7 +404,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileRf_2_radios.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
         Profile enterpriseProfileAp = new Profile();

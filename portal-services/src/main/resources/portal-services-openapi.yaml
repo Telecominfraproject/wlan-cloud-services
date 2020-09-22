@@ -477,7 +477,6 @@ components:
       oneOf:
         ## TODO: add other equipment types in here
         - $ref: '#/components/schemas/ApElementConfiguration'
-#        
       discriminator:
         propertyName: model_type
 
@@ -714,6 +713,8 @@ components:
           format: int32
         autoChannelSelection:
           type: boolean
+        channelBandwidth:
+          $ref: '#/components/schemas/ChannelBandwidth'
         bannedChannels:
           type: array
           items:
@@ -817,22 +818,41 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
+        rtsCtsThreshold:
+          type: integer
+          format: int32
+        autoChannelSelection:
+          $ref: '#/components/schemas/StateSetting'
         radioMode:
           $ref: '#/components/schemas/RadioMode'
+        mimoMode:
+          $ref: '#/components/schemas/MimoMode'
         wmmState:
           $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
+        maxNumClients:
+          type: integer
+          format: int32
         stationIsolation:
           $ref: '#/components/schemas/StateSetting'
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
+        activeScanSettings:
+          $ref: '#/components/schemas/ActiveScanSettings'
         channelHopSettings:
           $ref: '#/components/schemas/ChannelHopSettings'
         bestApSettings:
           $ref: '#/components/schemas/RadioBestApSettings'
+        forceScanDuringVoice:
+          $ref: '#/components/schemas/StateSetting'
         legacyBSSRate:
           $ref: '#/components/schemas/StateSetting'
+        beaconInterval:
+          type: integer
+          format: int32
         deauthAttackDetection:
           type: boolean
 
@@ -898,7 +918,6 @@ components:
         - radius
         - captive_portal
         - mesh
-        - rf
 
     Profile:
       description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
@@ -948,7 +967,6 @@ components:
           - MeshGroup
           - RadiusProfile
           - SsidConfiguration
-          - RfConfiguration
       required: 
         - model_type
 
@@ -960,7 +978,6 @@ components:
         - $ref: '#/components/schemas/MeshGroup'
         - $ref: '#/components/schemas/RadiusProfile'
         - $ref: '#/components/schemas/SsidConfiguration'
-        - $ref: '#/components/schemas/RfConfiguration'
       discriminator:
         propertyName: model_type
         
@@ -1438,57 +1455,7 @@ components:
           format: int32
         
     
-    RfConfiguration:
-      description: Properties for the RF ConfigurationProfile
-      allOf:
-      - $ref: '#/components/schemas/ProfileDetails'
-      - type: object
-        properties:
-          rfConfigMap:
-             $ref: '#/components/schemas/RfConfigMap'
-    
-    RfConfigMap:
-      properties:
-        is2dot4GHz:
-          $ref: '#/components/schemas/RfElementConfiguration'
-        is5GHz:
-          $ref: '#/components/schemas/RfElementConfiguration'
-        is5GHzU:
-          $ref: '#/components/schemas/RfElementConfiguration'
-        is5GHzL:
-          $ref: '#/components/schemas/RfElementConfiguration'
-    
-    RfElementConfiguration:
-      properties:
-        model_type:
-          type: string
-          enum:
-          - RfConfiguration
-        rf:
-          type: string
-        beaconInterval:
-          type: integer
-          format: int32
-        forceScanDuringVoice:
-          $ref: '#/components/schemas/StateSetting'
-        rtsCtsThreshold:
-          type: integer
-          format: int32
-        channelBandwidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
-        mimoMode:
-          $ref: '#/components/schemas/MimoMode'
-        maxNumClients:
-          type: integer
-          format: int32
-        multicastRate:
-          $ref: '#/components/schemas/MulticastRate'
-        autoChannelSelection:
-          type: boolean
-        activeScanSettings:
-          $ref: '#/components/schemas/ActiveScanSettings'   
-    
-    
+
     SsidConfiguration:
       description: Properties for the SSID Configuration profile.
       allOf:

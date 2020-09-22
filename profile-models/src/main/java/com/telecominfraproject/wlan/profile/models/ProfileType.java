@@ -55,7 +55,6 @@ public class ProfileType implements EnumWithId {
     radius = new ProfileType(5, "radius"), 
     captive_portal = new ProfileType(6, "captive_portal"),
     mesh = new ProfileType(7, "mesh"),
-    rf = new ProfileType(8, "rf"),
     UNSUPPORTED = new ProfileType(-1, "UNSUPPORTED");
     
     static {
