@@ -31,6 +31,12 @@
             <version>${tip-wlan-cloud.release.version}</version>
         </dependency>
         
+                <dependency>
+            <groupId>com.telecominfraproject.wlan</groupId>
+            <artifactId>service-metric-models</artifactId>
+            <version>${tip-wlan-cloud.release.version}</version>
+        </dependency>
+        
         <!-- Provides markdown support  - used for parsing html pages associated with the captive portals -->
         <dependency>
             <groupId>org.pegdown</groupId>

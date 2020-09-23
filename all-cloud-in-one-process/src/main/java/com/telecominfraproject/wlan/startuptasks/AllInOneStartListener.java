@@ -82,6 +82,7 @@ import com.telecominfraproject.wlan.profile.captiveportal.models.ManagedFileInfo
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
+import com.telecominfraproject.wlan.profile.metrics.MetricsCollectionConfigProfile;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
@@ -273,6 +274,30 @@ public class AllInOneStartListener implements ApplicationRunner {
         radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
+        
+        Profile profileMetrics_3_radios = new Profile();
+        profileMetrics_3_radios.setCustomerId(customer.getId());
+        profileMetrics_3_radios.setProfileType(ProfileType.metrics);
+        profileMetrics_3_radios.setName("Metrics-Profile-3-radios");
+        List<RadioType> profileMetrics_3_radioTypes = new ArrayList<RadioType>();
+        profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
+        profileMetrics_3_radioTypes.add(RadioType.is5GHzL);
+        profileMetrics_3_radioTypes.add(RadioType.is5GHzU);
+        MetricsCollectionConfigProfile metricsProfileDetails_3_radios = MetricsCollectionConfigProfile.createWithDefaults(profileMetrics_3_radioTypes);
+        profileMetrics_3_radios.setDetails(metricsProfileDetails_3_radios);
+        
+        profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
+        
+        Profile profileMetrics_2_radios = new Profile();
+        profileMetrics_2_radios.setCustomerId(customer.getId());
+        profileMetrics_2_radios.setProfileType(ProfileType.metrics);
+        profileMetrics_2_radios.setName("Metrics-Profile-2-radios");
+        List<RadioType> profileMetrics_2_radioTypes = new ArrayList<RadioType>();
+        profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
+        profileMetrics_2_radioTypes.add(RadioType.is5GHz);
+        MetricsCollectionConfigProfile metricsProfileDetails_2_radios = MetricsCollectionConfigProfile.createWithDefaults(profileMetrics_2_radioTypes);
+        profileMetrics_2_radios.setDetails(metricsProfileDetails_2_radios);     
+        profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
 
         Profile profileSsidEAP = new Profile();
         profileSsidEAP.setCustomerId(customer.getId());
