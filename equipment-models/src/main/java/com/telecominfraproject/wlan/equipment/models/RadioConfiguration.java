@@ -20,6 +20,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
      */
     private static final long serialVersionUID = 8400985901848309466L;
     private static final Integer DEFAULT_BEACON_INTERVAL = 100;
+    private static final Integer DEFAULT_DTIM_PERIOD = 1;
     private static final StateSetting DEFAULT_LEGACY_BSS_RATE = StateSetting.enabled;
 
 
@@ -45,6 +46,11 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
      * Must be multiples of 100 tu. Should not exceed 500 tu. Default 100 tu.
      */
     private Integer beaconInterval;
+    /**
+     * Indicating that only every nth beacon includes a TIM, where n is the period.
+     * Default value is 1. In low power mode, stations will only awake to listen for those beacons in order to then determine if they need stay awake for data frame receipt
+     */
+    private Integer dtimPeriod;
 
     // keep this in sync with fields in RadioCfg (in protobuf)
 
@@ -97,6 +103,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         setBestApSettings(RadioBestApSettings.createWithDefaults(RadioType.is5GHz));
         setForceScanDuringVoice(StateSetting.disabled);
         setBeaconInterval(DEFAULT_BEACON_INTERVAL);
+        setDtimPeriod(DEFAULT_DTIM_PERIOD);
         setLegacyBSSRate(DEFAULT_LEGACY_BSS_RATE);
     }
 
@@ -120,6 +127,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         return Objects.equals(activeScanSettings, other.activeScanSettings)
                 && this.autoChannelSelection == other.autoChannelSelection
                 && Objects.equals(beaconInterval, other.beaconInterval)
+                && Objects.equals(dtimPeriod, other.dtimPeriod)
                 && Objects.equals(bestApSettings, other.bestApSettings)
                 && Objects.equals(channelHopSettings, other.channelHopSettings)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
@@ -147,6 +155,13 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
      */
     public Integer getBeaconInterval() {
         return beaconInterval;
+    }
+    
+    /**
+     * @return the dtimPeriod
+     */
+    public Integer getDtimPeriod() {
+        return dtimPeriod;
     }
 
     public RadioBestApSettings getBestApSettings() {
@@ -219,7 +234,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
 
     @Override
     public int hashCode() {
-        return Objects.hash(activeScanSettings, autoChannelSelection, beaconInterval, bestApSettings,
+        return Objects.hash(activeScanSettings, autoChannelSelection, beaconInterval, dtimPeriod, bestApSettings,
                 channelHopSettings, deauthAttackDetection, forceScanDuringVoice, fragmentationThresholdBytes,
                 legacyBSSRate, managementRate, maxNumClients, mimoMode, multicastRate, radioAdminState, radioMode,
                 radioType, rtsCtsThreshold, stationIsolation, uapsdState, wmmState);
@@ -270,6 +285,10 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         this.beaconInterval = beaconInterval;
     }
 
+    public void setDtimPeriod(Integer defaultDtimPeriod) {
+        this.dtimPeriod = defaultDtimPeriod;        
+    }
+    
     public void setBestApSettings(RadioBestApSettings bestApSettings) {
         this.bestApSettings = bestApSettings;
     }
