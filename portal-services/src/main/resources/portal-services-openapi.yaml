@@ -853,6 +853,9 @@ components:
         beaconInterval:
           type: integer
           format: int32
+        dtimPeriod:
+          type: integer
+          format: int32
         deauthAttackDetection:
           type: boolean
 

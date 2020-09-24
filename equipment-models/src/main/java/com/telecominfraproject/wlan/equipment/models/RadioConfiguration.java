@@ -20,7 +20,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
      */
     private static final long serialVersionUID = 8400985901848309466L;
     private static final Integer DEFAULT_BEACON_INTERVAL = 100;
-    private static final Integer DEFAULT_DTIM_PERIOD = 1;
+    private static final Integer DEFAULT_DTIM_PERIOD = 2;
     private static final StateSetting DEFAULT_LEGACY_BSS_RATE = StateSetting.enabled;
 
 
