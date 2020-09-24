@@ -75,6 +75,7 @@ components:
         - radius
         - captive_portal
         - mesh
+        - rf
 
     Profile:
       description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
@@ -124,6 +125,7 @@ components:
           - MeshGroup
           - RadiusProfile
           - SsidConfiguration
+          - RfConfiguration
       required: 
         - model_type
 
@@ -135,6 +137,7 @@ components:
         - $ref: '#/components/schemas/MeshGroup'
         - $ref: '#/components/schemas/RadiusProfile'
         - $ref: '#/components/schemas/SsidConfiguration'
+        - $ref: '#/components/schemas/RfConfiguration'
       discriminator:
         propertyName: model_type
         
@@ -608,6 +611,99 @@ components:
           format: int32
         
     
+    MimoMode:
+      type: string
+      enum:
+        - none
+        - oneByOne
+        - twoByTwo
+        - threeByThree
+        - fourByFour
+        
+    MulticastRate:
+      type: string
+      enum:
+        - auto
+        - rate6mbps
+        - rate9mbps
+        - rate12mbps
+        - rate18mbps
+        - rate24mbps
+        - rate36mbps
+        - rate48mbps
+        - rate54mbps
+        
+    ActiveScanSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        scanFrequencySeconds:
+          type: integer
+          format: int32
+        scanDurationMillis:
+          type: integer
+          format: int32
+          
+    ChannelBandwidth:
+      description: On 2.4GHz radio only auto or is20MHz values can be used. On 5GHz radio all values can be used. 
+      type: string
+      enum:
+        - auto
+        - is20MHz
+        - is40MHz
+        - is80MHz
+        - is160MHz
+        
+    RfConfiguration:
+      description: Properties for the RF ConfigurationProfile
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          rfConfigMap:
+            $ref: '#/components/schemas/RfConfigMap'
+    
+    RfConfigMap:
+      properties:
+        is2dot4GHz:
+          $ref: '#/components/schemas/RfElementConfiguration'
+        is5GHz:
+          $ref: '#/components/schemas/RfElementConfiguration'
+        is5GHzU:
+          $ref: '#/components/schemas/RfElementConfiguration'
+        is5GHzL:
+          $ref: '#/components/schemas/RfElementConfiguration'
+    
+    RfElementConfiguration:
+      properties:
+        model_type:
+          type: string
+          enum:
+          - RfElementConfiguration
+        rf:
+          type: string
+        beaconInterval:
+          type: integer
+          format: int32
+        forceScanDuringVoice:
+          $ref: '#/components/schemas/StateSetting'
+        rtsCtsThreshold:
+          type: integer
+          format: int32
+        channelBandwidth:
+          $ref: '#/components/schemas/ChannelBandwidth'
+        mimoMode:
+          $ref: '#/components/schemas/MimoMode'
+        maxNumClients:
+          type: integer
+          format: int32
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
+        autoChannelSelection:
+          type: boolean
+        activeScanSettings:
+          $ref: '#/components/schemas/ActiveScanSettings'
 
     SsidConfiguration:
       description: Properties for the SSID Configuration profile.
@@ -1106,12 +1202,4 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
-
-
-
-
-
-
-
-
-
+          
