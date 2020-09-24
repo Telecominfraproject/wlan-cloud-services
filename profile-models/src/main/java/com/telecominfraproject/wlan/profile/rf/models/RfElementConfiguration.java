@@ -36,7 +36,7 @@ public class RfElementConfiguration extends BaseJsonModel {
     private MimoMode mimoMode;
     private Integer maxNumClients;
     private MulticastRate multicastRate;
-    private boolean autoChannelSelection;
+//  private boolean autoChannelSelection;
     private ActiveScanSettings activeScanSettings;
 //    
 //  private ManagementRate managementRate;
@@ -60,7 +60,7 @@ public class RfElementConfiguration extends BaseJsonModel {
     	setMimoMode(MimoMode.twoByTwo);
     	setMaxNumClients(100);
     	setMulticastRate(MulticastRate.auto);
-    	setAutoChannelSelection(false);
+//    	setAutoChannelSelection(false);
     	setActiveScanSettings(ActiveScanSettings.createWithDefaults());
 //    	setManagementRate(ManagementRate.auto);
 //    	setRxCellSizeDb(AutoOrManualValue.createAutomaticInstance(DEFAULT_RX_CELL_SIZE_DB));
@@ -150,13 +150,13 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.multicastRate = multicastRate;
 	}
 
-	public boolean getAutoChannelSelection() {
-		return autoChannelSelection;
-	}
-
-	public void setAutoChannelSelection(boolean autoChannelSelection) {
-		this.autoChannelSelection = autoChannelSelection;
-	}
+//	public boolean getAutoChannelSelection() {
+//		return autoChannelSelection;
+//	}
+//
+//	public void setAutoChannelSelection(boolean autoChannelSelection) {
+//		this.autoChannelSelection = autoChannelSelection;
+//	}
 
 	public ActiveScanSettings getActiveScanSettings() {
 		return activeScanSettings;
@@ -266,7 +266,7 @@ public class RfElementConfiguration extends BaseJsonModel {
 	@Override
 	public int hashCode() {
 		return Objects.hash(rf, beaconInterval, forceScanDuringVoice, rtsCtsThreshold, channelBandwidth,
-				mimoMode, maxNumClients, multicastRate, autoChannelSelection, activeScanSettings);
+				mimoMode, maxNumClients, multicastRate, activeScanSettings);
 	}
 
 	@Override
@@ -286,7 +286,6 @@ public class RfElementConfiguration extends BaseJsonModel {
 				&& Objects.equals(mimoMode, other.mimoMode)
 				&& Objects.equals(maxNumClients, other.maxNumClients)
 				&& Objects.equals(multicastRate, other.multicastRate)
-				&& Objects.equals(autoChannelSelection,  other.autoChannelSelection)
 				&& Objects.equals(activeScanSettings, other.activeScanSettings);
 	}
 	
