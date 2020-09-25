@@ -11,12 +11,26 @@ public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParam
      * 
      */
     private static final long serialVersionUID = 165731309820030327L;
-    private RadioType radioType;
+    RadioType radioType;
 
-    public ServiceMetricRadioConfigParameters(RadioType radioType, ServiceMetricDataType dataType, int sampleIntervalMillis,
-            int reportingIntervalSeconds) {
+    public ServiceMetricRadioConfigParameters(RadioType radioType, ServiceMetricDataType dataType,
+            int sampleIntervalMillis, int reportingIntervalSeconds) {
         super(dataType, sampleIntervalMillis, reportingIntervalSeconds);
         this.setRadioType(radioType);
+    }
+
+    ServiceMetricRadioConfigParameters() {
+        reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
+        samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
+
+    }
+
+    public static ServiceMetricRadioConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType,
+            RadioType radioType) {
+        ServiceMetricRadioConfigParameters ret = new ServiceMetricRadioConfigParameters();
+        ret.setServiceMetricDataType(serviceMetricDataType);
+        ret.radioType = radioType;
+        return ret;
     }
 
     public RadioType getRadioType() {
@@ -27,15 +41,15 @@ public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParam
         this.radioType = radioType;
     }
 
-    
+
     @Override
     public ServiceMetricRadioConfigParameters clone() {
-        ServiceMetricRadioConfigParameters ret = (ServiceMetricRadioConfigParameters) super.clone();      
+        ServiceMetricRadioConfigParameters ret = (ServiceMetricRadioConfigParameters) super.clone();
         ret.radioType = this.radioType;
         return ret;
     }
-    
-    
+
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -58,11 +72,6 @@ public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParam
         ServiceMetricRadioConfigParameters other = (ServiceMetricRadioConfigParameters) obj;
         return radioType == other.radioType;
     }
-    
-    
-    
-    
-    
-    
+
 
 }

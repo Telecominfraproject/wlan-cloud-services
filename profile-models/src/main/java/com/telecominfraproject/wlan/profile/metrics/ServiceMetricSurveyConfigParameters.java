@@ -20,14 +20,36 @@ public class ServiceMetricSurveyConfigParameters extends ServiceMetricRadioConfi
             ChannelUtilizationSurveyType channelSurveyType, StatsReportFormat statsReportFormat, int scanIntervalMillis,
             int sampleIntervalMillis, int reportingIntervalSeconds, int percentUtilizationThreshold,
             int delayMillisecondsThreshold) {
-        super(radioType, dataType, sampleIntervalMillis, reportingIntervalSeconds);
-        this.setStatsReportFormat(statsReportFormat);
-        this.setChannelSurveyType(channelSurveyType);
-        this.setScanIntervalMillis(scanIntervalMillis);
-        this.setPercentUtilizationThreshold(percentUtilizationThreshold);
-        this.setDelayMillisecondsThreshold(delayMillisecondsThreshold);
+        this.radioType = radioType;
+        this.serviceMetricDataType = dataType;
+        this.reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
+        this.samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
+        this.statsReportFormat = StatsReportFormat.RAW;
+        this.channelSurveyType = ChannelUtilizationSurveyType.ON_CHANNEL;
+        this.scanIntervalMillis = ServiceMetricConfigParameterDefaults.DEFAULT_DWELL_TIME_MILLIS;
+        this.percentUtilizationThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_PERCENT_UTILIZATION_THRESHOLD;
+        this.delayMillisecondsThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_MEASUREMENT_DELAY_MILLIS;
 
+    }
 
+    ServiceMetricSurveyConfigParameters() {
+        
+        reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
+        samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
+        statsReportFormat = StatsReportFormat.RAW;
+        channelSurveyType = ChannelUtilizationSurveyType.ON_CHANNEL;
+        scanIntervalMillis = ServiceMetricConfigParameterDefaults.DEFAULT_DWELL_TIME_MILLIS;
+        percentUtilizationThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_PERCENT_UTILIZATION_THRESHOLD;
+        delayMillisecondsThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_MEASUREMENT_DELAY_MILLIS;
+
+    }
+
+    public static ServiceMetricSurveyConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType,
+            RadioType radioType) {
+        ServiceMetricSurveyConfigParameters ret = new ServiceMetricSurveyConfigParameters();
+        ret.serviceMetricDataType = serviceMetricDataType;
+        ret.radioType = radioType;
+        return ret;
     }
 
 

@@ -26,20 +26,34 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
     private Map<String, ServiceMetricConfigParameters> metricConfigParameterMap;
 
     public static ServiceMetricsCollectionConfigProfile createWithDefaults() {
-
-        ServiceMetricsCollectionConfigProfile ret = new ServiceMetricsCollectionConfigProfile(Arrays.asList(RadioType.validValues()),
-                Arrays.asList(defaultServiceMetrics));
-
+        ServiceMetricsCollectionConfigProfile ret = new ServiceMetricsCollectionConfigProfile();
+        ret.radioTypeList = Arrays.asList(RadioType.validValues());
+        for (ServiceMetricDataType metricDataType : Arrays.asList(defaultServiceMetrics)) {
+            for (RadioType radioType : ret.radioTypeList) {
+                ret.metricConfigParameterMap.put(metricDataType.getName(),
+                        ret.getDefaultConfigForMetricType(metricDataType, radioType));
+            }
+        }
         return ret;
     }
 
+    private ServiceMetricsCollectionConfigProfile() {
+        
+        metricConfigParameterMap = new HashMap<>();
+        radioTypeList = new ArrayList<>();
+    }
 
     public static ServiceMetricsCollectionConfigProfile createWithDefaults(List<RadioType> radioTypes) {
 
 
-        ServiceMetricsCollectionConfigProfile ret = new ServiceMetricsCollectionConfigProfile(radioTypes,
-                Arrays.asList(defaultServiceMetrics));
-
+        ServiceMetricsCollectionConfigProfile ret = new ServiceMetricsCollectionConfigProfile();
+        ret.radioTypeList = radioTypes;
+        for (ServiceMetricDataType metricDataType : Arrays.asList(defaultServiceMetrics)) {
+            for (RadioType radioType : radioTypes) {
+                ret.metricConfigParameterMap.put(metricDataType.getName(),
+                        ret.getDefaultConfigForMetricType(metricDataType, radioType));
+            }
+        }
         return ret;
     }
 
@@ -65,26 +79,18 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
      * @return default parameter set for on-channel stats collection on the AP
      *         for the given ServiceMetricDataType
      */
-    public ServiceMetricConfigParameters getDefaultConfigForMetricType(ServiceMetricDataType dataType, RadioType radioType) {
+    public ServiceMetricConfigParameters getDefaultConfigForMetricType(ServiceMetricDataType dataType,
+            RadioType radioType) {
         ServiceMetricConfigParameters ret = null;
 
         if (dataType.equals(ServiceMetricDataType.ApNode) || dataType.equals(ServiceMetricDataType.Channel)
                 || dataType.equals(ServiceMetricDataType.Neighbour)) {
-            ret = new ServiceMetricSurveyConfigParameters(radioType, dataType,
-                    ChannelUtilizationSurveyType.ON_CHANNEL, StatsReportFormat.RAW,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_DWELL_TIME_MILLIS,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_MAX_PERCENT_UTILIZATION_THRESHOLD,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_MAX_MEASUREMENT_DELAY_MILLIS);
+            ret = ServiceMetricSurveyConfigParameters.generateDefault(dataType);
         } else if (dataType.equals(ServiceMetricDataType.ApSsid) || dataType.equals(ServiceMetricDataType.Client)
                 || dataType.equals(ServiceMetricDataType.ClientQoE)) {
-            ret = new ServiceMetricRadioConfigParameters(radioType, dataType,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS);
+            ret = ServiceMetricConfigParameters.generateDefault(dataType);
         } else {
-            ret = new ServiceMetricConfigParameters(dataType, ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS,
-                    ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS);
+            ret = ServiceMetricConfigParameters.generateDefault(dataType);
         }
         return ret;
     }
@@ -117,21 +123,9 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
 
     @Override
     public ServiceMetricsCollectionConfigProfile clone() {
-        ServiceMetricsCollectionConfigProfile ret = (ServiceMetricsCollectionConfigProfile) super.clone();
+        ServiceMetricsCollectionConfigProfile returnValue = (ServiceMetricsCollectionConfigProfile) super.clone();
 
-        if (radioTypeList != null) {
-            ret.radioTypeList = new ArrayList<>();
-            ret.radioTypeList.addAll(radioTypeList);
-        }
-
-        if (metricConfigParameterMap != null) {
-
-            for (Map.Entry<String, ServiceMetricConfigParameters> entry : metricConfigParameterMap.entrySet()) {
-                ret.metricConfigParameterMap.put(entry.getKey(), entry.getValue().clone());
-            }
-        }
-
-        return ret;
+        return returnValue;
     }
 
 

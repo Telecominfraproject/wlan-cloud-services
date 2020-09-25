@@ -6,7 +6,8 @@ import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricConfigParameters extends BaseJsonModel implements PushableConfiguration<ServiceMetricConfigParameters> {
+public class ServiceMetricConfigParameters extends BaseJsonModel
+        implements PushableConfiguration<ServiceMetricConfigParameters> {
 
     private static final long serialVersionUID = 1469611396924992464L;
 
@@ -14,16 +15,16 @@ public class ServiceMetricConfigParameters extends BaseJsonModel implements Push
     /**
      * Type of cloud service metric being configured
      */
-    private ServiceMetricDataType serviceMetricDataType;
+    ServiceMetricDataType serviceMetricDataType;
 
     /**
      * Time between sample collections.
      */
-    private Integer samplingInterval;
+    Integer samplingInterval;
     /**
      * Reporting interval for Metric
      */
-    private Integer reportingIntervalSeconds;
+    Integer reportingIntervalSeconds;
 
     public ServiceMetricConfigParameters(ServiceMetricDataType dataType, int defaultSampleIntervalMillis,
             int defaultReportIntervalSeconds) {
@@ -32,6 +33,17 @@ public class ServiceMetricConfigParameters extends BaseJsonModel implements Push
         this.serviceMetricDataType = dataType;
     }
 
+    ServiceMetricConfigParameters() {
+        this.reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
+        this.samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
+
+    }
+
+    public static ServiceMetricConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType) {
+        ServiceMetricConfigParameters ret = new ServiceMetricConfigParameters();
+        ret.serviceMetricDataType = serviceMetricDataType;
+        return ret;
+    }
 
     @Override
     public boolean needsToBeUpdatedOnDevice(ServiceMetricConfigParameters previousVersion) {
@@ -68,11 +80,11 @@ public class ServiceMetricConfigParameters extends BaseJsonModel implements Push
     @Override
     public ServiceMetricConfigParameters clone() {
         ServiceMetricConfigParameters ret = (ServiceMetricConfigParameters) super.clone();
-        
+
         ret.reportingIntervalSeconds = this.reportingIntervalSeconds;
         ret.samplingInterval = this.samplingInterval;
         ret.serviceMetricDataType = this.serviceMetricDataType;
-        
+
         return ret;
     }
 
