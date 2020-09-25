@@ -35,14 +35,14 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testGetProfileType() {
-        MetricsCollectionConfigProfile metricsProfileDetails_3_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_3_radioTypes);
         assertTrue(metricsProfileDetails_3_radios.getProfileType().equals(ProfileType.metrics));
     }
 
     @Test
     void testCreateWithDefaults() {
-        MetricsCollectionConfigProfile metricsProfileDetails_default_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults();
         assertTrue(
                 metricsProfileDetails_default_radios.getRadioTypeList().equals(Arrays.asList(RadioType.validValues())));
@@ -50,11 +50,11 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testCreateWithDefaultsListOfRadioType() {
-        MetricsCollectionConfigProfile metricsProfileDetails_3_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_3_radioTypes);
         assertTrue(metricsProfileDetails_3_radios.getRadioTypeList().equals(profileMetrics_3_radioTypes));
 
-        MetricsCollectionConfigProfile metricsProfileDetails_2_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_2_radioTypes);
         assertTrue(metricsProfileDetails_2_radios.getRadioTypeList().equals(profileMetrics_2_radioTypes));
 
@@ -64,24 +64,24 @@ class MetricsCollectionConfigProfileTest {
     @Test
     void testMetricsCollectionConfigProfile() {
 
-        MetricsCollectionConfigProfile metricsProfile = new MetricsCollectionConfigProfile(profileMetrics_3_radioTypes,
+        ServiceMetricsCollectionConfigProfile metricsProfile = new ServiceMetricsCollectionConfigProfile(profileMetrics_3_radioTypes,
                 metricDataTypes);
 
         assertNotNull(metricsProfile);
         assertEquals(metricsProfile.getRadioTypeList(), profileMetrics_3_radioTypes);
         assertEquals(metricDataTypes.size(), metricsProfile.getMetricConfigParameterMap().values().size());
         assertEquals(metricsProfile.getProfileType(), ProfileType.metrics);
-        for (MetricConfigParameters configParameters : metricsProfile.getMetricConfigParameterMap().values()) {
+        for (ServiceMetricConfigParameters configParameters : metricsProfile.getMetricConfigParameterMap().values()) {
             assertTrue(metricDataTypes.contains(configParameters.getServiceMetricDataType()));
         }
 
-        MetricsCollectionConfigProfile metricsProfile_2 = new MetricsCollectionConfigProfile(
+        ServiceMetricsCollectionConfigProfile metricsProfile_2 = new ServiceMetricsCollectionConfigProfile(
                 profileMetrics_3_radioTypes, metricDataTypes_2);
         assertNotNull(metricsProfile_2);
         assertEquals(metricsProfile_2.getRadioTypeList(), profileMetrics_3_radioTypes);
         assertEquals(metricsProfile_2.getProfileType(), ProfileType.metrics);
         assertEquals(metricDataTypes_2.size(), metricsProfile_2.getMetricConfigParameterMap().values().size());
-        for (MetricConfigParameters configParameters : metricsProfile_2.getMetricConfigParameterMap().values()) {
+        for (ServiceMetricConfigParameters configParameters : metricsProfile_2.getMetricConfigParameterMap().values()) {
             assertTrue(metricDataTypes_2.contains(configParameters.getServiceMetricDataType()));
         }
 
@@ -92,8 +92,8 @@ class MetricsCollectionConfigProfileTest {
     @Test
     void testNeedsToBeUpdatedOnDevice() {
 
-        MetricsCollectionConfigProfile metricsProfile = MetricsCollectionConfigProfile.createWithDefaults();
-        MetricsCollectionConfigProfile metricsProfile2 = MetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile.createWithDefaults();
 
         assertFalse(metricsProfile2.needsToBeUpdatedOnDevice(metricsProfile));
         metricsProfile2.setRadioTypeList(profileMetrics_2_radioTypes);
@@ -103,8 +103,8 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testGetRadioTypeList() {
-        MetricsCollectionConfigProfile metricsProfile = MetricsCollectionConfigProfile.createWithDefaults();
-        MetricsCollectionConfigProfile metricsProfile2 = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_2_radioTypes);
 
         assertEquals(metricsProfile.getRadioTypeList(), Arrays.asList(RadioType.validValues()));
@@ -114,8 +114,8 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testSetRadioTypeList() {
-        MetricsCollectionConfigProfile metricsProfile = MetricsCollectionConfigProfile.createWithDefaults();
-        MetricsCollectionConfigProfile metricsProfile2 = MetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile.createWithDefaults();
 
         assertEquals(metricsProfile.getRadioTypeList(), metricsProfile2.getRadioTypeList());
 
@@ -126,7 +126,7 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testGetMetricConfigParameterMap() {
-        MetricsCollectionConfigProfile metricsProfile = MetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
 
 
         assertTrue(metricsProfile.getMetricConfigParameterMap().size() == metricDataTypes.size());
@@ -139,7 +139,7 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testSetMetricConfigParameterMap() {
-        MetricsCollectionConfigProfile metricsProfile = MetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
         assertTrue(metricsProfile.getMetricConfigParameterMap().values().size() == metricDataTypes.size());
         metricDataTypes.stream().forEach(d -> {
             assertTrue(metricsProfile.getMetricConfigParameterMap().containsKey(d.getName()));
@@ -148,7 +148,7 @@ class MetricsCollectionConfigProfileTest {
         
         List<RadioType> profileMetrics_all_radioTypes = ImmutableList.of(RadioType.is2dot4GHz, RadioType.is5GHz, RadioType.is5GHzL,
                 RadioType.is5GHzU);
-        MetricsCollectionConfigProfile metricsProfile2 = new MetricsCollectionConfigProfile(profileMetrics_all_radioTypes,metricDataTypes_2);
+        ServiceMetricsCollectionConfigProfile metricsProfile2 = new ServiceMetricsCollectionConfigProfile(profileMetrics_all_radioTypes,metricDataTypes_2);
         
 
 
@@ -162,13 +162,13 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testClone() {
-        MetricsCollectionConfigProfile metricsProfileDetails_default_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults();
 
-        MetricsCollectionConfigProfile metricsProfileDetails_3_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_3_radioTypes);
 
-        MetricsCollectionConfigProfile metricsProfileDetails_2_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_2_radioTypes);
 
 
@@ -183,17 +183,17 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testEqualsObject() {
-        MetricsCollectionConfigProfile metricsProfileDetails_default_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults();
-        MetricsCollectionConfigProfile metricsProfileDetails_default_radios1 = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios1 = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults();
-        MetricsCollectionConfigProfile metricsProfileDetails_3_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_3_radioTypes);
-        MetricsCollectionConfigProfile metricsProfileDetails_3_radios1 = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios1 = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_3_radioTypes);
-        MetricsCollectionConfigProfile metricsProfileDetails_2_radios = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_2_radioTypes);
-        MetricsCollectionConfigProfile metricsProfileDetails_2_radios1 = MetricsCollectionConfigProfile
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios1 = ServiceMetricsCollectionConfigProfile
                 .createWithDefaults(profileMetrics_2_radioTypes);
 
         assertEquals(metricsProfileDetails_default_radios, metricsProfileDetails_default_radios1);
