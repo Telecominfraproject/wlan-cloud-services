@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.equipment.models;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -9,18 +8,7 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 public class RadioConfigurationTests 
-{
-   @Test
-   public void safeguardForAutoSelection()
-   {
-      for(RadioType type : RadioType.validValues())
-      {
-         RadioConfiguration radioConfig = RadioConfiguration.createWithDefaults(type);
-         assertEquals("This should never be 'enabled' by default, it really interferes with our"
-               + "cloud-based auto channel rebalancing", StateSetting.disabled, radioConfig.getAutoChannelSelection());
-      }
-   }
-   
+{   
    @Test
    public void validationTest() {
        RadioConfiguration radioConfig2_4 = RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz);

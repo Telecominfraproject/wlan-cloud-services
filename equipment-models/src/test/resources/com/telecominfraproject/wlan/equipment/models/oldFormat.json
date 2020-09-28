@@ -1,1 +1,49 @@
-{"elementConfigVersion":"AP-V1","equipmentType":"AP","countryCode":"usa","deviceMode":"standaloneAP","gettingIP":"dhcp","staticIP":null,"staticIpMaskCidr":null,"staticIpGw":null,"gettingDNS":"dhcp","staticDnsIp1":null,"staticDnsIp2":null,"peerInfoList":[],"deviceName":null,"locationData":null,"locallyConfiguredMgmtVlan":0,"locallyConfigured":false,"radioMap":{"is5GHz":{"radioType":"is5GHz","channelNumber":52,"manualChannelNumber":36,"backupChannelNumber":36,"autoChannelSelection":true,"channelBandwidth":"is80MHz","txPower":95,"bannedChannels":[{"channelNumber":136,"bannedOnEpoc":1428948489193}],"activeChannel":52},"is2dot4GHz":{"radioType":"is2dot4GHz","channelNumber":1,"manualChannelNumber":1,"backupChannelNumber":11,"autoChannelSelection":true,"channelBandwidth":"is20MHz","txPower":95,"bannedChannels":[],"activeChannel":1}}}
+{
+	"elementConfigVersion": "AP-V1",
+	"equipmentType": "AP",
+	"countryCode": "usa",
+	"deviceMode": "standaloneAP",
+	"gettingIP": "dhcp",
+	"staticIP": null,
+	"staticIpMaskCidr": null,
+	"staticIpGw": null,
+	"gettingDNS": "dhcp",
+	"staticDnsIp1": null,
+	"staticDnsIp2": null,
+	"peerInfoList": [
+	],
+	"deviceName": null,
+	"locationData": null,
+	"locallyConfiguredMgmtVlan": 0,
+	"locallyConfigured": false,
+	"radioMap": {
+		"is5GHz": {
+			"radioType": "is5GHz",
+			"channelNumber": 52,
+			"manualChannelNumber": 36,
+			"backupChannelNumber": 36,
+			"autoChannelSelection": true,
+			"channelBandwidth": "is80MHz",
+			"txPower": 95,
+			"bannedChannels": [
+				{
+					"channelNumber": 136,
+					"bannedOnEpoc": 1428948489193
+				}
+			],
+			"activeChannel": 52
+		},
+		"is2dot4GHz": {
+			"radioType": "is2dot4GHz",
+			"channelNumber": 1,
+			"manualChannelNumber": 1,
+			"backupChannelNumber": 11,
+			"autoChannelSelection": true,
+			"channelBandwidth": "is20MHz",
+			"txPower": 95,
+			"bannedChannels": [
+			],
+			"activeChannel": 1
+		}
+	}
+}
