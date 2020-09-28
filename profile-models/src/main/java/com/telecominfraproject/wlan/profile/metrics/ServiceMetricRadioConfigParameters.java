@@ -5,32 +5,19 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParameters {
+public class ServiceMetricRadioConfigParameters extends CommonServiceMetricConfigParameters {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 165731309820030327L;
-    RadioType radioType;
+    private RadioType radioType;
+    private ServiceMetricDataType serviceMetricDataType;
 
-    public ServiceMetricRadioConfigParameters(RadioType radioType, ServiceMetricDataType dataType,
-            int sampleIntervalMillis, int reportingIntervalSeconds) {
-        super(dataType, sampleIntervalMillis, reportingIntervalSeconds);
-        this.setRadioType(radioType);
+
+    private ServiceMetricRadioConfigParameters() {
+        super();
     }
 
-    ServiceMetricRadioConfigParameters() {
-        reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
-        samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
-
-    }
-
-    public static ServiceMetricRadioConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType,
-            RadioType radioType) {
-        ServiceMetricRadioConfigParameters ret = new ServiceMetricRadioConfigParameters();
-        ret.setServiceMetricDataType(serviceMetricDataType);
-        ret.radioType = radioType;
-        return ret;
+    public static ServiceMetricRadioConfigParameters createWithDefaults() {
+        return new ServiceMetricRadioConfigParameters();
     }
 
     public RadioType getRadioType() {
@@ -43,18 +30,38 @@ public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParam
 
 
     @Override
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+
+        if (RadioType.isUnsupported(radioType)) {
+            return true;
+        }
+
+        if (ServiceMetricDataType.isUnsupported(getServiceMetricDataType())) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    @Override
     public ServiceMetricRadioConfigParameters clone() {
         ServiceMetricRadioConfigParameters ret = (ServiceMetricRadioConfigParameters) super.clone();
-        ret.radioType = this.radioType;
+        ret.setRadioType(getRadioType());
+        ret.setServiceMetricDataType(getServiceMetricDataType());
         return ret;
     }
 
+ 
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(radioType);
+        result = prime * result + Objects.hash(radioType, serviceMetricDataType);
         return result;
     }
 
@@ -70,8 +77,18 @@ public class ServiceMetricRadioConfigParameters extends ServiceMetricConfigParam
             return false;
         }
         ServiceMetricRadioConfigParameters other = (ServiceMetricRadioConfigParameters) obj;
-        return radioType == other.radioType;
+        return radioType == other.radioType && Objects.equals(serviceMetricDataType, other.serviceMetricDataType);
     }
 
+    @Override
+    public ServiceMetricDataType getServiceMetricDataType() {
+        return serviceMetricDataType;
+    }
+
+    @Override
+    public void setServiceMetricDataType(ServiceMetricDataType serviceMetricDataType) {
+        this.serviceMetricDataType = serviceMetricDataType;
+
+    }
 
 }

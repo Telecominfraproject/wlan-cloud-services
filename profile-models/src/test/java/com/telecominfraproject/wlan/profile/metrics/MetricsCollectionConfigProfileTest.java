@@ -3,16 +3,15 @@ package com.telecominfraproject.wlan.profile.metrics;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.List;
+import java.util.Set;
 
-import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
@@ -21,188 +20,146 @@ import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 class MetricsCollectionConfigProfileTest {
 
 
-    List<RadioType> profileMetrics_3_radioTypes = ImmutableList.of(RadioType.is2dot4GHz, RadioType.is5GHzL,
+    Set<RadioType> profileMetrics_3_radioTypes = ImmutableSet.of(RadioType.is2dot4GHz, RadioType.is5GHzL,
             RadioType.is5GHzU);
-    List<RadioType> profileMetrics_2_radioTypes = ImmutableList.of(RadioType.is2dot4GHz, RadioType.is5GHz);
+    Set<RadioType> profileMetrics_2_radioTypes = ImmutableSet.of(RadioType.is2dot4GHz, RadioType.is5GHz);
 
-    List<ServiceMetricDataType> metricDataTypes = ImmutableList.of(ServiceMetricDataType.ApNode,
+    Set<ServiceMetricDataType> metricDataTypes = ImmutableSet.of(ServiceMetricDataType.ApNode,
             ServiceMetricDataType.ApSsid, ServiceMetricDataType.Channel, ServiceMetricDataType.Client,
             ServiceMetricDataType.Neighbour);
 
-    List<ServiceMetricDataType> metricDataTypes_2 = ImmutableList.of(ServiceMetricDataType.ApSsid,
+    Set<ServiceMetricDataType> metricDataTypes_2 = ImmutableSet.of(ServiceMetricDataType.ApSsid,
             ServiceMetricDataType.Client, ServiceMetricDataType.Neighbour);
 
+    ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios;
+
+    ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios;
+
+    @BeforeEach
+    public void initialize() {
+        metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        metricsProfileDetails_3_radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes,
+                metricDataTypes, true);
+
+        metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        metricsProfileDetails_2_radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes,
+                metricDataTypes, true);
+    }
+
+    @AfterEach
+    private void deleteInstances() {
+        metricsProfileDetails_3_radios = null;
+        metricsProfileDetails_2_radios = null;
+    }
 
     @Test
     void testGetProfileType() {
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_3_radioTypes);
         assertTrue(metricsProfileDetails_3_radios.getProfileType().equals(ProfileType.metrics));
     }
 
     @Test
     void testCreateWithDefaults() {
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
-        assertTrue(
-                metricsProfileDetails_default_radios.getRadioTypeList().equals(Arrays.asList(RadioType.validValues())));
+
+        assertTrue(metricsProfileDetails_3_radios.getRadioTypes().equals(profileMetrics_3_radioTypes));
+
+        assertTrue(metricsProfileDetails_2_radios.getRadioTypes().equals(profileMetrics_2_radioTypes));
     }
 
-    @Test
-    void testCreateWithDefaultsListOfRadioType() {
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_3_radioTypes);
-        assertTrue(metricsProfileDetails_3_radios.getRadioTypeList().equals(profileMetrics_3_radioTypes));
-
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_2_radioTypes);
-        assertTrue(metricsProfileDetails_2_radios.getRadioTypeList().equals(profileMetrics_2_radioTypes));
-
-
-    }
-
-    @Test
-    void testMetricsCollectionConfigProfile() {
-
-        ServiceMetricsCollectionConfigProfile metricsProfile = new ServiceMetricsCollectionConfigProfile(profileMetrics_3_radioTypes,
-                metricDataTypes);
-
-        assertNotNull(metricsProfile);
-        assertEquals(metricsProfile.getRadioTypeList(), profileMetrics_3_radioTypes);
-        assertEquals(metricDataTypes.size(), metricsProfile.getMetricConfigParameterMap().values().size());
-        assertEquals(metricsProfile.getProfileType(), ProfileType.metrics);
-        for (ServiceMetricConfigParameters configParameters : metricsProfile.getMetricConfigParameterMap().values()) {
-            assertTrue(metricDataTypes.contains(configParameters.getServiceMetricDataType()));
-        }
-
-        ServiceMetricsCollectionConfigProfile metricsProfile_2 = new ServiceMetricsCollectionConfigProfile(
-                profileMetrics_3_radioTypes, metricDataTypes_2);
-        assertNotNull(metricsProfile_2);
-        assertEquals(metricsProfile_2.getRadioTypeList(), profileMetrics_3_radioTypes);
-        assertEquals(metricsProfile_2.getProfileType(), ProfileType.metrics);
-        assertEquals(metricDataTypes_2.size(), metricsProfile_2.getMetricConfigParameterMap().values().size());
-        for (ServiceMetricConfigParameters configParameters : metricsProfile_2.getMetricConfigParameterMap().values()) {
-            assertTrue(metricDataTypes_2.contains(configParameters.getServiceMetricDataType()));
-        }
-
-        assertNotEquals(metricsProfile, metricsProfile_2);
-
-    }
 
     @Test
     void testNeedsToBeUpdatedOnDevice() {
 
-        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios_2 = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails_3_radios_2.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes,
+                metricDataTypes, true);
 
-        assertFalse(metricsProfile2.needsToBeUpdatedOnDevice(metricsProfile));
-        metricsProfile2.setRadioTypeList(profileMetrics_2_radioTypes);
-        assertTrue(metricsProfile2.needsToBeUpdatedOnDevice(metricsProfile));
+
+        assertFalse(metricsProfileDetails_3_radios_2.needsToBeUpdatedOnDevice(metricsProfileDetails_3_radios));
+        metricsProfileDetails_3_radios_2.setServiceMetricDataTypes(metricDataTypes_2);
+        assertTrue(metricsProfileDetails_3_radios_2.needsToBeUpdatedOnDevice(metricsProfileDetails_3_radios));
 
     }
 
     @Test
     void testGetRadioTypeList() {
-        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_2_radioTypes);
-
-        assertEquals(metricsProfile.getRadioTypeList(), Arrays.asList(RadioType.validValues()));
-        assertEquals(metricsProfile2.getRadioTypeList(), profileMetrics_2_radioTypes);
+        assertEquals(metricsProfileDetails_3_radios.getRadioTypes(), profileMetrics_3_radioTypes);
+        assertEquals(metricsProfileDetails_2_radios.getRadioTypes(), profileMetrics_2_radioTypes);
 
     }
 
     @Test
     void testSetRadioTypeList() {
-        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        ServiceMetricsCollectionConfigProfile metricsProfile2 = ServiceMetricsCollectionConfigProfile.createWithDefaults();
 
-        assertEquals(metricsProfile.getRadioTypeList(), metricsProfile2.getRadioTypeList());
 
-        metricsProfile.setRadioTypeList(profileMetrics_2_radioTypes);
-        assertEquals(metricsProfile.getRadioTypeList(), profileMetrics_2_radioTypes);
-        assertNotEquals(metricsProfile.getRadioTypeList(), metricsProfile2.getRadioTypeList());
+        assertEquals(metricsProfileDetails_3_radios.getRadioTypes(), profileMetrics_3_radioTypes);
+
+        metricsProfileDetails_3_radios.setRadioTypes(profileMetrics_2_radioTypes);
+        assertEquals(metricsProfileDetails_3_radios.getRadioTypes(), profileMetrics_2_radioTypes);
+        assertNotEquals(metricsProfileDetails_3_radios.getRadioTypes(), profileMetrics_3_radioTypes);
+
     }
 
     @Test
     void testGetMetricConfigParameterMap() {
-        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
 
-
-        assertTrue(metricsProfile.getMetricConfigParameterMap().size() == metricDataTypes.size());
         metricDataTypes.stream().forEach(d -> {
-            assertTrue(metricsProfile.getMetricConfigParameterMap().containsKey(d.getName()));
+
+            assertTrue(metricsProfileDetails_3_radios.getMetricConfigParameterMap().containsKey(d));
+            assertTrue(metricsProfileDetails_2_radios.getMetricConfigParameterMap().containsKey(d));
+
+            if (d.equals(ServiceMetricDataType.ApNode) || d.equals(ServiceMetricDataType.Neighbour)
+                    || d.equals(ServiceMetricDataType.Channel)) {
+                assertTrue(metricsProfileDetails_3_radios.getMetricConfigParameterMap().get(d).size() == 6);
+                assertTrue(metricsProfileDetails_2_radios.getMetricConfigParameterMap().get(d).size() == 4);
+            } 
+            
+            if (d.equals(ServiceMetricDataType.Client) || d.equals(ServiceMetricDataType.ApSsid)) {
+                assertTrue(metricsProfileDetails_3_radios.getMetricConfigParameterMap().get(d).size() == 3);
+                assertTrue(metricsProfileDetails_2_radios.getMetricConfigParameterMap().get(d).size() == 2);
+            }
+
+            if (d.equals(ServiceMetricDataType.ClientQoE) || d.equals(ServiceMetricDataType.QoE)) {
+                assertTrue(metricsProfileDetails_3_radios.getMetricConfigParameterMap().get(d).size() == 1);
+                assertTrue(metricsProfileDetails_2_radios.getMetricConfigParameterMap().get(d).size() == 1);
+            }
+
+
         });
 
 
     }
 
-    @Test
-    void testSetMetricConfigParameterMap() {
-        ServiceMetricsCollectionConfigProfile metricsProfile = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        assertTrue(metricsProfile.getMetricConfigParameterMap().values().size() == metricDataTypes.size());
-        metricDataTypes.stream().forEach(d -> {
-            assertTrue(metricsProfile.getMetricConfigParameterMap().containsKey(d.getName()));
-        });
-        
-        
-        List<RadioType> profileMetrics_all_radioTypes = ImmutableList.of(RadioType.is2dot4GHz, RadioType.is5GHz, RadioType.is5GHzL,
-                RadioType.is5GHzU);
-        ServiceMetricsCollectionConfigProfile metricsProfile2 = new ServiceMetricsCollectionConfigProfile(profileMetrics_all_radioTypes,metricDataTypes_2);
-        
-
-
-        assertNotEquals(metricsProfile.getMetricConfigParameterMap(), metricsProfile2.getMetricConfigParameterMap());
-        
-        metricsProfile.setMetricConfigParameterMap(metricsProfile2.getMetricConfigParameterMap());
-        assertEquals(metricsProfile.getMetricConfigParameterMap(), metricsProfile2.getMetricConfigParameterMap());
-        
-        
-    }
 
     @Test
     void testClone() {
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
 
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_3_radioTypes);
-
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_2_radioTypes);
-
-
-        assertEquals(metricsProfileDetails_default_radios, metricsProfileDetails_default_radios.clone());
         assertEquals(metricsProfileDetails_3_radios, metricsProfileDetails_3_radios.clone());
         assertEquals(metricsProfileDetails_2_radios, metricsProfileDetails_2_radios.clone());
 
-        assertNotEquals(metricsProfileDetails_default_radios, metricsProfileDetails_2_radios.clone());
         assertNotEquals(metricsProfileDetails_3_radios, metricsProfileDetails_2_radios.clone());
-        assertNotEquals(metricsProfileDetails_default_radios, metricsProfileDetails_3_radios.clone());
+        assertNotEquals(metricsProfileDetails_2_radios, metricsProfileDetails_3_radios.clone());
     }
 
     @Test
     void testEqualsObject() {
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_default_radios1 = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_3_radioTypes);
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios1 = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_3_radioTypes);
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_2_radioTypes);
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios1 = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults(profileMetrics_2_radioTypes);
 
-        assertEquals(metricsProfileDetails_default_radios, metricsProfileDetails_default_radios1);
-        assertEquals(metricsProfileDetails_3_radios, metricsProfileDetails_3_radios1);
-        assertEquals(metricsProfileDetails_2_radios, metricsProfileDetails_2_radios1);
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_3_radios2 = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails_3_radios2.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes,
+                metricDataTypes, true);
+
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails_2_radios2 = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails_2_radios2.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes,
+                metricDataTypes, true);
+
+
+        assertEquals(metricsProfileDetails_3_radios, metricsProfileDetails_3_radios2);
+        assertEquals(metricsProfileDetails_2_radios, metricsProfileDetails_2_radios2);
 
         assertNotEquals(metricsProfileDetails_2_radios, metricsProfileDetails_3_radios);
-        assertNotEquals(metricsProfileDetails_default_radios, metricsProfileDetails_3_radios);
-        assertNotEquals(metricsProfileDetails_default_radios, metricsProfileDetails_2_radios);
+        assertNotEquals(metricsProfileDetails_3_radios, metricsProfileDetails_2_radios);
 
     }
 

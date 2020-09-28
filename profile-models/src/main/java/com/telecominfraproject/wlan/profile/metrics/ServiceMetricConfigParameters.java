@@ -2,110 +2,76 @@ package com.telecominfraproject.wlan.profile.metrics;
 
 import java.util.Objects;
 
-import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
-import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricConfigParameters extends BaseJsonModel
-        implements PushableConfiguration<ServiceMetricConfigParameters> {
+public class ServiceMetricConfigParameters extends CommonServiceMetricConfigParameters {
 
     private static final long serialVersionUID = 1469611396924992464L;
+    private ServiceMetricDataType serviceMetricDataType;
 
 
-    /**
-     * Type of cloud service metric being configured
-     */
-    ServiceMetricDataType serviceMetricDataType;
 
-    /**
-     * Time between sample collections.
-     */
-    Integer samplingInterval;
-    /**
-     * Reporting interval for Metric
-     */
-    Integer reportingIntervalSeconds;
-
-    public ServiceMetricConfigParameters(ServiceMetricDataType dataType, int defaultSampleIntervalMillis,
-            int defaultReportIntervalSeconds) {
-        this.reportingIntervalSeconds = defaultReportIntervalSeconds;
-        this.samplingInterval = defaultSampleIntervalMillis;
-        this.serviceMetricDataType = dataType;
+    private ServiceMetricConfigParameters() {
+        super();
     }
-
-    ServiceMetricConfigParameters() {
-        this.reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
-        this.samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
-
-    }
-
-    public static ServiceMetricConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType) {
-        ServiceMetricConfigParameters ret = new ServiceMetricConfigParameters();
-        ret.serviceMetricDataType = serviceMetricDataType;
-        return ret;
+    
+    public static ServiceMetricConfigParameters createWithDefaults() {
+        return new ServiceMetricConfigParameters();
     }
 
     @Override
-    public boolean needsToBeUpdatedOnDevice(ServiceMetricConfigParameters previousVersion) {
-        return (!this.equals(previousVersion));
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+        if (ServiceMetricDataType.isUnsupported(getServiceMetricDataType())) {
+            return true;
+        }
+        return false;
     }
 
-
-    public Integer getSamplingInterval() {
-        return samplingInterval;
-    }
-
-
-    public void setSamplingInterval(Integer samplingInterval) {
-        this.samplingInterval = samplingInterval;
-    }
-
-    public Integer getReportingIntervalSeconds() {
-        return reportingIntervalSeconds;
-    }
-
-
-    public void setReportingIntervalSeconds(Integer reportingIntervalSeconds) {
-        this.reportingIntervalSeconds = reportingIntervalSeconds;
-    }
-
-    public ServiceMetricDataType getServiceMetricDataType() {
-        return serviceMetricDataType;
-    }
-
-    public void setServiceMetricDataType(ServiceMetricDataType serviceMetricDataType) {
-        this.serviceMetricDataType = serviceMetricDataType;
-    }
-
+    
     @Override
     public ServiceMetricConfigParameters clone() {
         ServiceMetricConfigParameters ret = (ServiceMetricConfigParameters) super.clone();
-
-        ret.reportingIntervalSeconds = this.reportingIntervalSeconds;
-        ret.samplingInterval = this.samplingInterval;
-        ret.serviceMetricDataType = this.serviceMetricDataType;
-
+        ret.setServiceMetricDataType(getServiceMetricDataType());
         return ret;
     }
-
+  
     @Override
     public int hashCode() {
-        return Objects.hash(reportingIntervalSeconds, samplingInterval, serviceMetricDataType);
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(serviceMetricDataType);
+        return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
+        if (!super.equals(obj)) {
+            return false;
+        }
         if (!(obj instanceof ServiceMetricConfigParameters)) {
             return false;
         }
         ServiceMetricConfigParameters other = (ServiceMetricConfigParameters) obj;
-        return Objects.equals(reportingIntervalSeconds, other.reportingIntervalSeconds)
-                && Objects.equals(samplingInterval, other.samplingInterval)
-                && Objects.equals(serviceMetricDataType, other.serviceMetricDataType);
+        return Objects.equals(serviceMetricDataType, other.serviceMetricDataType);
     }
+
+    @Override
+    public ServiceMetricDataType getServiceMetricDataType() {
+        return serviceMetricDataType;
+    }
+
+    @Override
+    public void setServiceMetricDataType(ServiceMetricDataType serviceMetricDataType) {
+       this.serviceMetricDataType = serviceMetricDataType;
+        
+    }
+    
+    
 
 }
