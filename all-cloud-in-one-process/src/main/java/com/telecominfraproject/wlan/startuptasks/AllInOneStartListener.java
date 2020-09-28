@@ -299,8 +299,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileMetrics_2_radios.setName("Metrics-Profile-2-radios");
         Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
         profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
-        profileMetrics_2_radioTypes.add(RadioType.is5GHzL);
-        profileMetrics_2_radioTypes.add(RadioType.is5GHzU);
+        profileMetrics_2_radioTypes.add(RadioType.is5GHz);
         
         ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
         metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes, true);
