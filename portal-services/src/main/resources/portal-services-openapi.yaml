@@ -713,8 +713,6 @@ components:
           format: int32
         autoChannelSelection:
           type: boolean
-        channelBandwidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
         bannedChannels:
           type: array
           items:
@@ -818,30 +816,16 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
-        rtsCtsThreshold:
-          type: integer
-          format: int32
-        autoChannelSelection:
-          $ref: '#/components/schemas/StateSetting'
         radioMode:
           $ref: '#/components/schemas/RadioMode'
-        mimoMode:
-          $ref: '#/components/schemas/MimoMode'
         wmmState:
           $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
-        maxNumClients:
-          type: integer
-          format: int32
         stationIsolation:
           $ref: '#/components/schemas/StateSetting'
-        multicastRate:
-          $ref: '#/components/schemas/MulticastRate'
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
-        activeScanSettings:
-          $ref: '#/components/schemas/ActiveScanSettings'
         channelHopSettings:
           $ref: '#/components/schemas/ChannelHopSettings'
         bestApSettings:
@@ -850,9 +834,6 @@ components:
           $ref: '#/components/schemas/StateSetting'
         legacyBSSRate:
           $ref: '#/components/schemas/StateSetting'
-        beaconInterval:
-          type: integer
-          format: int32
         dtimPeriod:
           type: integer
           format: int32
