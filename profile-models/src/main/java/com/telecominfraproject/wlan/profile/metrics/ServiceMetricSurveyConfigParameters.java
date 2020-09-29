@@ -1,9 +1,11 @@
 package com.telecominfraproject.wlan.profile.metrics;
 
+import java.util.Objects;
+
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricSurveyConfigParameters extends ServiceMetricRadioConfigParameters {
+public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConfigParameters {
 
     /**
      * 
@@ -14,42 +16,17 @@ public class ServiceMetricSurveyConfigParameters extends ServiceMetricRadioConfi
     private int percentUtilizationThreshold;
     private int delayMillisecondsThreshold;
     private StatsReportFormat statsReportFormat;
+    private RadioType radioType;
+    private ServiceMetricDataType serviceMetricDataType;
 
 
-    public ServiceMetricSurveyConfigParameters(RadioType radioType, ServiceMetricDataType dataType,
-            ChannelUtilizationSurveyType channelSurveyType, StatsReportFormat statsReportFormat, int scanIntervalMillis,
-            int sampleIntervalMillis, int reportingIntervalSeconds, int percentUtilizationThreshold,
-            int delayMillisecondsThreshold) {
-        this.radioType = radioType;
-        this.serviceMetricDataType = dataType;
-        this.reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
-        this.samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
-        this.statsReportFormat = StatsReportFormat.RAW;
-        this.channelSurveyType = ChannelUtilizationSurveyType.ON_CHANNEL;
-        this.scanIntervalMillis = ServiceMetricConfigParameterDefaults.DEFAULT_DWELL_TIME_MILLIS;
-        this.percentUtilizationThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_PERCENT_UTILIZATION_THRESHOLD;
-        this.delayMillisecondsThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_MEASUREMENT_DELAY_MILLIS;
-
+    private ServiceMetricSurveyConfigParameters() {
+        super();
     }
 
-    ServiceMetricSurveyConfigParameters() {
-        
-        reportingIntervalSeconds = ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS;
-        samplingInterval = ServiceMetricConfigParameterDefaults.DEFAULT_SAMPLE_INTERVAL_MILLIS;
-        statsReportFormat = StatsReportFormat.RAW;
-        channelSurveyType = ChannelUtilizationSurveyType.ON_CHANNEL;
-        scanIntervalMillis = ServiceMetricConfigParameterDefaults.DEFAULT_DWELL_TIME_MILLIS;
-        percentUtilizationThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_PERCENT_UTILIZATION_THRESHOLD;
-        delayMillisecondsThreshold = ServiceMetricConfigParameterDefaults.DEFAULT_MAX_MEASUREMENT_DELAY_MILLIS;
+    public static ServiceMetricSurveyConfigParameters createWithDefaults() {
+        return new ServiceMetricSurveyConfigParameters();
 
-    }
-
-    public static ServiceMetricSurveyConfigParameters generateDefault(ServiceMetricDataType serviceMetricDataType,
-            RadioType radioType) {
-        ServiceMetricSurveyConfigParameters ret = new ServiceMetricSurveyConfigParameters();
-        ret.serviceMetricDataType = serviceMetricDataType;
-        ret.radioType = radioType;
-        return ret;
     }
 
 
@@ -100,4 +77,86 @@ public class ServiceMetricSurveyConfigParameters extends ServiceMetricRadioConfi
         this.statsReportFormat = statsReportFormat;
     }
 
+    public void setRadioType(RadioType radioType) {
+        this.radioType = radioType;
+    }
+
+    public RadioType getRadioType() {
+        return radioType;
+    }
+
+    @Override
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+
+        if (RadioType.isUnsupported(getRadioType())) {
+            return true;
+        }
+        
+        if (ServiceMetricDataType.isUnsupported(getServiceMetricDataType())) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    @Override
+    public ServiceMetricSurveyConfigParameters clone() {
+        ServiceMetricSurveyConfigParameters ret = (ServiceMetricSurveyConfigParameters) super.clone();
+        ret.setServiceMetricDataType(getServiceMetricDataType());
+        ret.setChannelSurveyType(channelSurveyType);
+        ret.setDelayMillisecondsThreshold(delayMillisecondsThreshold);
+        ret.setPercentUtilizationThreshold(percentUtilizationThreshold);
+        ret.setRadioType(radioType);
+        ret.setScanIntervalMillis(getScanIntervalMillis());
+        ret.setStatsReportFormat(getStatsReportFormat());
+        return ret;
+    }
+
+   
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(channelSurveyType, delayMillisecondsThreshold,
+                percentUtilizationThreshold, radioType, scanIntervalMillis, serviceMetricDataType, statsReportFormat);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof ServiceMetricSurveyConfigParameters)) {
+            return false;
+        }
+        ServiceMetricSurveyConfigParameters other = (ServiceMetricSurveyConfigParameters) obj;
+        return channelSurveyType == other.channelSurveyType
+                && delayMillisecondsThreshold == other.delayMillisecondsThreshold
+                && percentUtilizationThreshold == other.percentUtilizationThreshold && radioType == other.radioType
+                && scanIntervalMillis == other.scanIntervalMillis
+                && Objects.equals(serviceMetricDataType, other.serviceMetricDataType)
+                && statsReportFormat == other.statsReportFormat;
+    }
+
+    @Override
+    public ServiceMetricDataType getServiceMetricDataType() {
+        return serviceMetricDataType ;
+    }
+
+    @Override
+    public void setServiceMetricDataType(ServiceMetricDataType serviceMetricDataType) {
+       this.serviceMetricDataType = serviceMetricDataType;
+        
+    }
+
 }
+

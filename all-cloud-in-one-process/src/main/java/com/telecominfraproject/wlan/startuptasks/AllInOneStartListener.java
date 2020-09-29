@@ -5,14 +5,12 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +44,6 @@ import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
-import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
 import com.telecominfraproject.wlan.core.model.service.bonjour.BonjourService;
@@ -280,33 +277,34 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileMetrics_3_radios.setCustomerId(customer.getId());
         profileMetrics_3_radios.setProfileType(ProfileType.metrics);
         profileMetrics_3_radios.setName("Metrics-Profile-3-radios");
-        List<RadioType> profileMetrics_3_radioTypes = new ArrayList<RadioType>();
+        Set<RadioType> profileMetrics_3_radioTypes = new HashSet<>();
         profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
         profileMetrics_3_radioTypes.add(RadioType.is5GHzL);
         profileMetrics_3_radioTypes.add(RadioType.is5GHzU);
         
-        List<ServiceMetricDataType> metricTypes = new ArrayList<>();
+        Set<ServiceMetricDataType> metricTypes = new HashSet<>();
         metricTypes.add(ServiceMetricDataType.ApNode);
         metricTypes.add(ServiceMetricDataType.ApSsid);
         metricTypes.add(ServiceMetricDataType.Channel);
         metricTypes.add(ServiceMetricDataType.Client);
         metricTypes.add(ServiceMetricDataType.Neighbour);
-
-        profileMetrics_3_radios.setDetails(ServiceMetricsCollectionConfigProfile.createWithDefaults(profileMetrics_3_radioTypes));
-        
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails3Radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes, true);
+        profileMetrics_3_radios.setDetails(metricsProfileDetails3Radios);
         profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
         
         Profile profileMetrics_2_radios = new Profile();
         profileMetrics_2_radios.setCustomerId(customer.getId());
         profileMetrics_2_radios.setProfileType(ProfileType.metrics);
         profileMetrics_2_radios.setName("Metrics-Profile-2-radios");
-        List<RadioType> profileMetrics_2_radioTypes = new ArrayList<RadioType>();
+        Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
         profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
-        profileMetrics_2_radioTypes.add(RadioType.is5GHzL);
-        profileMetrics_2_radioTypes.add(RadioType.is5GHzU);
+        profileMetrics_2_radioTypes.add(RadioType.is5GHz);
         
-        profileMetrics_2_radios.setDetails(ServiceMetricsCollectionConfigProfile.createWithDefaults(profileMetrics_2_radioTypes));
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
+        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes, true);
 
+        profileMetrics_2_radios.setDetails(metricsProfileDetails2Radios);
         profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
 
         Profile profileSsidEAP = new Profile();
@@ -440,8 +438,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
-
+        profileAp_2_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
         Profile enterpriseProfileAp = new Profile();
