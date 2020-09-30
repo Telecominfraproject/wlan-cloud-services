@@ -57,6 +57,10 @@ public class ProfileType implements EnumWithId {
     mesh = new ProfileType(7, "mesh"),
     metrics = new ProfileType(8,"metrics"),
     rf = new ProfileType(9, "rf"),
+    hotspot_2pt0 = new ProfileType(10,"hotspot_2pt0"),
+    operator = new ProfileType(11, "operator"),
+    venue = new ProfileType(12,"venue"),
+    id_provider = new ProfileType(13,"id_provider"),   
     UNSUPPORTED = new ProfileType(-1, "UNSUPPORTED");
     
     static {
