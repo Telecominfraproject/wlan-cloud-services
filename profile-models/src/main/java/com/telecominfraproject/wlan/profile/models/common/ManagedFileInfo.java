@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.profile.captiveportal.models;
+package com.telecominfraproject.wlan.profile.models.common;
 
 import java.util.Arrays;
 

@@ -8,6 +8,9 @@ import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.models.common.FileCategory;
+import com.telecominfraproject.wlan.profile.models.common.FileType;
+import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.passpoint.models.AccessNetworkType;
 import com.telecominfraproject.wlan.profile.passpoint.models.ConnectionCapabilitiesIpProtocol;
 import com.telecominfraproject.wlan.profile.passpoint.models.ConnectionCapabilitiesStatus;
@@ -34,7 +37,7 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
 
     private int operatingClass;
 
-    private Hotspot2TermsAndConditionsFile termsAndConditionsFile;
+    private ManagedFileInfo termsAndConditionsFile;
 
     private String whitelistDomain;
 
@@ -46,7 +49,11 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
 
     private String ipAddressTypeAvailability;
 
-    private String connectionCapability;
+    private ConnectionCapabilitiesIpProtocol connectionCapabilitiesIpProtocol;
+
+    private ConnectionCapabilitiesStatus connectionCapabilitiesStatus;
+
+    private int connectionCapabilitiesPortNumber;
 
     private Set<String> qosMapSetConfiguration;
 
@@ -68,8 +75,9 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         setAccessNetworkType(AccessNetworkType.free_public_network);
         setAdditionalStepsRequiredForAccess(0);
         setAnqpDomainId(1234);
-        setConnectionCapability(ConnectionCapabilitiesIpProtocol.TCP.getId() + ":" + "8080" + ":"
-                + ConnectionCapabilitiesStatus.open.getName());
+        setConnectionCapabilitiesIpProtocol(ConnectionCapabilitiesIpProtocol.TCP);
+        setConnectionCapabilitiesPortNumber(8888);
+        setConnectionCapabilitiesStatus(ConnectionCapabilitiesStatus.open);
         setDeauthRequestTimeout(0);
         setDisableDownstreamGroupAddressedForwarding(false);
         setEmergencyServicesReachable(true);
@@ -79,7 +87,10 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         setIpAddressTypeAvailability(IPv4PasspointAddressType.public_IPv4_address_available.getName());
         setNetworkAuthenticationType(NetworkAuthenticationType.acceptance_of_terms_and_conditions);
         setOperatingClass(0);
-        setTermsAndConditionsFile(Hotspot2TermsAndConditionsFile.createWithDefaults());
+        termsAndConditionsFile = new ManagedFileInfo();
+        termsAndConditionsFile.setApExportUrl("https://localhost:9091/filestore/termsAndConditions");
+        termsAndConditionsFile.setFileCategory(FileCategory.ExternalPolicyConfiguration);
+        termsAndConditionsFile.setFileType(FileType.TEXT);
     }
 
     public static Hotspot2Profile createWithDefaults() {
@@ -206,6 +217,32 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
     }
 
 
+    public ConnectionCapabilitiesIpProtocol getConnectionCapabilitiesIpProtocol() {
+        return connectionCapabilitiesIpProtocol;
+    }
+
+    public void setConnectionCapabilitiesIpProtocol(ConnectionCapabilitiesIpProtocol connectionCapabilitiesIpProtocol) {
+        this.connectionCapabilitiesIpProtocol = connectionCapabilitiesIpProtocol;
+    }
+
+
+    public ConnectionCapabilitiesStatus getConnectionCapabilitiesStatus() {
+        return connectionCapabilitiesStatus;
+    }
+
+
+    public void setConnectionCapabilitiesStatus(ConnectionCapabilitiesStatus connectionCapabilitiesStatus) {
+        this.connectionCapabilitiesStatus = connectionCapabilitiesStatus;
+    }
+
+    public int getConnectionCapabilitiesPortNumber() {
+        return connectionCapabilitiesPortNumber;
+    }
+
+    public void setConnectionCapabilitiesPortNumber(int connectionCapabilitiesPortNumber) {
+        this.connectionCapabilitiesPortNumber = connectionCapabilitiesPortNumber;
+    }
+
     public String getIpAddressTypeAvailability() {
         // # format: <1-octet encoded value as hex str>
         // # (ipv4_type & 0x3f) << 2 | (ipv6_type & 0x3)
@@ -215,29 +252,6 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
 
     public void setIpAddressTypeAvailability(String ipAddressTypeAvailability) {
         this.ipAddressTypeAvailability = ipAddressTypeAvailability;
-    }
-
-
-    public String getConnectionCapability() {
-        // # Connection Capability
-        // # This can be used to advertise what type of IP traffic can be sent
-        // through the
-        // # hotspot (e.g., due to firewall allowing/blocking protocols/ports).
-        // # format: <IP Protocol>:<Port Number>:<Status>
-        // # IP Protocol: 1 = ICMP, 6 = TCP, 17 = UDP
-        // # Port Number: 0..65535
-        // # Status: 0 = Closed, 1 = Open, 2 = Unknown
-        // # Each hs20_conn_capab line is added to the list of advertised
-        // tuples.
-        // #hs20_conn_capab=1:0:2
-        // #hs20_conn_capab=6:22:1
-        // #hs20_conn_capab=17:5060:0
-        return connectionCapability;
-    }
-
-
-    public void setConnectionCapability(String connectionCapability) {
-        this.connectionCapability = connectionCapability;
     }
 
 
@@ -315,11 +329,11 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         this.disableDownstreamGroupAddressedForwarding = disableDownstreamGroupAddressedForwarding;
     }
 
-    public Hotspot2TermsAndConditionsFile getTermsAndConditionsFile() {
+    public ManagedFileInfo getTermsAndConditionsFile() {
         return termsAndConditionsFile;
     }
 
-    public void setTermsAndConditionsFile(Hotspot2TermsAndConditionsFile termsAndConditionsFile) {
+    public void setTermsAndConditionsFile(ManagedFileInfo termsAndConditionsFile) {
         this.termsAndConditionsFile = termsAndConditionsFile;
     }
 
@@ -332,7 +346,9 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         returnValue.setApCivicLocation(apCivicLocation);
         returnValue.setApGeospatialLocation(apGeospatialLocation);
         returnValue.setApPublicLocationIdUri(apPublicLocationIdUri);
-        returnValue.setConnectionCapability(connectionCapability);
+        returnValue.setConnectionCapabilitiesIpProtocol(connectionCapabilitiesIpProtocol);
+        returnValue.setConnectionCapabilitiesPortNumber(connectionCapabilitiesPortNumber);
+        returnValue.setConnectionCapabilitiesStatus(connectionCapabilitiesStatus);
         returnValue.setDeauthRequestTimeout(deauthRequestTimeout);
         returnValue.setDisableDownstreamGroupAddressedForwarding(disableDownstreamGroupAddressedForwarding);
         returnValue.setEmergencyServicesReachable(emergencyServicesReachable);
@@ -353,7 +369,8 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
     @Override
     public int hashCode() {
         return Objects.hash(accessNetworkType, additionalStepsRequiredForAccess, anqpDomainId, apCivicLocation,
-                apGeospatialLocation, apPublicLocationIdUri, connectionCapability, deauthRequestTimeout,
+                apGeospatialLocation, apPublicLocationIdUri, connectionCapabilitiesIpProtocol,
+                connectionCapabilitiesPortNumber, connectionCapabilitiesStatus, deauthRequestTimeout,
                 disableDownstreamGroupAddressedForwarding, emergencyServicesReachable, enableInterworkingAndHs20,
                 gasAddr3Behaviour, hessid, internetConnectivity, ipAddressTypeAvailability, networkAuthenticationType,
                 operatingClass, qosMapSetConfiguration, termsAndConditionsFile,
@@ -374,7 +391,9 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
                 && anqpDomainId == other.anqpDomainId && Objects.equals(apCivicLocation, other.apCivicLocation)
                 && Objects.equals(apGeospatialLocation, other.apGeospatialLocation)
                 && Objects.equals(apPublicLocationIdUri, other.apPublicLocationIdUri)
-                && Objects.equals(connectionCapability, other.connectionCapability)
+                && Objects.equals(connectionCapabilitiesIpProtocol, other.connectionCapabilitiesIpProtocol)
+                && connectionCapabilitiesPortNumber == other.connectionCapabilitiesPortNumber
+                && Objects.equals(connectionCapabilitiesStatus, other.connectionCapabilitiesStatus)
                 && deauthRequestTimeout == other.deauthRequestTimeout
                 && disableDownstreamGroupAddressedForwarding == other.disableDownstreamGroupAddressedForwarding
                 && emergencyServicesReachable == other.emergencyServicesReachable

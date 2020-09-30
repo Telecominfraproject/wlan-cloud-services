@@ -73,9 +73,6 @@ import com.telecominfraproject.wlan.profile.bonjour.models.BonjourGatewayProfile
 import com.telecominfraproject.wlan.profile.bonjour.models.BonjourServiceSet;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
-import com.telecominfraproject.wlan.profile.captiveportal.models.FileCategory;
-import com.telecominfraproject.wlan.profile.captiveportal.models.FileType;
-import com.telecominfraproject.wlan.profile.captiveportal.models.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
@@ -83,6 +80,9 @@ import com.telecominfraproject.wlan.profile.metrics.ServiceMetricsCollectionConf
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.models.common.FileCategory;
+import com.telecominfraproject.wlan.profile.models.common.FileType;
+import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;

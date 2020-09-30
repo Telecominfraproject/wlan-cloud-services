@@ -14,6 +14,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationExcepti
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 /**

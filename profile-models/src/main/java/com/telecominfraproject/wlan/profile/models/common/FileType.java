@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.profile.captiveportal.models;
+package com.telecominfraproject.wlan.profile.models.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
