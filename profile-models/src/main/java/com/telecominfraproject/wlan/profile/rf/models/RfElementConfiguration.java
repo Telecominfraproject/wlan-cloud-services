@@ -5,12 +5,17 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualValue;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
+import com.telecominfraproject.wlan.core.model.equipment.ChannelHopSettings;
+import com.telecominfraproject.wlan.core.model.equipment.RadioBestApSettings;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.equipment.models.ActiveScanSettings;
+import com.telecominfraproject.wlan.equipment.models.ManagementRate;
 import com.telecominfraproject.wlan.equipment.models.MimoMode;
 import com.telecominfraproject.wlan.equipment.models.MulticastRate;
+import com.telecominfraproject.wlan.equipment.models.NeighbouringAPListConfiguration;
 import com.telecominfraproject.wlan.equipment.models.StateSetting;
 
 public class RfElementConfiguration extends BaseJsonModel {
@@ -19,12 +24,12 @@ public class RfElementConfiguration extends BaseJsonModel {
 	
     private static final Logger LOG = LoggerFactory.getLogger(RfElementConfiguration.class);
     
-//  private final static int MIN_TWOFOURG_RADIO_CELL_SIZE = -80;
-//	private final static int MIN_FIVEG_RADIO_CELL_SIZE = -80;
-//	private final static int MIN_FIVEGUPPER_RADIO_CELL_SIZE = -80;
-//	private final static int MIN_FIVEGLOWER_RADIO_CELL_SIZE = -80;
-//	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
-//	public final static int DEFAULT_EIRP_TX_POWER = 18;
+    private final static int MIN_TWOFOURG_RADIO_CELL_SIZE = -80;
+	private final static int MIN_FIVEG_RADIO_CELL_SIZE = -80;
+	private final static int MIN_FIVEGUPPER_RADIO_CELL_SIZE = -80;
+	private final static int MIN_FIVEGLOWER_RADIO_CELL_SIZE = -80;
+	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
+	public final static int DEFAULT_EIRP_TX_POWER = 18;
 	public final static int DEFAULT_BEACON_INTERVAL = 100;
 	
     // Parameters for each RadioType
@@ -36,20 +41,21 @@ public class RfElementConfiguration extends BaseJsonModel {
     private MimoMode mimoMode;
     private Integer maxNumClients;
     private MulticastRate multicastRate;
-//  private boolean autoChannelSelection;
-    private ActiveScanSettings activeScanSettings;
-//    
-//  private ManagementRate managementRate;
-//  private AutoOrManualValue rxCellSizeDb;
-//	private AutoOrManualValue probeResponseThresholdDb;
-//	private AutoOrManualValue clientDisconnectThresholdDb;
-//	private AutoOrManualValue eirpTxPower;
-//	private Boolean bestApEnabled;
-//	private NeighbouringAPListConfiguration neighbouringListApConfig;
-//	private Integer minAutoCellSize;
-//	private Boolean perimeterDetectionEnabled;
-//  private ChannelHopSettings channelHopSettings;
-//  private RadioBestApSettings bestApSettings;
+    private boolean autoChannelSelection;
+  	private ActiveScanSettings activeScanSettings;
+    
+  	// RRM related parameters
+  	private ManagementRate managementRate;
+  	private AutoOrManualValue rxCellSizeDb;
+	private AutoOrManualValue probeResponseThresholdDb;
+	private AutoOrManualValue clientDisconnectThresholdDb;
+	private AutoOrManualValue eirpTxPower;
+	private Boolean bestApEnabled;
+	private NeighbouringAPListConfiguration neighbouringListApConfig;
+	private Integer minAutoCellSize;
+	private Boolean perimeterDetectionEnabled;
+	private ChannelHopSettings channelHopSettings;
+	private RadioBestApSettings bestApSettings;
     
     private RfElementConfiguration() {
     	long timestamp = System.currentTimeMillis();
@@ -60,28 +66,34 @@ public class RfElementConfiguration extends BaseJsonModel {
     	setMimoMode(MimoMode.twoByTwo);
     	setMaxNumClients(100);
     	setMulticastRate(MulticastRate.auto);
-//    	setAutoChannelSelection(false);
+    	setAutoChannelSelection(false);
     	setActiveScanSettings(ActiveScanSettings.createWithDefaults());
-//    	setManagementRate(ManagementRate.auto);
-//    	setRxCellSizeDb(AutoOrManualValue.createAutomaticInstance(DEFAULT_RX_CELL_SIZE_DB));
-//    	setProbeResponseThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
-//    	setClientDisconnectThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
-//    	setEirpTxPower(AutoOrManualValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
-//    	setBestApEnabled(null);
-//    	setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
-//    	setPerimeterDetectionEnabled(true);
-//    	setChannelHopSettings(ChannelHopSettings.createWithDefaults());
+    	setManagementRate(ManagementRate.auto);
+    	setRxCellSizeDb(AutoOrManualValue.createAutomaticInstance(DEFAULT_RX_CELL_SIZE_DB));
+    	setProbeResponseThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
+    	setClientDisconnectThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
+    	setEirpTxPower(AutoOrManualValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
+    	setBestApEnabled(null);
+    	setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
+    	setPerimeterDetectionEnabled(true);
+    	setChannelHopSettings(ChannelHopSettings.createWithDefaults());
     }
     
     public static RfElementConfiguration createWithDefaults(RadioType radioType) {
         RfElementConfiguration ret = new RfElementConfiguration();  
-//      ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
+        ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
     		ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
-//    		ret.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
+    		if (radioType == RadioType.is5GHzL) {
+    			ret.setMinAutoCellSize(MIN_FIVEGLOWER_RADIO_CELL_SIZE);
+    		} else if (radioType == RadioType.is5GHzU) {
+    			ret.setMinAutoCellSize(MIN_FIVEGUPPER_RADIO_CELL_SIZE);
+    		} else {
+    			ret.setMinAutoCellSize(MIN_FIVEG_RADIO_CELL_SIZE);
+    		}
         } else {
         	ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
-//        	ret.setMinAutoCellSize(MIN_BG_RADIO_CELL_SIZE);
+        	ret.setMinAutoCellSize(MIN_TWOFOURG_RADIO_CELL_SIZE);
         }
     	return ret;
     }
@@ -150,13 +162,13 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.multicastRate = multicastRate;
 	}
 
-//	public boolean getAutoChannelSelection() {
-//		return autoChannelSelection;
-//	}
-//
-//	public void setAutoChannelSelection(boolean autoChannelSelection) {
-//		this.autoChannelSelection = autoChannelSelection;
-//	}
+	public boolean getAutoChannelSelection() {
+		return autoChannelSelection;
+	}
+
+	public void setAutoChannelSelection(boolean autoChannelSelection) {
+		this.autoChannelSelection = autoChannelSelection;
+	}
 
 	public ActiveScanSettings getActiveScanSettings() {
 		return activeScanSettings;
@@ -166,97 +178,105 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.activeScanSettings = activeScanSettings;
 	}
 
-//	public ManagementRate getManagementRate() {
-//		return managementRate;
-//	}
-//
-//	public void setManagementRate(ManagementRate managementRate) {
-//		this.managementRate = managementRate;
-//	}
-//
-//	public AutoOrManualValue getRxCellSizeDb() {
-//		return rxCellSizeDb;
-//	}
-//
-//	public void setRxCellSizeDb(AutoOrManualValue rxCellSizeDb) {
-//		this.rxCellSizeDb = rxCellSizeDb;
-//	}
-//
-//	public AutoOrManualValue getProbeResponseThresholdDb() {
-//		return probeResponseThresholdDb;
-//	}
-//
-//	public void setProbeResponseThresholdDb(AutoOrManualValue probeResponseThresholdDb) {
-//		this.probeResponseThresholdDb = probeResponseThresholdDb;
-//	}
-//
-//	public AutoOrManualValue getClientDisconnectThresholdDb() {
-//		return clientDisconnectThresholdDb;
-//	}
-//
-//	public void setClientDisconnectThresholdDb(AutoOrManualValue clientDisconnectThresholdDb) {
-//		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
-//	}
-//
-//	public AutoOrManualValue getEirpTxPower() {
-//		return eirpTxPower;
-//	}
-//
-//	public void setEirpTxPower(AutoOrManualValue eirpTxPower) {
-//		this.eirpTxPower = eirpTxPower;
-//	}
-//
-//	public Boolean getBestApEnabled() {
-//		return bestApEnabled;
-//	}
-//
-//	public void setBestApEnabled(Boolean bestApEnabled) {
-//		this.bestApEnabled = bestApEnabled;
-//	}
-//
-//	public NeighbouringAPListConfiguration getNeighbouringListApConfig() {
-//		return neighbouringListApConfig;
-//	}
-//
-//	public void setNeighbouringListApConfig(NeighbouringAPListConfiguration neighbouringListApConfig) {
-//		this.neighbouringListApConfig = neighbouringListApConfig;
-//	}
-//
-//	public int getMinAutoCellSize(RadioType radioType) {
-//		if (minAutoCellSize == null) {
-//			return radioType == RadioType.is2dot4GHz ? MIN_BG_RADIO_CELL_SIZE : MIN_AC_RADIO_CELL_SIZE;
-//		}
-//
-//		return minAutoCellSize;
-//	}
-//
-//	public void setMinAutoCellSize(Integer minAutoCellSize) {
-//		this.minAutoCellSize = minAutoCellSize;
-//	}
-//
-//	public Boolean getPerimeterDetectionEnabled() {
-//		return perimeterDetectionEnabled;
-//	}
-//
-//	public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
-//		this.perimeterDetectionEnabled = perimeterDetectionEnabled;
-//	}
-//
-//	public ChannelHopSettings getChannelHopSettings() {
-//		return channelHopSettings;
-//	}
-//
-//	public void setChannelHopSettings(ChannelHopSettings channelHopSettings) {
-//		this.channelHopSettings = channelHopSettings;
-//	}
-//
-//	public RadioBestApSettings getBestApSettings() {
-//		return bestApSettings;
-//	}
-//
-//	public void setBestApSettings(RadioBestApSettings bestApSettings) {
-//		this.bestApSettings = bestApSettings;
-//	}
+	public ManagementRate getManagementRate() {
+		return managementRate;
+	}
+
+	public void setManagementRate(ManagementRate managementRate) {
+		this.managementRate = managementRate;
+	}
+
+	public AutoOrManualValue getRxCellSizeDb() {
+		return rxCellSizeDb;
+	}
+
+	public void setRxCellSizeDb(AutoOrManualValue rxCellSizeDb) {
+		this.rxCellSizeDb = rxCellSizeDb;
+	}
+
+	public AutoOrManualValue getProbeResponseThresholdDb() {
+		return probeResponseThresholdDb;
+	}
+
+	public void setProbeResponseThresholdDb(AutoOrManualValue probeResponseThresholdDb) {
+		this.probeResponseThresholdDb = probeResponseThresholdDb;
+	}
+
+	public AutoOrManualValue getClientDisconnectThresholdDb() {
+		return clientDisconnectThresholdDb;
+	}
+
+	public void setClientDisconnectThresholdDb(AutoOrManualValue clientDisconnectThresholdDb) {
+		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
+	}
+
+	public AutoOrManualValue getEirpTxPower() {
+		return eirpTxPower;
+	}
+
+	public void setEirpTxPower(AutoOrManualValue eirpTxPower) {
+		this.eirpTxPower = eirpTxPower;
+	}
+
+	public Boolean getBestApEnabled() {
+		return bestApEnabled;
+	}
+
+	public void setBestApEnabled(Boolean bestApEnabled) {
+		this.bestApEnabled = bestApEnabled;
+	}
+
+	public NeighbouringAPListConfiguration getNeighbouringListApConfig() {
+		return neighbouringListApConfig;
+	}
+
+	public void setNeighbouringListApConfig(NeighbouringAPListConfiguration neighbouringListApConfig) {
+		this.neighbouringListApConfig = neighbouringListApConfig;
+	}
+
+	public int getMinAutoCellSize(RadioType radioType) {
+		if (minAutoCellSize == null) {
+			if (radioType == RadioType.is5GHzL) {
+    			return MIN_FIVEGLOWER_RADIO_CELL_SIZE;
+    		} else if (radioType == RadioType.is5GHzU) {
+    			return MIN_FIVEGUPPER_RADIO_CELL_SIZE;
+    		} else if (radioType == RadioType.is5GHz){
+    			return MIN_FIVEG_RADIO_CELL_SIZE;
+    		} else {
+    			return MIN_TWOFOURG_RADIO_CELL_SIZE;
+    		}
+		}
+
+		return minAutoCellSize;
+	}
+
+	public void setMinAutoCellSize(Integer minAutoCellSize) {
+		this.minAutoCellSize = minAutoCellSize;
+	}
+
+	public Boolean getPerimeterDetectionEnabled() {
+		return perimeterDetectionEnabled;
+	}
+
+	public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
+		this.perimeterDetectionEnabled = perimeterDetectionEnabled;
+	}
+
+	public ChannelHopSettings getChannelHopSettings() {
+		return channelHopSettings;
+	}
+
+	public void setChannelHopSettings(ChannelHopSettings channelHopSettings) {
+		this.channelHopSettings = channelHopSettings;
+	}
+
+	public RadioBestApSettings getBestApSettings() {
+		return bestApSettings;
+	}
+
+	public void setBestApSettings(RadioBestApSettings bestApSettings) {
+		this.bestApSettings = bestApSettings;
+	}
 
 	@Override
     public RfElementConfiguration clone() {
@@ -297,10 +317,10 @@ public class RfElementConfiguration extends BaseJsonModel {
 		if (StateSetting.isUnsupported(forceScanDuringVoice) || ChannelBandwidth.isUnsupported(channelBandwidth)
 				|| MimoMode.isUnsupported(mimoMode) || MulticastRate.isUnsupported(multicastRate) 
 				|| ActiveScanSettings.hasUnsupportedValue(activeScanSettings) 
-//				|| AutoOrManualValue.hasUnsupportedValue(rxCellSizeDb) || ManagementRate.isUnsupported(managementRate)
-//				|| AutoOrManualValue.hasUnsupportedValue(probeResponseThresholdDb) || AutoOrManualValue.hasUnsupportedValue(clientDisconnectThresholdDb) 
-//				|| AutoOrManualValue.hasUnsupportedValue(eirpTxPower) || NeighbouringAPListConfiguration.hasUnsupportedValue(neighbouringListApConfig)
-//				|| ChannelHopSettings.hasUnsupportedValue(channelHopSettings) || RadioBestApSettings.hasUnsupportedValue(bestApSettings)
+				|| AutoOrManualValue.hasUnsupportedValue(rxCellSizeDb) || ManagementRate.isUnsupported(managementRate)
+				|| AutoOrManualValue.hasUnsupportedValue(probeResponseThresholdDb) || AutoOrManualValue.hasUnsupportedValue(clientDisconnectThresholdDb) 
+				|| AutoOrManualValue.hasUnsupportedValue(eirpTxPower) || NeighbouringAPListConfiguration.hasUnsupportedValue(neighbouringListApConfig)
+				|| ChannelHopSettings.hasUnsupportedValue(channelHopSettings) || RadioBestApSettings.hasUnsupportedValue(bestApSettings)
 				) {
 			return true;
 		}

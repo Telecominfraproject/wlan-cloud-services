@@ -88,6 +88,7 @@ import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfigura
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
+import com.telecominfraproject.wlan.profile.rf.models.RfConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.SecureMode;
 import com.telecominfraproject.wlan.servicemetric.ServiceMetricServiceInterface;
@@ -349,6 +350,14 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
         profileSsid_2_radios.setDetails(ssidConfig_2_radios);
         profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
+        
+        Profile profileRf = new Profile();
+		profileRf.setCustomerId(customer.getId());
+		profileRf.setName("TipWlan-rf");
+		RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
+		rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf"));
+		profileRf.setDetails(rfConfig);
+		profileRf = profileServiceInterface.create(profileRf);
 
         // Captive portal profile
         Profile profileCaptivePortal = new Profile();
@@ -426,6 +435,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileMetrics_3_radios.getId());
+        profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         Profile profileAp_2_radios = new Profile();
@@ -439,6 +449,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
         profileAp_2_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
+        profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
         Profile enterpriseProfileAp = new Profile();
