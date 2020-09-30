@@ -610,7 +610,6 @@ components:
           type: integer
           format: int32
         
-    
     MimoMode:
       type: string
       enum:
@@ -644,6 +643,20 @@ components:
         scanDurationMillis:
           type: integer
           format: int32
+      
+    ManagementRate:
+      type: string
+      enum:
+        - auto
+        - rate1mbps
+        - rate2mbps
+        - rate5dot5mbps
+        - rate6mbps
+        - rate9mbps
+        - rate11mbps
+        - rate12mbps
+        - rate18mbps
+        - rate24mbps
           
     ChannelBandwidth:
       description: On 2.4GHz radio only auto or is20MHz values can be used. On 5GHz radio all values can be used. 
@@ -654,6 +667,72 @@ components:
         - is40MHz
         - is80MHz
         - is160MHz
+        
+    ObssHopMode:
+      type: string
+      enum:
+        - NON_WIFI
+        - NON_WIFI_AND_OBSS
+      default: NON_WIFI
+        
+    RadioBestApSettings:
+      description: If mlComputed=true, then dropInSnrPercentage and minLoadFactor properties are populated by ML algorithms. If  mlComputed=false, then those values are supposed to be populated by hand (ML-computed ones will be ignored).
+      type: object
+      properties:
+        mlComputed:
+          type: boolean
+          default: true
+        dropInSnrPercentage:
+          type: integer
+          format: int32
+          default: 10
+        minLoadFactor:
+          type: integer
+          format: int32
+          default: 10
+          
+    ChannelHopSettings:
+      description: If noise floor (avg over 4 measurements, measurement interval being 1 sec.) is above -75 dB for more than 3 minutes OR
+        If Non WiFi utilization is more than 50% for more than 3 minutes channel will be changed.
+      type: object
+      properties:
+        noiseFloorThresholdInDB:
+          type: integer
+          format: int32
+          default: -75
+        noiseFloorThresholdTimeInSeconds:
+          type: integer
+          format: int32
+          default: 180
+        nonWifiThresholdInPercentage:
+          type: integer
+          format: int32
+          default: 50
+        nonWifiThresholdTimeInSeconds:
+          type: integer
+          format: int32
+          default: 180
+        obssHopMode:
+          $ref: '#/components/schemas/ObssHopMode'
+    
+    NeighbouringAPListConfiguration:
+      type: object
+      properties:
+        minSignal:
+          type: integer
+          format: int32
+        maxAps:
+          type: integer
+          format: int32
+          
+    AutoOrManualValue:
+      type: object
+      properties:
+        auto:
+          type: boolean
+        value:
+          type: integer
+          format: int32
         
     RfConfiguration:
       description: Properties for the RF ConfigurationProfile
@@ -683,6 +762,8 @@ components:
           - RfElementConfiguration
         rf:
           type: string
+        autoChannelSelection:
+          type: boolean
         beaconInterval:
           type: integer
           format: int32
@@ -700,10 +781,31 @@ components:
           format: int32
         multicastRate:
           $ref: '#/components/schemas/MulticastRate'
-        autoChannelSelection:
-          type: boolean
         activeScanSettings:
           $ref: '#/components/schemas/ActiveScanSettings'
+        managementRate:
+          $ref: '#/components/schemas/ManagementRate'
+        rxCellSizeDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        probeResponseThresholdDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        clientDisconnectThresholdDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        eirpTxPower:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        bestApEnabled:
+          type: boolean
+        neighbouringListApConfig:
+          $ref: '#/components/schemas/NeighbouringAPListConfiguration'
+        minAutoCellSize:
+          type: integer
+          format: int32
+        perimeterDetectionEnabled:
+          type: boolean
+        channelHopSettings:
+          $ref: '#/components/schemas/ChannelHopSettings'
+        bestApSettings:
+          $ref: '#/components/schemas/RadioBestApSettings'        
 
     SsidConfiguration:
       description: Properties for the SSID Configuration profile.

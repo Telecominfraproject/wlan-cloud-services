@@ -1488,6 +1488,8 @@ components:
           - RfElementConfiguration
         rf:
           type: string
+        autoChannelSelection:
+          type: boolean
         beaconInterval:
           type: integer
           format: int32
@@ -1505,10 +1507,31 @@ components:
           format: int32
         multicastRate:
           $ref: '#/components/schemas/MulticastRate'
-        autoChannelSelection:
-          type: boolean
         activeScanSettings:
-          $ref: '#/components/schemas/ActiveScanSettings'   
+          $ref: '#/components/schemas/ActiveScanSettings'
+        managementRate:
+          $ref: '#/components/schemas/ManagementRate'
+        rxCellSizeDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        probeResponseThresholdDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        clientDisconnectThresholdDb:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        eirpTxPower:
+          $ref: '#/components/schemas/AutoOrManualValue'
+        bestApEnabled:
+          type: boolean
+        neighbouringListApConfig:
+          $ref: '#/components/schemas/NeighbouringAPListConfiguration'
+        minAutoCellSize:
+          type: integer
+          format: int32
+        perimeterDetectionEnabled:
+          type: boolean
+        channelHopSettings:
+          $ref: '#/components/schemas/ChannelHopSettings'
+        bestApSettings:
+          $ref: '#/components/schemas/RadioBestApSettings'      
     
 
     SsidConfiguration:
