@@ -1,5 +1,8 @@
 package com.telecominfraproject.wlan.profile.rf.models;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -24,10 +27,15 @@ public class RfElementConfiguration extends BaseJsonModel {
 	
     private static final Logger LOG = LoggerFactory.getLogger(RfElementConfiguration.class);
     
-    private final static int MIN_TWOFOURG_RADIO_CELL_SIZE = -80;
-	private final static int MIN_FIVEG_RADIO_CELL_SIZE = -80;
-	private final static int MIN_FIVEGUPPER_RADIO_CELL_SIZE = -80;
-	private final static int MIN_FIVEGLOWER_RADIO_CELL_SIZE = -80;
+    private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
+    static {
+    	Map<RadioType, Integer> map = new HashMap<>();
+    	map.put(RadioType.is2dot4GHz, -80);
+    	map.put(RadioType.is5GHz, -80);
+    	map.put(RadioType.is5GHzL, -80);
+    	map.put(RadioType.is5GHzU, -80);
+    	MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
+    }
 	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
 	public final static int DEFAULT_EIRP_TX_POWER = 18;
 	public final static int DEFAULT_BEACON_INTERVAL = 100;
@@ -82,18 +90,11 @@ public class RfElementConfiguration extends BaseJsonModel {
     public static RfElementConfiguration createWithDefaults(RadioType radioType) {
         RfElementConfiguration ret = new RfElementConfiguration();  
         ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
+        ret.setMinAutoCellSize(MIN_CELL_SIZE_MAP.get(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
     		ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
-    		if (radioType == RadioType.is5GHzL) {
-    			ret.setMinAutoCellSize(MIN_FIVEGLOWER_RADIO_CELL_SIZE);
-    		} else if (radioType == RadioType.is5GHzU) {
-    			ret.setMinAutoCellSize(MIN_FIVEGUPPER_RADIO_CELL_SIZE);
-    		} else {
-    			ret.setMinAutoCellSize(MIN_FIVEG_RADIO_CELL_SIZE);
-    		}
         } else {
         	ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
-        	ret.setMinAutoCellSize(MIN_TWOFOURG_RADIO_CELL_SIZE);
         }
     	return ret;
     }
@@ -236,14 +237,10 @@ public class RfElementConfiguration extends BaseJsonModel {
 
 	public int getMinAutoCellSize(RadioType radioType) {
 		if (minAutoCellSize == null) {
-			if (radioType == RadioType.is5GHzL) {
-    			return MIN_FIVEGLOWER_RADIO_CELL_SIZE;
-    		} else if (radioType == RadioType.is5GHzU) {
-    			return MIN_FIVEGUPPER_RADIO_CELL_SIZE;
-    		} else if (radioType == RadioType.is5GHz){
-    			return MIN_FIVEG_RADIO_CELL_SIZE;
+    		if (MIN_CELL_SIZE_MAP.containsKey(radioType)) {
+    			return MIN_CELL_SIZE_MAP.get(radioType);
     		} else {
-    			return MIN_TWOFOURG_RADIO_CELL_SIZE;
+    			return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
     		}
 		}
 
