@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.profile.rf.models;
 
-import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -10,7 +9,6 @@ import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.equipment.models.ActiveScanSettings;
-import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration.ApModel;
 import com.telecominfraproject.wlan.equipment.models.MimoMode;
 import com.telecominfraproject.wlan.equipment.models.MulticastRate;
 import com.telecominfraproject.wlan.equipment.models.StateSetting;
@@ -18,9 +16,9 @@ import com.telecominfraproject.wlan.equipment.models.StateSetting;
 public class RfElementConfiguration extends BaseJsonModel {
 
 	private static final long serialVersionUID = 1071268246965238451L;
-
-	private static final Logger LOG = LoggerFactory.getLogger(RfElementConfiguration.class);
-
+	
+    private static final Logger LOG = LoggerFactory.getLogger(RfElementConfiguration.class);
+    
 //  private final static int MIN_TWOFOURG_RADIO_CELL_SIZE = -80;
 //	private final static int MIN_FIVEG_RADIO_CELL_SIZE = -80;
 //	private final static int MIN_FIVEGUPPER_RADIO_CELL_SIZE = -80;
@@ -28,18 +26,18 @@ public class RfElementConfiguration extends BaseJsonModel {
 //	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
 //	public final static int DEFAULT_EIRP_TX_POWER = 18;
 	public final static int DEFAULT_BEACON_INTERVAL = 100;
-
-	// Parameters for each RadioType
-	private String rf;
+	
+    // Parameters for each RadioType
+    private String rf;
 	private Integer beaconInterval; // keep this in sync with fields in RadioCfg (in protobuf)
-	private StateSetting forceScanDuringVoice;
-	private Integer rtsCtsThreshold;
-	private ChannelBandwidth channelBandwidth;
-	private MimoMode mimoMode;
-	private Integer maxNumClients;
-	private MulticastRate multicastRate;
+    private StateSetting forceScanDuringVoice;
+    private Integer rtsCtsThreshold;
+    private ChannelBandwidth channelBandwidth;
+    private MimoMode mimoMode;
+    private Integer maxNumClients;
+    private MulticastRate multicastRate;
 //  private boolean autoChannelSelection;
-	private ActiveScanSettings activeScanSettings;
+    private ActiveScanSettings activeScanSettings;
 //    
 //  private ManagementRate managementRate;
 //  private AutoOrManualValue rxCellSizeDb;
@@ -52,18 +50,18 @@ public class RfElementConfiguration extends BaseJsonModel {
 //	private Boolean perimeterDetectionEnabled;
 //  private ChannelHopSettings channelHopSettings;
 //  private RadioBestApSettings bestApSettings;
-
-	private RfElementConfiguration() {
-		long timestamp = System.currentTimeMillis();
-		setRf("DefaultRf-" + timestamp);
-		setBeaconInterval(DEFAULT_BEACON_INTERVAL);
-		setForceScanDuringVoice(StateSetting.disabled);
-		setRtsCtsThreshold(65535);
-		setMimoMode(MimoMode.twoByTwo);
-		setMaxNumClients(100);
-		setMulticastRate(MulticastRate.auto);
+    
+    private RfElementConfiguration() {
+    	long timestamp = System.currentTimeMillis();
+    	setRf("DefaultRf-" + timestamp);
+    	setBeaconInterval(DEFAULT_BEACON_INTERVAL);
+    	setForceScanDuringVoice(StateSetting.disabled);
+    	setRtsCtsThreshold(65535);
+    	setMimoMode(MimoMode.twoByTwo);
+    	setMaxNumClients(100);
+    	setMulticastRate(MulticastRate.auto);
 //    	setAutoChannelSelection(false);
-		setActiveScanSettings(ActiveScanSettings.createWithDefaults());
+    	setActiveScanSettings(ActiveScanSettings.createWithDefaults());
 //    	setManagementRate(ManagementRate.auto);
 //    	setRxCellSizeDb(AutoOrManualValue.createAutomaticInstance(DEFAULT_RX_CELL_SIZE_DB));
 //    	setProbeResponseThresholdDb(AutoOrManualValue.createAutomaticInstance(-90));
@@ -73,38 +71,22 @@ public class RfElementConfiguration extends BaseJsonModel {
 //    	setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
 //    	setPerimeterDetectionEnabled(true);
 //    	setChannelHopSettings(ChannelHopSettings.createWithDefaults());
-	}
-
-	public static RfElementConfiguration createWithDefaults(RadioType radioType) {
-		RfElementConfiguration ret = new RfElementConfiguration();
+    }
+    
+    public static RfElementConfiguration createWithDefaults(RadioType radioType) {
+        RfElementConfiguration ret = new RfElementConfiguration();  
 //      ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
-		if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
-			ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
+        if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
+    		ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
 //    		ret.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
-		} else {
-			ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
+        } else {
+        	ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
 //        	ret.setMinAutoCellSize(MIN_BG_RADIO_CELL_SIZE);
-		}
-		return ret;
-	}
-
-	public static RfElementConfiguration createWithDefaults(RadioType radioType, ApModel model) {
-		RfElementConfiguration ret = new RfElementConfiguration();
-		if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
-			ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
-		} else {
-			ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
-		}
-		
-		// TODO: Logic taken from ApElementConfiguration, is this still required?
-		// NAAS-8919 change mimo for outdoor to 3x3 
-		if (model == ApModel.OUTDOOR)
-			ret.setMimoMode(MimoMode.threeByThree); 
-		 
-		return ret;
-	}
-
-	public String getRf() {
+        }
+    	return ret;
+    }
+    
+    public String getRf() {
 		return rf;
 	}
 
@@ -277,14 +259,14 @@ public class RfElementConfiguration extends BaseJsonModel {
 //	}
 
 	@Override
-	public RfElementConfiguration clone() {
-		return (RfElementConfiguration) super.clone();
-	}
-
+    public RfElementConfiguration clone() {
+        return (RfElementConfiguration) super.clone();
+    }
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(rf, beaconInterval, forceScanDuringVoice, rtsCtsThreshold, channelBandwidth, mimoMode,
-				maxNumClients, multicastRate, activeScanSettings);
+		return Objects.hash(rf, beaconInterval, forceScanDuringVoice, rtsCtsThreshold, channelBandwidth,
+				mimoMode, maxNumClients, multicastRate, activeScanSettings);
 	}
 
 	@Override
@@ -296,28 +278,30 @@ public class RfElementConfiguration extends BaseJsonModel {
 		if (!(obj instanceof RfElementConfiguration))
 			return false;
 		RfElementConfiguration other = (RfElementConfiguration) obj;
-		return Objects.equals(rf, other.rf) && Objects.equals(beaconInterval, other.beaconInterval)
+		return Objects.equals(rf, other.rf)
+				&& Objects.equals(beaconInterval, other.beaconInterval)
 				&& Objects.equals(forceScanDuringVoice, other.forceScanDuringVoice)
 				&& Objects.equals(rtsCtsThreshold, other.rtsCtsThreshold)
-				&& Objects.equals(channelBandwidth, other.channelBandwidth) && Objects.equals(mimoMode, other.mimoMode)
+				&& Objects.equals(channelBandwidth, other.channelBandwidth)
+				&& Objects.equals(mimoMode, other.mimoMode)
 				&& Objects.equals(maxNumClients, other.maxNumClients)
 				&& Objects.equals(multicastRate, other.multicastRate)
 				&& Objects.equals(activeScanSettings, other.activeScanSettings);
 	}
-
+	
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
 			return true;
 		}
 		if (StateSetting.isUnsupported(forceScanDuringVoice) || ChannelBandwidth.isUnsupported(channelBandwidth)
-				|| MimoMode.isUnsupported(mimoMode) || MulticastRate.isUnsupported(multicastRate)
-				|| ActiveScanSettings.hasUnsupportedValue(activeScanSettings)
+				|| MimoMode.isUnsupported(mimoMode) || MulticastRate.isUnsupported(multicastRate) 
+				|| ActiveScanSettings.hasUnsupportedValue(activeScanSettings) 
 //				|| AutoOrManualValue.hasUnsupportedValue(rxCellSizeDb) || ManagementRate.isUnsupported(managementRate)
 //				|| AutoOrManualValue.hasUnsupportedValue(probeResponseThresholdDb) || AutoOrManualValue.hasUnsupportedValue(clientDisconnectThresholdDb) 
 //				|| AutoOrManualValue.hasUnsupportedValue(eirpTxPower) || NeighbouringAPListConfiguration.hasUnsupportedValue(neighbouringListApConfig)
 //				|| ChannelHopSettings.hasUnsupportedValue(channelHopSettings) || RadioBestApSettings.hasUnsupportedValue(bestApSettings)
-		) {
+				) {
 			return true;
 		}
 		return false;
