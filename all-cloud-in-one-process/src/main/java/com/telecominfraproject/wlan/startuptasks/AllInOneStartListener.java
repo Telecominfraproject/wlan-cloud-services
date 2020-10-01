@@ -85,6 +85,9 @@ import com.telecominfraproject.wlan.profile.models.common.FileType;
 import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
+import com.telecominfraproject.wlan.profile.passpoint.hotspot.models.Hotspot2Profile;
+import com.telecominfraproject.wlan.profile.passpoint.operator.models.OperatorProfile;
+import com.telecominfraproject.wlan.profile.passpoint.venue.models.VenueProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
@@ -326,6 +329,34 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
+       
+        
+        Profile passpointOperatorProfile = new Profile();
+        passpointOperatorProfile.setCustomerId(customer.getId());
+        passpointOperatorProfile.setName("TipWlan-Hotspot20-Operator");
+        passpointOperatorProfile.setProfileType(ProfileType.operator);
+        passpointOperatorProfile.setDetails(OperatorProfile.createWithDefaults());
+        passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
+        
+        Profile passpointVenueProfile = new Profile();
+        passpointVenueProfile.setCustomerId(customer.getId());
+        passpointVenueProfile.setName("TipWlan-Hotspot20-Venue");
+        passpointVenueProfile.setProfileType(ProfileType.venue);
+        passpointVenueProfile.setDetails(VenueProfile.createWithDefaults());
+        passpointVenueProfile = profileServiceInterface.create(passpointVenueProfile);
+
+        Profile passpointHotspotConfig = new Profile();
+        passpointHotspotConfig.setCustomerId(customer.getId());
+        passpointHotspotConfig.setName("TipWlan-Hotspot20-Config");
+        passpointHotspotConfig.setProfileType(ProfileType.hotspot_2pt0);
+        Set<Long> passpointHotspotConfigChildIds = new HashSet<>();
+        passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
+        passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
+        passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
+        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
+        passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
+        
+        
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
         profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
@@ -337,6 +368,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_3_radios.setAppliedRadios(appliedRadios_3_radios);
         ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
+        Set<Long> ssidChildIds = new HashSet<>();
+        ssidChildIds.add(passpointHotspotConfig.getId());
+        profileSsid_3_radios.setChildProfileIds(ssidChildIds);
         profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
         Profile profileSsid_2_radios = new Profile();
@@ -349,6 +383,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_2_radios.setAppliedRadios(appliedRadios_2_radios);
         ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
         profileSsid_2_radios.setDetails(ssidConfig_2_radios);
+        profileSsid_2_radios.setChildProfileIds(ssidChildIds);
         profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
         
         Profile profileRf = new Profile();

@@ -23,7 +23,7 @@ public class OperatorFriendlyName extends BaseJsonModel implements PushableConfi
     private OperatorFriendlyName() {
         locale = Locale.CANADA;
         language = locale.getISO3Language();
-        friendlyName = "defaultFriendlyOperatorName";
+        friendlyName = "default Friendly Operator Name";
     }
 
     public static OperatorFriendlyName createWithDefaults() {

@@ -1,6 +1,9 @@
 package com.telecominfraproject.wlan.profile.passpoint.operator.models;
 
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
@@ -18,13 +21,18 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     // OSEN
     private boolean serverOnlyAuthenticatedL2EncryptionNetwork;
     private String x509CertificateLocation;
-    private OperatorFriendlyName operatorFriendlyName;
+    private Set<OperatorFriendlyName> operatorFriendlyName;
 
     private OperatorProfile() {
         domainName = "telecominfraproject.atlassian.net";
         serverOnlyAuthenticatedL2EncryptionNetwork = false;
         x509CertificateLocation = "/etc/ca.pem";
-        operatorFriendlyName = OperatorFriendlyName.createWithDefaults();
+        operatorFriendlyName = new HashSet<>();
+        operatorFriendlyName.add(OperatorFriendlyName.createWithDefaults());
+        OperatorFriendlyName frFriendlyName = OperatorFriendlyName.createWithDefaults();
+        frFriendlyName.setLocale(Locale.CANADA_FRENCH);
+        frFriendlyName.setFriendlyName("Nom de l'opérateur convivial par défaut");
+        operatorFriendlyName.add(frFriendlyName);
     }
 
     public static OperatorProfile createWithDefaults() {
@@ -67,12 +75,12 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     }
 
 
-    public OperatorFriendlyName getOperatorFriendlyName() {
+    public Set<OperatorFriendlyName> getOperatorFriendlyName() {
         return operatorFriendlyName;
     }
 
 
-    public void setOperatorFriendlyName(OperatorFriendlyName operatorFriendlyName) {
+    public void setOperatorFriendlyName(Set<OperatorFriendlyName> operatorFriendlyName) {
         this.operatorFriendlyName = operatorFriendlyName;
     }
 
@@ -88,7 +96,8 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     public OperatorProfile clone() {
         OperatorProfile returnValue = (OperatorProfile) super.clone();
         returnValue.domainName = this.domainName;
-        returnValue.operatorFriendlyName = this.operatorFriendlyName;
+        if (this.operatorFriendlyName != null)
+            returnValue.operatorFriendlyName = this.operatorFriendlyName;
         returnValue.serverOnlyAuthenticatedL2EncryptionNetwork = this.serverOnlyAuthenticatedL2EncryptionNetwork;
         returnValue.x509CertificateLocation = this.x509CertificateLocation;
         return returnValue;
@@ -114,5 +123,6 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
                 && serverOnlyAuthenticatedL2EncryptionNetwork == other.serverOnlyAuthenticatedL2EncryptionNetwork
                 && Objects.equals(x509CertificateLocation, other.x509CertificateLocation);
     }
+
 
 }

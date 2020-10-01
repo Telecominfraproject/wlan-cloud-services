@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.profile.passpoint.models;
+package com.telecominfraproject.wlan.profile.passpoint.venue.models;
 
 import java.util.ArrayList;
 import java.util.List;
