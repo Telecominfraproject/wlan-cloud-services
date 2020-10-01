@@ -283,7 +283,10 @@ public class RfElementConfiguration extends BaseJsonModel {
 	@Override
 	public int hashCode() {
 		return Objects.hash(rf, beaconInterval, forceScanDuringVoice, rtsCtsThreshold, channelBandwidth,
-				mimoMode, maxNumClients, multicastRate, activeScanSettings);
+				mimoMode, maxNumClients, multicastRate, activeScanSettings, managementRate, rxCellSizeDb,
+				probeResponseThresholdDb, clientDisconnectThresholdDb, eirpTxPower, bestApEnabled,
+				neighbouringListApConfig, minAutoCellSize, perimeterDetectionEnabled, 
+				channelHopSettings, bestApSettings);
 	}
 
 	@Override
@@ -303,7 +306,18 @@ public class RfElementConfiguration extends BaseJsonModel {
 				&& Objects.equals(mimoMode, other.mimoMode)
 				&& Objects.equals(maxNumClients, other.maxNumClients)
 				&& Objects.equals(multicastRate, other.multicastRate)
-				&& Objects.equals(activeScanSettings, other.activeScanSettings);
+				&& Objects.equals(activeScanSettings, other.activeScanSettings)
+				&& Objects.equals(managementRate, other.managementRate)
+				&& Objects.equals(rxCellSizeDb, other.rxCellSizeDb)
+				&& Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
+				&& Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
+				&& Objects.equals(eirpTxPower, other.eirpTxPower)
+				&& Objects.equals(bestApEnabled, other.bestApEnabled)
+				&& Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
+				&& Objects.equals(minAutoCellSize, other.minAutoCellSize)
+				&& Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
+				&& Objects.equals(channelHopSettings, other.channelHopSettings)
+				&& Objects.equals(bestApSettings, other.bestApSettings);
 	}
 	
 	@Override
