@@ -41,7 +41,7 @@
 							<name>all-cloud-and-opensync-gw:${project.version}</name>
 							<build>
 							<tags>
-									<tag>${project.version}-${timestamp}</tag>
+								<tag>${project.version}-${timestamp}</tag>
 							</tags>							
 								<filter>@</filter>
 								<cleanup>try</cleanup>
