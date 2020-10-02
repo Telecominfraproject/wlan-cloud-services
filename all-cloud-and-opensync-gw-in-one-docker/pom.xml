@@ -65,6 +65,9 @@
                                                 <image>
                                                         <name>all-cloud-and-opensync-gw-and-mqtt:${project.version}</name>
                                                         <build>
+                                                                <tags>
+                                                                   <tag>${project.version}-${timestamp}</tag>
+                                                                </tags>
                                                                 <filter>@</filter>
                                                                 <cleanup>try</cleanup>
                                                                 <dockerFileDir>${project.basedir}/src/main/docker-with-mqtt</dockerFileDir>
