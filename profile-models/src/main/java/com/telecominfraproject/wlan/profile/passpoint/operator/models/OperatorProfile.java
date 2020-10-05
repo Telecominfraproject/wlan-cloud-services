@@ -8,6 +8,7 @@ import java.util.Set;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.passpoint.models.Hotspot20Duple;
 
 
 public class OperatorProfile extends ProfileDetails implements PushableConfiguration<OperatorProfile> {
@@ -21,17 +22,21 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     // OSEN
     private boolean serverOnlyAuthenticatedL2EncryptionNetwork;
     private String x509CertificateLocation;
-    private Set<OperatorFriendlyName> operatorFriendlyName;
+    private Set<Hotspot20Duple> operatorFriendlyName;
+    private String defaultOperatorFriendlyName = "Default friendly operator name";
+    private String defaultOperatorFriendlyNameFr = "Nom de l'opérateur convivial par défaut";
 
     private OperatorProfile() {
         domainName = "telecominfraproject.atlassian.net";
         serverOnlyAuthenticatedL2EncryptionNetwork = false;
         x509CertificateLocation = "/etc/ca.pem";
         operatorFriendlyName = new HashSet<>();
-        operatorFriendlyName.add(OperatorFriendlyName.createWithDefaults());
-        OperatorFriendlyName frFriendlyName = OperatorFriendlyName.createWithDefaults();
+        Hotspot20Duple enFriendlyName = Hotspot20Duple.createWithDefaults();
+        enFriendlyName.setDupleName(defaultOperatorFriendlyName);
+        operatorFriendlyName.add(enFriendlyName);
+        Hotspot20Duple frFriendlyName = Hotspot20Duple.createWithDefaults();
         frFriendlyName.setLocale(Locale.CANADA_FRENCH);
-        frFriendlyName.setFriendlyName("Nom de l'opérateur convivial par défaut");
+        frFriendlyName.setDupleName(defaultOperatorFriendlyNameFr);
         operatorFriendlyName.add(frFriendlyName);
     }
 
@@ -75,12 +80,12 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     }
 
 
-    public Set<OperatorFriendlyName> getOperatorFriendlyName() {
+    public Set<Hotspot20Duple> getOperatorFriendlyName() {
         return operatorFriendlyName;
     }
 
 
-    public void setOperatorFriendlyName(Set<OperatorFriendlyName> operatorFriendlyName) {
+    public void setOperatorFriendlyName(Set<Hotspot20Duple> operatorFriendlyName) {
         this.operatorFriendlyName = operatorFriendlyName;
     }
 

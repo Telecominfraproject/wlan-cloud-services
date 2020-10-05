@@ -15,6 +15,7 @@ public class Hotspot20Duple extends BaseJsonModel implements PushableConfigurati
     private static final long serialVersionUID = -9089020959902874433L;
     public static final Locale DEFAULT_LOCALE = Locale.CANADA;
     public static final String DEFAULT_NAME = "Duple Name";
+    public static final String DEFAULT_DUPLE_SEPARATOR = ":";
     private static final Logger LOG = LoggerFactory.getLogger(Hotspot20Duple.class);
 
     private Locale locale;
@@ -22,13 +23,15 @@ public class Hotspot20Duple extends BaseJsonModel implements PushableConfigurati
     private String dupleName;
     private String defaultDupleSeparator;
 
-    private Hotspot20Duple() {
-
+    public Hotspot20Duple() {
+        this.locale = DEFAULT_LOCALE;
+        this.dupleIso3Language = this.locale.getISO3Language();
+        this.dupleName = DEFAULT_NAME;
+        this.defaultDupleSeparator = DEFAULT_DUPLE_SEPARATOR;
     }
 
     public static Hotspot20Duple createWithDefaults() {
         return new Hotspot20Duple();
-
     };
 
     public String getDupleIso3Language() {

@@ -30,7 +30,7 @@ public class VenueProfile extends ProfileDetails implements PushableConfiguratio
 
         VenueName frVenueName = VenueName.createWithDefaults();
         frVenueName.setLocale(Locale.CANADA_FRENCH);
-        frVenueName.setVenueName("Exemple de lieu");
+        frVenueName.setDupleName("Exemple de lieu");
         frVenueName.setVenueUrl("http://www.example.com/info-fra");
         venueNameSet.add(frVenueName);
     }
