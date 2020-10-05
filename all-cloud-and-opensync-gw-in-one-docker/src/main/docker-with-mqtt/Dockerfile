@@ -27,6 +27,9 @@ COPY app/opensync/ProfileAPExample.json /app/opensync/ProfileAPExample.json
 COPY app/opensync/ProfileSsid.json /app/opensync/ProfileSsid.json
 COPY app/opensync/LocationBuildingExample.json /app/opensync/LocationBuildingExample.json
 COPY app/opensync/ProfileMetrics.json /app/opensync/ProfileMetrics.json
+COPY app/opensync/ProfileHotspot20.json /app/opensync/ProfileHotspot20.json
+COPY app/opensync/ProfileOperator.json /app/opensync/ProfileOperator.json
+COPY app/opensync/ProfileVenue.json /app/opensync/ProfileVenue.json
 COPY app/opensync/ProfileRf.json /app/opensync/ProfileRf.json
 
 VOLUME ["/app/logs", "/app/config"]
