@@ -1,7 +1,10 @@
 package com.telecominfraproject.wlan.profile.passpoint.hotspot.models;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,6 +18,7 @@ import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.passpoint.models.AccessNetworkType;
 import com.telecominfraproject.wlan.profile.passpoint.models.GasAddress3Behaviour;
 import com.telecominfraproject.wlan.profile.passpoint.models.IPv4PasspointAddressType;
+import com.telecominfraproject.wlan.profile.passpoint.models.MccMnc;
 import com.telecominfraproject.wlan.profile.passpoint.models.NetworkAuthenticationType;
 
 
@@ -64,6 +68,12 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
 
     private boolean disableDownstreamGroupAddressedForwarding;
 
+    private boolean enable2pt4GHz;
+    private boolean enable5GHz;
+
+    private List<String> associatedSsids;
+
+    private List<MccMnc> mccMnc3gppCellularNetworkInfo;
 
     private Hotspot2Profile() {
 
@@ -85,6 +95,17 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         termsAndConditionsFile.setApExportUrl("https://localhost:9091/filestore/termsAndConditions");
         termsAndConditionsFile.setFileCategory(FileCategory.ExternalPolicyConfiguration);
         termsAndConditionsFile.setFileType(FileType.TEXT);
+        enable2pt4GHz = true;
+        enable5GHz = true;
+        mccMnc3gppCellularNetworkInfo = new ArrayList<>();
+        MccMnc mccMnc = MccMnc.createWithDefaults();
+        mccMnc.setMcc(302);
+        mccMnc.setMnc(720);
+        mccMnc.setIso("ca");
+        mccMnc.setCountry("Canada");
+        mccMnc.setCountryCode(1);
+        mccMnc.setNetwork("Rogers AT&T Wireless");
+        mccMnc3gppCellularNetworkInfo.add(mccMnc);
     }
 
     public static Hotspot2Profile createWithDefaults() {
@@ -316,6 +337,56 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         this.connectionCapabilitySet = connectionCapabilitySet;
     }
 
+
+    public boolean isEnable2pt4GHz() {
+        return enable2pt4GHz;
+    }
+
+
+    public void setEnable2pt4GHz(boolean enable2pt4gHz) {
+        enable2pt4GHz = enable2pt4gHz;
+    }
+
+
+    public boolean isEnable5GHz() {
+        return enable5GHz;
+    }
+
+
+    public void setEnable5GHz(boolean enable5gHz) {
+        enable5GHz = enable5gHz;
+    }
+
+
+    public List<String> getAssociatedSsids() {
+        return associatedSsids;
+    }
+
+
+    public void setAssociatedSsids(List<String> associatedSsids) {
+        this.associatedSsids = associatedSsids;
+    }
+
+    public List<MccMnc> getMccMnc3gppCellularNetworkInfo() {
+        return mccMnc3gppCellularNetworkInfo;
+    }
+
+    public String getMccMncList() {
+        StringBuffer buffer = new StringBuffer();
+        ListIterator<MccMnc> listIterator = mccMnc3gppCellularNetworkInfo.listIterator();
+        while (listIterator.hasNext()) {
+            buffer.append(listIterator.next().getMccMncPairing());
+            if (listIterator.hasNext()) {
+                buffer.append(";");
+            }
+        }
+        return buffer.toString();
+    }
+
+    public void setMccMnc3gppCellularNetworkInfo(List<MccMnc> mccMnc3gppCellularNetworkInfo) {
+        this.mccMnc3gppCellularNetworkInfo = mccMnc3gppCellularNetworkInfo;
+    }
+
     @Override
     public Hotspot2Profile clone() {
         Hotspot2Profile returnValue = (Hotspot2Profile) super.clone();
@@ -344,17 +415,24 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
         returnValue.setTermsAndConditionsFile(termsAndConditionsFile);
         returnValue.setUnauthenticatedEmergencyServiceAccessible(unauthenticatedEmergencyServiceAccessible);
         returnValue.setWhitelistDomain(whitelistDomain);
+        returnValue.setEnable2pt4GHz(enable2pt4GHz);
+        returnValue.setEnable5GHz(enable5GHz);
+
+        if (associatedSsids != null) {
+            returnValue.setAssociatedSsids(associatedSsids);
+        }
+
         return returnValue;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(accessNetworkType, additionalStepsRequiredForAccess, anqpDomainId, apCivicLocation,
-                apGeospatialLocation, apPublicLocationIdUri, connectionCapabilitySet, deauthRequestTimeout,
-                disableDownstreamGroupAddressedForwarding, emergencyServicesReachable, enableInterworkingAndHs20,
-                gasAddr3Behaviour, hessid, internetConnectivity, ipAddressTypeAvailability, networkAuthenticationType,
-                operatingClass, qosMapSetConfiguration, termsAndConditionsFile,
-                unauthenticatedEmergencyServiceAccessible, whitelistDomain);
+                apGeospatialLocation, apPublicLocationIdUri, associatedSsids, connectionCapabilitySet,
+                deauthRequestTimeout, disableDownstreamGroupAddressedForwarding, emergencyServicesReachable,
+                enable2pt4GHz, enable5GHz, enableInterworkingAndHs20, gasAddr3Behaviour, hessid, internetConnectivity,
+                ipAddressTypeAvailability, networkAuthenticationType, operatingClass, qosMapSetConfiguration,
+                termsAndConditionsFile, unauthenticatedEmergencyServiceAccessible, whitelistDomain);
     }
 
     @Override
@@ -371,10 +449,12 @@ public class Hotspot2Profile extends ProfileDetails implements PushableConfigura
                 && anqpDomainId == other.anqpDomainId && Objects.equals(apCivicLocation, other.apCivicLocation)
                 && Objects.equals(apGeospatialLocation, other.apGeospatialLocation)
                 && Objects.equals(apPublicLocationIdUri, other.apPublicLocationIdUri)
+                && Objects.equals(associatedSsids, other.associatedSsids)
                 && Objects.equals(connectionCapabilitySet, other.connectionCapabilitySet)
                 && deauthRequestTimeout == other.deauthRequestTimeout
                 && disableDownstreamGroupAddressedForwarding == other.disableDownstreamGroupAddressedForwarding
                 && emergencyServicesReachable == other.emergencyServicesReachable
+                && enable2pt4GHz == other.enable2pt4GHz && enable5GHz == other.enable5GHz
                 && enableInterworkingAndHs20 == other.enableInterworkingAndHs20
                 && Objects.equals(gasAddr3Behaviour, other.gasAddr3Behaviour) && Objects.equals(hessid, other.hessid)
                 && internetConnectivity == other.internetConnectivity

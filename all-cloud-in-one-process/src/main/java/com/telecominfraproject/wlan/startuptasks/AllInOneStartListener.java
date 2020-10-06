@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +87,12 @@ import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.passpoint.hotspot.models.Hotspot2Profile;
+import com.telecominfraproject.wlan.profile.passpoint.models.Hotspot20Duple;
+import com.telecominfraproject.wlan.profile.passpoint.models.MccMnc;
 import com.telecominfraproject.wlan.profile.passpoint.operator.models.OperatorProfile;
+import com.telecominfraproject.wlan.profile.passpoint.provider.models.Hotspot20IdProviderProfile;
+import com.telecominfraproject.wlan.profile.passpoint.provider.models.NaiRealmInformation;
+import com.telecominfraproject.wlan.profile.passpoint.provider.models.OsuIcon;
 import com.telecominfraproject.wlan.profile.passpoint.venue.models.VenueProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
@@ -276,7 +282,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
-        
+
         Profile profileMetrics_3_radios = new Profile();
         profileMetrics_3_radios.setCustomerId(customer.getId());
         profileMetrics_3_radios.setProfileType(ProfileType.metrics);
@@ -285,18 +291,20 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
         profileMetrics_3_radioTypes.add(RadioType.is5GHzL);
         profileMetrics_3_radioTypes.add(RadioType.is5GHzU);
-        
+
         Set<ServiceMetricDataType> metricTypes = new HashSet<>();
         metricTypes.add(ServiceMetricDataType.ApNode);
         metricTypes.add(ServiceMetricDataType.ApSsid);
         metricTypes.add(ServiceMetricDataType.Channel);
         metricTypes.add(ServiceMetricDataType.Client);
         metricTypes.add(ServiceMetricDataType.Neighbour);
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails3Radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes, true);
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails3Radios = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes,
+                true);
         profileMetrics_3_radios.setDetails(metricsProfileDetails3Radios);
         profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
-        
+
         Profile profileMetrics_2_radios = new Profile();
         profileMetrics_2_radios.setCustomerId(customer.getId());
         profileMetrics_2_radios.setProfileType(ProfileType.metrics);
@@ -304,9 +312,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
         profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
         profileMetrics_2_radioTypes.add(RadioType.is5GHz);
-        
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile.createWithDefaults();
-        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes, true);
+
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes,
+                true);
 
         profileMetrics_2_radios.setDetails(metricsProfileDetails2Radios);
         profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
@@ -329,21 +339,70 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
-       
-        
+
         Profile passpointOperatorProfile = new Profile();
         passpointOperatorProfile.setCustomerId(customer.getId());
         passpointOperatorProfile.setName("TipWlan-Hotspot20-Operator");
         passpointOperatorProfile.setProfileType(ProfileType.operator);
         passpointOperatorProfile.setDetails(OperatorProfile.createWithDefaults());
         passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
-        
+
         Profile passpointVenueProfile = new Profile();
         passpointVenueProfile.setCustomerId(customer.getId());
         passpointVenueProfile.setName("TipWlan-Hotspot20-Venue");
         passpointVenueProfile.setProfileType(ProfileType.venue);
         passpointVenueProfile.setDetails(VenueProfile.createWithDefaults());
         passpointVenueProfile = profileServiceInterface.create(passpointVenueProfile);
+
+        Profile hotspot20IdProviderProfile = new Profile();
+        hotspot20IdProviderProfile.setCustomerId(customer.getId());
+        hotspot20IdProviderProfile.setName("TipWlan-Hotspot20-OSU-Provider");
+        hotspot20IdProviderProfile.setProfileType(ProfileType.id_provider);
+        Hotspot20IdProviderProfile passpointIdProviderProfile = Hotspot20IdProviderProfile.createWithDefaults();
+        MccMnc mccMnc = MccMnc.createWithDefaults();
+        mccMnc.setMcc(302);
+        mccMnc.setMnc(720);
+        mccMnc.setIso("ca");
+        mccMnc.setCountry("Canada");
+        mccMnc.setCountryCode(1);
+        mccMnc.setNetwork("Rogers AT&T Wireless");
+        List<MccMnc> mccMncList = new ArrayList<>();
+        mccMncList.add(mccMnc);
+        passpointIdProviderProfile.setMccMncList(mccMncList);
+        List<OsuIcon> osuIconList = new ArrayList<>();
+        osuIconList.add(OsuIcon.createWithDefaults());
+        passpointIdProviderProfile.setOsuIconList(osuIconList);
+        List<NaiRealmInformation> naiRealmList = new ArrayList<>();
+        naiRealmList.add(NaiRealmInformation.createWithDefaults());
+        passpointIdProviderProfile.setNaiRealmList(naiRealmList);
+        passpointIdProviderProfile.setDomainName("example.com");
+        passpointIdProviderProfile.setOsuNaiStandalone("anonymous@example.com");
+        passpointIdProviderProfile.setOsuNaiShared("anonymous@example.com");
+        List<Integer> methodList = new ArrayList<>();
+        methodList.add(1);
+        methodList.add(0);
+        passpointIdProviderProfile.setOsuMethodList(methodList);
+        Hotspot20Duple enOsuProvider = Hotspot20Duple.createWithDefaults();
+        enOsuProvider.setLocale(Locale.CANADA);
+        enOsuProvider.setDupleName("Example provider");
+        passpointIdProviderProfile.setOsuFriendlyName(enOsuProvider);
+        List<Hotspot20Duple> osuServiceDescription = new ArrayList<>();
+        Hotspot20Duple enService = Hotspot20Duple.createWithDefaults();
+        enService.setLocale(Locale.CANADA);
+        enService.setDupleName("Example services");
+        osuServiceDescription.add(enService);
+        Hotspot20Duple frService = Hotspot20Duple.createWithDefaults();
+        frService.setLocale(Locale.CANADA_FRENCH);
+        frService.setDupleName("Exemples de services");
+        osuServiceDescription.add(frService);
+        passpointIdProviderProfile.setOsuServiceDescription(osuServiceDescription);
+        passpointIdProviderProfile.setOsuSsid("TipWlan-cloud-3-radios");
+        passpointIdProviderProfile.setOsuServerUri("https://example.com/osu/");
+        passpointIdProviderProfile.setRadiusProfileAccounting("Radius-Profile");
+        passpointIdProviderProfile.setRadiusProfileAuth("Radius-Profile");
+        hotspot20IdProviderProfile.setDetails(passpointIdProviderProfile);
+        hotspot20IdProviderProfile = profileServiceInterface.create(hotspot20IdProviderProfile);
+
 
         Profile passpointHotspotConfig = new Profile();
         passpointHotspotConfig.setCustomerId(customer.getId());
@@ -352,11 +411,15 @@ public class AllInOneStartListener implements ApplicationRunner {
         Set<Long> passpointHotspotConfigChildIds = new HashSet<>();
         passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
         passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
         passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
         passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
+        List<String> associatedSsids = new ArrayList<>();
+        associatedSsids.add("TipWlan-cloud-3-radios");
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setAssociatedSsids(associatedSsids);
         passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
-        
-        
+
+
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
         profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
@@ -370,6 +433,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
         Set<Long> ssidChildIds = new HashSet<>();
         ssidChildIds.add(passpointHotspotConfig.getId());
+        ssidChildIds.add(hotspot20IdProviderProfile.getId());
+
         profileSsid_3_radios.setChildProfileIds(ssidChildIds);
         profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
@@ -385,14 +450,14 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsid_2_radios.setDetails(ssidConfig_2_radios);
         profileSsid_2_radios.setChildProfileIds(ssidChildIds);
         profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
-        
+
         Profile profileRf = new Profile();
-		profileRf.setCustomerId(customer.getId());
-		profileRf.setName("TipWlan-rf");
-		RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
-		rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf"));
-		profileRf.setDetails(rfConfig);
-		profileRf = profileServiceInterface.create(profileRf);
+        profileRf.setCustomerId(customer.getId());
+        profileRf.setName("TipWlan-rf");
+        RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
+        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf"));
+        profileRf.setDetails(rfConfig);
+        profileRf = profileServiceInterface.create(profileRf);
 
         // Captive portal profile
         Profile profileCaptivePortal = new Profile();
@@ -725,7 +790,7 @@ public class AllInOneStartListener implements ApplicationRunner {
             }
 
 
-        }    
+        }
 
     }
 
@@ -918,7 +983,7 @@ public class AllInOneStartListener implements ApplicationRunner {
             apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
 
             apPerformance.setCpuTemperature(getRandomInt(25, 90));
-            apPerformance.setCpuUtilized(new int[] {  getRandomInt(5, 98), getRandomInt(5, 98) });
+            apPerformance.setCpuUtilized(new int[] { getRandomInt(5, 98), getRandomInt(5, 98) });
 
             apPerformance.setEthLinkState(EthernetLinkState.UP1000_FULL_DUPLEX);
 
