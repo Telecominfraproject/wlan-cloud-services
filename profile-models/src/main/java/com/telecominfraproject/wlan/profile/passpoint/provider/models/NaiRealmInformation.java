@@ -14,10 +14,10 @@ public class NaiRealmInformation extends BaseJsonModel implements PushableConfig
 
     private static final long serialVersionUID = -6102005274671968193L;
 
-    private Set<String> naiRealms;
+    private Set<String> naiRealms = new HashSet<>();
     private int encoding;
-    private Set<String> eapMethods;
-    private Map<String, Set<String>> eapMap;
+    private Set<String> eapMethods = new HashSet<>();
+    private Map<String, Set<String>> eapMap = new HashMap<>();;
 
     public NaiRealmInformation() {
 
@@ -26,18 +26,28 @@ public class NaiRealmInformation extends BaseJsonModel implements PushableConfig
     public static NaiRealmInformation createWithDefaults() {
         NaiRealmInformation ret = new NaiRealmInformation();
         ret.setEncoding(NaiRealmEncoding.ietf_rfc_4282_encoding.getId());
-        ret.naiRealms = new HashSet<>();
         ret.naiRealms.add("example.com");
         ret.naiRealms.add("example.net");
-        ret.eapMethods = new HashSet<>();
+
         ret.eapMethods.add(EapMethods.eap_tls.getName());
-        ret.eapMap = new HashMap<>();
+        ret.eapMethods.add(EapMethods.eap_ttls.getName());
 
-        Set<String> credentialsSet = new HashSet<>();
-        credentialsSet.add(CredentialType.softoken.getName());
-        credentialsSet.add(CredentialType.certificate.getName());
-        ret.eapMap.put(EapMethods.eap_tls.getName(), credentialsSet);
+        Set<String> tlsCredentialsSet = new HashSet<>();
 
+        String tlsCredential = AuthenticationParameterTypes.credential_type.getName() + ":"
+                + CredentialType.certificate.getName(); 
+        tlsCredentialsSet.add(tlsCredential);
+        ret.eapMap.put(EapMethods.eap_tls.getName(), tlsCredentialsSet);
+        
+        Set<String> ttsCredentialsSet = new HashSet<>();
+        String ttsEapCredential = AuthenticationParameterTypes.credential_type.getName() + ":"
+                + CredentialType.username_password.getName();
+        ttsCredentialsSet.add(ttsEapCredential);    
+        String nonEapcredential = AuthenticationParameterTypes.non_eap_inner_authentication_type.getName() + ":"
+                + NonEapInnerAuthenticationTypes.mschap_v2.getName();
+        ttsCredentialsSet.add(nonEapcredential);
+        ret.eapMap.put(EapMethods.eap_ttls.getName(), ttsCredentialsSet);
+      
         return ret;
     }
 

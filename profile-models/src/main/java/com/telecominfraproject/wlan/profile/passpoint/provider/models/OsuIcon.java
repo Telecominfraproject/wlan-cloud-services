@@ -21,6 +21,7 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
     public static final String ICON_TYPE = "image/png";
     private String iconName;
     private String filePath;
+    private String imageUrl;
 
     public OsuIcon() {
 
@@ -34,6 +35,7 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
         ret.languageCode = ret.iconLocale.getISO3Language();
         ret.iconName = "icon32.png";
         ret.filePath = "/tmp/icon32.png";
+        ret.imageUrl = "https://localhost:9096";
         return ret;
     }
 
@@ -106,6 +108,14 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
     public void setIconLocale(Locale iconLocale) {
         this.iconLocale = iconLocale;
     }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     @Override
     public boolean needsToBeUpdatedOnDevice(OsuIcon previousVersion) {
@@ -123,13 +133,15 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
         ret.iconLocale = getIconLocale();
         ret.iconName = getIconName();
         ret.languageCode = getLanguageCode();
+        ret.imageUrl = getImageUrl();
         return ret;
     }
 
 
+   
     @Override
     public int hashCode() {
-        return Objects.hash(filePath, iconHeight, iconLocale, iconName, iconWidth, languageCode);
+        return Objects.hash(filePath, iconHeight, iconLocale, iconName, iconWidth, imageUrl, languageCode);
     }
 
     @Override
@@ -143,7 +155,8 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
         OsuIcon other = (OsuIcon) obj;
         return Objects.equals(filePath, other.filePath) && Objects.equals(iconHeight, other.iconHeight)
                 && Objects.equals(iconLocale, other.iconLocale) && Objects.equals(iconName, other.iconName)
-                && Objects.equals(iconWidth, other.iconWidth) && Objects.equals(languageCode, other.languageCode);
+                && Objects.equals(iconWidth, other.iconWidth) && Objects.equals(imageUrl, other.imageUrl)
+                && Objects.equals(languageCode, other.languageCode);
     }
 
     public String getHs20IconString() {
@@ -153,5 +166,7 @@ public class OsuIcon extends BaseJsonModel implements PushableConfiguration<OsuI
                 + filePath;
 
     }
+
+   
 
 }

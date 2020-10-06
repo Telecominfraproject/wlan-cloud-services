@@ -23,7 +23,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     private String radiusProfileAccounting;
     private String osuSsid;
     private String osuServerUri;
-    private Hotspot20Duple osuFriendlyName;
+    private List<Hotspot20Duple> osuFriendlyName;
     private String osuNaiStandalone; // needs to be unsigned, so do take byte
                                      // value, and make osuNaiStandalone & 0xff;
     private String osuNaiShared;
@@ -125,11 +125,11 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     }
 
 
-    public Hotspot20Duple getOsuFriendlyName() {
+    public List<Hotspot20Duple> getOsuFriendlyName() {
         return osuFriendlyName;
     }
 
-    public void setOsuFriendlyName(Hotspot20Duple osuFriendlyName) {
+    public void setOsuFriendlyName(List<Hotspot20Duple> osuFriendlyName) {
         this.osuFriendlyName = osuFriendlyName;
     }
 

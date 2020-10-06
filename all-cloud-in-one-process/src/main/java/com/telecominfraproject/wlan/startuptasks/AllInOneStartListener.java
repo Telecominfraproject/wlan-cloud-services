@@ -385,7 +385,13 @@ public class AllInOneStartListener implements ApplicationRunner {
         Hotspot20Duple enOsuProvider = Hotspot20Duple.createWithDefaults();
         enOsuProvider.setLocale(Locale.CANADA);
         enOsuProvider.setDupleName("Example provider");
-        passpointIdProviderProfile.setOsuFriendlyName(enOsuProvider);
+        Hotspot20Duple frOsuProvider = Hotspot20Duple.createWithDefaults();
+        frOsuProvider.setLocale(Locale.CANADA_FRENCH);
+        frOsuProvider.setDupleName("Exemple de fournisseur");
+        List<Hotspot20Duple> friendlyNameList = new ArrayList<>();
+        friendlyNameList.add(enOsuProvider);
+        friendlyNameList.add(frOsuProvider);
+        passpointIdProviderProfile.setOsuFriendlyName(friendlyNameList);
         List<Hotspot20Duple> osuServiceDescription = new ArrayList<>();
         Hotspot20Duple enService = Hotspot20Duple.createWithDefaults();
         enService.setLocale(Locale.CANADA);
