@@ -339,6 +339,19 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
+        Profile profileSsidPsk = new Profile();
+        profileSsidPsk.setCustomerId(customer.getId());
+        profileSsidPsk.setName("TipWlan-cloud-hotspot-access");
+        SsidConfiguration ssidConfigPsk = SsidConfiguration.createWithDefaults();
+        Set<RadioType> appliedRadiosPsk = new HashSet<RadioType>();
+        appliedRadiosPsk.add(RadioType.is2dot4GHz);
+        appliedRadiosPsk.add(RadioType.is5GHzL);
+        appliedRadiosPsk.add(RadioType.is5GHzU);
+        ssidConfigPsk.setAppliedRadios(appliedRadiosPsk);
+        ssidConfigPsk.setSecureMode(SecureMode.wpa2PSK);
+        ssidConfigPsk.setKeyStr("testing123");
+        profileSsidPsk.setDetails(ssidConfigPsk);
+        profileSsidPsk = profileServiceInterface.create(profileSsidPsk);
 
         Profile passpointOperatorProfile = new Profile();
         passpointOperatorProfile.setCustomerId(customer.getId());
@@ -419,12 +432,10 @@ public class AllInOneStartListener implements ApplicationRunner {
         passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
         passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
         passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
-        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
-        List<String> associatedSsids = new ArrayList<>();
-        associatedSsids.add("TipWlan-cloud-3-radios");
-        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setAssociatedSsids(associatedSsids);
+        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());       
         passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
-
+        profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
+        profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
 
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
@@ -438,7 +449,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
         Set<Long> ssidChildIds = new HashSet<>();
-        ssidChildIds.add(passpointHotspotConfig.getId());
         ssidChildIds.add(hotspot20IdProviderProfile.getId());
 
         profileSsid_3_radios.setChildProfileIds(ssidChildIds);
@@ -540,10 +550,12 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
+        profileAp_3_radios.getChildProfileIds().add(profileSsidPsk.getId());
         profileAp_3_radios.getChildProfileIds().add(profileMetrics_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
+        // TipWlan-cloud-hotspot-access
         Profile profileAp_2_radios = new Profile();
         profileAp_2_radios.setCustomerId(customer.getId());
         profileAp_2_radios.setName("ApProfile-2-radios");
@@ -564,6 +576,13 @@ public class AllInOneStartListener implements ApplicationRunner {
         enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
         enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
         enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
+        
+        Profile pskProfileAp = new Profile();
+        pskProfileAp.setCustomerId(customer.getId());
+        pskProfileAp.setName("PskApProfile");
+        pskProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
+        pskProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
+        pskProfileAp= profileServiceInterface.create(profileSsidPsk);
 
         // configure equipment auto-provisioning for the customer
         CustomerDetails details = new CustomerDetails();
