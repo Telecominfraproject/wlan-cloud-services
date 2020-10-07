@@ -74,7 +74,7 @@ public class PortForwarderController {
         }
         
         //append external host name to the local session Id
-        String externalHostName = connectorProperties.getExternalHostName();
+        String externalHostName = connectorProperties.getExternallyVisibleHostName();
         String result = getForwarder().startForwarderSession(inventoryId, port) + "@" + externalHostName;
 
         //extract the port on which the gateway listens for ssh requests
@@ -164,7 +164,7 @@ public class PortForwarderController {
 
     @RequestMapping(value = "/agentStatus/websocket/", method = RequestMethod.GET)
     public CloudServiceInformation getServerInformation() {
-        return new CloudServiceInformation(connectorProperties.getExternalHostName(), connectorProperties.getExternalPort());
+        return new CloudServiceInformation(connectorProperties.getExternallyVisibleHostName(), connectorProperties.getExternallyVisiblePort());
     }
     
     @RequestMapping(value = "/startAgent/inventoryId/{inventoryId}/", method = RequestMethod.POST)
@@ -177,7 +177,7 @@ public class PortForwarderController {
         }
 
         CEGWStartDebugEngine startAgentRequest = new CEGWStartDebugEngine(inventoryId, equipment.getId(),
-                connectorProperties.getExternalHostName(), connectorProperties.getExternalPort());
+                connectorProperties.getExternallyVisibleHostName(), connectorProperties.getExternallyVisiblePort());
 
         EquipmentCommandResponse cmdResponse = equipmentGatewayServiceInterface.sendCommand(startAgentRequest);
         LOG.debug("startAgent Response {}", cmdResponse);
