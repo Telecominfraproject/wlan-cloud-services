@@ -711,10 +711,6 @@ components:
           description: Backup channel (this is never set by the customer - it's deduced from the primary channel (either manual or auto)
           type: integer
           format: int32
-        autoChannelSelection:
-          type: boolean
-        channelBandwidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
         bannedChannels:
           type: array
           items:
@@ -733,13 +729,6 @@ components:
           $ref: '#/components/schemas/AutoOrManualValue'
         eirpTxPower:
           $ref: '#/components/schemas/AutoOrManualValue'
-        bestApEnabled:
-          type: boolean
-        neighbouringListApConfig:
-           $ref: '#/components/schemas/NeighbouringAPListConfiguration'
-        minAutoCellSize:
-          type: integer
-          format: int32
         perimeterDetectionEnabled:
           type: boolean
         bestAPSteerType:  
@@ -818,41 +807,20 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
-        rtsCtsThreshold:
-          type: integer
-          format: int32
-        autoChannelSelection:
-          $ref: '#/components/schemas/StateSetting'
         radioMode:
           $ref: '#/components/schemas/RadioMode'
-        mimoMode:
-          $ref: '#/components/schemas/MimoMode'
         wmmState:
           $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
-        maxNumClients:
-          type: integer
-          format: int32
         stationIsolation:
           $ref: '#/components/schemas/StateSetting'
-        multicastRate:
-          $ref: '#/components/schemas/MulticastRate'
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
-        activeScanSettings:
-          $ref: '#/components/schemas/ActiveScanSettings'
-        channelHopSettings:
-          $ref: '#/components/schemas/ChannelHopSettings'
         bestApSettings:
           $ref: '#/components/schemas/RadioBestApSettings'
-        forceScanDuringVoice:
-          $ref: '#/components/schemas/StateSetting'
         legacyBSSRate:
           $ref: '#/components/schemas/StateSetting'
-        beaconInterval:
-          type: integer
-          format: int32
         dtimPeriod:
           type: integer
           format: int32

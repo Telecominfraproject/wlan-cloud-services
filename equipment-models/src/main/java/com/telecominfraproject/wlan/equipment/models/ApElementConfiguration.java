@@ -129,9 +129,9 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 			returnValue.getRadioMap().get(RadioType.is5GHzU).setBackupChannelNumber(157);
 			returnValue.getRadioMap().get(RadioType.is5GHzU).setChannelNumber(149);
 			// NAAS-8919 change mimo for outdoor to 3x3
-			for (Entry<RadioType, RadioConfiguration> entry : returnValue.getAdvancedRadioMap().entrySet()) {
-				entry.getValue().setMimoMode(MimoMode.threeByThree);
-			}
+//			for (Entry<RadioType, RadioConfiguration> entry : returnValue.getAdvancedRadioMap().entrySet()) {
+//				entry.getValue().setMimoMode(MimoMode.threeByThree);
+//			}
 		}
 
 		returnValue.setForwardMode(NetworkForwardMode.BRIDGE);

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualValue;
-import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
@@ -23,8 +22,6 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	/*
 	 * These are weird since they are dependent on the radio type
 	 */
-	public final static int MIN_BG_RADIO_CELL_SIZE = -80;
-	public final static int MIN_AC_RADIO_CELL_SIZE = -80;
 	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
 	public final static int DEFAULT_EIRP_TX_POWER = 18;
 
@@ -33,17 +30,12 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private Integer manualChannelNumber; // The channel that was manually entered
 	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the
 											// primary channel (either manual or auto)
-	private boolean autoChannelSelection;
-	private ChannelBandwidth channelBandwidth;
 	private List<BannedChannel> bannedChannels = new LinkedList<>();
 	private List<Integer> allowedChannels = new LinkedList<>();
 	private AutoOrManualValue rxCellSizeDb;
 	private AutoOrManualValue probeResponseThresholdDb;
 	private AutoOrManualValue clientDisconnectThresholdDb;
 	private AutoOrManualValue eirpTxPower;
-	private Boolean bestApEnabled;
-	private NeighbouringAPListConfiguration neighbouringListApConfig;
-	private Integer minAutoCellSize;
 	private Boolean perimeterDetectionEnabled;
 	// Initialize here to cover backward compatibility.
 	private BestAPSteerType bestAPSteerType = BestAPSteerType.both;
@@ -63,25 +55,17 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		returnValue.setRadioType(radioType);
 
 		if (radioType == RadioType.is5GHz) {
-			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(36);
   			returnValue.setBackupChannelNumber(153);
-			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else if (radioType == RadioType.is5GHzL) {
-			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(36);
 			returnValue.setBackupChannelNumber(44);  
-			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else if (radioType == RadioType.is5GHzU) {
-			returnValue.setChannelBandwidth(ChannelBandwidth.is80MHz);
 			returnValue.setChannelNumber(149);
 			returnValue.setBackupChannelNumber(154); 
-			returnValue.setMinAutoCellSize(MIN_AC_RADIO_CELL_SIZE);
 		} else {
-			returnValue.setChannelBandwidth(ChannelBandwidth.is20MHz);
 			returnValue.setChannelNumber(6);
 			returnValue.setBackupChannelNumber(11);
-			returnValue.setMinAutoCellSize(MIN_BG_RADIO_CELL_SIZE);
 		}
 
 		return returnValue;
@@ -90,19 +74,16 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private ElementRadioConfiguration() {
 		// Tx power default was discussed with Shaikh (set to 18)
 		setEirpTxPower(AutoOrManualValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
-		setAutoChannelSelection(true);
 		setRxCellSizeDb(AutoOrManualValue.createManualInstance(DEFAULT_RX_CELL_SIZE_DB));
 		setProbeResponseThresholdDb(AutoOrManualValue.createManualInstance(-90));
 		setClientDisconnectThresholdDb(AutoOrManualValue.createManualInstance(-90));
-		setBestApEnabled(null);
-		setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
 		setPerimeterDetectionEnabled(true);
 		setBestAPSteerType(BestAPSteerType.both);
 	}
 
 	@JsonIgnore
-	public void alterActiveChannel(Integer channelNumber) {
-		if (this.autoChannelSelection) {
+	public void alterActiveChannel(Integer channelNumber, boolean autoChannelSelection) {
+		if (autoChannelSelection) {
 			setChannelNumber(channelNumber);
 		} else {
 			setManualChannelNumber(channelNumber);
@@ -127,31 +108,22 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		}
 		ElementRadioConfiguration other = (ElementRadioConfiguration) obj;
 		return Objects.equals(allowedChannelsPowerLevels, other.allowedChannelsPowerLevels)
-				&& this.autoChannelSelection == other.autoChannelSelection
 				&& Objects.equals(backupChannelNumber, other.backupChannelNumber)
 				&& Objects.equals(bannedChannels, other.bannedChannels) 
 				&& Objects.equals(allowedChannels, other.allowedChannels) 
 				&& this.bestAPSteerType == other.bestAPSteerType
-				&& Objects.equals(bestApEnabled, other.bestApEnabled) 
-				&& this.channelBandwidth == other.channelBandwidth
 				&& Objects.equals(channelNumber, other.channelNumber)
 				&& Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
 				&& Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
 				&& Objects.equals(eirpTxPower, other.eirpTxPower)
 				&& Objects.equals(getManualChannelNumber(), other.getManualChannelNumber())
-				&& Objects.equals(minAutoCellSize, other.minAutoCellSize)
-				&& Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
 				&& Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
 				&& Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
 				&& this.radioType == other.radioType && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
 	}
 
-	public Integer getActiveChannel() {
-		return (this.autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
-	}
-
-	public boolean getAutoChannelSelection() {
-		return this.autoChannelSelection;
+	public Integer getActiveChannel(boolean autoChannelSelection) {
+		return (autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
 	}
 
 	public Integer getBackupChannelNumber() {
@@ -165,11 +137,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	public List<Integer> getAllowedChannels() {
 		return allowedChannels;
 	}
-
-	public ChannelBandwidth getChannelBandwidth() {
-		return channelBandwidth;
-	}
-
+	
 	public Integer getChannelNumber() {
 		return channelNumber;
 	}
@@ -188,18 +156,6 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public Integer getManualChannelNumber() {
 		return (this.manualChannelNumber == null) ? this.channelNumber : this.manualChannelNumber;
-	}
-
-	public int getMinAutoCellSize() {
-		if (minAutoCellSize == null) {
-			return getRadioType() == RadioType.is2dot4GHz ? MIN_BG_RADIO_CELL_SIZE : MIN_AC_RADIO_CELL_SIZE;
-		}
-
-		return minAutoCellSize;
-	}
-
-	public NeighbouringAPListConfiguration getNeighbouringListApConfig() {
-		return neighbouringListApConfig;
 	}
 
 	public AutoOrManualValue getProbeResponseThresholdDb() {
@@ -221,18 +177,11 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allowedChannelsPowerLevels, autoChannelSelection, backupChannelNumber, bannedChannels, allowedChannels,
-				bestAPSteerType, bestApEnabled, channelBandwidth, channelNumber, clientDisconnectThresholdDb,
-				deauthAttackDetection, eirpTxPower, getManualChannelNumber(), minAutoCellSize, neighbouringListApConfig,
+		return Objects.hash(allowedChannelsPowerLevels, 
+				backupChannelNumber, bannedChannels, allowedChannels,
+				bestAPSteerType, channelNumber, clientDisconnectThresholdDb,
+				deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
 				perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
-	}
-
-	public Boolean isBestApEnabled() {
-		return bestApEnabled;
-	}
-
-	public void setAutoChannelSelection(boolean auto) {
-		this.autoChannelSelection = auto;
 	}
 
 	public void setBackupChannelNumber(Integer channelNumber) {
@@ -246,15 +195,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	public void setAllowedChannels(List<Integer> allowedChannels) {
 		this.allowedChannels = allowedChannels;
 	}
-
-	public void setBestApEnabled(Boolean bestApEnabled) {
-		this.bestApEnabled = bestApEnabled;
-	}
-
-	public void setChannelBandwidth(ChannelBandwidth channelBandwidth) {
-		this.channelBandwidth = channelBandwidth;
-	}
-
+	
 	public void setChannelNumber(Integer channelNumber) {
 		this.channelNumber = channelNumber;
 	}
@@ -273,14 +214,6 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public void setManualChannelNumber(Integer channel) {
 		this.manualChannelNumber = channel;
-	}
-
-	public void setMinAutoCellSize(int minAutoCellSize) {
-		this.minAutoCellSize = minAutoCellSize;
-	}
-
-	public void setNeighbouringListApConfig(NeighbouringAPListConfiguration neighbouringListApConfig) {
-		this.neighbouringListApConfig = neighbouringListApConfig;
 	}
 
 	public void setProbeResponseThresholdDb(AutoOrManualValue probeResponseThresholdDb) {
@@ -324,10 +257,12 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		if (super.hasUnsupportedValue()) {
 			return true;
 		}
-		if (RadioType.isUnsupported(radioType) || ChannelBandwidth.isUnsupported(channelBandwidth)
-				|| hasUnsupportedValue(bannedChannels) || hasUnsupportedValue(rxCellSizeDb)
-				|| hasUnsupportedValue(probeResponseThresholdDb) || hasUnsupportedValue(clientDisconnectThresholdDb)
-				|| hasUnsupportedValue(eirpTxPower) || hasUnsupportedValue(neighbouringListApConfig)
+		if (RadioType.isUnsupported(radioType) 
+				|| hasUnsupportedValue(bannedChannels) 
+				|| hasUnsupportedValue(rxCellSizeDb)
+				|| hasUnsupportedValue(probeResponseThresholdDb) 
+				|| hasUnsupportedValue(clientDisconnectThresholdDb)
+				|| hasUnsupportedValue(eirpTxPower)
 				|| BestAPSteerType.isUnsupported(bestAPSteerType)) {
 			return true;
 		}
