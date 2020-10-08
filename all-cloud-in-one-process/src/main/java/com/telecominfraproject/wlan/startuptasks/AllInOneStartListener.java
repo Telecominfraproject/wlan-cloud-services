@@ -347,6 +347,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         appliedRadiosPsk.add(RadioType.is2dot4GHz);
         appliedRadiosPsk.add(RadioType.is5GHzL);
         appliedRadiosPsk.add(RadioType.is5GHzU);
+        ssidConfigPsk.setSsid("TipWlan-cloud-hotspot-access");
         ssidConfigPsk.setAppliedRadios(appliedRadiosPsk);
         ssidConfigPsk.setSecureMode(SecureMode.wpa2PSK);
         ssidConfigPsk.setKeyStr("testing123");
