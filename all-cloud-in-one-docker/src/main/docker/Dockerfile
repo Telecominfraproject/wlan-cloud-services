@@ -8,7 +8,6 @@ RUN mkdir /app && mkdir /app/logs && mkdir /app/intcloudcomp
 COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/logback.xml /app/intcloudcomp/logback.xml
-COPY app/commit.properties /app
 
 RUN chmod +x /app/run.sh
 
