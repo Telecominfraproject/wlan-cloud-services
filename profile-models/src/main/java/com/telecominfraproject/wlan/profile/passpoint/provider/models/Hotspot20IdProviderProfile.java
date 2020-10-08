@@ -232,5 +232,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
                 && Objects.equals(radiusProfileAuth, other.radiusProfileAuth);
     }
 
+ 
+
 
 }

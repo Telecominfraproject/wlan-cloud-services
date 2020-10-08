@@ -372,7 +372,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         hotspot20IdProviderProfile.setCustomerId(customer.getId());
         hotspot20IdProviderProfile.setName("TipWlan-Hotspot20-OSU-Provider");
         hotspot20IdProviderProfile.setProfileType(ProfileType.id_provider);
-        Hotspot20IdProviderProfile passpointIdProviderProfile = Hotspot20IdProviderProfile.createWithDefaults();
         MccMnc mccMnc = MccMnc.createWithDefaults();
         mccMnc.setMcc(302);
         mccMnc.setMnc(720);
@@ -382,47 +381,28 @@ public class AllInOneStartListener implements ApplicationRunner {
         mccMnc.setNetwork("Rogers AT&T Wireless");
         List<MccMnc> mccMncList = new ArrayList<>();
         mccMncList.add(mccMnc);
-        passpointIdProviderProfile.setMccMncList(mccMncList);
-        List<OsuIcon> osuIconList = new ArrayList<>();
-        osuIconList.add(OsuIcon.createWithDefaults());
-        passpointIdProviderProfile.setOsuIconList(osuIconList);
-        List<NaiRealmInformation> naiRealmList = new ArrayList<>();
-        naiRealmList.add(NaiRealmInformation.createWithDefaults());
-        passpointIdProviderProfile.setNaiRealmList(naiRealmList);
-        passpointIdProviderProfile.setDomainName("example.com");
-        passpointIdProviderProfile.setOsuNaiStandalone("anonymous@example.com");
-        passpointIdProviderProfile.setOsuNaiShared("anonymous@example.com");
-        List<Integer> methodList = new ArrayList<>();
-        methodList.add(1);
-        methodList.add(0);
-        passpointIdProviderProfile.setOsuMethodList(methodList);
-        Hotspot20Duple enOsuProvider = Hotspot20Duple.createWithDefaults();
-        enOsuProvider.setLocale(Locale.CANADA);
-        enOsuProvider.setDupleName("Example provider");
-        Hotspot20Duple frOsuProvider = Hotspot20Duple.createWithDefaults();
-        frOsuProvider.setLocale(Locale.CANADA_FRENCH);
-        frOsuProvider.setDupleName("Exemple de fournisseur");
-        List<Hotspot20Duple> friendlyNameList = new ArrayList<>();
-        friendlyNameList.add(enOsuProvider);
-        friendlyNameList.add(frOsuProvider);
-        passpointIdProviderProfile.setOsuFriendlyName(friendlyNameList);
-        List<Hotspot20Duple> osuServiceDescription = new ArrayList<>();
-        Hotspot20Duple enService = Hotspot20Duple.createWithDefaults();
-        enService.setLocale(Locale.CANADA);
-        enService.setDupleName("Example services");
-        osuServiceDescription.add(enService);
-        Hotspot20Duple frService = Hotspot20Duple.createWithDefaults();
-        frService.setLocale(Locale.CANADA_FRENCH);
-        frService.setDupleName("Exemples de services");
-        osuServiceDescription.add(frService);
-        passpointIdProviderProfile.setOsuServiceDescription(osuServiceDescription);
-        passpointIdProviderProfile.setOsuSsid("TipWlan-cloud-3-radios");
-        passpointIdProviderProfile.setOsuServerUri("https://example.com/osu/");
-        passpointIdProviderProfile.setRadiusProfileAccounting("Radius-Profile");
-        passpointIdProviderProfile.setRadiusProfileAuth("Radius-Profile");
-        hotspot20IdProviderProfile.setDetails(passpointIdProviderProfile);
-        hotspot20IdProviderProfile = profileServiceInterface.create(hotspot20IdProviderProfile);
+        Set<String> naiRealms = new HashSet<>();
+        naiRealms.add("rogers.com");
+        hotspot20IdProviderProfile = createOsuProviderProfile(customer, hotspot20IdProviderProfile, mccMncList,
+                naiRealms,"https://example.com/osu/rogers/","rogers","rogers.com");
 
+        Profile hotspot20IdProviderProfile2 = new Profile();
+        hotspot20IdProviderProfile2.setCustomerId(customer.getId());
+        hotspot20IdProviderProfile2.setName("TipWlan-Hotspot20-OSU-Provider-2");
+        hotspot20IdProviderProfile2.setProfileType(ProfileType.id_provider);
+        MccMnc mccMnc2 = MccMnc.createWithDefaults();
+        mccMnc2.setMcc(302);
+        mccMnc2.setMnc(220);
+        mccMnc2.setIso("ca");
+        mccMnc2.setCountry("Canada");
+        mccMnc2.setCountryCode(1);
+        mccMnc2.setNetwork("Telus Mobility");
+        mccMncList = new ArrayList<>();
+        mccMncList.add(mccMnc2);
+        naiRealms = new HashSet<>();
+        naiRealms.add("telus.com");
+        hotspot20IdProviderProfile2 = createOsuProviderProfile(customer, hotspot20IdProviderProfile2, mccMncList,
+                naiRealms, "https://example.com/osu/telus/","telus","telus.com");
 
         Profile passpointHotspotConfig = new Profile();
         passpointHotspotConfig.setCustomerId(customer.getId());
@@ -432,8 +412,16 @@ public class AllInOneStartListener implements ApplicationRunner {
         passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
         passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
         passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile2.getId());
         passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
-        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());       
+        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
+        Set<String> providerNames = new HashSet<>();
+        providerNames.add(hotspot20IdProviderProfile.getName());
+        providerNames.add(hotspot20IdProviderProfile2.getName());
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setIdProviderProfileNames(providerNames);
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails())
+                .setOperatorProfileName(passpointOperatorProfile.getName());
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setVenueProfileName(passpointVenueProfile.getName());
         passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
         profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
         profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
@@ -451,7 +439,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
         Set<Long> ssidChildIds = new HashSet<>();
         ssidChildIds.add(hotspot20IdProviderProfile.getId());
-
+        ssidChildIds.add(hotspot20IdProviderProfile2.getId());
         profileSsid_3_radios.setChildProfileIds(ssidChildIds);
         profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
@@ -577,13 +565,13 @@ public class AllInOneStartListener implements ApplicationRunner {
         enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
         enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
         enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
-        
+
         Profile pskProfileAp = new Profile();
         pskProfileAp.setCustomerId(customer.getId());
         pskProfileAp.setName("PskApProfile");
         pskProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
         pskProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
-        pskProfileAp= profileServiceInterface.create(profileSsidPsk);
+        pskProfileAp = profileServiceInterface.create(profileSsidPsk);
 
         // configure equipment auto-provisioning for the customer
         CustomerDetails details = new CustomerDetails();
@@ -708,6 +696,84 @@ public class AllInOneStartListener implements ApplicationRunner {
             LOG.info("Enterprise SSID configs: {}", ssidConfigs2);
         }
 
+    }
+
+    protected Profile createOsuProviderProfile(Customer customer, Profile hotspot20IdProviderProfile,
+            List<MccMnc> mccMncList, Set<String> realms, String serverUri, String suffix, String domainName) {
+
+        Hotspot20IdProviderProfile passpointIdProviderProfile = Hotspot20IdProviderProfile.createWithDefaults();
+
+        passpointIdProviderProfile.setMccMncList(mccMncList);
+        OsuIcon icon1 = new OsuIcon();
+        icon1.setIconLocale(Locale.CANADA); 
+        icon1.setIconWidth(32);
+        icon1.setIconHeight(32);
+        icon1.setLanguageCode(Locale.CANADA.getISO3Language()); 
+        icon1.setIconName("icon32eng");
+        icon1.setImageUrl("https://localhost:9096/icon32eng.png");
+        icon1.setFilePath("/tmp/icon32eng.png");
+        OsuIcon icon2 = new OsuIcon();
+        icon2.setIconLocale(Locale.CANADA_FRENCH); 
+        icon2.setIconWidth(32);
+        icon2.setIconHeight(32);
+        icon2.setLanguageCode(Locale.CANADA_FRENCH.getISO3Language()); 
+        icon2.setIconName("icon32fra");
+        icon2.setImageUrl("https://localhost:9096/icon32fra.png");
+        icon2.setFilePath("/tmp/icon32fra.png");
+        OsuIcon icon3 = new OsuIcon();
+        icon3.setIconLocale(Locale.US); 
+        icon3.setIconWidth(32);
+        icon3.setIconHeight(32);
+        icon3.setLanguageCode(Locale.US.getISO3Language()); 
+        icon3.setIconName("icon32usa");
+        icon3.setImageUrl("https://localhost:9096/icon32usa.png");
+        icon3.setFilePath("/tmp/icon32usa.png");
+        List<OsuIcon> osuIconList = new ArrayList<>();
+        osuIconList.add(icon1);
+        osuIconList.add(icon2);
+        osuIconList.add(icon3);
+        passpointIdProviderProfile.setOsuIconList(osuIconList);
+        List<NaiRealmInformation> naiRealmList = new ArrayList<>();
+
+        NaiRealmInformation naiRealmInfo = NaiRealmInformation.createWithDefaults();
+        naiRealmInfo.setNaiRealms(realms);
+
+        naiRealmList.add(naiRealmInfo);
+        passpointIdProviderProfile.setNaiRealmList(naiRealmList);
+        passpointIdProviderProfile.setDomainName(domainName);
+        passpointIdProviderProfile.setOsuNaiStandalone("anonymous@" + domainName);
+        passpointIdProviderProfile.setOsuNaiShared("anonymous@" + domainName);
+        List<Integer> methodList = new ArrayList<>();
+        methodList.add(1);
+        methodList.add(0);
+        passpointIdProviderProfile.setOsuMethodList(methodList);
+        Hotspot20Duple enOsuProvider = Hotspot20Duple.createWithDefaults();
+        enOsuProvider.setLocale(Locale.CANADA);
+        enOsuProvider.setDupleName("Example provider " + suffix);
+        Hotspot20Duple frOsuProvider = Hotspot20Duple.createWithDefaults();
+        frOsuProvider.setLocale(Locale.CANADA_FRENCH);
+        frOsuProvider.setDupleName("Exemple de fournisseur " + suffix);
+        List<Hotspot20Duple> friendlyNameList = new ArrayList<>();
+        friendlyNameList.add(enOsuProvider);
+        friendlyNameList.add(frOsuProvider);
+        passpointIdProviderProfile.setOsuFriendlyName(friendlyNameList);
+        List<Hotspot20Duple> osuServiceDescription = new ArrayList<>();
+        Hotspot20Duple enService = Hotspot20Duple.createWithDefaults();
+        enService.setLocale(Locale.CANADA);
+        enService.setDupleName("Example services " + suffix);
+        osuServiceDescription.add(enService);
+        Hotspot20Duple frService = Hotspot20Duple.createWithDefaults();
+        frService.setLocale(Locale.CANADA_FRENCH);
+        frService.setDupleName("Exemples de services " + suffix);
+        osuServiceDescription.add(frService);
+        passpointIdProviderProfile.setOsuServiceDescription(osuServiceDescription);
+        passpointIdProviderProfile.setOsuSsid("TipWlan-cloud-3-radios");
+        passpointIdProviderProfile.setOsuServerUri(serverUri);
+        passpointIdProviderProfile.setRadiusProfileAccounting("Radius-Profile");
+        passpointIdProviderProfile.setRadiusProfileAuth("Radius-Profile");
+        hotspot20IdProviderProfile.setDetails(passpointIdProviderProfile);
+        hotspot20IdProviderProfile = profileServiceInterface.create(hotspot20IdProviderProfile);
+        return hotspot20IdProviderProfile;
     }
 
     protected void constructCaptivePortalUserList(List<TimedAccessUserRecord> userList) {
