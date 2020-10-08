@@ -9,7 +9,6 @@ COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/prov/logback.xml /app/prov/logback.xml
 COPY app/prov/datasource.properties /app/prov/datasource.properties
-COPY app/commit.properties /app
 
 RUN chmod +x /app/run.sh
 

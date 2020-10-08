@@ -32,7 +32,6 @@ COPY app/opensync/ProfileOperator.json /app/opensync/ProfileOperator.json
 COPY app/opensync/ProfileVenue.json /app/opensync/ProfileVenue.json
 COPY app/opensync/ProfileIdProvider.json /app/opensync/ProfileIdProvider.json
 COPY app/opensync/ProfileRf.json /app/opensync/ProfileRf.json
-COPY app/commit.properties /app
 
 VOLUME ["/app/logs", "/app/config"]
 
