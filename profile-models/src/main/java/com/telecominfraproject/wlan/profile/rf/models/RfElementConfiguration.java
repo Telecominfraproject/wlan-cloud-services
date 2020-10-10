@@ -15,6 +15,7 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioBestApSettings;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.equipment.models.ActiveScanSettings;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration.ApModel;
 import com.telecominfraproject.wlan.equipment.models.ManagementRate;
 import com.telecominfraproject.wlan.equipment.models.MimoMode;
 import com.telecominfraproject.wlan.equipment.models.MulticastRate;
@@ -96,6 +97,16 @@ public class RfElementConfiguration extends BaseJsonModel {
         } else {
         	ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
         }
+    	return ret;
+    }
+    
+    public static RfElementConfiguration createWithDefaults(RadioType radioType, ApModel apModel) {
+		RfElementConfiguration ret = createWithDefaults(radioType);
+		if (apModel == ApModel.OUTDOOR) {
+			// TODO: This logic is carried over from ApElementConfig during RF profile implementation. Is it still necessary?
+	    	// NAAS-8919 change mimo for outdoor to 3x3
+			ret.setMimoMode(MimoMode.threeByThree);
+		}
     	return ret;
     }
     
@@ -235,15 +246,7 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.neighbouringListApConfig = neighbouringListApConfig;
 	}
 
-	public int getMinAutoCellSize(RadioType radioType) {
-		if (minAutoCellSize == null) {
-    		if (MIN_CELL_SIZE_MAP.containsKey(radioType)) {
-    			return MIN_CELL_SIZE_MAP.get(radioType);
-    		} else {
-    			return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
-    		}
-		}
-
+	public int getMinAutoCellSize() {
 		return minAutoCellSize;
 	}
 
