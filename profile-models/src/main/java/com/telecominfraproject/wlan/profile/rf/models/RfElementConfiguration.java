@@ -246,15 +246,7 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.neighbouringListApConfig = neighbouringListApConfig;
 	}
 
-	public int getMinAutoCellSize(RadioType radioType) {
-		if (minAutoCellSize == null) {
-    		if (MIN_CELL_SIZE_MAP.containsKey(radioType)) {
-    			return MIN_CELL_SIZE_MAP.get(radioType);
-    		} else {
-    			return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
-    		}
-		}
-
+	public int getMinAutoCellSize() {
 		return minAutoCellSize;
 	}
 
