@@ -37,7 +37,7 @@ HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
 # Port-Forwarder Gateway Specific
 HOST_PROPS+=" -Dtip.wlan.portForwarderGatewayBaseUrl=$PF_GATEWAY_URL"
 HOST_PROPS+=" -Dtip.wlan.websocketSessionTokenEncryptionKey=$PF_GATEWAY_ENCRYPTION_KEY"
-HOST_PROPS+=" -Dtip.wlan.externallyVisibleHost=$PF_GATEWAY_EXT_HOST"
+HOST_PROPS+=" -Dtip.wlan.externallyVisibleHostName=$PF_GATEWAY_EXT_HOST"
 HOST_PROPS+=" -Dtip.wlan.externallyVisiblePort=$PF_GATEWAY_EXT_PORT"
 
 
