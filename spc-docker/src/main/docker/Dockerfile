@@ -8,6 +8,8 @@ RUN mkdir /app && mkdir /app/logs && mkdir /app/spc
 COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/spc/logback.xml /app/spc/logback.xml
+COPY app/commit.properties /app
+
 
 RUN chmod +x /app/run.sh
 

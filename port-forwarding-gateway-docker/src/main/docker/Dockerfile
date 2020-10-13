@@ -8,6 +8,7 @@ RUN mkdir /app && mkdir /app/logs && mkdir /app/port-forwarding-gateway
 COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/port-forwarding-gateway/logback.xml /app/port-forwarding-gateway/logback.xml
+COPY app/commit.properties /app
 
 RUN chmod +x /app/run.sh
 
