@@ -1,7 +1,11 @@
 package com.telecominfraproject.wlan.profile.passpoint.provider.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
@@ -13,6 +17,7 @@ import com.telecominfraproject.wlan.profile.passpoint.models.MccMnc;
 public class Hotspot20IdProviderProfile extends ProfileDetails
         implements PushableConfiguration<Hotspot20IdProviderProfile> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Hotspot20IdProviderProfile.class);
 
     private String domainName;
 
@@ -29,6 +34,10 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     private String osuNaiShared;
     private List<Integer> osuMethodList;
     private List<Hotspot20Duple> osuServiceDescription;
+    private static final int MIN_ROAMING_OI_OCTETS = 3;
+    private static final int MAX_ROAMING__OI_OCTETS = 15;
+    private List<Byte> roamingOi;
+
 
     private static final long serialVersionUID = -6146454085334670280L;
 
@@ -41,6 +50,13 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     }
 
     private Hotspot20IdProviderProfile() {
+        mccMncList = new ArrayList<>();
+        naiRealmList = new ArrayList<>();
+        osuIconList = new ArrayList<>();
+        osuFriendlyName = new ArrayList<>();
+        osuMethodList = new ArrayList<>();
+        osuServiceDescription = new ArrayList<>();
+        roamingOi = new ArrayList<>(MIN_ROAMING_OI_OCTETS);
     }
 
     public static Hotspot20IdProviderProfile createWithDefaults() {
@@ -173,6 +189,31 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
         this.osuServiceDescription = osuServiceDescription;
     }
 
+    public List<Byte> getRoamingOi() {
+        return roamingOi;
+    }
+
+
+    public void setRoamingOi(List<Byte> roamingOi) {
+        if (roamingOi.size() >= MIN_ROAMING_OI_OCTETS && roamingOi.size() <= MAX_ROAMING__OI_OCTETS) {
+            this.roamingOi = roamingOi;
+        } else {
+            LOG.error("RoamingOI {} must be between 3 and 15 bytes in size.", roamingOi);
+            throw new IllegalArgumentException("RoamingOI byte list must be between 3 and 15 bytes in size.");
+        }
+    }
+
+
+    public static int getMinRoamingOiOctets() {
+        return MIN_ROAMING_OI_OCTETS;
+    }
+
+
+    public static int getMaxRoamingOiOctets() {
+        return MAX_ROAMING__OI_OCTETS;
+    }
+
+
     @Override
     public boolean needsToBeUpdatedOnDevice(Hotspot20IdProviderProfile previousVersion) {
         if (this.equals(previousVersion))
@@ -193,6 +234,8 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
             ret.osuMethodList = getOsuMethodList();
         if (osuServiceDescription != null)
             ret.osuServiceDescription = getOsuServiceDescription();
+        if (roamingOi != null)
+            ret.roamingOi = getRoamingOi();
         ret.radiusProfileAccounting = getRadiusProfileAccounting();
         ret.radiusProfileAuth = getRadiusProfileAuth();
         ret.osuSsid = getOsuSsid();
@@ -207,7 +250,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     public int hashCode() {
         return Objects.hash(domainName, mccMncList, naiRealmList, osuFriendlyName, osuIconList, osuMethodList,
                 osuNaiShared, osuNaiStandalone, osuServerUri, osuServiceDescription, osuSsid, radiusProfileAccounting,
-                radiusProfileAuth);
+                radiusProfileAuth, roamingOi);
     }
 
     @Override
@@ -229,10 +272,10 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
                 && Objects.equals(osuServiceDescription, other.osuServiceDescription)
                 && Objects.equals(osuSsid, other.osuSsid)
                 && Objects.equals(radiusProfileAccounting, other.radiusProfileAccounting)
-                && Objects.equals(radiusProfileAuth, other.radiusProfileAuth);
+                && Objects.equals(radiusProfileAuth, other.radiusProfileAuth)
+                && Objects.equals(roamingOi, other.roamingOi);
     }
 
- 
-
+   
 
 }
