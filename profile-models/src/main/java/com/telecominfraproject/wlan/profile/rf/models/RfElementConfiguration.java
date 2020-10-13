@@ -31,10 +31,10 @@ public class RfElementConfiguration extends BaseJsonModel {
     private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
     static {
     	Map<RadioType, Integer> map = new HashMap<>();
-    	map.put(RadioType.is2dot4GHz, -80);
-    	map.put(RadioType.is5GHz, -80);
-    	map.put(RadioType.is5GHzL, -80);
-    	map.put(RadioType.is5GHzU, -80);
+    	map.put(RadioType.is2dot4GHz, -65);
+    	map.put(RadioType.is5GHz, -65);
+    	map.put(RadioType.is5GHzL, -65);
+    	map.put(RadioType.is5GHzU, -65);
     	MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
     }
 	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
