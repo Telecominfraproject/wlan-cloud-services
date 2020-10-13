@@ -9,6 +9,8 @@ COPY maven/app.jar /app
 COPY app/run.sh /app
 COPY app/intcloudcomp/logback.xml /app/intcloudcomp/logback.xml
 COPY app/intcloudcomp/datasource.properties /app/intcloudcomp/datasource.properties
+COPY app/commit.properties /app
+
 
 RUN chmod +x /app/run.sh
 
