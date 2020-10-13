@@ -174,7 +174,6 @@ public class AllInOneStartListener implements ApplicationRunner {
     @Value("${tip.wlan.numMetricsPerEquipmentToCreateOnStartup:5}")
     private int numMetricsPerEquipmentToCreateOnStartup;
 
-
     @Override
     public void run(ApplicationArguments args) {
         LOG.info("Creating initial objects");
@@ -262,6 +261,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         location_2 = locationServiceInterface.create(location_2);
 
+
         Profile profileRadius = new Profile();
         profileRadius.setCustomerId(customer.getId());
         profileRadius.setProfileType(ProfileType.radius);
@@ -339,92 +339,18 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
-        Profile profileSsidPsk = new Profile();
-        profileSsidPsk.setCustomerId(customer.getId());
-        profileSsidPsk.setName("TipWlan-cloud-hotspot-access");
-        SsidConfiguration ssidConfigPsk = SsidConfiguration.createWithDefaults();
-        Set<RadioType> appliedRadiosPsk = new HashSet<RadioType>();
-        appliedRadiosPsk.add(RadioType.is2dot4GHz);
-        appliedRadiosPsk.add(RadioType.is5GHzL);
-        appliedRadiosPsk.add(RadioType.is5GHzU);
-        ssidConfigPsk.setSsid("TipWlan-cloud-hotspot-access");
-        ssidConfigPsk.setAppliedRadios(appliedRadiosPsk);
-        ssidConfigPsk.setSecureMode(SecureMode.wpa2PSK);
-        ssidConfigPsk.setKeyStr("testing123");
-        profileSsidPsk.setDetails(ssidConfigPsk);
-        profileSsidPsk = profileServiceInterface.create(profileSsidPsk);
+        Profile passpointHotspotConfig = null;
+        Profile hotspot20IdProviderProfile2 = null;
+        Profile hotspot20IdProviderProfile = null;
+        Profile passpointOperatorProfile = null;
+        Profile passpointVenueProfile = null;
+        Profile profileSsidPsk = null;
+        Profile profileSsidOsu = null;
+        Profile hotspotProfileAp = null;
+        createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
+                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu,
+                hotspotProfileAp);
 
-        Profile passpointOperatorProfile = new Profile();
-        passpointOperatorProfile.setCustomerId(customer.getId());
-        passpointOperatorProfile.setName("TipWlan-Hotspot20-Operator");
-        passpointOperatorProfile.setProfileType(ProfileType.operator);
-        passpointOperatorProfile.setDetails(OperatorProfile.createWithDefaults());
-        passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
-
-        Profile passpointVenueProfile = new Profile();
-        passpointVenueProfile.setCustomerId(customer.getId());
-        passpointVenueProfile.setName("TipWlan-Hotspot20-Venue");
-        passpointVenueProfile.setProfileType(ProfileType.venue);
-        passpointVenueProfile.setDetails(VenueProfile.createWithDefaults());
-        passpointVenueProfile = profileServiceInterface.create(passpointVenueProfile);
-
-        Profile hotspot20IdProviderProfile = new Profile();
-        hotspot20IdProviderProfile.setCustomerId(customer.getId());
-        hotspot20IdProviderProfile.setName("TipWlan-Hotspot20-OSU-Provider");
-        hotspot20IdProviderProfile.setProfileType(ProfileType.id_provider);
-        MccMnc mccMnc = MccMnc.createWithDefaults();
-        mccMnc.setMcc(302);
-        mccMnc.setMnc(720);
-        mccMnc.setIso("ca");
-        mccMnc.setCountry("Canada");
-        mccMnc.setCountryCode(1);
-        mccMnc.setNetwork("Rogers AT&T Wireless");
-        List<MccMnc> mccMncList = new ArrayList<>();
-        mccMncList.add(mccMnc);
-        Set<String> naiRealms = new HashSet<>();
-        naiRealms.add("rogers.com");
-        hotspot20IdProviderProfile = createOsuProviderProfile(customer, hotspot20IdProviderProfile, mccMncList,
-                naiRealms,"https://example.com/osu/rogers/","rogers","rogers.com");
-
-        Profile hotspot20IdProviderProfile2 = new Profile();
-        hotspot20IdProviderProfile2.setCustomerId(customer.getId());
-        hotspot20IdProviderProfile2.setName("TipWlan-Hotspot20-OSU-Provider-2");
-        hotspot20IdProviderProfile2.setProfileType(ProfileType.id_provider);
-        MccMnc mccMnc2 = MccMnc.createWithDefaults();
-        mccMnc2.setMcc(302);
-        mccMnc2.setMnc(220);
-        mccMnc2.setIso("ca");
-        mccMnc2.setCountry("Canada");
-        mccMnc2.setCountryCode(1);
-        mccMnc2.setNetwork("Telus Mobility");
-        mccMncList = new ArrayList<>();
-        mccMncList.add(mccMnc2);
-        naiRealms = new HashSet<>();
-        naiRealms.add("telus.com");
-        hotspot20IdProviderProfile2 = createOsuProviderProfile(customer, hotspot20IdProviderProfile2, mccMncList,
-                naiRealms, "https://example.com/osu/telus/","telus","telus.com");
-
-        Profile passpointHotspotConfig = new Profile();
-        passpointHotspotConfig.setCustomerId(customer.getId());
-        passpointHotspotConfig.setName("TipWlan-Hotspot20-Config");
-        passpointHotspotConfig.setProfileType(ProfileType.hotspot_2pt0);
-        Set<Long> passpointHotspotConfigChildIds = new HashSet<>();
-        passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
-        passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
-        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
-        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile2.getId());
-        passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
-        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
-        Set<String> providerNames = new HashSet<>();
-        providerNames.add(hotspot20IdProviderProfile.getName());
-        providerNames.add(hotspot20IdProviderProfile2.getName());
-        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setIdProviderProfileNames(providerNames);
-        ((Hotspot2Profile) passpointHotspotConfig.getDetails())
-                .setOperatorProfileName(passpointOperatorProfile.getName());
-        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setVenueProfileName(passpointVenueProfile.getName());
-        passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
-        profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
-        profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
 
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
@@ -437,10 +363,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_3_radios.setAppliedRadios(appliedRadios_3_radios);
         ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
-        Set<Long> ssidChildIds = new HashSet<>();
-        ssidChildIds.add(hotspot20IdProviderProfile.getId());
-        ssidChildIds.add(hotspot20IdProviderProfile2.getId());
-        profileSsid_3_radios.setChildProfileIds(ssidChildIds);
         profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
         Profile profileSsid_2_radios = new Profile();
@@ -453,7 +375,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         ssidConfig_2_radios.setAppliedRadios(appliedRadios_2_radios);
         ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
         profileSsid_2_radios.setDetails(ssidConfig_2_radios);
-        profileSsid_2_radios.setChildProfileIds(ssidChildIds);
+        // profileSsid_2_radios.setChildProfileIds(ssidChildIds);
         profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
 
         Profile profileRf = new Profile();
@@ -539,7 +461,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileSsidPsk.getId());
+        // profileAp_3_radios.getChildProfileIds().add(profileSsidPsk.getId());
         profileAp_3_radios.getChildProfileIds().add(profileMetrics_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
@@ -565,13 +487,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
         enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
         enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
-
-        Profile pskProfileAp = new Profile();
-        pskProfileAp.setCustomerId(customer.getId());
-        pskProfileAp.setName("PskApProfile");
-        pskProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
-        pskProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
-        pskProfileAp = profileServiceInterface.create(profileSsidPsk);
 
         // configure equipment auto-provisioning for the customer
         CustomerDetails details = new CustomerDetails();
@@ -698,33 +613,205 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     }
 
+    protected void createPasspointHotspot(Customer customer, Profile passpointHotspotConfig,
+            Profile passpointOperatorProfile, Profile passpointVenueProfile, Profile hotspot20IdProviderProfile,
+            Profile hotspot20IdProviderProfile2, Profile profileSsidPsk, Profile profileSsidOsu,
+            Profile hotspotProfileAp) {
+
+        profileSsidPsk = createPasspointAccessSsid(customer);
+        profileSsidOsu = createPasspointOsuSsid(customer);
+
+        passpointOperatorProfile = createPasspointOperatorProfile(customer);
+
+        passpointVenueProfile = createPasspointVenueProfile(customer);
+
+        hotspot20IdProviderProfile = createPasspointIdProviderProfile(customer, hotspot20IdProviderProfile,
+                "TipWlan-Hotspot20-OSU-Provider", "Rogers AT&T Wireless", "Canada", "ca", 302, 720, "rogers.com", 1);
+        hotspot20IdProviderProfile2 = createPasspointIdProviderProfile(customer, hotspot20IdProviderProfile2,
+                "TipWlan-Hotspot20-OSU-Provider-2", "Telus Mobility", "Canada", "ca", 302, 220, "telus.com", 1);
+
+        profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile.getId());
+        profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile2.getId());
+        profileSsidOsu = profileServiceInterface.update(profileSsidOsu);
+
+        passpointHotspotConfig = createPasspointHotspotConfig(customer, hotspot20IdProviderProfile2,
+                hotspot20IdProviderProfile, passpointOperatorProfile, passpointVenueProfile, profileSsidPsk,
+                profileSsidOsu);
+
+        hotspotProfileAp = createPasspointApProfile(customer, profileSsidPsk, profileSsidOsu);
+    }
+
+    protected Profile createPasspointHotspotConfig(Customer customer, Profile hotspot20IdProviderProfile2,
+            Profile hotspot20IdProviderProfile, Profile passpointOperatorProfile, Profile passpointVenueProfile,
+            Profile profileSsidPsk, Profile profileSsidOpen) {
+        Profile passpointHotspotConfig;
+        passpointHotspotConfig = new Profile();
+        passpointHotspotConfig.setCustomerId(customer.getId());
+        passpointHotspotConfig.setName("TipWlan-Hotspot20-Config");
+        passpointHotspotConfig.setProfileType(ProfileType.hotspot_2pt0);
+        Set<Long> passpointHotspotConfigChildIds = new HashSet<>();
+        passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
+        passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile2.getId());
+        passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
+        passpointHotspotConfig.setDetails(Hotspot2Profile.createWithDefaults());
+        Set<String> providerNames = new HashSet<>();
+        providerNames.add(hotspot20IdProviderProfile.getName());
+        providerNames.add(hotspot20IdProviderProfile2.getName());
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setIdProviderProfileNames(providerNames);
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails())
+                .setOperatorProfileName(passpointOperatorProfile.getName());
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setVenueProfileName(passpointVenueProfile.getName());
+        ((Hotspot2Profile) passpointHotspotConfig.getDetails()).setOsuSsidName(profileSsidOpen.getName());
+        passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
+        profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
+        profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
+        return profileSsidPsk;
+    }
+
+    protected Profile createPasspointIdProviderProfile(Customer customer, Profile providerProfile, String providerName,
+            String network, String country, String iso, int mcc, int mnc, String naiRealm, int countryCode) {
+        Profile hotspot20IdProviderProfile;
+        hotspot20IdProviderProfile = new Profile();
+        hotspot20IdProviderProfile.setCustomerId(customer.getId());
+        hotspot20IdProviderProfile.setName(providerName);
+        hotspot20IdProviderProfile.setProfileType(ProfileType.id_provider);
+        MccMnc mccMnc = MccMnc.createWithDefaults();
+        mccMnc.setMcc(mcc);
+        mccMnc.setMnc(mnc);
+        mccMnc.setIso(iso);
+        mccMnc.setCountry(country);
+        mccMnc.setCountryCode(1);
+        mccMnc.setNetwork(network);
+        List<MccMnc> mccMncList = new ArrayList<>();
+        mccMncList.add(mccMnc);
+        Set<String> naiRealms = new HashSet<>();
+        naiRealms.add(naiRealm);
+        naiRealm.split(".");
+        List<Byte> roamingOi = new ArrayList<>();
+        roamingOi.add(Byte.valueOf("1"));
+        roamingOi.add(Byte.valueOf("2"));
+        roamingOi.add(Byte.valueOf("3"));
+        roamingOi.add(Byte.valueOf("4"));
+        hotspot20IdProviderProfile = createOsuProviderProfile(customer, hotspot20IdProviderProfile, mccMncList,
+                naiRealms, "https://example.com/osu/" + naiRealm.split(".com")[0], naiRealm.split(".com")[0], naiRealm,
+                roamingOi);
+        return hotspot20IdProviderProfile;
+    }
+
+    protected Profile createPasspointVenueProfile(Customer customer) {
+        Profile passpointVenueProfile;
+        passpointVenueProfile = new Profile();
+        passpointVenueProfile.setCustomerId(customer.getId());
+        passpointVenueProfile.setName("TipWlan-Hotspot20-Venue");
+        passpointVenueProfile.setProfileType(ProfileType.venue);
+        passpointVenueProfile.setDetails(VenueProfile.createWithDefaults());
+        passpointVenueProfile = profileServiceInterface.create(passpointVenueProfile);
+        return passpointVenueProfile;
+    }
+
+    protected Profile createPasspointOperatorProfile(Customer customer) {
+        Profile passpointOperatorProfile;
+        passpointOperatorProfile = new Profile();
+        passpointOperatorProfile.setCustomerId(customer.getId());
+        passpointOperatorProfile.setName("TipWlan-Hotspot20-Operator");
+        passpointOperatorProfile.setProfileType(ProfileType.operator);
+        passpointOperatorProfile.setDetails(OperatorProfile.createWithDefaults());
+        passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
+        return passpointOperatorProfile;
+    }
+
+    protected Profile createPasspointAccessSsid(Customer customer) {
+        Profile profileSsidPsk;
+        profileSsidPsk = new Profile();
+        profileSsidPsk.setCustomerId(customer.getId());
+        profileSsidPsk.setName("TipWlan-cloud-hotspot-access");
+        SsidConfiguration ssidConfigPsk = SsidConfiguration.createWithDefaults();
+        Set<RadioType> appliedRadiosPsk = new HashSet<RadioType>();
+        appliedRadiosPsk.add(RadioType.is5GHzL);
+        appliedRadiosPsk.add(RadioType.is5GHzU);
+        ssidConfigPsk.setSsid("TipWlan-cloud-hotspot-access");
+        ssidConfigPsk.setAppliedRadios(appliedRadiosPsk);
+        ssidConfigPsk.setSecureMode(SecureMode.wpa2PSK);
+        ssidConfigPsk.setKeyStr("testing123");
+        profileSsidPsk.setDetails(ssidConfigPsk);
+        profileSsidPsk = profileServiceInterface.create(profileSsidPsk);
+        return profileSsidPsk;
+    }
+
+    protected Profile createPasspointOsuSsid(Customer customer) {
+        Profile profileSsidPsk;
+        profileSsidPsk = new Profile();
+        profileSsidPsk.setCustomerId(customer.getId());
+        profileSsidPsk.setName("TipWlan-cloud-hotspot-osu");
+        SsidConfiguration ssidConfigPsk = SsidConfiguration.createWithDefaults();
+        Set<RadioType> appliedRadiosPsk = new HashSet<RadioType>();
+        appliedRadiosPsk.add(RadioType.is2dot4GHz);
+        ssidConfigPsk.setSsid("TipWlan-cloud-hotspot-osu");
+        ssidConfigPsk.setAppliedRadios(appliedRadiosPsk);
+        ssidConfigPsk.setSecureMode(SecureMode.open);
+        profileSsidPsk.setDetails(ssidConfigPsk);
+        profileSsidPsk = profileServiceInterface.create(profileSsidPsk);
+        return profileSsidPsk;
+    }
+
+    protected Profile createPasspointApProfile(Customer customer, Profile profileSsidPsk, Profile profileSsidOpen) {
+
+        Profile hotspotProfileAp = new Profile();
+        hotspotProfileAp.setCustomerId(customer.getId());
+        hotspotProfileAp.setName("HotspotProfileAp");
+        hotspotProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
+        hotspotProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
+        hotspotProfileAp.getChildProfileIds().add(profileSsidOpen.getId());
+        hotspotProfileAp.getChildProfileIds().add(createPasspointRfProfile(customer).getId());
+        hotspotProfileAp = profileServiceInterface.create(hotspotProfileAp);
+        return hotspotProfileAp;
+
+
+    }
+
+    protected Profile createPasspointRfProfile(Customer customer) {
+
+        Profile profileRf = new Profile();
+        profileRf.setCustomerId(customer.getId());
+        profileRf.setName("TipWlan-rf-passpoint");
+        RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
+        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf-passpoint"));
+        profileRf.setDetails(rfConfig);
+        profileRf = profileServiceInterface.create(profileRf);
+
+        return profileRf;
+    }
+
     protected Profile createOsuProviderProfile(Customer customer, Profile hotspot20IdProviderProfile,
-            List<MccMnc> mccMncList, Set<String> realms, String serverUri, String suffix, String domainName) {
+            List<MccMnc> mccMncList, Set<String> realms, String serverUri, String suffix, String domainName,
+            List<Byte> roamingOi) {
 
         Hotspot20IdProviderProfile passpointIdProviderProfile = Hotspot20IdProviderProfile.createWithDefaults();
 
         passpointIdProviderProfile.setMccMncList(mccMncList);
         OsuIcon icon1 = new OsuIcon();
-        icon1.setIconLocale(Locale.CANADA); 
+        icon1.setIconLocale(Locale.CANADA);
         icon1.setIconWidth(32);
         icon1.setIconHeight(32);
-        icon1.setLanguageCode(Locale.CANADA.getISO3Language()); 
+        icon1.setLanguageCode(Locale.CANADA.getISO3Language());
         icon1.setIconName("icon32eng");
         icon1.setImageUrl("https://localhost:9096/icon32eng.png");
         icon1.setFilePath("/tmp/icon32eng.png");
         OsuIcon icon2 = new OsuIcon();
-        icon2.setIconLocale(Locale.CANADA_FRENCH); 
+        icon2.setIconLocale(Locale.CANADA_FRENCH);
         icon2.setIconWidth(32);
         icon2.setIconHeight(32);
-        icon2.setLanguageCode(Locale.CANADA_FRENCH.getISO3Language()); 
+        icon2.setLanguageCode(Locale.CANADA_FRENCH.getISO3Language());
         icon2.setIconName("icon32fra");
         icon2.setImageUrl("https://localhost:9096/icon32fra.png");
         icon2.setFilePath("/tmp/icon32fra.png");
         OsuIcon icon3 = new OsuIcon();
-        icon3.setIconLocale(Locale.US); 
+        icon3.setIconLocale(Locale.US);
         icon3.setIconWidth(32);
         icon3.setIconHeight(32);
-        icon3.setLanguageCode(Locale.US.getISO3Language()); 
+        icon3.setLanguageCode(Locale.US.getISO3Language());
         icon3.setIconName("icon32usa");
         icon3.setImageUrl("https://localhost:9096/icon32usa.png");
         icon3.setFilePath("/tmp/icon32usa.png");
@@ -733,6 +820,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         osuIconList.add(icon2);
         osuIconList.add(icon3);
         passpointIdProviderProfile.setOsuIconList(osuIconList);
+
+        passpointIdProviderProfile.setRoamingOi(roamingOi);
         List<NaiRealmInformation> naiRealmList = new ArrayList<>();
 
         NaiRealmInformation naiRealmInfo = NaiRealmInformation.createWithDefaults();
