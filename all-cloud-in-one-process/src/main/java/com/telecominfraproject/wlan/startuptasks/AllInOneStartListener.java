@@ -339,17 +339,17 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
-        Profile passpointHotspotConfig = null;
-        Profile hotspot20IdProviderProfile2 = null;
-        Profile hotspot20IdProviderProfile = null;
-        Profile passpointOperatorProfile = null;
-        Profile passpointVenueProfile = null;
-        Profile profileSsidPsk = null;
-        Profile profileSsidOsu = null;
-        Profile hotspotProfileAp = null;
-        createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
-                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu,
-                hotspotProfileAp);
+//        Profile passpointHotspotConfig = null;
+//        Profile hotspot20IdProviderProfile2 = null;
+//        Profile hotspot20IdProviderProfile = null;
+//        Profile passpointOperatorProfile = null;
+//        Profile passpointVenueProfile = null;
+//        Profile profileSsidPsk = null;
+//        Profile profileSsidOsu = null;
+//        Profile hotspotProfileAp = null;
+//        createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
+//                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu,
+//                hotspotProfileAp);
 
 
         Profile profileSsid_3_radios = new Profile();

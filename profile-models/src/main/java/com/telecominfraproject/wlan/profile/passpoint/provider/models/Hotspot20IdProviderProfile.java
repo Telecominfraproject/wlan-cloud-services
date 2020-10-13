@@ -195,12 +195,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
 
 
     public void setRoamingOi(List<Byte> roamingOi) {
-        if (roamingOi.size() >= MIN_ROAMING_OI_OCTETS && roamingOi.size() <= MAX_ROAMING__OI_OCTETS) {
-            this.roamingOi = roamingOi;
-        } else {
-            LOG.error("RoamingOI {} must be between 3 and 15 bytes in size.", roamingOi);
-            throw new IllegalArgumentException("RoamingOI byte list must be between 3 and 15 bytes in size.");
-        }
+            this.roamingOi = roamingOi;      
     }
 
 
