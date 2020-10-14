@@ -47,7 +47,7 @@ tags:
 - name: Profile
   description: |
     Profiles for various services can be associated with equipment and with other profiles.
-    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
+    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Hotspot20 Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Hotspot20 Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
 - name: Status
   description: |
     Status for the network and individual equipment.
@@ -889,10 +889,15 @@ components:
         - radius
         - captive_portal
         - mesh
+        - metrics
         - rf
+        - hotspot_2pt0
+        - operator
+        - venue
+        - id_provider
 
     Profile:
-      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles via its childProfileIds property. Each SSID profile refers to at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile and 1 RADIUS Service Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property.
+      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Hotspot20 Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Hotspot20 Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
       type: object
       properties:
         id:
@@ -940,6 +945,11 @@ components:
           - RadiusProfile
           - SsidConfiguration
           - RfConfiguration
+          - Hotspot20IdProviderProfile
+          - Hotspot2Profile
+          - OperatorProfile
+          - VenueProfile
+          - ServiceMetricsCollectionConfigProfile
       required: 
         - model_type
 
@@ -952,6 +962,11 @@ components:
         - $ref: '#/components/schemas/RadiusProfile'
         - $ref: '#/components/schemas/SsidConfiguration'
         - $ref: '#/components/schemas/RfConfiguration'
+        - $ref: '#/components/schemas/Hotspot20IdProviderProfile'
+        - $ref: '#/components/schemas/Hotspot2Profile'
+        - $ref: '#/components/schemas/OperatorProfile'
+        - $ref: '#/components/schemas/VenueProfile'
+        - $ref: '#/components/schemas/ServiceMetricsCollectionConfigProfile'
       discriminator:
         propertyName: model_type
         
@@ -1633,8 +1648,150 @@ components:
       - wep64
       - wep128
       
+    Hotspot20IdProviderProfile:
+      description: Properties for the id_provider profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - Hotspot20IdProviderProfile
+          domainName:
+            type: string
+          mccMncList:
+            type: array
+            items:
+              $ref: '#/components/schemas/MccMnc'
+          naiRealmList:
+            type: array
+            items:
+              $ref: '#/components/schemas/NaiRealmInformation'
+          osuIconList:
+            type: array
+            items:
+              $ref: '#/components/schemas/OsuIcon'
+          osuSsid:
+            type: string
+          osuServerUri:
+            type: string
+          radiusProfileAuth:
+            type: string
+          radiusProfileAccounting:
+            type: string
+          osuFriendlyName:
+            type: array
+            items:
+              $ref: '#/components/schemas/Hotspot20Duple'  
+          osuNaiStandalone:
+            type: string
+          osuNaiShared:
+            type: string
+          osuMethodList:
+            type: integer
+            format: int32
+          osuServiceDescription:
+            type: array
+            items:
+              $ref: '#/components/schemas/Hotspot20Duple'
+          roamingOi:
+            type: array
+            items:
+              type: integer
+              format: int8
+   
+    MccMnc:
+      description: pair of mobile country code and mobile network code values 
+      type: object
+      properties:
+        mcc:
+          type: integer
+          format: int32
+        mnc:
+          type: integer
+          format: int32
+        iso:
+          type: string
+        country: 
+          type: string
+        countryCode:
+          type: integer
+          format: int32
+        network:
+          type: string
 
-#
+    NaiRealmInformation:
+      description: encoded 
+      allOf:
+      - type: object
+        properties:
+          naiRealms:
+            type: array
+            items:
+              type: string
+          encoding:
+            type: integer
+            format: int32
+          eapMethods:
+            type: array
+            items:
+              type: string
+          eapMap:
+            type: object
+            items:
+              type: array
+              items:
+                type: string
+                
+    OsuIcon:
+      description: properties of icons for osu provider and operator
+      allOf:
+      - type: object
+        properites:
+          iconWidth:
+            type: integer
+            format: int32
+          iconHeight:
+            type: integer
+            format: int32
+          languageCode:
+            type: string
+          iconLocale:
+            description: The primary locale for this Icon.
+            example: en-US
+            format: locale
+            type: string
+          iconName:
+            type: string
+          filePath:
+            type: string
+          imageUrl:
+            type: string
+          ICON_TYPE:
+            type: string
+            enum:
+              - image/png
+           
+    Hotspot20Duple:
+      description: representation of a duple value used to map duples in the hotspot configurations where a lang:string is required
+      allOf:
+      - type: object
+        properites:
+          locale:
+            description: The locale for this duple.
+            example: en-US
+            format: locale
+            type: string
+          dupleIso3Language:
+            description: 3 letter iso language representation based on locale
+            type: string
+          dupleName:
+            type: string
+          defaultDupleSeparator:
+            description: default separator between the values of a duple, by default it is a ':'
+            type: string  
+                
 # Web Token data models
 #
 
