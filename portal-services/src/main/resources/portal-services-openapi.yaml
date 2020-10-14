@@ -889,7 +889,6 @@ components:
         - radius
         - captive_portal
         - mesh
-        - metrics
         - rf
         - hotspot_2pt0
         - operator
@@ -966,7 +965,6 @@ components:
         - $ref: '#/components/schemas/Hotspot2Profile'
         - $ref: '#/components/schemas/OperatorProfile'
         - $ref: '#/components/schemas/VenueProfile'
-        - $ref: '#/components/schemas/ServiceMetricsCollectionConfigProfile'
       discriminator:
         propertyName: model_type
         
@@ -1748,7 +1746,7 @@ components:
       description: properties of icons for osu provider and operator
       allOf:
       - type: object
-        properites:
+        properties:
           iconWidth:
             type: integer
             format: int32
@@ -1777,7 +1775,7 @@ components:
       description: representation of a duple value used to map duples in the hotspot configurations where a lang:string is required
       allOf:
       - type: object
-        properites:
+        properties:
           locale:
             description: The locale for this duple.
             example: en-US
@@ -1791,7 +1789,206 @@ components:
           defaultDupleSeparator:
             description: default separator between the values of a duple, by default it is a ':'
             type: string  
-                
+             
+    OperatorProfile:
+      description: Properties for the operator profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - OperatorProfile
+          domainName:
+            type: string
+          serverOnlyAuthenticatedL2EncryptionNetwork:
+            description: OSEN
+            type: boolean
+          operatorFriendlyName:
+            type: array
+            items:
+              $ref: '#/components/schemas/Hotspot20Duple'
+          defaultOperatorFriendlyName:
+            type: string
+          defaultOperatorFriendlyNameFr:
+            type: string
+
+    VenueProfile:
+      description: Properties for the venue profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - VenueProfile
+          venueNameSet:
+            type: array
+            items:
+              $ref: '#/components/schemas/VenueName'
+          venueTypeAssignment:
+            type: object
+            items:                    
+              $ref: '#/components/schemas/VenueTypeAssignment'
+
+    VenueName:
+       description: VenueName object.
+       allOf:
+       - type: object
+         properties:
+           venueUrl:
+             type: string
+               
+    VenueTypeAssignment:
+      description: VenueType assignment.
+      allOf:
+      - type: object
+        properties: 
+          venueDescription:
+            type: string
+          venueGroupId:
+            type: integer
+            format: int32
+          venueTypeId:
+            type: integer
+            format: int32
+
+    Hotspot2Profile:
+       description: Properties for the Hotspot2Profile profile.
+       allOf:
+        - $ref: '#/components/schemas/ProfileDetails'
+        - type: object
+          properties:
+            model_type:
+              type: string
+              enum:
+              - Hotspot2Profile
+            enableInterworkingAndHs20:
+              type: boolean
+            additionalStepsRequiredForAccess:
+              type: integer
+              format: int32
+            deauthRequestTimeout:
+              type: integer
+              format: int32
+            operatingClass:
+              type: integer
+              format: int32
+            termsAndConditionsFile:
+              $ref: '#/components/schemas/ManagedFileInfo'
+            whitelistDomain:
+              type: string
+            emergencyServicesReachable:
+              type: boolean
+            unauthenticatedEmergencyServiceAccessible:
+              type: boolean
+            internetConnectivity:
+              type: boolean
+            ipAddressTypeAvailability:
+              type: string
+            qosMapSetConfiguration:
+              type: array
+              items:
+                type: string 
+            hessid:
+              $ref: '#/components/schemas/MacAddress'
+            apGeospatialLocation:
+              type: string
+            apCivicLocation:
+              type: string
+            anqpDomainId: 
+              type: integer
+              format: int32
+            disableDownstreamGroupAddressedForwarding:
+              type: boolean   
+            enable2pt4GHz:
+              type: boolean               
+            enable5GHz:  
+              type: boolean   
+            associatedAccessSsidNames:
+              type: array
+              items:
+                type: string
+            osuSsidName:
+              type: string
+            operatorProfileName:
+              type: string
+            venueProfileName:
+              type: string
+            idProviderProfileNames:
+              type: array
+              items:
+                type: string
+            apPublicLocationIdUri:
+              format: uri
+              type: string     
+            accessNetworkType:
+              $ref: '#/components/schemas/AccessNetworkType'
+            networkAuthenticationType:
+              $ref: '#/components/schemas/NetworkAuthenticationType'             
+            connectionCapabilitySet:
+               type: array
+               items:
+                  $ref: '#/components/schemas/ConnectionCapability'   
+            gasAddr3Behaviour:
+               $ref: '#/components/schemas/GasAddress3Behaviour'        
+               
+    AccessNetworkType:
+      type: string
+      enum:
+        - private_network
+        - private_network_guest_access
+        - changeable_public_network
+        - free_public_network
+        - person_device_network
+        - emergency_services_only_network
+        - test_or_experimental
+        - wildcard
+        
+    NetworkAuthenticationType:
+      type: string
+      enum:
+        - acceptance_of_terms_and_conditions
+        - online_enrollment_supported
+        - http_https_redirection
+        - dns_redirection
+        
+    ConnectionCapability:
+      description: VenueType assignment.
+      allOf:
+      - type: object
+        properties: 
+          connectionCapabilitiesPortNumber:
+            type: integer
+            format: int32
+          connectionCapabilitiesIpProtocol:
+            $ref: '#/components/schemas/ConnectionCapabilitiesIpProtocol'
+          connectionCapabilitiesStatus:
+            $ref: '#/components/schemas/ConnectionCapabilitiesStatus'
+
+    ConnectionCapabilitiesIpProtocol:
+      type: string
+      enum:
+        - ICMP
+        - TCP
+        - UDP
+    
+    ConnectionCapabilitiesStatus:
+      type: string
+      enum:
+        - closed
+        - open
+        - unknown   
+
+    GasAddress3Behaviour:                
+      type: string
+      enum:
+        - p2pSpecWorkaroundFromRequest
+        - ieee80211StandardCompliantOnly
+        - forceNonCompliantBehaviourFromRequest
+                    
 # Web Token data models
 #
 
