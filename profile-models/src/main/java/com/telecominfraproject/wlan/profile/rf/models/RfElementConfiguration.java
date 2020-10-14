@@ -31,10 +31,10 @@ public class RfElementConfiguration extends BaseJsonModel {
     private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
     static {
     	Map<RadioType, Integer> map = new HashMap<>();
-    	map.put(RadioType.is2dot4GHz, -80);
-    	map.put(RadioType.is5GHz, -80);
-    	map.put(RadioType.is5GHzL, -80);
-    	map.put(RadioType.is5GHzU, -80);
+    	map.put(RadioType.is2dot4GHz, -65);
+    	map.put(RadioType.is5GHz, -65);
+    	map.put(RadioType.is5GHzL, -65);
+    	map.put(RadioType.is5GHzU, -65);
     	MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
     }
 	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
@@ -42,6 +42,7 @@ public class RfElementConfiguration extends BaseJsonModel {
 	public final static int DEFAULT_BEACON_INTERVAL = 100;
 	
     // Parameters for each RadioType
+	private RadioType radioType;
     private String rf;
 	private Integer beaconInterval; // keep this in sync with fields in RadioCfg (in protobuf)
     private StateSetting forceScanDuringVoice;
@@ -90,6 +91,7 @@ public class RfElementConfiguration extends BaseJsonModel {
     
     public static RfElementConfiguration createWithDefaults(RadioType radioType) {
         RfElementConfiguration ret = new RfElementConfiguration();  
+        ret.setRadioType(radioType);
         ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
         ret.setMinAutoCellSize(MIN_CELL_SIZE_MAP.get(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
@@ -108,6 +110,14 @@ public class RfElementConfiguration extends BaseJsonModel {
 			ret.setMimoMode(MimoMode.threeByThree);
 		}
     	return ret;
+    }
+    
+    public RadioType getRadioType() {
+    	return radioType;
+    }
+    
+    public void setRadioType(RadioType radioType) {
+    	this.radioType = radioType;
     }
     
     public String getRf() {
@@ -246,7 +256,15 @@ public class RfElementConfiguration extends BaseJsonModel {
 		this.neighbouringListApConfig = neighbouringListApConfig;
 	}
 
-	public int getMinAutoCellSize() {
+	public Integer getMinAutoCellSize() {
+		if (minAutoCellSize == null) {
+     		if (MIN_CELL_SIZE_MAP.containsKey(this.radioType)) {
+     			return MIN_CELL_SIZE_MAP.get(this.radioType);
+     		} else {
+     			return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
+     		}
+ 		}
+		
 		return minAutoCellSize;
 	}
 
