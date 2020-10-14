@@ -16,29 +16,29 @@ import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 
-public class NonEapInnerAuthenticationTypes extends BaseJsonModel implements EnumWithId {
+public class NaiRealmEapAuthInnerNonEap extends BaseJsonModel implements EnumWithId {
 
     private static final long serialVersionUID = 3414126959454909905L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(NonEapInnerAuthenticationTypes.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NaiRealmEapAuthInnerNonEap.class);
 
     private static Object lock = new Object();
-    private static final Map<Integer, NonEapInnerAuthenticationTypes> ELEMENTS = new ConcurrentHashMap<>();
-    private static final Map<String, NonEapInnerAuthenticationTypes> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
+    private static final Map<Integer, NaiRealmEapAuthInnerNonEap> ELEMENTS = new ConcurrentHashMap<>();
+    private static final Map<String, NaiRealmEapAuthInnerNonEap> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
 
-    public static final NonEapInnerAuthenticationTypes
+    public static final NaiRealmEapAuthInnerNonEap
 
-    reserved = new NonEapInnerAuthenticationTypes(0, "Reserved"), pap = new NonEapInnerAuthenticationTypes(1, "PAP"),
-            chap = new NonEapInnerAuthenticationTypes(2, "CHAP"),
-            mschap = new NonEapInnerAuthenticationTypes(3, "MSCHAP"),
-            mschap_v2 = new NonEapInnerAuthenticationTypes(4, "MSCHAPV2"),
-            UNSUPPORTED = new NonEapInnerAuthenticationTypes(-1, "UNSUPPORTED");
+    NAI_REALM_INNER_NON_EAP_PAP = new NaiRealmEapAuthInnerNonEap(1, "PAP"),
+            NAI_REALM_INNER_NON_EAP_CHAP = new NaiRealmEapAuthInnerNonEap(2, "CHAP"),
+            NAI_REALM_INNER_NON_EAP_MSCHAP = new NaiRealmEapAuthInnerNonEap(3, "MSCHAP"),
+            NAI_REALM_INNER_NON_EAP_MSCHAPV2 = new NaiRealmEapAuthInnerNonEap(4, "MSCHAPV2"),
+            UNSUPPORTED = new NaiRealmEapAuthInnerNonEap(-1, "UNSUPPORTED");
     static {
         // try to load all the subclasses explicitly - to avoid timing issues
         // when items coming from subclasses may be registered some time later,
         // after the parent class is loaded
-        Set<Class<? extends NonEapInnerAuthenticationTypes>> subclasses = BaseJsonModel.getReflections()
-                .getSubTypesOf(NonEapInnerAuthenticationTypes.class);
+        Set<Class<? extends NaiRealmEapAuthInnerNonEap>> subclasses = BaseJsonModel.getReflections()
+                .getSubTypesOf(NaiRealmEapAuthInnerNonEap.class);
         for (Class<?> cls : subclasses) {
             try {
                 Class.forName(cls.getName());
@@ -51,7 +51,7 @@ public class NonEapInnerAuthenticationTypes extends BaseJsonModel implements Enu
     private final int id;
     private final String name;
 
-    protected NonEapInnerAuthenticationTypes(int id, String name) {
+    protected NaiRealmEapAuthInnerNonEap(int id, String name) {
         synchronized (lock) {
 
             LOG.debug("Registering NonEapInnerAuthenticationTypes by {} : {}", this.getClass().getSimpleName(), name);
@@ -92,17 +92,17 @@ public class NonEapInnerAuthenticationTypes extends BaseJsonModel implements Enu
     }
 
     @JsonIgnore
-    public static NonEapInnerAuthenticationTypes[] values() {
-        return new ArrayList<>(ELEMENTS.values()).toArray(new NonEapInnerAuthenticationTypes[0]);
+    public static NaiRealmEapAuthInnerNonEap[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new NaiRealmEapAuthInnerNonEap[0]);
     }
 
-    public static NonEapInnerAuthenticationTypes getById(int enumId) {
+    public static NaiRealmEapAuthInnerNonEap getById(int enumId) {
         return ELEMENTS.get(enumId);
     }
 
     @JsonCreator
-    public static NonEapInnerAuthenticationTypes getByName(String value) {
-        NonEapInnerAuthenticationTypes ret = ELEMENTS_BY_NAME.get(value);
+    public static NaiRealmEapAuthInnerNonEap getByName(String value) {
+        NaiRealmEapAuthInnerNonEap ret = ELEMENTS_BY_NAME.get(value);
         if (ret == null) {
             ret = UNSUPPORTED;
         }
@@ -111,11 +111,11 @@ public class NonEapInnerAuthenticationTypes extends BaseJsonModel implements Enu
     }
 
 
-    public static List<NonEapInnerAuthenticationTypes> getValues() {
+    public static List<NaiRealmEapAuthInnerNonEap> getValues() {
         return new ArrayList<>(ELEMENTS.values());
     }
 
-    public static boolean isUnsupported(NonEapInnerAuthenticationTypes value) {
+    public static boolean isUnsupported(NaiRealmEapAuthInnerNonEap value) {
         return (UNSUPPORTED.equals(value));
     }
 
@@ -129,10 +129,10 @@ public class NonEapInnerAuthenticationTypes extends BaseJsonModel implements Enu
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof NonEapInnerAuthenticationTypes)) {
+        if (!(obj instanceof NaiRealmEapAuthInnerNonEap)) {
             return false;
         }
-        NonEapInnerAuthenticationTypes other = (NonEapInnerAuthenticationTypes) obj;
+        NaiRealmEapAuthInnerNonEap other = (NaiRealmEapAuthInnerNonEap) obj;
         return id == other.id && Objects.equals(name, other.name);
     }
 

@@ -16,32 +16,33 @@ import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 
-public class CredentialType extends BaseJsonModel implements EnumWithId {
+public class NaiRealmEapCredType extends BaseJsonModel implements EnumWithId {
 
     private static final long serialVersionUID = 3414126959454909905L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CredentialType.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NaiRealmEapCredType.class);
 
     private static Object lock = new Object();
-    private static final Map<Integer, CredentialType> ELEMENTS = new ConcurrentHashMap<>();
-    private static final Map<String, CredentialType> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
+    private static final Map<Integer, NaiRealmEapCredType> ELEMENTS = new ConcurrentHashMap<>();
+    private static final Map<String, NaiRealmEapCredType> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
 
-    public static final CredentialType
-
-    sim = new CredentialType(1, "SIM"), usim = new CredentialType(2, "USIM"),
-            nfc_secure_element = new CredentialType(3, "NFC Secure Element"),
-            hardware_token = new CredentialType(4, "Hardware Token"), softoken = new CredentialType(5, "Softoken"),
-            certificate = new CredentialType(6, "Certificate"),
-            username_password = new CredentialType(7, "username/password"),
-            none = new CredentialType(8, "none (server-side authentication only)"),
-            reserved = new CredentialType(9, "Reserved"), vendor_specific = new CredentialType(10, "Vendor Specific"),
-            UNSUPPORTED = new CredentialType(-1, "UNSUPPORTED");
+    public static final NaiRealmEapCredType NAI_REALM_CRED_TYPE_SIM = new NaiRealmEapCredType(1, "SIM"),
+            NAI_REALM_CRED_TYPE_USIM = new NaiRealmEapCredType(2, "USIM"),
+            NAI_REALM_CRED_TYPE_NFC_SECURE_ELEMENT = new NaiRealmEapCredType(3, "NFC Secure Element"),
+            NAI_REALM_CRED_TYPE_HARDWARE_TOKEN = new NaiRealmEapCredType(4, "Hardware Token"),
+            NAI_REALM_CRED_TYPE_SOFTOKEN = new NaiRealmEapCredType(5, "Softoken"),
+            NAI_REALM_CRED_TYPE_CERTIFICATE = new NaiRealmEapCredType(6, "Certificate"),
+            NAI_REALM_CRED_TYPE_USERNAME_PASSWORD = new NaiRealmEapCredType(7, "username/password"),
+            NAI_REALM_CRED_TYPE_NONE = new NaiRealmEapCredType(8, "none (server-side authentication only)"),
+            NAI_REALM_CRED_TYPE_ANONYMOUS = new NaiRealmEapCredType(9, "Anonymous"),
+            NAI_REALM_CRED_TYPE_VENDOR_SPECIFIC = new NaiRealmEapCredType(10, "Vendor Specific"),
+            UNSUPPORTED = new NaiRealmEapCredType(-1, "UNSUPPORTED");
     static {
         // try to load all the subclasses explicitly - to avoid timing issues
         // when items coming from subclasses may be registered some time later,
         // after the parent class is loaded
-        Set<Class<? extends CredentialType>> subclasses = BaseJsonModel.getReflections()
-                .getSubTypesOf(CredentialType.class);
+        Set<Class<? extends NaiRealmEapCredType>> subclasses = BaseJsonModel.getReflections()
+                .getSubTypesOf(NaiRealmEapCredType.class);
         for (Class<?> cls : subclasses) {
             try {
                 Class.forName(cls.getName());
@@ -54,7 +55,7 @@ public class CredentialType extends BaseJsonModel implements EnumWithId {
     private final int id;
     private final String name;
 
-    protected CredentialType(int id, String name) {
+    protected NaiRealmEapCredType(int id, String name) {
         synchronized (lock) {
 
             LOG.debug("Registering NonEapInnerAuthenticationTypes by {} : {}", this.getClass().getSimpleName(), name);
@@ -95,17 +96,17 @@ public class CredentialType extends BaseJsonModel implements EnumWithId {
     }
 
     @JsonIgnore
-    public static CredentialType[] values() {
-        return new ArrayList<>(ELEMENTS.values()).toArray(new CredentialType[0]);
+    public static NaiRealmEapCredType[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new NaiRealmEapCredType[0]);
     }
 
-    public static CredentialType getById(int enumId) {
+    public static NaiRealmEapCredType getById(int enumId) {
         return ELEMENTS.get(enumId);
     }
 
     @JsonCreator
-    public static CredentialType getByName(String value) {
-        CredentialType ret = ELEMENTS_BY_NAME.get(value);
+    public static NaiRealmEapCredType getByName(String value) {
+        NaiRealmEapCredType ret = ELEMENTS_BY_NAME.get(value);
         if (ret == null) {
             ret = UNSUPPORTED;
         }
@@ -114,11 +115,11 @@ public class CredentialType extends BaseJsonModel implements EnumWithId {
     }
 
 
-    public static List<CredentialType> getValues() {
+    public static List<NaiRealmEapCredType> getValues() {
         return new ArrayList<>(ELEMENTS.values());
     }
 
-    public static boolean isUnsupported(CredentialType value) {
+    public static boolean isUnsupported(NaiRealmEapCredType value) {
         return (UNSUPPORTED.equals(value));
     }
 
@@ -132,10 +133,10 @@ public class CredentialType extends BaseJsonModel implements EnumWithId {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof CredentialType)) {
+        if (!(obj instanceof NaiRealmEapCredType)) {
             return false;
         }
-        CredentialType other = (CredentialType) obj;
+        NaiRealmEapCredType other = (NaiRealmEapCredType) obj;
         return id == other.id && Objects.equals(name, other.name);
     }
 

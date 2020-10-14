@@ -34,20 +34,20 @@ public class NaiRealmInformation extends BaseJsonModel implements PushableConfig
 
         Set<String> tlsCredentialsSet = new HashSet<>();
 
-        String tlsCredential = AuthenticationParameterTypes.credential_type.getName() + ":"
-                + CredentialType.certificate.getName(); 
+        String tlsCredential = NaiRealmEapAuthParam.NAI_REALM_EAP_AUTH_CRED_TYPE.getName() + ":"
+                + NaiRealmEapCredType.NAI_REALM_CRED_TYPE_CERTIFICATE.getName();
         tlsCredentialsSet.add(tlsCredential);
         ret.eapMap.put(EapMethods.eap_tls.getName(), tlsCredentialsSet);
-        
+
         Set<String> ttsCredentialsSet = new HashSet<>();
-        String ttsEapCredential = AuthenticationParameterTypes.credential_type.getName() + ":"
-                + CredentialType.username_password.getName();
-        ttsCredentialsSet.add(ttsEapCredential);    
-        String nonEapcredential = AuthenticationParameterTypes.non_eap_inner_authentication_type.getName() + ":"
-                + NonEapInnerAuthenticationTypes.mschap_v2.getName();
+        String ttsEapCredential = NaiRealmEapAuthParam.NAI_REALM_EAP_AUTH_CRED_TYPE.getName() + ":"
+                + NaiRealmEapCredType.NAI_REALM_CRED_TYPE_USERNAME_PASSWORD.getName();
+        ttsCredentialsSet.add(ttsEapCredential);
+        String nonEapcredential = NaiRealmEapAuthParam.NAI_REALM_EAP_AUTH_NON_EAP_INNER_AUTH.getName() + ":"
+                + NaiRealmEapAuthInnerNonEap.NAI_REALM_INNER_NON_EAP_MSCHAPV2.getName();
         ttsCredentialsSet.add(nonEapcredential);
         ret.eapMap.put(EapMethods.eap_ttls.getName(), ttsCredentialsSet);
-      
+
         return ret;
     }
 

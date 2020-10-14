@@ -16,7 +16,7 @@ import com.telecominfraproject.wlan.core.model.extensibleenum.EnumWithId;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 
-public class AuthenticationParameterTypes extends BaseJsonModel implements EnumWithId {
+public class NaiRealmEapAuthParam extends BaseJsonModel implements EnumWithId {
 
 
     /**
@@ -24,32 +24,29 @@ public class AuthenticationParameterTypes extends BaseJsonModel implements EnumW
      */
     private static final long serialVersionUID = -1873755168561965743L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationParameterTypes.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NaiRealmEapAuthParam.class);
 
     private static Object lock = new Object();
-    private static final Map<Integer, AuthenticationParameterTypes> ELEMENTS = new ConcurrentHashMap<>();
-    private static final Map<String, AuthenticationParameterTypes> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
+    private static final Map<Integer, NaiRealmEapAuthParam> ELEMENTS = new ConcurrentHashMap<>();
+    private static final Map<String, NaiRealmEapAuthParam> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
 
-    public static final AuthenticationParameterTypes
-
-    expanded_eap_method = new AuthenticationParameterTypes(1, "Expanded EAP Method"),
-            non_eap_inner_authentication_type = new AuthenticationParameterTypes(2,
-                    "Non-EAP Inner Authentication Type"),
-            inner_authentication_eap_method_type = new AuthenticationParameterTypes(3,
+    public static final NaiRealmEapAuthParam NAI_REALM_EAP_AUTH_EXPANDED_EAP_METHOD = new NaiRealmEapAuthParam(1,
+            "Expanded EAP Method"),
+            NAI_REALM_EAP_AUTH_NON_EAP_INNER_AUTH = new NaiRealmEapAuthParam(2, "Non-EAP Inner Authentication Type"),
+            NAI_REALM_EAP_AUTH_INNER_AUTH_EAP_METHOD = new NaiRealmEapAuthParam(3,
                     "Inner Authentication EAP Method Type"),
-            expanded_inner_eap_method = new AuthenticationParameterTypes(4, "Expanded Inner EAP Method"),
-            credential_type = new AuthenticationParameterTypes(5, "Credential Type"),
-            tunneled_eap_method_credential_type = new AuthenticationParameterTypes(6,
-                    "Tunneled EAP Method Credential Type"),
-
-            UNSUPPORTED = new AuthenticationParameterTypes(-1, "UNSUPPORTED");
+            NAI_REALM_EAP_AUTH_EXPANDED_INNER_EAP_METHOD = new NaiRealmEapAuthParam(4, "Expanded Inner EAP Method"),
+            NAI_REALM_EAP_AUTH_CRED_TYPE = new NaiRealmEapAuthParam(5, "Credential Type"),
+            NAI_REALM_EAP_AUTH_TUNNELED_CRED_TYPE = new NaiRealmEapAuthParam(6, "Tunneled EAP Method Credential Type"),
+            NAI_REALM_EAP_AUTH_VENDOR_SPECIFIC = new NaiRealmEapAuthParam(221, "Nai Realm EAP Auth Vendor Specific"),
+            UNSUPPORTED = new NaiRealmEapAuthParam(-1, "UNSUPPORTED");
 
     static {
         // try to load all the subclasses explicitly - to avoid timing issues
         // when items coming from subclasses may be registered some time later,
         // after the parent class is loaded
-        Set<Class<? extends AuthenticationParameterTypes>> subclasses = BaseJsonModel.getReflections()
-                .getSubTypesOf(AuthenticationParameterTypes.class);
+        Set<Class<? extends NaiRealmEapAuthParam>> subclasses = BaseJsonModel.getReflections()
+                .getSubTypesOf(NaiRealmEapAuthParam.class);
         for (Class<?> cls : subclasses) {
             try {
                 Class.forName(cls.getName());
@@ -62,7 +59,7 @@ public class AuthenticationParameterTypes extends BaseJsonModel implements EnumW
     private final int id;
     private final String name;
 
-    protected AuthenticationParameterTypes(int id, String name) {
+    protected NaiRealmEapAuthParam(int id, String name) {
         synchronized (lock) {
 
             LOG.debug("Registering EapMethods by {} : {}", this.getClass().getSimpleName(), name);
@@ -103,17 +100,17 @@ public class AuthenticationParameterTypes extends BaseJsonModel implements EnumW
     }
 
     @JsonIgnore
-    public static AuthenticationParameterTypes[] values() {
-        return new ArrayList<>(ELEMENTS.values()).toArray(new AuthenticationParameterTypes[0]);
+    public static NaiRealmEapAuthParam[] values() {
+        return new ArrayList<>(ELEMENTS.values()).toArray(new NaiRealmEapAuthParam[0]);
     }
 
-    public static AuthenticationParameterTypes getById(int enumId) {
+    public static NaiRealmEapAuthParam getById(int enumId) {
         return ELEMENTS.get(enumId);
     }
 
     @JsonCreator
-    public static AuthenticationParameterTypes getByName(String value) {
-        AuthenticationParameterTypes ret = ELEMENTS_BY_NAME.get(value);
+    public static NaiRealmEapAuthParam getByName(String value) {
+        NaiRealmEapAuthParam ret = ELEMENTS_BY_NAME.get(value);
         if (ret == null) {
             ret = UNSUPPORTED;
         }
@@ -122,11 +119,11 @@ public class AuthenticationParameterTypes extends BaseJsonModel implements EnumW
     }
 
 
-    public static List<AuthenticationParameterTypes> getValues() {
+    public static List<NaiRealmEapAuthParam> getValues() {
         return new ArrayList<>(ELEMENTS.values());
     }
 
-    public static boolean isUnsupported(AuthenticationParameterTypes value) {
+    public static boolean isUnsupported(NaiRealmEapAuthParam value) {
         return (UNSUPPORTED.equals(value));
     }
 
@@ -140,10 +137,10 @@ public class AuthenticationParameterTypes extends BaseJsonModel implements EnumW
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof AuthenticationParameterTypes)) {
+        if (!(obj instanceof NaiRealmEapAuthParam)) {
             return false;
         }
-        AuthenticationParameterTypes other = (AuthenticationParameterTypes) obj;
+        NaiRealmEapAuthParam other = (NaiRealmEapAuthParam) obj;
         return id == other.id && Objects.equals(name, other.name);
     }
 
