@@ -889,6 +889,7 @@ components:
         - radius
         - captive_portal
         - mesh
+        - metrics
         - rf
         - hotspot_2pt0
         - operator
@@ -965,6 +966,8 @@ components:
         - $ref: '#/components/schemas/Hotspot2Profile'
         - $ref: '#/components/schemas/OperatorProfile'
         - $ref: '#/components/schemas/VenueProfile'
+        - $ref: '#/components/schemas/ServiceMetricsCollectionConfigProfile'
+        
       discriminator:
         propertyName: model_type
         
@@ -1646,6 +1649,109 @@ components:
       - wep64
       - wep128
       
+    ServiceMetricsCollectionConfigProfile:
+      description: Properties for the id_provider profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - ServiceMetricsCollectionConfigProfile
+          radioTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/RadioType'  
+          serviceMetricDataTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ServiceMetricDataType'  
+          metricConfigParameterMap:
+            $ref: '#/components/schemas/MetricConfigParameterMap'
+
+    MetricConfigParameterMap:
+      properties:
+        ApNode:
+          $ref: '#/components/schemas/ServiceMetricSurveyConfigParameters'
+        ApSsid:
+          $ref: '#/components/schemas/ServiceMetricRadioConfigParameters'
+        Client:
+          $ref: '#/components/schemas/ServiceMetricRadioConfigParameters'
+        Channel:
+          $ref: '#/components/schemas/ServiceMetricSurveyConfigParameters'
+        Neighbour:
+          $ref: '#/components/schemas/ServiceMetricSurveyConfigParameters'
+        QoE:
+          $ref: '#/components/schemas/ServiceMetricConfigParameters'
+        ClientQoE:
+          $ref: '#/components/schemas/ServiceMetricConfigParameters'
+    
+    ServiceMetricConfigParameters:
+      properties:
+        samplingInterval:
+          type: integer
+          format: int32
+        reportingIntervalSeconds:
+          type: integer
+          format: int32
+        serviceMetricDataType:
+          $ref: '#/components/schemas/ServiceMetricDataType' 
+
+    ServiceMetricSurveyConfigParameters:
+      properties:
+        samplingInterval:
+          type: integer
+          format: int32
+        reportingIntervalSeconds:
+          type: integer
+          format: int32    
+        serviceMetricDataType:
+          $ref: '#/components/schemas/ServiceMetricDataType' 
+        radioType:
+          $ref: '#/components/schemas/RadioType'   
+    
+    ServiceMetricRadioConfigParameters:
+      properties:
+        samplingInterval:
+          type: integer
+          format: int32
+        reportingIntervalSeconds:
+          type: integer
+          format: int32   
+        serviceMetricDataType:
+          $ref: '#/components/schemas/ServiceMetricDataType'
+        radioType:
+          $ref: '#/components/schemas/RadioType'   
+        channelSurveyType:
+          $ref: '#/components/schemas/ChannelUtilizationSurveyType'
+        scanIntervalMillis:
+          type: integer
+          format: int32   
+        percentUtilizationThreshold:
+          type: integer
+          format: int32   
+        delayMillisecondsThreshold:
+          type: integer
+          format: int32   
+        statsReportFormat:        
+          $ref: '#/components/schemas/StatsReportFormat'
+
+    ChannelUtilizationSurveyType:
+      description:  On channel Measurements are on the home channel and can be done frequently and periodically without user impact. Off channel measurements are on the listed foreign channels​ periodically chosen using round robin fashion (“1,6,11” -> t0=1, t1=6, t2=11, t3=1) to minimize user impact. Full measurements are done on all allowed channels at once, this is very intrusive.
+      type: string
+      enum:
+        - ON_CHANNEL
+        - OFF_CHANNEL
+        - FULL
+
+    StatsReportFormat:
+      type: string
+      enum:
+        - RAW
+        - PERCENTILE
+        - AVERAGE
+          
     Hotspot20IdProviderProfile:
       description: Properties for the id_provider profile.
       allOf:
