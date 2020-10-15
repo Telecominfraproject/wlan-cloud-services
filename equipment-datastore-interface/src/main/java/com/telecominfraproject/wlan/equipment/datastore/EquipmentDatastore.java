@@ -82,7 +82,11 @@ public interface EquipmentDatastore {
     /**
      * Update RRM-related properties on AP details for the collection of equipment
      * @param request - bulk update request
+     * 
+     * This method and functionality should be replaced by the RF profile. 
+     * See RfConfiguration and RfElementConfiguration
      */
+    @Deprecated
     void updateRrmBulk(EquipmentRrmBulkUpdateRequest request);
     
     CustomerEquipmentCounts getEquipmentCounts(int customerId);

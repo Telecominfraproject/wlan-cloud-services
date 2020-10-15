@@ -786,7 +786,11 @@ public class EquipmentDAO extends BaseJdbcDao {
         return ret;
 	}
 
-
+	/**
+     * This method and functionality should be replaced by the RF profile. 
+     * See RfConfiguration and RfElementConfiguration
+     */
+	@Deprecated
 	public void updateRrmBulk(EquipmentRrmBulkUpdateRequest request) {
     	if(request == null || request.getItems() == null || request.getItems().isEmpty()) {
     		//nothing to do here

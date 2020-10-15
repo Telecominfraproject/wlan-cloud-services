@@ -125,7 +125,11 @@ public interface EquipmentServiceInterface {
     /**
      * Update RRM-related properties on AP details for the collection of equipment
      * @param request - bulk update request
+     * 
+     * This method and functionality should be replaced by the RF profile. 
+     * See RfConfiguration and RfElementConfiguration
      */
+    @Deprecated
     GenericResponse updateRrmBulk(EquipmentRrmBulkUpdateRequest request);
 
     CustomerEquipmentCounts getEquipmentCounts(int customerId);
