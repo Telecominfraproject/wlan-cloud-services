@@ -1738,7 +1738,7 @@ components:
           $ref: '#/components/schemas/StatsReportFormat'
 
     ChannelUtilizationSurveyType:
-      description:  On channel Measurements are on the home channel and can be done frequently and periodically without user impact. Off channel measurements are on the listed foreign channels​ periodically chosen using round robin fashion (“1,6,11” -> t0=1, t1=6, t2=11, t3=1) to minimize user impact. Full measurements are done on all allowed channels at once, this is very intrusive.
+      description:  On channel Measurements are on the home channel and can be done frequently and periodically without user impact. Off channel measurements are on the listed foreign channels​periodically chosen using round robin fashion (“1,6,11” -> t0=1, t1=6, t2=11, t3=1) to minimize user impact. Full measurements are done on all allowed channels at once, this is very intrusive.
       type: string
       enum:
         - ON_CHANNEL
@@ -1827,74 +1827,71 @@ components:
 
     NaiRealmInformation:
       description: encoded 
-      allOf:
-      - type: object
-        properties:
-          naiRealms:
+      type: object
+      properties:
+        naiRealms:
+          type: array
+          items:
+            type: string
+        encoding:
+          type: integer
+          format: int32
+        eapMethods:
+          type: array
+          items:
+            type: string
+        eapMap:
+          type: object
+          items:
             type: array
             items:
               type: string
-          encoding:
-            type: integer
-            format: int32
-          eapMethods:
-            type: array
-            items:
-              type: string
-          eapMap:
-            type: object
-            items:
-              type: array
-              items:
-                type: string
                 
     OsuIcon:
       description: properties of icons for osu provider and operator
-      allOf:
-      - type: object
-        properties:
-          iconWidth:
-            type: integer
-            format: int32
-          iconHeight:
-            type: integer
-            format: int32
-          languageCode:
-            type: string
-          iconLocale:
-            description: The primary locale for this Icon.
-            example: en-US
-            format: locale
-            type: string
-          iconName:
-            type: string
-          filePath:
-            type: string
-          imageUrl:
-            type: string
-          ICON_TYPE:
-            type: string
-            enum:
-              - image/png
+      type: object
+      properties:
+        iconWidth:
+          type: integer
+          format: int32
+        iconHeight:
+          type: integer
+          format: int32
+        languageCode:
+          type: string
+        iconLocale:
+          description: The primary locale for this Icon.
+          example: en-US
+          format: locale
+          type: string
+        iconName:
+          type: string
+        filePath:
+          type: string
+        imageUrl:
+          type: string
+        ICON_TYPE:
+          type: string
+          enum:
+            - image/png
            
     Hotspot20Duple:
       description: representation of a duple value used to map duples in the hotspot configurations where a lang:string is required
-      allOf:
-      - type: object
-        properties:
-          locale:
-            description: The locale for this duple.
-            example: en-US
-            format: locale
-            type: string
-          dupleIso3Language:
-            description: 3 letter iso language representation based on locale
-            type: string
-          dupleName:
-            type: string
-          defaultDupleSeparator:
-            description: default separator between the values of a duple, by default it is a ':'
-            type: string  
+      type: object
+      properties:
+        locale:
+          description: The locale for this duple.
+          example: en-US
+          format: locale
+          type: string
+        dupleIso3Language:
+          description: 3 letter iso language representation based on locale
+          type: string
+        dupleName:
+          type: string
+        defaultDupleSeparator:
+          description: default separator between the values of a duple, by default it is a ':'
+          type: string  
              
     OperatorProfile:
       description: Properties for the operator profile.
@@ -1941,25 +1938,23 @@ components:
 
     VenueName:
        description: VenueName object.
-       allOf:
-       - type: object
-         properties:
-           venueUrl:
-             type: string
+       type: object
+       properties:
+         venueUrl:
+           type: string
                
     VenueTypeAssignment:
       description: VenueType assignment.
-      allOf:
-      - type: object
-        properties: 
-          venueDescription:
-            type: string
-          venueGroupId:
-            type: integer
-            format: int32
-          venueTypeId:
-            type: integer
-            format: int32
+      type: object
+      properties: 
+        venueDescription:
+          type: string
+        venueGroupId:
+          type: integer
+          format: int32
+        venueTypeId:
+          type: integer
+          format: int32
 
     Hotspot2Profile:
        description: Properties for the Hotspot2Profile profile.
@@ -2063,16 +2058,15 @@ components:
         
     ConnectionCapability:
       description: VenueType assignment.
-      allOf:
-      - type: object
-        properties: 
-          connectionCapabilitiesPortNumber:
-            type: integer
-            format: int32
-          connectionCapabilitiesIpProtocol:
-            $ref: '#/components/schemas/ConnectionCapabilitiesIpProtocol'
-          connectionCapabilitiesStatus:
-            $ref: '#/components/schemas/ConnectionCapabilitiesStatus'
+      type: object
+      properties: 
+        connectionCapabilitiesPortNumber:
+          type: integer
+          format: int32
+        connectionCapabilitiesIpProtocol:
+          $ref: '#/components/schemas/ConnectionCapabilitiesIpProtocol'
+        connectionCapabilitiesStatus:
+          $ref: '#/components/schemas/ConnectionCapabilitiesStatus'
 
     ConnectionCapabilitiesIpProtocol:
       type: string
