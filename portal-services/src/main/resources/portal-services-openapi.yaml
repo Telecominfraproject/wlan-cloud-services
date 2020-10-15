@@ -1988,7 +1988,9 @@ components:
             internetConnectivity:
               type: boolean
             ipAddressTypeAvailability:
-              type: string
+              oneOf:
+                - $ref: '#/components/schemas/IPv4PasspointAddressType'
+                - $ref: '#/components/schemas/IPv6PasspointAddressType'
             qosMapSetConfiguration:
               type: array
               items:
@@ -2035,7 +2037,26 @@ components:
                   $ref: '#/components/schemas/ConnectionCapability'   
             gasAddr3Behaviour:
                $ref: '#/components/schemas/GasAddress3Behaviour'        
-               
+
+    IPv4PasspointAddressType:
+      type: string
+      enum:
+        - address_type_not_available
+        - public_IPv4_address_available
+        - port_restricted_IPv4_address_available
+        - single_NATed_private_IPv4_address_available
+        - double_NATed_private_IPv4_address_available
+        - port_restricted_IPv4_address_and_single_NATed_IPv4_address_available
+        - port_restricted_IPv4_address_and_double_NATed_IPv4_address_available
+        - availability_of_the_address_type_is_unknown
+
+    IPv6PasspointAddressType:
+      type: string
+      enum:
+        - address_type_not_available
+        - address_type_available
+        - availability_of_the_address_type_is_unknown
+           
     AccessNetworkType:
       type: string
       enum:
