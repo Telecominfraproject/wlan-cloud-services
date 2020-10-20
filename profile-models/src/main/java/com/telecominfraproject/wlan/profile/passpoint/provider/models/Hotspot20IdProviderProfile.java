@@ -24,9 +24,6 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     private List<MccMnc> mccMncList;
     private List<NaiRealmInformation> naiRealmList;
     private List<OsuIcon> osuIconList;
-    private String radiusProfileAuth;
-    private String radiusProfileAccounting;
-    private String osuSsid;
     private String osuServerUri;
     private List<Hotspot20Duple> osuFriendlyName;
     private String osuNaiStandalone; // needs to be unsigned, so do take byte
@@ -100,37 +97,6 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
         this.osuIconList = osuIconList;
     }
 
-
-    public String getRadiusProfileAuth() {
-        return radiusProfileAuth;
-    }
-
-
-    public void setRadiusProfileAuth(String radiusProfileAuth) {
-        this.radiusProfileAuth = radiusProfileAuth;
-    }
-
-
-    public String getRadiusProfileAccounting() {
-        return radiusProfileAccounting;
-    }
-
-
-    public void setRadiusProfileAccounting(String radiusProfileAccounting) {
-        this.radiusProfileAccounting = radiusProfileAccounting;
-    }
-
-
-    public String getOsuSsid() {
-        return osuSsid;
-    }
-
-
-    public void setOsuSsid(String osuSsid) {
-        this.osuSsid = osuSsid;
-    }
-
-
     public String getOsuServerUri() {
         return osuServerUri;
     }
@@ -195,7 +161,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
 
 
     public void setRoamingOi(List<Byte> roamingOi) {
-            this.roamingOi = roamingOi;      
+        this.roamingOi = roamingOi;
     }
 
 
@@ -231,9 +197,6 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
             ret.osuServiceDescription = getOsuServiceDescription();
         if (roamingOi != null)
             ret.roamingOi = getRoamingOi();
-        ret.radiusProfileAccounting = getRadiusProfileAccounting();
-        ret.radiusProfileAuth = getRadiusProfileAuth();
-        ret.osuSsid = getOsuSsid();
         ret.osuServerUri = getOsuServerUri();
         ret.osuFriendlyName = getOsuFriendlyName();
         ret.osuNaiShared = getOsuNaiShared();
@@ -244,8 +207,7 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
     @Override
     public int hashCode() {
         return Objects.hash(domainName, mccMncList, naiRealmList, osuFriendlyName, osuIconList, osuMethodList,
-                osuNaiShared, osuNaiStandalone, osuServerUri, osuServiceDescription, osuSsid, radiusProfileAccounting,
-                radiusProfileAuth, roamingOi);
+                osuNaiShared, osuNaiStandalone, osuServerUri, osuServiceDescription, roamingOi);
     }
 
     @Override
@@ -265,12 +227,8 @@ public class Hotspot20IdProviderProfile extends ProfileDetails
                 && Objects.equals(osuNaiStandalone, other.osuNaiStandalone)
                 && Objects.equals(osuServerUri, other.osuServerUri)
                 && Objects.equals(osuServiceDescription, other.osuServiceDescription)
-                && Objects.equals(osuSsid, other.osuSsid)
-                && Objects.equals(radiusProfileAccounting, other.radiusProfileAccounting)
-                && Objects.equals(radiusProfileAuth, other.radiusProfileAuth)
                 && Objects.equals(roamingOi, other.roamingOi);
     }
 
-   
 
 }
