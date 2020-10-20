@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualValue;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionValue;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
@@ -31,11 +31,11 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the
 											// primary channel (either manual or auto)
 	private List<BannedChannel> bannedChannels = new LinkedList<>();
-	private List<Integer> allowedChannels = new LinkedList<>();
-	private AutoOrManualValue rxCellSizeDb;
-	private AutoOrManualValue probeResponseThresholdDb;
-	private AutoOrManualValue clientDisconnectThresholdDb;
-	private AutoOrManualValue eirpTxPower;
+	private List allowedChannels = new LinkedList<>();
+	private SourceSelectionValue rxCellSizeDb;
+	private SourceSelectionValue probeResponseThresholdDb;
+	private SourceSelectionValue clientDisconnectThresholdDb;
+	private SourceSelectionValue eirpTxPower;
 	private Boolean perimeterDetectionEnabled;
 	// Initialize here to cover backward compatibility.
 	private BestAPSteerType bestAPSteerType = BestAPSteerType.both;
@@ -73,10 +73,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	private ElementRadioConfiguration() {
 		// Tx power default was discussed with Shaikh (set to 18)
-		setEirpTxPower(AutoOrManualValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
-		setRxCellSizeDb(AutoOrManualValue.createManualInstance(DEFAULT_RX_CELL_SIZE_DB));
-		setProbeResponseThresholdDb(AutoOrManualValue.createManualInstance(-90));
-		setClientDisconnectThresholdDb(AutoOrManualValue.createManualInstance(-90));
+		setEirpTxPower(SourceSelectionValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
+		setRxCellSizeDb(SourceSelectionValue.createManualInstance(DEFAULT_RX_CELL_SIZE_DB));
+		setProbeResponseThresholdDb(SourceSelectionValue.createManualInstance(-90));
+		setClientDisconnectThresholdDb(SourceSelectionValue.createManualInstance(-90));
 		setPerimeterDetectionEnabled(true);
 		setBestAPSteerType(BestAPSteerType.both);
 	}
@@ -134,7 +134,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return bannedChannels;
 	}
 
-	public List<Integer> getAllowedChannels() {
+	public List getAllowedChannels() {
 		return allowedChannels;
 	}
 	
@@ -142,7 +142,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return channelNumber;
 	}
 
-	public AutoOrManualValue getClientDisconnectThresholdDb() {
+	public SourceSelectionValue getClientDisconnectThresholdDb() {
 		return clientDisconnectThresholdDb;
 	}
 
@@ -150,7 +150,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return this.deauthAttackDetection;
 	}
 
-	public AutoOrManualValue getEirpTxPower() {
+	public SourceSelectionValue getEirpTxPower() {
 		return eirpTxPower;
 	}
 
@@ -158,7 +158,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return (this.manualChannelNumber == null) ? this.channelNumber : this.manualChannelNumber;
 	}
 
-	public AutoOrManualValue getProbeResponseThresholdDb() {
+	public SourceSelectionValue getProbeResponseThresholdDb() {
 		return probeResponseThresholdDb;
 	}
 
@@ -166,12 +166,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return this.radioType;
 	}
 
-	public AutoOrManualValue getRxCellSizeDb() {
-//        if(rxCellSizeDb != null && rxCellSizeDb.isAuto())
-//        {
-//            return AutoOrManualValue.createAutomaticInstance(Math.min(rxCellSizeDb.getValue(), getMinAutoCellSize()));
-//        }
-//
+	public SourceSelectionValue getRxCellSizeDb() {
 		return rxCellSizeDb;
 	}
 
@@ -192,7 +187,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.bannedChannels = bannedChannels;
 	}
 
-	public void setAllowedChannels(List<Integer> allowedChannels) {
+	public void setAllowedChannels(List allowedChannels) {
 		this.allowedChannels = allowedChannels;
 	}
 	
@@ -200,7 +195,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.channelNumber = channelNumber;
 	}
 
-	public void setClientDisconnectThresholdDb(AutoOrManualValue clientDisconnectThresholdDb) {
+	public void setClientDisconnectThresholdDb(SourceSelectionValue clientDisconnectThresholdDb) {
 		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
 	}
 
@@ -208,7 +203,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.deauthAttackDetection = value;
 	}
 
-	public void setEirpTxPower(AutoOrManualValue eirpTxPower) {
+	public void setEirpTxPower(SourceSelectionValue eirpTxPower) {
 		this.eirpTxPower = eirpTxPower;
 	}
 
@@ -216,7 +211,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.manualChannelNumber = channel;
 	}
 
-	public void setProbeResponseThresholdDb(AutoOrManualValue probeResponseThresholdDb) {
+	public void setProbeResponseThresholdDb(SourceSelectionValue probeResponseThresholdDb) {
 		this.probeResponseThresholdDb = probeResponseThresholdDb;
 	}
 
@@ -224,7 +219,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.radioType = radioType;
 	}
 
-	public void setRxCellSizeDb(AutoOrManualValue rxCellSizeDb) {
+	public void setRxCellSizeDb(SourceSelectionValue rxCellSizeDb) {
 		this.rxCellSizeDb = rxCellSizeDb;
 	}
 
@@ -259,10 +254,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		}
 		if (RadioType.isUnsupported(radioType) 
 				|| hasUnsupportedValue(bannedChannels) 
-				|| hasUnsupportedValue(rxCellSizeDb)
-				|| hasUnsupportedValue(probeResponseThresholdDb) 
-				|| hasUnsupportedValue(clientDisconnectThresholdDb)
-				|| hasUnsupportedValue(eirpTxPower)
+				|| SourceSelectionValue.hasUnsupportedValue(clientDisconnectThresholdDb)
+				|| SourceSelectionValue.hasUnsupportedValue(eirpTxPower)
+				|| SourceSelectionValue.hasUnsupportedValue(probeResponseThresholdDb)
+				|| SourceSelectionValue.hasUnsupportedValue(rxCellSizeDb)
 				|| BestAPSteerType.isUnsupported(bestAPSteerType)) {
 			return true;
 		}

@@ -1,6 +1,6 @@
 package com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm;
 
-import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualValue;
+import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionValue;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
@@ -19,18 +19,18 @@ public class RrmBulkUpdateApDetails extends BaseJsonModel {
 	/**
 	 * mapped to equipment->details->radioMap->rxCellSizeDb->value
 	 */
-	private AutoOrManualValue rxCellSizeDb;
+	private SourceSelectionValue rxCellSizeDb;
 
 	/**
 	 * mapped to equipment->details->radioMap->probeResponseThresholdDb->value
 	 */
-	private AutoOrManualValue probeResponseThresholdDb;
+	private SourceSelectionValue probeResponseThresholdDb;
 	
 	
 	/**
 	 * mapped to equipment->details->radioMap->clientDisconnectThresholdDb->value
 	 */
-	private AutoOrManualValue clientDisconnectThresholdDb;
+	private SourceSelectionValue clientDisconnectThresholdDb;
 	
 	/**
 	 * mapped to equipment->details->radioMap->bestApSettings->dropInSnrPercentage
@@ -49,22 +49,22 @@ public class RrmBulkUpdateApDetails extends BaseJsonModel {
 	public void setChannelNumber(int channelNumber) {
 		this.channelNumber = channelNumber;
 	}
-	public AutoOrManualValue getRxCellSizeDb() {
+	public SourceSelectionValue getRxCellSizeDb() {
 		return rxCellSizeDb;
 	}
-	public void setRxCellSizeDb(AutoOrManualValue rxCellSizeDb) {
+	public void setRxCellSizeDb(SourceSelectionValue rxCellSizeDb) {
 		this.rxCellSizeDb = rxCellSizeDb;
 	}
-	public AutoOrManualValue getProbeResponseThresholdDb() {
+	public SourceSelectionValue getProbeResponseThresholdDb() {
 		return probeResponseThresholdDb;
 	}
-	public void setProbeResponseThresholdDb(AutoOrManualValue probeResponseThresholdDb) {
+	public void setProbeResponseThresholdDb(SourceSelectionValue probeResponseThresholdDb) {
 		this.probeResponseThresholdDb = probeResponseThresholdDb;
 	}
-	public AutoOrManualValue getClientDisconnectThresholdDb() {
+	public SourceSelectionValue getClientDisconnectThresholdDb() {
 		return clientDisconnectThresholdDb;
 	}
-	public void setClientDisconnectThresholdDb(AutoOrManualValue clientDisconnectThresholdDb) {
+	public void setClientDisconnectThresholdDb(SourceSelectionValue clientDisconnectThresholdDb) {
 		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
 	}
 	public int getDropInSnrPercentage() {
@@ -80,5 +80,14 @@ public class RrmBulkUpdateApDetails extends BaseJsonModel {
 		this.minLoadFactor = minLoadFactor;
 	}
 	
+	@Override
+	public boolean hasUnsupportedValue() {
+		if (SourceSelectionValue.hasUnsupportedValue(clientDisconnectThresholdDb)
+				|| SourceSelectionValue.hasUnsupportedValue(probeResponseThresholdDb)
+				|| SourceSelectionValue.hasUnsupportedValue(rxCellSizeDb)) {
+			return true;
+		}
+		return false;
+	}
 			
 }
