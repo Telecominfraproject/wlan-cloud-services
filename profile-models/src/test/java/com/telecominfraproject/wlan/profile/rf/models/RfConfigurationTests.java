@@ -22,37 +22,37 @@ public class RfConfigurationTests {
 	
     @Test
     public void validationTest() {
- 	   RfElementConfiguration radioConfig2_4 = RfElementConfiguration.createWithDefaults(RadioType.is2dot4GHz);
- 	   RfElementConfiguration radioConfig5 = RfElementConfiguration.createWithDefaults(RadioType.is5GHz);
-       radioConfig2_4.validate();
-       radioConfig5.validate();
+ 	   RfElementConfiguration rfConfig2_4 = RfElementConfiguration.createWithDefaults(RadioType.is2dot4GHz);
+ 	   RfElementConfiguration rfConfig5 = RfElementConfiguration.createWithDefaults(RadioType.is5GHz);
+       rfConfig2_4.validate();
+       rfConfig5.validate();
        
        // Validate defaults
-    radioConfig2_4.setRadioMode(RadioMode.modeGN);
-    radioConfig5.setRadioMode(RadioMode.modeGN);
+    rfConfig2_4.setRadioMode(RadioMode.modeGN);
+    rfConfig5.setRadioMode(RadioMode.modeGN);
    
     // Should fail on 5G radio
-    radioConfig2_4.validate();
+    rfConfig2_4.validate();
     try {
-       radioConfig5.validate();
+       rfConfig5.validate();
        fail("Should not be able to set 5G radio to mode GN");
     } catch (ConfigurationException expected) {}
    
-    radioConfig2_4.setRadioMode(RadioMode.modeAC);
-    radioConfig5.setRadioMode(RadioMode.modeAC);
+    rfConfig2_4.setRadioMode(RadioMode.modeAC);
+    rfConfig5.setRadioMode(RadioMode.modeAC);
    
    // Should fail on 2.4G radio
     try {
-       radioConfig2_4.validate();
+       rfConfig2_4.validate();
        fail("Should not be able to set 2.4G radio to mode AC");
     } catch (ConfigurationException expected) {}
-    radioConfig5.validate();
+    rfConfig5.validate();
    
-    radioConfig2_4.setRadioMode(RadioMode.modeN);
-    radioConfig5.setRadioMode(RadioMode.modeN);
+    rfConfig2_4.setRadioMode(RadioMode.modeN);
+    rfConfig5.setRadioMode(RadioMode.modeN);
    
     // Should have no failures for mode N
-       radioConfig2_4.setRadioMode(RadioMode.modeGN);
-       radioConfig5.setRadioMode(RadioMode.modeGN);
+       rfConfig2_4.setRadioMode(RadioMode.modeGN);
+       rfConfig5.setRadioMode(RadioMode.modeGN);
     }
 }

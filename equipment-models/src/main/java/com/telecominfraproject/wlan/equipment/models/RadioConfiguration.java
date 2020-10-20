@@ -72,9 +72,9 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
                                              // wme-apsd" on the AP
         setWmmState(StateSetting.enabled); // maps to "get radio wlan[0-1] wme"
                                            // on the AP
-        setManagementRate(SourceSelectionManagement.createManualInstance(
+        setManagementRate(SourceSelectionManagement.createProfileInstance(
         		ManagementRate.auto));
-        setBestApSettings(SourceSelectionSteering.createManualInstance(
+        setBestApSettings(SourceSelectionSteering.createProfileInstance(
         		RadioBestApSettings.createWithDefaults(RadioType.is5GHz)));
         setDtimPeriod(DEFAULT_DTIM_PERIOD);
         setLegacyBSSRate(DEFAULT_LEGACY_BSS_RATE);

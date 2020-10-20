@@ -73,10 +73,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	private ElementRadioConfiguration() {
 		// Tx power default was discussed with Shaikh (set to 18)
-		setEirpTxPower(SourceSelectionValue.createAutomaticInstance(DEFAULT_EIRP_TX_POWER));
-		setRxCellSizeDb(SourceSelectionValue.createManualInstance(DEFAULT_RX_CELL_SIZE_DB));
-		setProbeResponseThresholdDb(SourceSelectionValue.createManualInstance(-90));
-		setClientDisconnectThresholdDb(SourceSelectionValue.createManualInstance(-90));
+		setEirpTxPower(SourceSelectionValue.createProfileInstance(DEFAULT_EIRP_TX_POWER));
+		setRxCellSizeDb(SourceSelectionValue.createProfileInstance(DEFAULT_RX_CELL_SIZE_DB));
+		setProbeResponseThresholdDb(SourceSelectionValue.createProfileInstance(-90));
+		setClientDisconnectThresholdDb(SourceSelectionValue.createProfileInstance(-90));
 		setPerimeterDetectionEnabled(true);
 		setBestAPSteerType(BestAPSteerType.both);
 	}
