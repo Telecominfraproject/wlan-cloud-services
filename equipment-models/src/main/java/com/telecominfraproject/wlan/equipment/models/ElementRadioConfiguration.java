@@ -31,7 +31,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the
 											// primary channel (either manual or auto)
 	private List<BannedChannel> bannedChannels = new LinkedList<>();
-	private List allowedChannels = new LinkedList<>();
+	private List<Integer> allowedChannels = new LinkedList<>();
 	private SourceSelectionValue rxCellSizeDb;
 	private SourceSelectionValue probeResponseThresholdDb;
 	private SourceSelectionValue clientDisconnectThresholdDb;
@@ -134,7 +134,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return bannedChannels;
 	}
 
-	public List getAllowedChannels() {
+	public List<Integer> getAllowedChannels() {
 		return allowedChannels;
 	}
 	
@@ -187,7 +187,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		this.bannedChannels = bannedChannels;
 	}
 
-	public void setAllowedChannels(List allowedChannels) {
+	public void setAllowedChannels(List<Integer> allowedChannels) {
 		this.allowedChannels = allowedChannels;
 	}
 	

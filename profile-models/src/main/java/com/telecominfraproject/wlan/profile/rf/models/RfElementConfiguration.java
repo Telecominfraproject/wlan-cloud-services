@@ -59,7 +59,7 @@ public class RfElementConfiguration extends BaseJsonModel {
 	private ChannelHopSettings channelHopSettings;
 	private Boolean bestApEnabled;
 	
-    private MulticastRate multicastRate;
+	private MulticastRate multicastRate;
   	private ManagementRate managementRate;
   	private Integer rxCellSizeDb;
 	private Integer probeResponseThresholdDb;
