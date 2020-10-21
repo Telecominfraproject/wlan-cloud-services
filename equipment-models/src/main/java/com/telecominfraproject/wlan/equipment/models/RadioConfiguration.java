@@ -28,6 +28,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     private StateSetting wmmState;
     private StateSetting uapsdState;
     private StateSetting stationIsolation;
+    private SourceSelectionMulticast multicastRate;
     private SourceSelectionManagement managementRate;
     private SourceSelectionSteering bestApSettings;
     private StateSetting legacyBSSRate;
@@ -72,6 +73,8 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
                                              // wme-apsd" on the AP
         setWmmState(StateSetting.enabled); // maps to "get radio wlan[0-1] wme"
                                            // on the AP
+        setMulticastRate(SourceSelectionMulticast.createProfileInstance(
+        		MulticastRate.auto));
         setManagementRate(SourceSelectionManagement.createProfileInstance(
         		ManagementRate.auto));
         setBestApSettings(SourceSelectionSteering.createProfileInstance(
@@ -99,6 +102,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         RadioConfiguration other = (RadioConfiguration) obj;
         
         return Objects.equals(dtimPeriod, other.dtimPeriod)
+        		&& Objects.equals(multicastRate, other.multicastRate)
                 && Objects.equals(bestApSettings, other.bestApSettings)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(fragmentationThresholdBytes, other.fragmentationThresholdBytes)
@@ -133,6 +137,10 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         return legacyBSSRate;
     }
 
+    public SourceSelectionMulticast getMulticastRate() {
+    	return multicastRate;
+    }
+    
     public SourceSelectionManagement getManagementRate() {
         return managementRate;
     }
@@ -160,7 +168,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     @Override
     public int hashCode() {
         return Objects.hash(
-        		dtimPeriod, bestApSettings, deauthAttackDetection, 
+        		dtimPeriod, bestApSettings, deauthAttackDetection, multicastRate,
                 fragmentationThresholdBytes, legacyBSSRate, managementRate, 
                 radioAdminState, radioType, stationIsolation, 
                 uapsdState, wmmState);
@@ -176,6 +184,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
                 || StateSetting.isUnsupported(wmmState)
                 || StateSetting.isUnsupported(uapsdState) 
                 || StateSetting.isUnsupported(stationIsolation)
+                || SourceSelectionMulticast.hasUnsupportedValue(multicastRate)
                 || SourceSelectionManagement.hasUnsupportedValue(managementRate)
                 || SourceSelectionSteering.hasUnsupportedValue(bestApSettings)
                 || StateSetting.isUnsupported(legacyBSSRate)
@@ -215,6 +224,10 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     
     public void setLegacyBSSRate(StateSetting legacyBSSRate) {
         this.legacyBSSRate = legacyBSSRate;
+    }
+    
+    public void setMulticastRate(SourceSelectionMulticast multicastRate) {
+    	this.multicastRate = multicastRate;
     }
 
     public void setManagementRate(SourceSelectionManagement managementRate) {
