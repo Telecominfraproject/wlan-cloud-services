@@ -610,7 +610,7 @@ public abstract class BaseEquipmentDatastoreTest {
 
         //verify initial settings
         for (Equipment c : equipmentList) {
-            assertEquals(50, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getMinLoadFactor().intValue());
+            assertEquals(50, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getValue().getMinLoadFactor().intValue());
             assertEquals(6, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());
         }
 
@@ -631,7 +631,7 @@ public abstract class BaseEquipmentDatastoreTest {
 
         //verify updated settings
         for (Equipment c : equipmentList) {
-            assertEquals(42, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getMinLoadFactor().intValue());
+            assertEquals(42, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getValue().getMinLoadFactor().intValue());
             assertEquals(11, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());            
         }
 

@@ -725,14 +725,17 @@ components:
           type: integer
           format: int32
           
-    AutoOrManualValue:
-      type: object
-      properties:
-        auto:
-          type: boolean
-        value:
-          type: integer
-          format: int32
+    RadioMode:
+      type: string
+      enum:
+        - modeN
+        - modeAC
+        - modeGN
+        - modeX
+        - modeA
+        - modeB
+        - modeG
+        - modeAB
         
     RfConfiguration:
       description: Properties for the RF ConfigurationProfile
@@ -762,6 +765,10 @@ components:
           - RfElementConfiguration
         rf:
           type: string
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        radioMode:
+          $ref: '#/components/schemas/RadioMode'
         autoChannelSelection:
           type: boolean
         beaconInterval:
@@ -786,13 +793,17 @@ components:
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
         rxCellSizeDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         probeResponseThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         clientDisconnectThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         eirpTxPower:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         bestApEnabled:
           type: boolean
         neighbouringListApConfig:

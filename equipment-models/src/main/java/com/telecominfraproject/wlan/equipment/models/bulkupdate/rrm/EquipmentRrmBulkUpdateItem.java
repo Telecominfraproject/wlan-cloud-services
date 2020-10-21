@@ -71,9 +71,9 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 
 		details.getAdvancedRadioMap().forEach((rt, radioCfg) -> {
 			RrmBulkUpdateApDetails itemApDetails = perRadioDetails.get(rt);
-			if(itemApDetails!=null) {
-				itemApDetails.setDropInSnrPercentage(radioCfg.getBestApSettings().getDropInSnrPercentage());
-				itemApDetails.setMinLoadFactor(radioCfg.getBestApSettings().getMinLoadFactor());
+			if(itemApDetails != null) {
+				itemApDetails.setDropInSnrPercentage(radioCfg.getBestApSettings().getValue().getDropInSnrPercentage());
+				itemApDetails.setMinLoadFactor(radioCfg.getBestApSettings().getValue().getMinLoadFactor());
 			}
 		});
 	}
@@ -139,7 +139,7 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 				finalDetails.getAdvancedRadioMap().put(rt, arc);
 			}
 
-			RadioBestApSettings rbs = arc.getBestApSettings(); 
+			RadioBestApSettings rbs = arc.getBestApSettings().getValue(); 
 			
 			if(rbs.getDropInSnrPercentage()== null || rbs.getDropInSnrPercentage().intValue() != updateDetails.getDropInSnrPercentage()) {
 				rbs.setDropInSnrPercentage(updateDetails.getDropInSnrPercentage());

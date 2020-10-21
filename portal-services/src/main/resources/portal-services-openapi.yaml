@@ -448,13 +448,13 @@ components:
           format: int32
         rxCellSizeDb:
           # equipment->details->radioMap->rxCellSizeDb->value
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         probeResponseThresholdDb:
           #equipment->details->radioMap->probeResponseThresholdDb->value
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         clientDisconnectThresholdDb:
           #equipment->details->radioMap->clientDisconnectThresholdDb->value
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         dropInSnrPercentage:
           #equipment->details->radioMap->bestApSettings->dropInSnrPercentage
           type: integer
@@ -660,6 +660,46 @@ components:
           type: boolean
         value:
           type: string
+          
+    SourceType:
+      type: string
+      enum:
+        - auto
+        - manual
+        - profile
+          
+    SourceSelectionValue:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceType'
+        value:
+          type: integer
+          format: int32
+          
+    SourceSelectionSteering:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceType'
+        value:
+          $ref: '#/components/schemas/RadioBestApSettings'
+          
+    SourceSelectionManagement:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceType'
+        value:
+          $ref: '#/components/schemas/ManagementRate'
+          
+    SourceSelectionMulticast:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceType'
+        value:
+          $ref: '#/components/schemas/MulticastRate'
       
     BestAPSteerType:
       type: string
@@ -722,13 +762,13 @@ components:
             type: integer
             format: int32            
         rxCellSizeDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         probeResponseThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         clientDisconnectThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         eirpTxPower:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          $ref: '#/components/schemas/SourceSelectionValue'
         perimeterDetectionEnabled:
           type: boolean
         bestAPSteerType:  
@@ -788,6 +828,11 @@ components:
         - modeN
         - modeAC
         - modeGN
+        - modeX
+        - modeA
+        - modeB
+        - modeG
+        - modeAB
 
     MimoMode:
       type: string
@@ -807,18 +852,18 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
-        radioMode:
-          $ref: '#/components/schemas/RadioMode'
         wmmState:
           $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
         stationIsolation:
           $ref: '#/components/schemas/StateSetting'
+        multicastRate:
+          $ref: '#/components/schemas/SourceSelectionMulticast'
         managementRate:
-          $ref: '#/components/schemas/ManagementRate'
+          $ref: '#/components/schemas/SourceSelectionManagement'
         bestApSettings:
-          $ref: '#/components/schemas/RadioBestApSettings'
+          $ref: '#/components/schemas/SourceSelectionSteering'
         legacyBSSRate:
           $ref: '#/components/schemas/StateSetting'
         dtimPeriod:
@@ -1472,6 +1517,10 @@ components:
           - RfElementConfiguration
         rf:
           type: string
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        radioMode:
+          $ref: '#/components/schemas/RadioMode'
         autoChannelSelection:
           type: boolean
         beaconInterval:
@@ -1496,13 +1545,17 @@ components:
         managementRate:
           $ref: '#/components/schemas/ManagementRate'
         rxCellSizeDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         probeResponseThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         clientDisconnectThresholdDb:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         eirpTxPower:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          type: integer
+          format: int32
         bestApEnabled:
           type: boolean
         neighbouringListApConfig:

@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.equipment.RadioBestApSettings;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionSteering;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
@@ -24,12 +25,12 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     private RadioType radioType;
     private StateSetting radioAdminState;
     private Integer fragmentationThresholdBytes;
-    private RadioMode radioMode;
     private StateSetting wmmState;
     private StateSetting uapsdState;
     private StateSetting stationIsolation;
-    private ManagementRate managementRate;
-    private RadioBestApSettings bestApSettings;
+    private SourceSelectionMulticast multicastRate;
+    private SourceSelectionManagement managementRate;
+    private SourceSelectionSteering bestApSettings;
     private StateSetting legacyBSSRate;
 
     /**
@@ -54,13 +55,8 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     public static RadioConfiguration createWithDefaults(RadioType type) {
         RadioConfiguration configuration = new RadioConfiguration();
         configuration.setRadioType(type);
-        configuration.setBestApSettings(RadioBestApSettings.createWithDefaults(type));
-
-        if (type == RadioType.is2dot4GHz) {
-            configuration.setRadioMode(RadioMode.modeN);
-        } else {
-            configuration.setRadioMode(RadioMode.modeAC);
-        }
+        configuration.setBestApSettings(SourceSelectionSteering.createManualInstance(
+        		RadioBestApSettings.createWithDefaults(type)));
         
         return configuration;
     }
@@ -77,8 +73,12 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
                                              // wme-apsd" on the AP
         setWmmState(StateSetting.enabled); // maps to "get radio wlan[0-1] wme"
                                            // on the AP
-        setManagementRate(ManagementRate.auto);
-        setBestApSettings(RadioBestApSettings.createWithDefaults(RadioType.is5GHz));
+        setMulticastRate(SourceSelectionMulticast.createProfileInstance(
+        		MulticastRate.auto));
+        setManagementRate(SourceSelectionManagement.createProfileInstance(
+        		ManagementRate.auto));
+        setBestApSettings(SourceSelectionSteering.createProfileInstance(
+        		RadioBestApSettings.createWithDefaults(RadioType.is5GHz)));
         setDtimPeriod(DEFAULT_DTIM_PERIOD);
         setLegacyBSSRate(DEFAULT_LEGACY_BSS_RATE);
     }
@@ -102,12 +102,14 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         RadioConfiguration other = (RadioConfiguration) obj;
         
         return Objects.equals(dtimPeriod, other.dtimPeriod)
+        		&& Objects.equals(multicastRate, other.multicastRate)
                 && Objects.equals(bestApSettings, other.bestApSettings)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(fragmentationThresholdBytes, other.fragmentationThresholdBytes)
-                && this.legacyBSSRate == other.legacyBSSRate && this.managementRate == other.managementRate
+                && Objects.equals(managementRate, other.managementRate)
+                && this.legacyBSSRate == other.legacyBSSRate
                 && this.radioAdminState == other.radioAdminState
-                && this.radioMode == other.radioMode && this.radioType == other.radioType
+                && this.radioType == other.radioType
                 && this.stationIsolation == other.stationIsolation && this.uapsdState == other.uapsdState
                 && this.wmmState == other.wmmState;
     }
@@ -119,7 +121,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         return dtimPeriod;
     }
 
-    public RadioBestApSettings getBestApSettings() {
+    public SourceSelectionSteering getBestApSettings() {
         return bestApSettings;
     }
 
@@ -135,16 +137,16 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         return legacyBSSRate;
     }
 
-    public ManagementRate getManagementRate() {
+    public SourceSelectionMulticast getMulticastRate() {
+    	return multicastRate;
+    }
+    
+    public SourceSelectionManagement getManagementRate() {
         return managementRate;
     }
 
     public StateSetting getRadioAdminState() {
         return radioAdminState;
-    }
-
-    public RadioMode getRadioMode() {
-        return radioMode;
     }
 
     public RadioType getRadioType() {
@@ -166,9 +168,9 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     @Override
     public int hashCode() {
         return Objects.hash(
-        		dtimPeriod, bestApSettings, deauthAttackDetection, 
+        		dtimPeriod, bestApSettings, deauthAttackDetection, multicastRate,
                 fragmentationThresholdBytes, legacyBSSRate, managementRate, 
-                radioAdminState, radioMode, radioType, stationIsolation, 
+                radioAdminState, radioType, stationIsolation, 
                 uapsdState, wmmState);
     }
 
@@ -179,11 +181,12 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         }
         if (RadioType.isUnsupported(radioType) 
         		|| StateSetting.isUnsupported(radioAdminState)
-                || RadioMode.isUnsupported(radioMode)
                 || StateSetting.isUnsupported(wmmState)
                 || StateSetting.isUnsupported(uapsdState) 
                 || StateSetting.isUnsupported(stationIsolation)
-                || ManagementRate.isUnsupported(managementRate)
+                || SourceSelectionMulticast.hasUnsupportedValue(multicastRate)
+                || SourceSelectionManagement.hasUnsupportedValue(managementRate)
+                || SourceSelectionSteering.hasUnsupportedValue(bestApSettings)
                 || StateSetting.isUnsupported(legacyBSSRate)
                 ) {
             return true;
@@ -207,7 +210,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         this.dtimPeriod = defaultDtimPeriod;        
     }
     
-    public void setBestApSettings(RadioBestApSettings bestApSettings) {
+    public void setBestApSettings(SourceSelectionSteering bestApSettings) {
         this.bestApSettings = bestApSettings;
     }
 
@@ -222,17 +225,17 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     public void setLegacyBSSRate(StateSetting legacyBSSRate) {
         this.legacyBSSRate = legacyBSSRate;
     }
+    
+    public void setMulticastRate(SourceSelectionMulticast multicastRate) {
+    	this.multicastRate = multicastRate;
+    }
 
-    public void setManagementRate(ManagementRate managementRate) {
+    public void setManagementRate(SourceSelectionManagement managementRate) {
         this.managementRate = managementRate;
     }
 
     public void setRadioAdminState(StateSetting radioAdminState) {
         this.radioAdminState = radioAdminState;
-    }
-
-    public void setRadioMode(RadioMode radioMode) {
-        this.radioMode = radioMode;
     }
 
     public void setRadioType(RadioType radioType) {
@@ -251,19 +254,4 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         this.wmmState = wmmState;
     }
 
-    /**
-     * Ensures that there is no conflict in business logic due to misconfigured
-     * values.
-     */
-    public void validate() {
-        if (radioType == RadioType.is2dot4GHz) {
-            if (radioMode == RadioMode.modeAC) {
-                throw new ConfigurationException("Radio Configuration not valid: 2.4GHz radio can't be set to AC radio mode.");
-            }
-        } else {
-            if (radioMode == RadioMode.modeGN) {
-                throw new ConfigurationException("Radio Configuration not valid: 5GHz radio can't be set to GN radio mode.");
-            }
-        }
-    }
 }
