@@ -36,7 +36,7 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
 
     @Override
     public Customer create(Customer customer) {
-        Customer customerCopy = new Customer(customer);
+        Customer customerCopy = customer.clone();
 
         idToCustomerMap.forEach(
         		(id, c) -> {
