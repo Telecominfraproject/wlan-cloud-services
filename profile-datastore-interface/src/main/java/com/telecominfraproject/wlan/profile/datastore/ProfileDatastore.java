@@ -3,11 +3,10 @@ package com.telecominfraproject.wlan.profile.datastore;
 import java.util.List;
 import java.util.Set;
 
-import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequest;
 
 /**
  * @author dtoptygin
@@ -44,9 +43,10 @@ public interface ProfileDatastore {
 	 *<li> "sampleStr"
      *<br> 
      * @param customerId
+     * @param profileType 
      * @return next page of matching Profile objects.
      */
-    PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
+    PaginationResponse<Profile> getForCustomer(ProfileByCustomerRequest profileByCustomerRequest);
 
     /**
 	 * @param profileId

@@ -14,6 +14,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.controller.ProfileController;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -51,10 +52,10 @@ public class ProfileServiceLocal implements ProfileServiceInterface {
     }
     
     @Override
-    public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+    public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy,
     		PaginationContext<Profile> context) {
         LOG.debug("calling profileController.getForCustomer {} ", customerId);
-        return profileController.getForCustomer(customerId, sortBy, context);
+        return profileController.getForCustomer(customerId, profileType, sortBy, context);
     }
 
     @Override

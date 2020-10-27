@@ -25,6 +25,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
 import com.telecominfraproject.wlan.profile.datastore.ProfileDatastore;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequest;
 
 /**
  * @author dtoptygin
@@ -150,15 +151,10 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     }
 
     @Override
-    public PaginationResponse<Profile> getForCustomer(int customerId, 
-    		final List<ColumnAndSort> sortBy, PaginationContext<Profile> context) {
-
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
+    public PaginationResponse<Profile> getForCustomer(ProfileByCustomerRequest profileByCustomerRequest) {
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
+        ret.setContext(profileByCustomerRequest.getPaginationContext().clone());
 
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
@@ -170,10 +166,10 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         // apply filters and build the full result list first - inefficient, but ok for testing
         for (Profile mdl : idToProfileMap.values()) {
 
-            if (mdl.getCustomerId() != customerId) {
+            if (mdl.getCustomerId() != profileByCustomerRequest.getCustomerId() || (profileByCustomerRequest.getProfileType().isPresent() && mdl.getProfileType().getId() != profileByCustomerRequest.getProfileType().get().getId())) {
                 continue;
             }
-
+            
             items.add(mdl);
         }
 
@@ -181,12 +177,12 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         Collections.sort(items, new Comparator<Profile>() {
             @Override
             public int compare(Profile o1, Profile o2) {
-                if (sortBy == null || sortBy.isEmpty()) {
+                if (profileByCustomerRequest.getSortBy().isEmpty() || profileByCustomerRequest.getSortBy().get().isEmpty()) {
                     // sort ascending by id by default
                     return Long.compare(o1.getId(), o2.getId());
                 } else {
                     int cmp;
-                    for (ColumnAndSort column : sortBy) {
+                    for (ColumnAndSort column : profileByCustomerRequest.getSortBy().get()) {
                         switch (column.getColumnName()) {
                         case "id":
                             cmp = Long.compare(o1.getId(), o2.getId());
@@ -212,23 +208,23 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         // now select only items for the requested page
         // find first item to add
         int fromIndex = 0;
-        if (context.getStartAfterItem() != null) {
+        if (profileByCustomerRequest.getPaginationContext().getStartAfterItem() != null) {
             for (Profile mdl : items) {
                 fromIndex++;
-                if (mdl.getId() == context.getStartAfterItem().getId()) {
+                if (mdl.getId() == profileByCustomerRequest.getPaginationContext().getStartAfterItem().getId()) {
                     break;
                 }
             }
         }
 
         // find last item to add
-        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        int toIndexExclusive = fromIndex + profileByCustomerRequest.getPaginationContext().getMaxItemsPerPage();
         if (toIndexExclusive > items.size()) {
             toIndexExclusive = items.size();
         }
 
         // copy page items into result
-        List<Profile> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        List<Profile> selectedItems = new ArrayList<>(profileByCustomerRequest.getPaginationContext().getMaxItemsPerPage());
         for (Profile mdl : items.subList(fromIndex, toIndexExclusive)) {
             selectedItems.add(mdl.clone());
         }

@@ -1215,11 +1215,11 @@ paths:
           $ref: '#/components/responses/GenericApiError'
   
   /api/profile/forCustomer:
-     get:
+    get:
       tags:
-      - Profile Data
-      summary: Get equipment By customerId
-      operationId: getEquipmentByCustomerId
+      - Profile
+      summary: Get Profiles By customerId
+      operationId: getProfilesByCustomerId
       parameters:
       - name: customerId
         in: query
@@ -1227,11 +1227,17 @@ paths:
         required: true
         schema:
           type: integer
-          format: int32
+          format: int64
+      - name: profileType
+        in: query
+        description: profile type
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/ProfileType'
       - name: sortBy
         in: query
         description: sort options
-        required: true
         schema:
           type: array
           items:
@@ -1239,7 +1245,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: false
+        required: true
         content:
           application/json:
             schema:

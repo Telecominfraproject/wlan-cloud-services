@@ -35,6 +35,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificatio
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequest;
 
 /**
  * @author dtoptygin
@@ -129,6 +130,9 @@ public class ProfileDAO extends BaseJdbcDao {
     		"select " + ALL_COLUMNS +
     		" from " + TABLE_NAME + " " + 
     		" where customerId = ? ";
+    
+    private static final String SQL_WITH_PROFILETYPE_APPEND = 
+    		" AND profileType = ?";
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -382,37 +386,36 @@ public class ProfileDAO extends BaseJdbcDao {
     }
 
 
-	public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Profile> context) {
+	public PaginationResponse<Profile> getForCustomer(ProfileByCustomerRequest profileByCustomerRequest) {
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
+        ret.setContext(profileByCustomerRequest.getPaginationContext().clone());
 
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
                     "No more pages available when looking up Profiles for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
+                    profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());
             return ret;
         }
 
         LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
-                customerId, context.getLastReturnedPageNumber());
+        		profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());
 
-        String query = SQL_GET_BY_CUSTOMER_ID;
-
-        // add filters for the query
-        ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
-
+        SqlQueryBuilder sqlQueryBuilder = new SqlQueryBuilder();
+        
+        sqlQueryBuilder.addSqlWithArgument(SQL_GET_BY_CUSTOMER_ID, profileByCustomerRequest.getCustomerId());
+        
+        profileByCustomerRequest.getProfileType().ifPresent(profileType -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_PROFILETYPE_APPEND, profileType));
+        
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
         strbSort.append(" order by ");
 
-        if (sortBy != null && !sortBy.isEmpty()) {
+        if (profileByCustomerRequest.getSortBy().isPresent() && !profileByCustomerRequest.getSortBy().get().isEmpty()) {
 
             // use supplied sorting options
-            for (ColumnAndSort column : sortBy) {
+            for (ColumnAndSort column : profileByCustomerRequest.getSortBy().get()) {
                 if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
                     // unknown column, skip it
                     continue;
@@ -436,13 +439,11 @@ public class ProfileDAO extends BaseJdbcDao {
             strbSort.append(COL_ID);
         }
 
-        query += strbSort.toString();
+        sqlQueryBuilder.addSql(strbSort.toString());
 
-        // add pagination parameters for the query
-        query += SQL_PAGING_SUFFIX ;
-
-        queryArgs.add(context.getMaxItemsPerPage());
-        queryArgs.add(context.getTotalItemsReturned());
+        sqlQueryBuilder.addSql(SQL_PAGING_SUFFIX);
+        sqlQueryBuilder.addArgument(profileByCustomerRequest.getPaginationContext().getMaxItemsPerPage());
+        sqlQueryBuilder.addArgument(profileByCustomerRequest.getPaginationContext().getTotalItemsReturned());
 
         /*
          * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
@@ -450,14 +451,14 @@ public class ProfileDAO extends BaseJdbcDao {
          * time. Once offset=5,000,000 the cost goes up to 92734 and execution
          * time is 758.484 ms. - DT: still acceptable for our use case
          */
-        List<Profile> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+        List<Profile> pageItems = this.jdbcTemplate.query(sqlQueryBuilder.getSql(), sqlQueryBuilder.getQueryArgs().toArray(),
                 profileRowMapper);
 
         //retrieve child profile ids
     	pageItems.forEach(p -> { p.setChildProfileIds(getChildProfileIds(p.getId()));} );
 
         LOG.debug("Found {} Profiles for customer {} with last returned page number {}",
-                pageItems.size(), customerId, context.getLastReturnedPageNumber());
+                pageItems.size(), profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

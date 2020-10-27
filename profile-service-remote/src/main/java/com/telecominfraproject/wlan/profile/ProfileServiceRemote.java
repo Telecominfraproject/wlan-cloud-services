@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -156,15 +157,15 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
 	}
 	
 	@Override
-	public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
+	public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy,
 			PaginationContext<Profile> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {} )", customerId, sortBy, context);
+        LOG.debug("calling getForCustomer( {}, profileType {}, {}, {} )", customerId, profileType, sortBy, context);
 
         ResponseEntity<PaginationResponse<Profile>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                        + "/forCustomer?customerId={customerId}&profileType={profileType}&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, profileType, sortBy, context);
 
         PaginationResponse<Profile> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());

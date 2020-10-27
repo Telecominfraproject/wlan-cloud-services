@@ -24,6 +24,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
  * @author dtoptygin
@@ -107,29 +108,21 @@ public class ProfilePortalController  {
 
     @RequestMapping(value = "/profile/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
+    		@RequestParam(required = false) ProfileType profileType,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
-
-    	if(paginationContext == null) {
-    		paginationContext = new PaginationContext<>();
-    	}
 
         LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
                 customerId, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
 
-        if (paginationContext.isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up Profiles for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
-            ret.setContext(paginationContext);
-            return ret;
-        }
-
         PaginationResponse<Profile> onePage = this.profileServiceInterface
-                .getForCustomer(customerId,  sortBy, paginationContext);
+                .getForCustomer(customerId, 
+                		profileType, 
+                		sortBy, 
+                		paginationContext);
+        
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
