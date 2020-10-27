@@ -207,13 +207,13 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
        
        PaginationContext<Profile> context = new PaginationContext<>(10);
-       PaginationResponse<Profile> page1 = remoteInterface.getForCustomer(customerId_1, sortBy, context);
-       PaginationResponse<Profile> page2 = remoteInterface.getForCustomer(customerId_1, sortBy, page1.getContext());
-       PaginationResponse<Profile> page3 = remoteInterface.getForCustomer(customerId_1, sortBy, page2.getContext());
-       PaginationResponse<Profile> page4 = remoteInterface.getForCustomer(customerId_1, sortBy, page3.getContext());
-       PaginationResponse<Profile> page5 = remoteInterface.getForCustomer(customerId_1, sortBy, page4.getContext());
-       PaginationResponse<Profile> page6 = remoteInterface.getForCustomer(customerId_1, sortBy, page5.getContext());
-       PaginationResponse<Profile> page7 = remoteInterface.getForCustomer(customerId_1, sortBy, page6.getContext());
+       PaginationResponse<Profile> page1 = remoteInterface.getForCustomer(customerId_1, null, sortBy, context);
+       PaginationResponse<Profile> page2 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page1.getContext());
+       PaginationResponse<Profile> page3 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page2.getContext());
+       PaginationResponse<Profile> page4 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page3.getContext());
+       PaginationResponse<Profile> page5 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page4.getContext());
+       PaginationResponse<Profile> page6 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page5.getContext());
+       PaginationResponse<Profile> page7 = remoteInterface.getForCustomer(customerId_1, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -255,7 +255,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 //       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Profile> page1EmptySort = remoteInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
+       PaginationResponse<Profile> page1EmptySort = remoteInterface.getForCustomer(customerId_1, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -265,7 +265,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Profile> page1NullSort = remoteInterface.getForCustomer(customerId_1, null, context);
+       PaginationResponse<Profile> page1NullSort = remoteInterface.getForCustomer(customerId_1, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -276,7 +276,7 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
        
        //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Profile> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
+       PaginationResponse<Profile> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, null, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));

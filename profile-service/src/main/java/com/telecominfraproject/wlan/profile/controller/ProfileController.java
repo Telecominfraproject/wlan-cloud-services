@@ -144,7 +144,7 @@ public class ProfileController {
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
-            ProfileType profileType, @RequestParam List<ColumnAndSort> sortBy,
+    		@RequestParam(required = false) ProfileType profileType, @RequestParam List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
     	
     	ProfileByCustomerRequest profileByCustomerRequest = profileByCustomerRequestFactory.create(customerId, profileType, sortBy, paginationContext);

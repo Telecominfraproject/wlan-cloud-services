@@ -162,11 +162,20 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
 		
         LOG.debug("calling getForCustomer( {}, profileType {}, {}, {} )", customerId, profileType, sortBy, context);
 
-        ResponseEntity<PaginationResponse<Profile>> responseEntity = restTemplate.exchange(
-                getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&profileType={profileType}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, profileType, sortBy, context);
-
+        ResponseEntity<PaginationResponse<Profile>> responseEntity;
+        if (profileType != null) {
+        	responseEntity = restTemplate.exchange(
+                    getBaseUrl()
+                            + "/forCustomer?customerId={customerId}&profileType={profileType}&sortBy={sortBy}&paginationContext={paginationContext}",
+                    HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, profileType, sortBy, context);
+        }
+        else
+        {
+        	responseEntity = restTemplate.exchange(
+                    getBaseUrl()
+                            + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
+                    HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+        }
         PaginationResponse<Profile> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
 

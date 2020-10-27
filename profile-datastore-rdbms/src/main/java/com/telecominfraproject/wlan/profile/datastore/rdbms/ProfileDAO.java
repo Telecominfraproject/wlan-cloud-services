@@ -406,7 +406,7 @@ public class ProfileDAO extends BaseJdbcDao {
         
         sqlQueryBuilder.addSqlWithArgument(SQL_GET_BY_CUSTOMER_ID, profileByCustomerRequest.getCustomerId());
         
-        profileByCustomerRequest.getProfileType().ifPresent(profileType -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_PROFILETYPE_APPEND, profileType));
+        profileByCustomerRequest.getProfileType().ifPresent(profileType -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_PROFILETYPE_APPEND, profileType.getId()));
         
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);

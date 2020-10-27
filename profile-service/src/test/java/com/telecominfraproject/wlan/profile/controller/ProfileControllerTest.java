@@ -18,6 +18,7 @@ import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmp
 
 import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreInMemory;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 /**
@@ -35,7 +36,8 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
         ProfileController.class,
         CloudEventDispatcherEmpty.class,
         ProfileDatastoreInMemory.class,
-        ProfileControllerTest.Config.class, 
+        ProfileControllerTest.Config.class,
+        ProfileByCustomerRequestFactory.class, 
         })
 public class ProfileControllerTest {
     

@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.server.jdbc.test.BaseJdbcTest;
 import com.telecominfraproject.wlan.core.server.jdbc.test.TestWithEmbeddedDB;
 
 import com.telecominfraproject.wlan.profile.datastore.BaseProfileDatastoreTest;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 
 /**
  * @author dtoptygin
@@ -22,7 +23,7 @@ import com.telecominfraproject.wlan.profile.datastore.BaseProfileDatastoreTest;
 @Rollback(value = true)
 @Transactional
 @Import(value = { ProfileDatastoreRdbms.class, ProfileDataSourceConfig.class,
-        ProfileDAO.class, BaseJdbcTest.Config.class })
+        ProfileDAO.class, BaseJdbcTest.Config.class, ProfileByCustomerRequestFactory.class })
 @TestWithEmbeddedDB
 public class ProfileDatastoreRdbmsTests extends BaseProfileDatastoreTest {
 
