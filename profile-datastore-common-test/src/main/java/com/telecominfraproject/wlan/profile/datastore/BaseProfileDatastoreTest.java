@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 
@@ -36,8 +37,11 @@ import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 public abstract class BaseProfileDatastoreTest {
     @Autowired
     protected ProfileDatastore testInterface;
+    @Autowired 
+    protected ProfileByCustomerRequestFactory profileByCustomerRequestFactory;
 
     private static final AtomicLong testSequence = new AtomicLong(1);
+	private static final String PROFILE_TEST_NAME_PREFIX = "PROFILE_TYPE_TEST_";
 
     @Test
     public void testCRUD() {
@@ -205,13 +209,13 @@ public abstract class BaseProfileDatastoreTest {
        sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
        
        PaginationContext<Profile> context = new PaginationContext<>(10);
-       PaginationResponse<Profile> page1 = testInterface.getForCustomer(customerId_1, sortBy, context);
-       PaginationResponse<Profile> page2 = testInterface.getForCustomer(customerId_1, sortBy, page1.getContext());
-       PaginationResponse<Profile> page3 = testInterface.getForCustomer(customerId_1, sortBy, page2.getContext());
-       PaginationResponse<Profile> page4 = testInterface.getForCustomer(customerId_1, sortBy, page3.getContext());
-       PaginationResponse<Profile> page5 = testInterface.getForCustomer(customerId_1, sortBy, page4.getContext());
-       PaginationResponse<Profile> page6 = testInterface.getForCustomer(customerId_1, sortBy, page5.getContext());
-       PaginationResponse<Profile> page7 = testInterface.getForCustomer(customerId_1, sortBy, page6.getContext());
+       PaginationResponse<Profile> page1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, context));
+       PaginationResponse<Profile> page2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page1.getContext()));
+       PaginationResponse<Profile> page3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page2.getContext()));
+       PaginationResponse<Profile> page4 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page3.getContext()));
+       PaginationResponse<Profile> page5 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page4.getContext()));
+       PaginationResponse<Profile> page6 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page5.getContext()));
+       PaginationResponse<Profile> page7 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, sortBy, page6.getContext()));
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -253,7 +257,7 @@ public abstract class BaseProfileDatastoreTest {
 //       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Profile> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
+       PaginationResponse<Profile> page1EmptySort = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, Collections.emptyList(), context));
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -263,7 +267,7 @@ public abstract class BaseProfileDatastoreTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Profile> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
+       PaginationResponse<Profile> page1NullSort = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, null, context));
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -274,7 +278,7 @@ public abstract class BaseProfileDatastoreTest {
 
        
        //test first page of the results with sort descending order by a sampleStr property 
-       PaginationResponse<Profile> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
+       PaginationResponse<Profile> page1SingleSortDesc = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context));
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));
@@ -452,6 +456,42 @@ public abstract class BaseProfileDatastoreTest {
     	assertTrue(ret.contains(new PairLongLong(profile_c2.getId(), profile_gp1.getId())));
 
     }
+    
+
+    @Test
+    public void testGetForCustomerWithProfile(){
+    	int customer_ID = 25;
+
+    	Profile profile_c1 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.ssid);
+    	Profile profile_c2 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.operator);
+    	Profile profile_c3 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.operator);
+    	Profile profile_c4 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
+    	Profile profile_c5 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
+    	Profile profile_c6 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
+    	
+    	testInterface.create(profile_c1);
+    	testInterface.create(profile_c2);
+    	testInterface.create(profile_c3);
+    	testInterface.create(profile_c4);
+    	testInterface.create(profile_c5);
+    	testInterface.create(profile_c6);
+    	
+    	List<ColumnAndSort> sortBy = new ArrayList<>();
+        sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
+        
+        PaginationContext<Profile> context = new PaginationContext<>(10);
+    	
+        List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.ssid, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
+        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.operator, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
+        List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.equipment_ap, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
+        
+        assertEquals(profiles1.size(), 1);
+        assertEquals(profiles2.size(), 2);
+        assertEquals(profiles3.size(), 3);
+    }
 
     private Profile createProfileObject(int customerId) {
     	Profile result = new Profile();        
@@ -460,6 +500,14 @@ public abstract class BaseProfileDatastoreTest {
         SsidConfiguration details = SsidConfiguration.createWithDefaults();
         details.setSsid("test-details-" + customerId);
 		result.setDetails(details );
+        return result;
+    }
+    
+    private Profile createProfileObjectForProfileTypeTest(int customerId, ProfileType profileType) {
+    	Profile result = new Profile();        
+        result.setCustomerId(customerId);
+        result.setName(PROFILE_TEST_NAME_PREFIX + customerId); 
+        result.setProfileType(profileType);
         return result;
     }
 }

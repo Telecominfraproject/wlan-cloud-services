@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.datastore.ProfileDatastore;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequest;
 
 /**
  * @author dtoptygin
@@ -53,14 +54,8 @@ public class ProfileDatastoreRdbms implements ProfileDatastore {
     }
     
     @Override
-    public PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Profile> context) {
-    	
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
-
-    	return profileDAO.getForCustomer( customerId, sortBy, context);
+    public PaginationResponse<Profile> getForCustomer(ProfileByCustomerRequest profileByCustomerRequest) {
+    	return profileDAO.getForCustomer(profileByCustomerRequest);
     }
     
     @Override

@@ -25,6 +25,9 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.profile.datastore.ProfileDatastore;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequest;
+import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
@@ -53,6 +56,7 @@ public class ProfileController {
 
     @Autowired private ProfileDatastore profileDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
+    @Autowired private ProfileByCustomerRequestFactory profileByCustomerRequestFactory;
 
     
     /**
@@ -140,29 +144,27 @@ public class ProfileController {
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
-            @RequestParam List<ColumnAndSort> sortBy,
+    		@RequestParam(required = false) ProfileType profileType, @RequestParam List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
-
-    	if(paginationContext == null) {
-    		paginationContext = new PaginationContext<>();
-    	}
+    	
+    	ProfileByCustomerRequest profileByCustomerRequest = profileByCustomerRequestFactory.create(customerId, profileType, sortBy, paginationContext);
 
         LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+        		profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
 
-        if (paginationContext.isLastPage()) {
+        if (profileByCustomerRequest.getPaginationContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
                     "No more pages available when looking up Profiles for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
+                    profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<Profile> onePage = this.profileDatastore
-                .getForCustomer(customerId,  sortBy, paginationContext);
+                .getForCustomer(profileByCustomerRequest);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 

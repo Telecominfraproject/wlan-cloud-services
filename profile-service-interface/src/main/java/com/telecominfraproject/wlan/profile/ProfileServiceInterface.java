@@ -8,6 +8,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.profile.models.Profile;
+import com.telecominfraproject.wlan.profile.models.ProfileType;
 
 
 /**
@@ -80,9 +81,10 @@ public interface ProfileServiceInterface {
 	 *<li> "sampleStr"
      *<br> 
      * @param customerId
+     * @param profileType 
      * @return next page of matching Profile objects.
      */
-    PaginationResponse<Profile> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
+    PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
 
     /**
 	 * @param profileId

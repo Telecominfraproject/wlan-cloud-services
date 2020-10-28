@@ -9714,6 +9714,13 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: profileType
+        in: query
+        description: profile type
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/ProfileType'
       - name: sortBy
         in: query
         description: sort options
