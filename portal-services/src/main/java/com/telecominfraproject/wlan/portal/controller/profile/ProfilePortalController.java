@@ -112,8 +112,7 @@ public class ProfilePortalController  {
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
 
-        LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up Profiles for customer {}", customerId);
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
 

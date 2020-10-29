@@ -52,10 +52,10 @@ public class ProfileServiceLocal implements ProfileServiceInterface {
     }
     
     @Override
-    public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy,
+    public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, String nameSubstring, List<ColumnAndSort> sortBy,
     		PaginationContext<Profile> context) {
         LOG.debug("calling profileController.getForCustomer {} ", customerId);
-        return profileController.getForCustomer(customerId, profileType, sortBy, context);
+        return profileController.getForCustomer(customerId, profileType, nameSubstring, sortBy, context);
     }
 
     @Override

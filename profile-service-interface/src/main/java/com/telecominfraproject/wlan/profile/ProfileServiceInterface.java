@@ -84,7 +84,7 @@ public interface ProfileServiceInterface {
      * @param profileType 
      * @return next page of matching Profile objects.
      */
-    PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
+    PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, String nameSubstring, List<ColumnAndSort> sortBy, PaginationContext<Profile> context);
 
     /**
 	 * @param profileId

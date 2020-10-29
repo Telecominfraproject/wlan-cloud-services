@@ -157,24 +157,24 @@ public class ProfileServiceRemote extends BaseRemoteClient implements ProfileSer
 	}
 	
 	@Override
-	public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, List<ColumnAndSort> sortBy,
+	public PaginationResponse<Profile> getForCustomer(int customerId, ProfileType profileType, String nameSubstring, List<ColumnAndSort> sortBy,
 			PaginationContext<Profile> context) {
 		
-        LOG.debug("calling getForCustomer( {}, profileType {}, {}, {} )", customerId, profileType, sortBy, context);
+        LOG.debug("calling getForCustomer( {}, profileType {}, name substring {}, {}, {} )", customerId, profileType, nameSubstring, sortBy, context);
 
         ResponseEntity<PaginationResponse<Profile>> responseEntity;
-        if (profileType != null) {
+        if (profileType != null && nameSubstring !=null) {
         	responseEntity = restTemplate.exchange(
                     getBaseUrl()
-                            + "/forCustomer?customerId={customerId}&profileType={profileType}&sortBy={sortBy}&paginationContext={paginationContext}",
+                            + "/forCustomer?customerId={customerId}&profileType={profileType}&nameSubstring={nameSubstring}&sortBy={sortBy}&paginationContext={paginationContext}",
                     HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, profileType, sortBy, context);
         }
         else
         {
         	responseEntity = restTemplate.exchange(
                     getBaseUrl()
-                            + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                    HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                            + "/forCustomer?customerId={customerId}&nameSubstring={nameSubstring}&sortBy={sortBy}&paginationContext={paginationContext}",
+                    HttpMethod.GET, null, Profile_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, nameSubstring, sortBy, context);
         }
         PaginationResponse<Profile> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
