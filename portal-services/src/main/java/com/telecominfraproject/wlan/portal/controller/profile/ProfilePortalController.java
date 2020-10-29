@@ -109,6 +109,7 @@ public class ProfilePortalController  {
     @RequestMapping(value = "/profile/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
     		@RequestParam(required = false) ProfileType profileType,
+    		@RequestParam(required = false) String nameSubstring,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
 
@@ -118,7 +119,8 @@ public class ProfilePortalController  {
 
         PaginationResponse<Profile> onePage = this.profileServiceInterface
                 .getForCustomer(customerId, 
-                		profileType, 
+                		profileType,
+                		nameSubstring,
                 		sortBy, 
                 		paginationContext);
         

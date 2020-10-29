@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 
