@@ -167,7 +167,7 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
 
             if (mdl.getCustomerId() != profileByCustomerRequest.getCustomerId() 
             		|| (profileByCustomerRequest.getProfileType().isPresent() && mdl.getProfileType().getId() != profileByCustomerRequest.getProfileType().get().getId())
-            		|| (profileByCustomerRequest.getNameSubstring().isPresent() && !mdl.getName().contains(profileByCustomerRequest.getNameSubstring().get()))) {
+            		|| (profileByCustomerRequest.getNameSubstring().isPresent() && !mdl.getName().toLowerCase().contains(profileByCustomerRequest.getNameSubstring().get().toLowerCase()))) {
                 continue;
             }
             

@@ -521,12 +521,18 @@ public abstract class BaseProfileDatastoreTest {
         PaginationContext<Profile> context = new PaginationContext<>(10);
     	
         List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name1, sortBy, context)).getItems();
+        List<Profile> profiles1_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name1.substring(3).toUpperCase(), sortBy, context)).getItems();
         List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name2, sortBy, context)).getItems();
+        List<Profile> profiles2_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name2.substring(3).toUpperCase(), sortBy, context)).getItems();
         List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name3, sortBy, context)).getItems();
+        List<Profile> profiles3_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name3.substring(3).toUpperCase(), sortBy, context)).getItems();
         
         assertEquals(profiles1.size(), 1);
+        assertEquals(profiles1_different_case.size(), 1);
         assertEquals(profiles2.size(), 2);
+        assertEquals(profiles2_different_case.size(), 2);
         assertEquals(profiles3.size(), 3);
+        assertEquals(profiles3_different_case.size(), 3);
     }
 
     private Profile createProfileObject(int customerId) {

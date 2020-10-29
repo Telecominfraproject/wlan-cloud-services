@@ -135,7 +135,7 @@ public class ProfileDAO extends BaseJdbcDao {
     		" AND profileType = ?" ;
     
     private static final String SQL_WITH_NAME_SUBSTRING_APPEND = 
-    		" AND name LIKE ?" ;
+    		" AND LOWER(name) LIKE ? " ;
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -410,7 +410,7 @@ public class ProfileDAO extends BaseJdbcDao {
         sqlQueryBuilder.addSqlWithArgument(SQL_GET_BY_CUSTOMER_ID, profileByCustomerRequest.getCustomerId());
         
         profileByCustomerRequest.getProfileType().ifPresent(profileType -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_PROFILETYPE_APPEND, profileType.getId()));
-        profileByCustomerRequest.getNameSubstring().ifPresent(nameSubstring -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_NAME_SUBSTRING_APPEND, "%" + nameSubstring + "%"));
+        profileByCustomerRequest.getNameSubstring().ifPresent(nameSubstring -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_NAME_SUBSTRING_APPEND, "%" + nameSubstring.toLowerCase() + "%"));
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
