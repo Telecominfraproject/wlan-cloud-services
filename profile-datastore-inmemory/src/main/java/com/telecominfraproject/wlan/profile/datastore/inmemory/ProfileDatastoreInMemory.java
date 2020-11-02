@@ -165,7 +165,9 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         // apply filters and build the full result list first - inefficient, but ok for testing
         for (Profile mdl : idToProfileMap.values()) {
 
-            if (mdl.getCustomerId() != profileByCustomerRequest.getCustomerId() || (profileByCustomerRequest.getProfileType().isPresent() && mdl.getProfileType().getId() != profileByCustomerRequest.getProfileType().get().getId())) {
+            if (mdl.getCustomerId() != profileByCustomerRequest.getCustomerId() 
+            		|| (profileByCustomerRequest.getProfileType().isPresent() && mdl.getProfileType().getId() != profileByCustomerRequest.getProfileType().get().getId())
+            		|| (profileByCustomerRequest.getNameSubstring().isPresent() && !mdl.getName().toLowerCase().contains(profileByCustomerRequest.getNameSubstring().get().toLowerCase()))) {
                 continue;
             }
             

@@ -41,7 +41,7 @@ public abstract class BaseProfileDatastoreTest {
     protected ProfileByCustomerRequestFactory profileByCustomerRequestFactory;
 
     private static final AtomicLong testSequence = new AtomicLong(1);
-	private static final String PROFILE_TEST_NAME_PREFIX = "PROFILE_TYPE_TEST_";
+	private static final String PROFILETYPE_TEST_NAME_PREFIX = "PROFILE_TYPE_TEST_";
 
     @Test
     public void testCRUD() {
@@ -459,15 +459,15 @@ public abstract class BaseProfileDatastoreTest {
     
 
     @Test
-    public void testGetForCustomerWithProfile(){
+    public void testGetForCustomerWithProfileType(){
     	int customer_ID = 25;
 
-    	Profile profile_c1 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.ssid);
-    	Profile profile_c2 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.operator);
-    	Profile profile_c3 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.operator);
-    	Profile profile_c4 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
-    	Profile profile_c5 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
-    	Profile profile_c6 = createProfileObjectForProfileTypeTest(customer_ID, ProfileType.equipment_ap);
+    	Profile profile_c1 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.operator, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.operator, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c4 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
     	
     	testInterface.create(profile_c1);
     	testInterface.create(profile_c2);
@@ -481,16 +481,58 @@ public abstract class BaseProfileDatastoreTest {
         
         PaginationContext<Profile> context = new PaginationContext<>(10);
     	
-        List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.ssid, sortBy, context)).getItems();
-        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
-        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.operator, sortBy, context)).getItems();
-        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
-        List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.equipment_ap, sortBy, context)).getItems();
-        profiles1.removeIf(profile -> !profile.getName().contains(PROFILE_TEST_NAME_PREFIX));
+        List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.ssid, null, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));
+        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.operator, null, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));
+        List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.equipment_ap, null, sortBy, context)).getItems();
+        profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));
         
         assertEquals(profiles1.size(), 1);
         assertEquals(profiles2.size(), 2);
         assertEquals(profiles3.size(), 3);
+    }
+    
+    @Test
+    public void testGetForCustomerWithNameSubstring(){
+    	int customer_ID = 25;
+    	
+    	String name1 = "name1";
+    	String name2 = "name2";
+    	String name3 = "name3";
+
+    	Profile profile_c1 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name1);
+    	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name2);
+    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name2);
+    	Profile profile_c4 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
+    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
+    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
+    	
+    	testInterface.create(profile_c1);
+    	testInterface.create(profile_c2);
+    	testInterface.create(profile_c3);
+    	testInterface.create(profile_c4);
+    	testInterface.create(profile_c5);
+    	testInterface.create(profile_c6);
+    	
+    	List<ColumnAndSort> sortBy = new ArrayList<>();
+        sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
+        
+        PaginationContext<Profile> context = new PaginationContext<>(10);
+    	
+        List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name1, sortBy, context)).getItems();
+        List<Profile> profiles1_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name1.substring(3).toUpperCase(), sortBy, context)).getItems();
+        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name2, sortBy, context)).getItems();
+        List<Profile> profiles2_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name2.substring(3).toUpperCase(), sortBy, context)).getItems();
+        List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name3, sortBy, context)).getItems();
+        List<Profile> profiles3_different_case = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, null, name3.substring(3).toUpperCase(), sortBy, context)).getItems();
+        
+        assertEquals(profiles1.size(), 1);
+        assertEquals(profiles1_different_case.size(), 1);
+        assertEquals(profiles2.size(), 2);
+        assertEquals(profiles2_different_case.size(), 2);
+        assertEquals(profiles3.size(), 3);
+        assertEquals(profiles3_different_case.size(), 3);
     }
 
     private Profile createProfileObject(int customerId) {
@@ -503,10 +545,10 @@ public abstract class BaseProfileDatastoreTest {
         return result;
     }
     
-    private Profile createProfileObjectForProfileTypeTest(int customerId, ProfileType profileType) {
+    private Profile createProfileObjectForGetForCustomerTest(int customerId, ProfileType profileType, String name) {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
-        result.setName(PROFILE_TEST_NAME_PREFIX + customerId); 
+        result.setName(name + customerId); 
         result.setProfileType(profileType);
         return result;
     }

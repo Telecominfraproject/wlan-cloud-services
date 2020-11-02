@@ -54,7 +54,7 @@ public class ProfileDAO extends BaseJdbcDao {
     private static final String[] ALL_COLUMNS_LIST = {        
         COL_ID,
         
-        //TODO: add colums from properties Profile in here
+        //TODO: add columns from properties Profile in here
         "customerId",
         "profileType",
         "name",
@@ -132,7 +132,10 @@ public class ProfileDAO extends BaseJdbcDao {
     		" where customerId = ? ";
     
     private static final String SQL_WITH_PROFILETYPE_APPEND = 
-    		" AND profileType = ?";
+    		" AND profileType = ?" ;
+    
+    private static final String SQL_WITH_NAME_SUBSTRING_APPEND = 
+    		" AND LOWER(name) LIKE ? " ;
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -407,7 +410,8 @@ public class ProfileDAO extends BaseJdbcDao {
         sqlQueryBuilder.addSqlWithArgument(SQL_GET_BY_CUSTOMER_ID, profileByCustomerRequest.getCustomerId());
         
         profileByCustomerRequest.getProfileType().ifPresent(profileType -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_PROFILETYPE_APPEND, profileType.getId()));
-        
+        profileByCustomerRequest.getNameSubstring().ifPresent(nameSubstring -> sqlQueryBuilder.addSqlWithArgument(SQL_WITH_NAME_SUBSTRING_APPEND, "%" + nameSubstring.toLowerCase() + "%"));
+
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);
         strbSort.append(" order by ");

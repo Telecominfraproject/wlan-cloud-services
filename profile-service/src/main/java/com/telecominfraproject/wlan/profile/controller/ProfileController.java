@@ -143,11 +143,14 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
-    public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
-    		@RequestParam(required = false) ProfileType profileType, @RequestParam List<ColumnAndSort> sortBy,
+    public PaginationResponse<Profile> getForCustomer(
+    		@RequestParam int customerId,
+    		@RequestParam(required = false) ProfileType profileType,
+    		@RequestParam(required = false) String nameSubstring,
+    		@RequestParam List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
     	
-    	ProfileByCustomerRequest profileByCustomerRequest = profileByCustomerRequestFactory.create(customerId, profileType, sortBy, paginationContext);
+    	ProfileByCustomerRequest profileByCustomerRequest = profileByCustomerRequestFactory.create(customerId, profileType, nameSubstring, sortBy, paginationContext);
 
         LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
         		profileByCustomerRequest.getCustomerId(), profileByCustomerRequest.getPaginationContext().getLastReturnedPageNumber());

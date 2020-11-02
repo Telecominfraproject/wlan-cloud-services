@@ -109,17 +109,18 @@ public class ProfilePortalController  {
     @RequestMapping(value = "/profile/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Profile> getForCustomer(@RequestParam int customerId,
     		@RequestParam(required = false) ProfileType profileType,
+    		@RequestParam(required = false) String nameSubstring,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Profile> paginationContext) {
 
-        LOG.debug("Looking up Profiles for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up Profiles for customer {}", customerId);
 
         PaginationResponse<Profile> ret = new PaginationResponse<>();
 
         PaginationResponse<Profile> onePage = this.profileServiceInterface
                 .getForCustomer(customerId, 
-                		profileType, 
+                		profileType,
+                		nameSubstring,
                 		sortBy, 
                 		paginationContext);
         
