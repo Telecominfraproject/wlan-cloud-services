@@ -13,10 +13,11 @@ public class GreTunnelProfile extends ProfileDetails implements PushableConfigur
 
     private static final long serialVersionUID = 1981388698007511601L;
 
-    private String gre_ifname;
-    private InetAddress gre_local_inet_addr;
-    private InetAddress gre_remote_inet_addr;
-    private MacAddress gre_remote_mac_addr;
+    private String greTunnelName;
+    private String greParentIfName;
+    private InetAddress greLocalInetAddr;
+    private InetAddress greRemoteInetAddr;
+    private MacAddress greRemoteMacAddr;
 
     private GreTunnelProfile() {
 
@@ -26,43 +27,53 @@ public class GreTunnelProfile extends ProfileDetails implements PushableConfigur
         return new GreTunnelProfile();
     }
 
-    public String getGre_ifname() {
-        return gre_ifname;
+    
+    public String getGreTunnelName() {
+        return greTunnelName;
+    }
+
+    
+    public void setGreTunnelName(String greTunnelName) {
+        this.greTunnelName = greTunnelName;
+    }
+
+    public String getGreParentIfName() {
+        return greParentIfName;
     }
 
 
-    public void setGre_ifname(String gre_ifname) {
-        this.gre_ifname = gre_ifname;
+    public void setGreParentIfName(String gre_ifname) {
+        this.greParentIfName = gre_ifname;
     }
 
 
-    public InetAddress getGre_local_inet_addr() {
-        return gre_local_inet_addr;
+    public InetAddress getGreLocalInetAddr() {
+        return greLocalInetAddr;
     }
 
 
-    public void setGre_local_inet_addr(InetAddress gre_local_inet_addr) {
-        this.gre_local_inet_addr = gre_local_inet_addr;
+    public void setGreLocalInetAddr(InetAddress gre_local_inet_addr) {
+        this.greLocalInetAddr = gre_local_inet_addr;
     }
 
 
-    public InetAddress getGre_remote_inet_addr() {
-        return gre_remote_inet_addr;
+    public InetAddress getGreRemoteInetAddr() {
+        return greRemoteInetAddr;
     }
 
 
-    public void setGre_remote_inet_addr(InetAddress gre_remote_inet_addr) {
-        this.gre_remote_inet_addr = gre_remote_inet_addr;
+    public void setGreRemoteInetAddr(InetAddress gre_remote_inet_addr) {
+        this.greRemoteInetAddr = gre_remote_inet_addr;
     }
 
 
-    public MacAddress getGre_remote_mac_addr() {
-        return gre_remote_mac_addr;
+    public MacAddress getGreRemoteMacAddr() {
+        return greRemoteMacAddr;
     }
 
 
-    public void setGre_remote_mac_addr(MacAddress gre_remote_mac_addr) {
-        this.gre_remote_mac_addr = gre_remote_mac_addr;
+    public void setGreRemoteMacAddr(MacAddress gre_remote_mac_addr) {
+        this.greRemoteMacAddr = gre_remote_mac_addr;
     }
 
     @Override
@@ -84,7 +95,7 @@ public class GreTunnelProfile extends ProfileDetails implements PushableConfigur
 
     @Override
     public int hashCode() {
-        return Objects.hash(gre_ifname, gre_local_inet_addr, gre_remote_inet_addr, gre_remote_mac_addr);
+        return Objects.hash(greParentIfName, greLocalInetAddr, greRemoteInetAddr, greRemoteMacAddr);
     }
 
     @Override
@@ -96,10 +107,10 @@ public class GreTunnelProfile extends ProfileDetails implements PushableConfigur
             return false;
         }
         GreTunnelProfile other = (GreTunnelProfile) obj;
-        return Objects.equals(gre_ifname, other.gre_ifname)
-                && Objects.equals(gre_local_inet_addr, other.gre_local_inet_addr)
-                && Objects.equals(gre_remote_inet_addr, other.gre_remote_inet_addr)
-                && Objects.equals(gre_remote_mac_addr, other.gre_remote_mac_addr);
+        return Objects.equals(greParentIfName, other.greParentIfName)
+                && Objects.equals(greLocalInetAddr, other.greLocalInetAddr)
+                && Objects.equals(greRemoteInetAddr, other.greRemoteInetAddr)
+                && Objects.equals(greRemoteMacAddr, other.greRemoteMacAddr);
     }
 
 
