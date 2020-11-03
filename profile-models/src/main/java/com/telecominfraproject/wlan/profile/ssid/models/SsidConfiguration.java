@@ -48,6 +48,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     private Boolean noLocalSubnets;
     private String radiusServiceName;
+    private String radiusAccountingServiceName;
     private Long captivePortalId;
 
     private Integer bandwidthLimitDown;
@@ -445,12 +446,13 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return true;
     }
 
+
     @Override
     public int hashCode() {
-        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, clientBandwidthLimitDown,
-                clientBandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid, captivePortalId, enable80211w,
-                forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusServiceName, secureMode, ssid,
-                ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
+        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
+                captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
+                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName, radiusServiceName,
+                secureMode, ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
     }
 
     @Override
@@ -465,14 +467,15 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return Objects.equals(appliedRadios, other.appliedRadios)
                 && Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
                 && Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
-                && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
-                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
                 && Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
                 && broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
+                && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
+                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
                 && Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
                 && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
                 && Objects.equals(noLocalSubnets, other.noLocalSubnets)
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
+                && Objects.equals(radiusAccountingServiceName, other.radiusAccountingServiceName)
                 && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
@@ -496,6 +499,16 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public void setRadiusServiceName(String radiusServiceName) {
         this.radiusServiceName = radiusServiceName;
+    }
+
+    
+    public String getRadiusAccountingServiceName() {
+        return radiusAccountingServiceName;
+    }
+
+    
+    public void setRadiusAccountingServiceName(String radiusAccountingServiceName) {
+        this.radiusAccountingServiceName = radiusAccountingServiceName;
     }
 
     public static enum SecureMode {
