@@ -853,6 +853,8 @@ components:
             type: boolean
           radiusServiceName:
             type: string
+          radiusAccountingServiceName:
+            type: string
           captivePortalId:
             description: id of a CaptivePortalConfiguration profile, must be also added to the children of this profile
             type: integer
