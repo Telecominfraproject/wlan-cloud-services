@@ -1283,6 +1283,16 @@ components:
             type: boolean
           equipmentDiscovery:
             type: boolean
+          greTunnelName:
+            type: string
+          greParentIfName:
+            type: string
+          greLocalInetAddr:
+            type: string
+          greRemoteInetAddr:
+            type: string
+          greRemoteMacAddr:
+            $ref: '#/components/schemas/MacAddress'
           radioMap:
             $ref: '#/components/schemas/RadioProfileConfigurationMap'
 
