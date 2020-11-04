@@ -55,6 +55,7 @@ import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.NetworkForwardMode;
 import com.telecominfraproject.wlan.firmware.FirmwareServiceInterface;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings.TrackFlag;
@@ -129,6 +130,8 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
  */
 @Configuration
 public class AllInOneStartListener implements ApplicationRunner {
+
+    private static final String DEFAULT_KEYSTRING = "openwifi";
 
     private static final Logger LOG = LoggerFactory.getLogger(AllInOneStartListener.class);
 
@@ -261,7 +264,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         location_2 = locationServiceInterface.create(location_2);
 
-
         Profile profileRadius = new Profile();
         profileRadius.setCustomerId(customer.getId());
         profileRadius.setProfileType(ProfileType.radius);
@@ -339,20 +341,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
 
-        // Profile passpointHotspotConfig = null;
-        // Profile hotspot20IdProviderProfile2 = null;
-        // Profile hotspot20IdProviderProfile = null;
-        // Profile passpointOperatorProfile = null;
-        // Profile passpointVenueProfile = null;
-        // Profile profileSsidPsk = null;
-        // Profile profileSsidOsu = null;
-        // Profile hotspotProfileAp = null;
-        // createPasspointHotspot(customer, passpointHotspotConfig,
-        // passpointOperatorProfile, passpointVenueProfile,
-        // hotspot20IdProviderProfile, hotspot20IdProviderProfile2,
-        // profileSsidPsk, profileSsidOsu,
-        // hotspotProfileAp);
-
 
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
@@ -364,6 +352,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         appliedRadios_3_radios.add(RadioType.is5GHzU);
         ssidConfig_3_radios.setAppliedRadios(appliedRadios_3_radios);
         ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
+        ssidConfig_3_radios.setSecureMode(SecureMode.wpa2OnlyPSK);
+        ssidConfig_3_radios.setKeyStr(DEFAULT_KEYSTRING);
+        ssidConfig_3_radios.setForwardMode(NetworkForwardMode.BRIDGE);
         profileSsid_3_radios.setDetails(ssidConfig_3_radios);
         profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
@@ -433,22 +424,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         bonjourProfile.setDetails(bonjourGatewayConfig);
         bonjourProfile = profileServiceInterface.create(bonjourProfile);
 
-
-        Profile profileSsid_3_radios_plusBonjour = new Profile();
-        profileSsid_3_radios_plusBonjour.setCustomerId(customer.getId());
-        profileSsid_3_radios_plusBonjour.setName("TipWlan-3-radios-bonjour");
-        profileSsid_3_radios_plusBonjour.setProfileType(ProfileType.ssid);
-        SsidConfiguration ssidConfig_3_radios_plusBonjour = SsidConfiguration.createWithDefaults();
-        ssidConfig_3_radios_plusBonjour.setBonjourGatewayProfileId(bonjourProfile.getId());
-        ssidConfig_3_radios_plusBonjour.setVlanId(1);
-        profileSsid_3_radios_plusBonjour.getChildProfileIds().add(bonjourProfile.getId());
-        // reuse from existing 3 radio applied
-        ssidConfig_3_radios_plusBonjour.setAppliedRadios(appliedRadios_3_radios);
-        ssidConfig_3_radios_plusBonjour.setSsid("TipWlan-3-radios-bonjour");
-        profileSsid_3_radios_plusBonjour.setDetails(ssidConfig_3_radios_plusBonjour);
-        profileSsid_3_radios_plusBonjour = profileServiceInterface.create(profileSsid_3_radios_plusBonjour);
-
-
         Profile profileAp_3_radios = new Profile();
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
@@ -463,7 +438,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
-        // profileAp_3_radios.getChildProfileIds().add(profileSsidPsk.getId());
         profileAp_3_radios.getChildProfileIds().add(profileMetrics_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
@@ -479,7 +453,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
-        profileAp_2_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
+        // profileAp_2_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
@@ -770,7 +744,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         hotspotProfileAp = profileServiceInterface.create(hotspotProfileAp);
         return hotspotProfileAp;
 
-
     }
 
     protected Profile createPasspointRfProfile(Customer customer) {
@@ -943,7 +916,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         userRecord4.setUserMacAddresses(userMacAddresses4);
         userList.add(userRecord4);
 
-
         Path path = Paths.get("/tmp/tip-wlan-filestore/userList");
 
         try {
@@ -969,7 +941,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 e.printStackTrace();
 
             }
-
 
         }
 

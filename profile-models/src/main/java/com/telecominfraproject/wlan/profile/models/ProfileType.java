@@ -61,7 +61,6 @@ public class ProfileType implements EnumWithId {
     operator = new ProfileType(11, "operator"),
     venue = new ProfileType(12,"venue"),
     id_provider = new ProfileType(13,"id_provider"),  
-    gre_tunnel = new ProfileType(14,"gre_tunnel"),
     UNSUPPORTED = new ProfileType(-1, "UNSUPPORTED");
     
     static {
