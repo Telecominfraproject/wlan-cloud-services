@@ -18,7 +18,6 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
      * 
      */
     private static final long serialVersionUID = -4766966404203380604L;
-    private String domainName;
     // OSEN
     private boolean serverOnlyAuthenticatedL2EncryptionNetwork;
     private String x509CertificateLocation;
@@ -27,7 +26,6 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     private String defaultOperatorFriendlyNameFr = "Nom de l'opérateur convivial par défaut";
 
     private OperatorProfile() {
-        domainName = "telecominfraproject.atlassian.net";
         serverOnlyAuthenticatedL2EncryptionNetwork = false;
         x509CertificateLocation = "/etc/ca.pem";
         operatorFriendlyName = new HashSet<>();
@@ -48,17 +46,6 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     public ProfileType getProfileType() {
         return ProfileType.operator;
     }
-
-
-    public String getDomainName() {
-        return domainName;
-    }
-
-
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
-
 
     public boolean isServerOnlyAuthenticatedL2EncryptionNetwork() {
         return serverOnlyAuthenticatedL2EncryptionNetwork;
@@ -100,7 +87,6 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
     @Override
     public OperatorProfile clone() {
         OperatorProfile returnValue = (OperatorProfile) super.clone();
-        returnValue.domainName = this.domainName;
         if (this.operatorFriendlyName != null)
             returnValue.operatorFriendlyName = this.operatorFriendlyName;
         returnValue.serverOnlyAuthenticatedL2EncryptionNetwork = this.serverOnlyAuthenticatedL2EncryptionNetwork;
@@ -110,8 +96,7 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
 
     @Override
     public int hashCode() {
-        return Objects.hash(domainName, operatorFriendlyName, serverOnlyAuthenticatedL2EncryptionNetwork,
-                x509CertificateLocation);
+        return Objects.hash(operatorFriendlyName, serverOnlyAuthenticatedL2EncryptionNetwork, x509CertificateLocation);
     }
 
     @Override
@@ -123,8 +108,7 @@ public class OperatorProfile extends ProfileDetails implements PushableConfigura
             return false;
         }
         OperatorProfile other = (OperatorProfile) obj;
-        return Objects.equals(domainName, other.domainName)
-                && Objects.equals(operatorFriendlyName, other.operatorFriendlyName)
+        return Objects.equals(operatorFriendlyName, other.operatorFriendlyName)
                 && serverOnlyAuthenticatedL2EncryptionNetwork == other.serverOnlyAuthenticatedL2EncryptionNetwork
                 && Objects.equals(x509CertificateLocation, other.x509CertificateLocation);
     }

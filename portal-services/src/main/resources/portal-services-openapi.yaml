@@ -1968,8 +1968,6 @@ components:
             type: string
             enum:
             - OperatorProfile
-          domainName:
-            type: string
           serverOnlyAuthenticatedL2EncryptionNetwork:
             description: OSEN
             type: boolean
