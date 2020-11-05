@@ -16,6 +16,8 @@ servers:
     description: Local Dev server - opensync gateway
   - url: https://wlan-portal-svc.tip.lab.connectus.ai
   - url: https://wlan-portal-svc.zone3.lab.connectus.ai
+  - url: https://wlan-portal-svc.demo.lab.wlan.tip.build
+  
 
 tags:
 - name: Data Model Overview
@@ -134,6 +136,26 @@ components:
         value2:
           type: integer
           format: int64
+
+    PingResponse:
+      properties:
+        startupTime:
+          type: integer
+          format: int64
+        currentTime:
+          type: integer
+          format: int64
+        applicationName:
+          type: string
+        hostName:
+          type: string
+        commitID:
+          type: string
+        commitDate:
+          type: string
+        projectVersion:
+          type: string  
+          
 #
 # Customer data models
 #
@@ -11928,4 +11950,20 @@ paths:
                   $ref: '#/components/schemas/ServiceAdoptionMetrics'
         500:
           $ref: '#/components/responses/GenericApiError'          
+          
+  /ping:
+    get:
+      tags:
+      - Login
+      summary: Portal proces version info.
+      operationId: portalPing
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
           
