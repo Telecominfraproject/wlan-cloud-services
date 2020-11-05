@@ -2,8 +2,10 @@ package com.telecominfraproject.wlan.streams.equipmentalarms;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -122,6 +124,12 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
         		//When creating EquipmentAlarmsContext - read currently raised alarms of the types we're interested, keep it in memory.
 				//Only this SP is responsible for raising/clearing those alarms for this particular equipment				
 				List<Alarm> existingAlarms = alarmServiceInterface.get(customerId, Collections.singleton(equipmentId), alarmCodeSet);
+
+				//All alarms that are handled by this stream processor logically exist only once-per-alarmCode-per-equipment.
+				//Ensure that there is only one alarm per alarmCode per equipment (the latest one), remove all others.
+				//This is needed to recover from some corner-case scenarios that can happen with the distributed datastores (for example split-brain).
+				existingAlarms = cleanUpDuplicateAlarms(existingAlarms);
+
 				context = new EquipmentAlarmsContext(customerId, equipmentId, existingAlarms, timeBucketMs, temperatureThresholdInC, cpuUtilThresholdPct, memoryUtilThresholdPct);				
 				context = contextPerEquipmentIdMap.putIfAbsent(equipmentId, context);
 				if(context == null) {
@@ -147,7 +155,38 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 			LOG.debug("Processed {}", model);
 		}
 
-		private void process(BaseJsonModel model) {
+		private List<Alarm> cleanUpDuplicateAlarms(List<Alarm> existingAlarms) {
+
+		    Map<AlarmCode, Alarm> alarmsToKeep= new HashMap<>();
+
+		    //find out the latest existing alarms for each alarmCode
+		    existingAlarms.forEach(a -> {
+		        Alarm eA = alarmsToKeep.get(a.getAlarmCode());
+		        if(eA == null) {
+		            eA = a;
+		            alarmsToKeep.put(a.getAlarmCode(), a);
+		        }
+
+		        if(eA.getCreatedTimestamp() < a.getCreatedTimestamp() ) {
+		            alarmsToKeep.put(a.getAlarmCode(), a);
+		        }
+		    });
+
+            List<Alarm> alarmsToRemove = new ArrayList<>(existingAlarms);
+            alarmsToRemove.removeAll(alarmsToKeep.values());
+
+            alarmsToRemove.forEach(a -> {
+                try {
+                    alarmServiceInterface.delete(a.getCustomerId(), a.getEquipmentId(), a.getAlarmCode(), a.getCreatedTimestamp());
+                } catch(Exception e) {
+                    LOG.debug("Alarm was already deleted: {}", a);
+                }
+            });
+
+		    return new ArrayList<>(alarmsToKeep.values());
+        }
+
+        private void process(BaseJsonModel model) {
 			LOG.warn("Unprocessed model: {}", model);
 		}
 	    
@@ -194,7 +233,21 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 			                			//if alarm needs to be cleared - check if it is currently present, and if it is - clear it, and remove it from the context
 			                			Alarm alarm = context.getExistingAlarms().remove(alarmCode);
 			                			if(alarm!=null) {
-			                				alarmServiceInterface.delete(alarm.getCustomerId(), alarm.getEquipmentId(), alarm.getAlarmCode(), alarm.getCreatedTimestamp());			                				
+                                            //All alarms that are handled by this stream processor logically exist only once-per-alarmCode-per-equipment.
+                                            //In order to self-heal from the corner cases with the datastore where more than one alarm with the same alarmCode
+                                            //    is raised per equipment (for example when the datastore experienced a split-brain scenario), we would remove
+                                            //    all alarms with the specified alarmCode for this equipment.
+                                            //Most of the time the existingAlarms list below would contain only one alarm.
+                                            //
+                                            List<Alarm> existingAlarms = alarmServiceInterface.get(alarm.getCustomerId(), Collections.singleton(alarm.getEquipmentId()), Collections.singleton(alarmCode));
+                                            existingAlarms.forEach(a -> {
+                                                try {
+                                                    alarmServiceInterface.delete(a.getCustomerId(), a.getEquipmentId(), a.getAlarmCode(), a.getCreatedTimestamp());
+                                                } catch(Exception e) {
+                                                    LOG.debug("Alarm was already deleted: {}", alarm);
+                                                }
+
+                                            });
 			                			}
 			                		}
 			                	} catch(Exception e) {

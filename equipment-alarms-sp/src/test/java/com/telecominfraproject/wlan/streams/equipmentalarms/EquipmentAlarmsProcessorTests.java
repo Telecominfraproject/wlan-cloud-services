@@ -181,6 +181,61 @@ public class EquipmentAlarmsProcessorTests {
         
     }
     
+    @Test
+    public void testAccessPointIsUnreachableAlarm() {
+        int customerId = getNextCustomerId();
+        long equipmentId = getNextEquipmentId();
+
+        ServiceMetric record = new ServiceMetric(customerId , equipmentId );
+        //create metric a bit in the future so that it gets picked up by the processor and not simply discarded
+        record.setCreatedTimestamp(System.currentTimeMillis() + testTimeBucketMs);
+
+        ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
+        record.setDetails(apNodeMetrics);
+
+        ApPerformance apPerformance = new ApPerformance();
+        apNodeMetrics.setApPerformance(apPerformance);
+
+        apPerformance.setCpuTemperature(55);
+
+        //we will force the CPUUtilization alarm to be raised
+        apPerformance.setCpuUtilized(new int[] {  50, 50 });
+
+        apPerformance.setFreeMemory(30000000);
+
+        //publish metric that should not trigger AccessPointIsUnreachable alarm
+        metricStreamInterface.publish(record );
+
+        //wait for the metric to be processed
+        sleep(testTimeBucketMs);
+
+        //verify that alarm was not raised
+        List<Alarm> alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+        assertEquals(0, alarms.size());
+
+        //Now wait for the alarm to be raised because no metrics were posted
+        sleep(testTimeBucketMs);
+
+        //verify that alarm was raised
+        alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+        assertEquals(1, alarms.size());
+
+        //Now create a metric that should clear the alarm
+        ServiceMetric recordToClearAlarm = record.clone();
+        recordToClearAlarm.setCreatedTimestamp(System.currentTimeMillis() + testTimeBucketMs );
+
+        //publish metric that should clear the AccessPointIsUnreachable alarm
+        metricStreamInterface.publish(recordToClearAlarm);
+
+        //wait for the metric to be processed
+        sleep(testTimeBucketMs);
+
+        //verify that alarm was cleared
+        alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+        assertEquals(0, alarms.size());
+
+    }
+
     public int getNextCustomerId() {
         return (int) testSequence.incrementAndGet();
     }

@@ -33,6 +33,7 @@ public class EquipmentAlarmsContext {
 	private final Map<Long, Integer> cpuTempSamples = new ConcurrentHashMap<>();
 	private final Map<Long, Integer> cpuUtilSamples = new ConcurrentHashMap<>();
 	private final Map<Long, Integer> memoryUtilSamples = new ConcurrentHashMap<>();
+	private final Map<Long, Long> metricReceivedTimestamps = new ConcurrentHashMap<>();
 	
 	private long totalAvailableMemoryKb;
 	private final long contextCreationTimestampMs = System.currentTimeMillis(); 
@@ -84,6 +85,10 @@ public class EquipmentAlarmsContext {
 			}
 		}
 		
+		//we are using our own timestamp in here in case AP's time is out of sync - we do not want to raise connectivity alarm in that case
+		Long currentTs = System.currentTimeMillis();
+		metricReceivedTimestamps.put(currentTs, currentTs);
+
 	}
 
 	public void removeOldDataSamples() {
@@ -91,7 +96,8 @@ public class EquipmentAlarmsContext {
 		long timeThresholdMs = System.currentTimeMillis() - timeBucketMs;
 		cpuTempSamples.entrySet().removeIf( t -> t.getKey() < timeThresholdMs );
 		cpuUtilSamples.entrySet().removeIf( t -> t.getKey() < timeThresholdMs );
-		memoryUtilSamples.entrySet().removeIf( t -> t.getKey() < timeThresholdMs );		
+		memoryUtilSamples.entrySet().removeIf( t -> t.getKey() < timeThresholdMs );
+		metricReceivedTimestamps.entrySet().removeIf( t -> t.getKey() < timeThresholdMs );
 	}
 
 	public boolean isAlarmNeedsToBeRaised(AlarmCode alarmCode) {
@@ -107,7 +113,7 @@ public class EquipmentAlarmsContext {
 		
 		//check alarms against thresholds
 		if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
-			ret = cpuUtilSamples.isEmpty();
+			ret = metricReceivedTimestamps.isEmpty();
 		} else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
@@ -144,7 +150,7 @@ public class EquipmentAlarmsContext {
 		
 		//check alarms against thresholds
         if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
-			ret = !cpuUtilSamples.isEmpty();
+			ret = !metricReceivedTimestamps.isEmpty();
         } else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
 			if(count.get() > 0) {
