@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.profile.ssid.models;
 
+import java.net.InetAddress;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
@@ -65,6 +67,11 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private WepConfiguration wepConfig;
 
     private NetworkForwardMode forwardMode;
+    
+    private String greTunnelName;
+    private InetAddress greLocalInetAddr;
+    private InetAddress greRemoteInetAddr;
+    private MacAddress greRemoteMacAddr;
 
     /**
      * @return the noLocalSubnets
@@ -447,12 +454,15 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
 
+    
+
     @Override
     public int hashCode() {
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
-                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName, radiusServiceName,
-                secureMode, ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
+                greLocalInetAddr, greRemoteInetAddr, greRemoteMacAddr, greTunnelName, keyRefresh, keyStr,
+                noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName, radiusServiceName, secureMode, ssid,
+                ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
     }
 
     @Override
@@ -472,8 +482,11 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
                 && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
                 && Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
-                && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
-                && Objects.equals(noLocalSubnets, other.noLocalSubnets)
+                && Objects.equals(greLocalInetAddr, other.greLocalInetAddr)
+                && Objects.equals(greRemoteInetAddr, other.greRemoteInetAddr)
+                && Objects.equals(greRemoteMacAddr, other.greRemoteMacAddr)
+                && Objects.equals(greTunnelName, other.greTunnelName) && Objects.equals(keyRefresh, other.keyRefresh)
+                && Objects.equals(keyStr, other.keyStr) && Objects.equals(noLocalSubnets, other.noLocalSubnets)
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
                 && Objects.equals(radiusAccountingServiceName, other.radiusAccountingServiceName)
                 && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
@@ -627,6 +640,46 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
      */
     public void setForwardMode(NetworkForwardMode forwardMode) {
         this.forwardMode = forwardMode;
+    }
+
+    
+    public String getGreTunnelName() {
+        return greTunnelName;
+    }
+
+    
+    public void setGreTunnelName(String greTunnelName) {
+        this.greTunnelName = greTunnelName;
+    }
+
+    
+    public InetAddress getGreLocalInetAddr() {
+        return greLocalInetAddr;
+    }
+
+    
+    public void setGreLocalInetAddr(InetAddress greLocalInetAddr) {
+        this.greLocalInetAddr = greLocalInetAddr;
+    }
+
+    
+    public InetAddress getGreRemoteInetAddr() {
+        return greRemoteInetAddr;
+    }
+
+    
+    public void setGreRemoteInetAddr(InetAddress greRemoteInetAddr) {
+        this.greRemoteInetAddr = greRemoteInetAddr;
+    }
+
+    
+    public MacAddress getGreRemoteMacAddr() {
+        return greRemoteMacAddr;
+    }
+
+    
+    public void setGreRemoteMacAddr(MacAddress greRemoteMacAddr) {
+        this.greRemoteMacAddr = greRemoteMacAddr;
     }
 
     public Boolean getVideoTrafficOnly() {

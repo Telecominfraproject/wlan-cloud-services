@@ -26,11 +26,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     private Boolean ledControlEnabled;
     private Boolean equipmentDiscovery;
     
-    private String greTunnelName;
-    private String greParentIfName;
-    private InetAddress greLocalInetAddr;
-    private InetAddress greRemoteInetAddr;
-    private MacAddress greRemoteMacAddr;
 
     public CommonNetworkConfiguration() {
     }
@@ -138,11 +133,12 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     }
 
 
+   
+
     @Override
     public int hashCode() {
-        return Objects.hash(equipmentDiscovery, equipmentType, greLocalInetAddr, greParentIfName, greRemoteInetAddr,
-                greRemoteMacAddr, greTunnelName, ledControlEnabled, networkConfigVersion, ntpServer, rtlsSettings,
-                syntheticClientEnabled, syslogRelay, vlan, vlanNative);
+        return Objects.hash(equipmentDiscovery, equipmentType, ledControlEnabled, networkConfigVersion, ntpServer,
+                rtlsSettings, syntheticClientEnabled, syslogRelay, vlan, vlanNative);
     }
 
     @Override
@@ -156,11 +152,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         CommonNetworkConfiguration other = (CommonNetworkConfiguration) obj;
         return Objects.equals(equipmentDiscovery, other.equipmentDiscovery)
                 && Objects.equals(equipmentType, other.equipmentType)
-                && Objects.equals(greLocalInetAddr, other.greLocalInetAddr)
-                && Objects.equals(greParentIfName, other.greParentIfName)
-                && Objects.equals(greRemoteInetAddr, other.greRemoteInetAddr)
-                && Objects.equals(greRemoteMacAddr, other.greRemoteMacAddr)
-                && Objects.equals(greTunnelName, other.greTunnelName)
                 && Objects.equals(ledControlEnabled, other.ledControlEnabled)
                 && Objects.equals(networkConfigVersion, other.networkConfigVersion)
                 && Objects.equals(ntpServer, other.ntpServer) && Objects.equals(rtlsSettings, other.rtlsSettings)
@@ -193,57 +184,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         this.equipmentDiscovery = equipmentDiscovery;
     }
 
-    
-    public String getGreTunnelName() {
-        return greTunnelName;
-    }
-
-    
-    public void setGreTunnelName(String greTunnelName) {
-        this.greTunnelName = greTunnelName;
-    }
-
-    
-    public String getGreParentIfName() {
-        return greParentIfName;
-    }
-
-    
-    public void setGreParentIfName(String greParentIfName) {
-        this.greParentIfName = greParentIfName;
-    }
-
-    
-    public InetAddress getGreLocalInetAddr() {
-        return greLocalInetAddr;
-    }
-
-    
-    public void setGreLocalInetAddr(InetAddress greLocalInetAddr) {
-        this.greLocalInetAddr = greLocalInetAddr;
-    }
-
-    
-    public InetAddress getGreRemoteInetAddr() {
-        return greRemoteInetAddr;
-    }
-
-    
-    public void setGreRemoteInetAddr(InetAddress greRemoteInetAddr) {
-        this.greRemoteInetAddr = greRemoteInetAddr;
-    }
-
-    
-    public MacAddress getGreRemoteMacAddr() {
-        return greRemoteMacAddr;
-    }
-
-    
-    public void setGreRemoteMacAddr(MacAddress greRemoteMacAddr) {
-        this.greRemoteMacAddr = greRemoteMacAddr;
-    }
-
-    
     public Boolean getVlanNative() {
         return vlanNative;
     }
