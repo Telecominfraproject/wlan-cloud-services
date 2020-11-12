@@ -3332,8 +3332,6 @@ components:
           $ref: '#/components/schemas/RadioMode'
         mimoMode:
           $ref: '#/components/schemas/MimoMode'
-        wmmState:
-          $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
         maxNumClients:

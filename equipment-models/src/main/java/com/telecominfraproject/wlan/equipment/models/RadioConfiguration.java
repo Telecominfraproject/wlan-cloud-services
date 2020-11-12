@@ -25,7 +25,6 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     private RadioType radioType;
     private StateSetting radioAdminState;
     private Integer fragmentationThresholdBytes;
-    private StateSetting wmmState;
     private StateSetting uapsdState;
     private StateSetting stationIsolation;
     private SourceSelectionMulticast multicastRate;
@@ -71,8 +70,6 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         setStationIsolation(StateSetting.disabled);
         setUapsdState(StateSetting.enabled); // maps to "get radio wlan[0-1]
                                              // wme-apsd" on the AP
-        setWmmState(StateSetting.enabled); // maps to "get radio wlan[0-1] wme"
-                                           // on the AP
         setMulticastRate(SourceSelectionMulticast.createProfileInstance(
         		MulticastRate.auto));
         setManagementRate(SourceSelectionManagement.createProfileInstance(
@@ -110,8 +107,7 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
                 && this.legacyBSSRate == other.legacyBSSRate
                 && this.radioAdminState == other.radioAdminState
                 && this.radioType == other.radioType
-                && this.stationIsolation == other.stationIsolation && this.uapsdState == other.uapsdState
-                && this.wmmState == other.wmmState;
+                && this.stationIsolation == other.stationIsolation && this.uapsdState == other.uapsdState;
     }
     
     /**
@@ -161,17 +157,13 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         return uapsdState;
     }
 
-    public StateSetting getWmmState() {
-        return wmmState;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(
         		dtimPeriod, bestApSettings, deauthAttackDetection, multicastRate,
                 fragmentationThresholdBytes, legacyBSSRate, managementRate, 
                 radioAdminState, radioType, stationIsolation, 
-                uapsdState, wmmState);
+                uapsdState);
     }
 
     @Override
@@ -181,7 +173,6 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         }
         if (RadioType.isUnsupported(radioType) 
         		|| StateSetting.isUnsupported(radioAdminState)
-                || StateSetting.isUnsupported(wmmState)
                 || StateSetting.isUnsupported(uapsdState) 
                 || StateSetting.isUnsupported(stationIsolation)
                 || SourceSelectionMulticast.hasUnsupportedValue(multicastRate)
@@ -248,10 +239,6 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
 
     public void setUapsdState(StateSetting uapsdState) {
         this.uapsdState = uapsdState;
-    }
-
-    public void setWmmState(StateSetting wmmState) {
-        this.wmmState = wmmState;
     }
 
 }

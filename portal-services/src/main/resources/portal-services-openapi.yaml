@@ -874,8 +874,6 @@ components:
         fragmentationThresholdBytes:
           type: integer
           format: int32
-        wmmState:
-          $ref: '#/components/schemas/StateSetting'
         uapsdState:
           $ref: '#/components/schemas/StateSetting'
         stationIsolation:
