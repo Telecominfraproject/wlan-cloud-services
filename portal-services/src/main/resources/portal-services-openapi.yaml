@@ -2209,6 +2209,8 @@ components:
         password:
           type: string
           default: support
+        refreshToken:
+          type: string
       example:
         userId: support@example.com
         password: support
@@ -2242,6 +2244,8 @@ components:
         access_token:
           type: string
         refresh_token:
+          type: string
+        id_token:
           type: string
         token_type:
           type: string
