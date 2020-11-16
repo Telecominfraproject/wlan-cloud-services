@@ -45,7 +45,7 @@ public class LocationDetails extends BaseJsonModel {
     private LocationDetails()
     {
         // use static builders
-        this.countryCode = CountryCode.usa;
+        this.countryCode = CountryCode.US;
         this.rrmEnabled = true;
         this.dailyActivityDetails = createDefaultActivityDetails();
     }

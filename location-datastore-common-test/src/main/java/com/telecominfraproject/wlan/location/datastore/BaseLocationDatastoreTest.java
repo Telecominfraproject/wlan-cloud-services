@@ -48,7 +48,7 @@ public abstract class BaseLocationDatastoreTest {
         location.setLocationType(LocationType.SITE);
         location.setCustomerId(customerSequence.getAndIncrement());
         location.setName("testName");
-        location.setDetails(generateDetails(CountryCode.ca));
+        location.setDetails(generateDetails(CountryCode.CA));
         
         Location ret = testInterface.create(location);
         //check that id got auto-assigned
@@ -63,7 +63,7 @@ public abstract class BaseLocationDatastoreTest {
         location.setLocationType(LocationType.FLOOR);
         location.setCustomerId(customerSequence.getAndIncrement());
         location.setName("testName_updated");
-        location.setDetails(generateDetails(CountryCode.usa));
+        location.setDetails(generateDetails(CountryCode.US));
 
         Location retFromUpdate = testInterface.update(location);
         assertFieldEquals(location, retFromUpdate);
@@ -103,7 +103,7 @@ public abstract class BaseLocationDatastoreTest {
             location.setLocationType(LocationType.SITE);
             location.setCustomerId(customerId_1);
             location.setName("testName_"+i);
-            location.setDetails(generateDetails(CountryCode.usa));
+            location.setDetails(generateDetails(CountryCode.US));
             
             Location ret = testInterface.create(location);
             //check that id got auto-assigned
@@ -377,7 +377,7 @@ public abstract class BaseLocationDatastoreTest {
        location.setCustomerId(10);
        location.setLocationType(LocationType.BUILDING);
        location.setName(UUID.randomUUID().toString());
-       location.setDetails(generateDetails(CountryCode.usa));
+       location.setDetails(generateDetails(CountryCode.US));
 
        return location;
     }

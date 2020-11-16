@@ -52,7 +52,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
         location.setLocationType(LocationType.SITE);
         location.setCustomerId(getNextCustomerId());
         location.setName("testName");
-        location.setDetails(generateDetails(CountryCode.ca));
+        location.setDetails(generateDetails(CountryCode.CA));
         
         Location ret = testInterface.create(location);
         //check that id got auto-assigned
@@ -67,7 +67,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
         location.setLocationType(LocationType.FLOOR);
         location.setCustomerId(getNextCustomerId());
         location.setName("testName_updated");
-        location.setDetails(generateDetails(CountryCode.usa));
+        location.setDetails(generateDetails(CountryCode.US));
 
         Location retFromUpdate = testInterface.update(location);
         assertFieldEquals(location, retFromUpdate);
@@ -107,7 +107,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
             equipmentLocationRecord.setLocationType(LocationType.SITE);
             equipmentLocationRecord.setCustomerId(customerId_1);
             equipmentLocationRecord.setName("testName_"+i);
-            equipmentLocationRecord.setDetails(generateDetails(CountryCode.usa));
+            equipmentLocationRecord.setDetails(generateDetails(CountryCode.US));
             
             Location ret = testInterface.create(equipmentLocationRecord);
             //check that id got auto-assigned
@@ -374,7 +374,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
        location.setCustomerId(10);
        location.setLocationType(LocationType.BUILDING);
        location.setName(UUID.randomUUID().toString());
-       location.setDetails(generateDetails(CountryCode.usa));
+       location.setDetails(generateDetails(CountryCode.US));
 
        return location;
     }

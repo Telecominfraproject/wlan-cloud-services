@@ -210,7 +210,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         location_1.setLocationType(LocationType.SITE);
         location_1.setName("Menlo Park");
         location_1.setDetails(LocationDetails.createWithDefaults());
-        location_1.getDetails().setCountryCode(CountryCode.usa);
+        location_1.getDetails().setCountryCode(CountryCode.US);
 
         location_1 = locationServiceInterface.create(location_1);
 
@@ -260,7 +260,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         location_2.setLocationType(LocationType.SITE);
         location_2.setName("Ottawa");
         location_2.setDetails(LocationDetails.createWithDefaults());
-        location_2.getDetails().setCountryCode(CountryCode.ca);
+        location_2.getDetails().setCountryCode(CountryCode.CA);
 
         location_2 = locationServiceInterface.create(location_2);
 
