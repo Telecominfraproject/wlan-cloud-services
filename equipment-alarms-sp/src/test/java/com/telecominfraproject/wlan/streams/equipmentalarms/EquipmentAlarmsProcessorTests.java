@@ -217,7 +217,14 @@ public class EquipmentAlarmsProcessorTests {
         sleep(testTimeBucketMs);
 
         //verify that alarm was raised
-        alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+        for(int i = 0; i < 50; i++) {
+            alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+            if(!alarms.isEmpty()) {
+                break;
+            }else {
+                sleep(5);
+            }
+        }
         assertEquals(1, alarms.size());
 
         //Now create a metric that should clear the alarm
@@ -231,7 +238,14 @@ public class EquipmentAlarmsProcessorTests {
         sleep(testTimeBucketMs);
 
         //verify that alarm was cleared
-        alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+        for(int i = 0; i < 50; i++) {
+            alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
+            if(alarms.isEmpty()) {
+                break;
+            }else {
+                sleep(5);
+            }
+        }
         assertEquals(0, alarms.size());
 
     }
