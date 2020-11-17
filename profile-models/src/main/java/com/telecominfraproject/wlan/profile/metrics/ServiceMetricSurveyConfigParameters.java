@@ -5,17 +5,17 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConfigParameters {
+public class ServiceMetricSurveyConfigParameters extends ServiceMetricsCommonConfigParameters {
 
     /**
      * 
      */
     private static final long serialVersionUID = -4922288870505360355L;
-    private ChannelUtilizationSurveyType channelSurveyType;
+    private ServiceMetricsChannelUtilizationSurveyType channelSurveyType;
     private int scanIntervalMillis;
     private int percentUtilizationThreshold;
     private int delayMillisecondsThreshold;
-    private StatsReportFormat statsReportFormat;
+    private ServiceMetricsStatsReportFormat serviceMetricsStatsReportFormat;
     private RadioType radioType;
     private ServiceMetricDataType serviceMetricDataType;
 
@@ -30,12 +30,12 @@ public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConf
     }
 
 
-    public ChannelUtilizationSurveyType getChannelSurveyType() {
+    public ServiceMetricsChannelUtilizationSurveyType getChannelSurveyType() {
         return channelSurveyType;
     }
 
 
-    public void setChannelSurveyType(ChannelUtilizationSurveyType channelSurveyType) {
+    public void setChannelSurveyType(ServiceMetricsChannelUtilizationSurveyType channelSurveyType) {
         this.channelSurveyType = channelSurveyType;
     }
 
@@ -69,12 +69,12 @@ public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConf
         this.delayMillisecondsThreshold = delayMillisecondsThreshold;
     }
 
-    public StatsReportFormat getStatsReportFormat() {
-        return statsReportFormat;
+    public ServiceMetricsStatsReportFormat getStatsReportFormat() {
+        return serviceMetricsStatsReportFormat;
     }
 
-    public void setStatsReportFormat(StatsReportFormat statsReportFormat) {
-        this.statsReportFormat = statsReportFormat;
+    public void setStatsReportFormat(ServiceMetricsStatsReportFormat serviceMetricsStatsReportFormat) {
+        this.serviceMetricsStatsReportFormat = serviceMetricsStatsReportFormat;
     }
 
     public void setRadioType(RadioType radioType) {
@@ -123,7 +123,7 @@ public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConf
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Objects.hash(channelSurveyType, delayMillisecondsThreshold,
-                percentUtilizationThreshold, radioType, scanIntervalMillis, serviceMetricDataType, statsReportFormat);
+                percentUtilizationThreshold, radioType, scanIntervalMillis, serviceMetricDataType, serviceMetricsStatsReportFormat);
         return result;
     }
 
@@ -144,7 +144,7 @@ public class ServiceMetricSurveyConfigParameters extends CommonServiceMetricConf
                 && percentUtilizationThreshold == other.percentUtilizationThreshold && radioType == other.radioType
                 && scanIntervalMillis == other.scanIntervalMillis
                 && Objects.equals(serviceMetricDataType, other.serviceMetricDataType)
-                && statsReportFormat == other.statsReportFormat;
+                && serviceMetricsStatsReportFormat == other.serviceMetricsStatsReportFormat;
     }
 
     @Override

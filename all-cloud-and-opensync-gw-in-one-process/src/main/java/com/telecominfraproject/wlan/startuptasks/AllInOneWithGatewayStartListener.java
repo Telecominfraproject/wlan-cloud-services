@@ -244,7 +244,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 
         Profile profileMetrics_3_radios = new Profile();
         profileMetrics_3_radios.setCustomerId(customer.getId());
-        profileMetrics_3_radios.setProfileType(ProfileType.metrics);
+        profileMetrics_3_radios.setProfileType(ProfileType.service_metrics_collection_config);
         profileMetrics_3_radios.setName("Metrics-Profile-3-radios");
         Set<RadioType> profileMetrics_3_radioTypes = new HashSet<>();
         profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
@@ -264,7 +264,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
         
         Profile profileMetrics_2_radios = new Profile();
         profileMetrics_2_radios.setCustomerId(customer.getId());
-        profileMetrics_2_radios.setProfileType(ProfileType.metrics);
+        profileMetrics_2_radios.setProfileType(ProfileType.service_metrics_collection_config);
         profileMetrics_2_radios.setName("Metrics-Profile-2-radios");
         Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
         profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);

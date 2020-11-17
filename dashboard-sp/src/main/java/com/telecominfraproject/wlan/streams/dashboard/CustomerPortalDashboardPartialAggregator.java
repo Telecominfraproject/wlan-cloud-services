@@ -29,7 +29,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
  * @author dtop
  * 
  *         <br>
- *         This stream processor is listening for events and metrics related to the counters displayed on the portal dashboards. It performs
+ *         This stream processor is listening for events and service_metrics_collection_config related to the counters displayed on the portal dashboards. It performs
  *         aggregation of raw data at configured intervals. <br>
  *         Each instance of this SP will aggregate a subset of counters for a portion of all customer equipment (non-overlapping subsets), it will post results of that
  *         aggregation directly into a separate kafka queue (customer_events) as CustomerPortalDashboardPartialEvent, partitioned only by customerId. <br>

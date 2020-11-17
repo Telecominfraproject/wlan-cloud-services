@@ -75,7 +75,7 @@ public class SystemEventController {
     public GenericResponse createBulk(@RequestBody List<SystemEventRecord> systemEvents ) {
 
     	if(systemEvents==null || systemEvents.isEmpty()) {
-    		return new GenericResponse(true, "empty metrics list");
+    		return new GenericResponse(true, "empty service_metrics_collection_config list");
     	}
     	
         LOG.debug("Creating SystemEventRecords {}", systemEvents.size());

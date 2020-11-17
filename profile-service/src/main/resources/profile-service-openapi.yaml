@@ -959,6 +959,362 @@ components:
       enum:
       - wep64
       - wep128
+      
+    PasspointOsuProviderProfile:
+      description: Properties for the id_provider profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - PasspointOsuProviderProfile
+          domainName:
+            type: string
+          PasspointMccMncList:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointMccMnc'
+          naiRealmList:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointNaiRealmInformation'
+          PasspointOsuIconList:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointOsuIcon'
+          osuSsid:
+            type: string
+          osuServerUri:
+            type: string
+          radiusProfileAuth:
+            type: string
+          radiusProfileAccounting:
+            type: string
+          osuFriendlyName:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointDuple'  
+          osuNaiStandalone:
+            type: string
+          osuNaiShared:
+            type: string
+          osuMethodList:
+            type: integer
+            format: int32
+          osuServiceDescription:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointDuple'
+          roamingOi:
+            type: array
+            items:
+              type: integer
+              format: int8
+   
+    PasspointMccMnc:
+      description: pair of mobile country code and mobile network code values 
+      type: object
+      properties:
+        mcc:
+          type: integer
+          format: int32
+        mnc:
+          type: integer
+          format: int32
+        iso:
+          type: string
+        country: 
+          type: string
+        countryCode:
+          type: integer
+          format: int32
+        network:
+          type: string
+
+    PasspointNaiRealmInformation:
+      description: encoded 
+      type: object
+      properties:
+        naiRealms:
+          type: array
+          items:
+            type: string
+        encoding:
+          type: integer
+          format: int32
+        eapMethods:
+          type: array
+          items:
+            type: string
+        eapMap:
+          type: object
+          items:
+            type: array
+            items:
+              type: string
+                
+    PasspointOsuIcon:
+      description: properties of icons for osu provider and operator
+      type: object
+      properties:
+        iconWidth:
+          type: integer
+          format: int32
+        iconHeight:
+          type: integer
+          format: int32
+        languageCode:
+          type: string
+        iconLocale:
+          description: The primary locale for this Icon.
+          example: en-US
+          format: locale
+          type: string
+        iconName:
+          type: string
+        filePath:
+          type: string
+        imageUrl:
+          type: string
+        ICON_TYPE:
+          type: string
+          enum:
+            - image/png
+           
+    PasspointDuple:
+      description: representation of a duple value used to map duples in the passpoint configurations where a lang:string is required
+      type: object
+      properties:
+        locale:
+          description: The locale for this duple.
+          example: en-US
+          format: locale
+          type: string
+        dupleIso3Language:
+          description: 3 letter iso language representation based on locale
+          type: string
+        dupleName:
+          type: string
+        defaultDupleSeparator:
+          description: default separator between the values of a duple, by default it is a ':'
+          type: string  
+             
+    PasspointOperatorProfile:
+      description: Properties for the operator profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - PasspointOperatorProfile
+          serverOnlyAuthenticatedL2EncryptionNetwork:
+            description: OSEN
+            type: boolean
+          operatorFriendlyName:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointDuple'
+          defaultOperatorFriendlyName:
+            type: string
+          defaultOperatorFriendlyNameFr:
+            type: string
+
+    PasspointVenueProfile:
+      description: Properties for the venue profile.
+      allOf:
+      - $ref: '#/components/schemas/ProfileDetails'
+      - type: object
+        properties:
+          model_type:
+            type: string
+            enum:
+            - PasspointVenueProfile
+          passpointVenueNameSet:
+            type: array
+            items:
+              $ref: '#/components/schemas/PasspointVenueName'
+          passpointVenueTypeAssignment:
+            type: object
+            items:                    
+              $ref: '#/components/schemas/PasspointVenueTypeAssignment'
+
+    PasspointVenueName:
+       description: PasspointVenueName object.
+       type: object
+       properties:
+         venueUrl:
+           type: string
+               
+    PasspointVenueTypeAssignment:
+      description: VenueType assignment.
+      type: object
+      properties: 
+        venueDescription:
+          type: string
+        venueGroupId:
+          type: integer
+          format: int32
+        venueTypeId:
+          type: integer
+          format: int32
+
+    PasspointProfile:
+       description: Properties for the PasspointProfile profile.
+       allOf:
+        - $ref: '#/components/schemas/ProfileDetails'
+        - type: object
+          properties:
+            model_type:
+              type: string
+              enum:
+              - PasspointProfile
+            enableInterworkingAndHs20:
+              type: boolean
+            additionalStepsRequiredForAccess:
+              type: integer
+              format: int32
+            deauthRequestTimeout:
+              type: integer
+              format: int32
+            operatingClass:
+              type: integer
+              format: int32
+            termsAndConditionsFile:
+              $ref: '#/components/schemas/ManagedFileInfo'
+            whitelistDomain:
+              type: string
+            emergencyServicesReachable:
+              type: boolean
+            unauthenticatedEmergencyServiceAccessible:
+              type: boolean
+            internetConnectivity:
+              type: boolean
+            ipAddressTypeAvailability:
+              oneOf:
+                - $ref: '#/components/schemas/PasspointIPv4AddressType'
+                - $ref: '#/components/schemas/PasspointIPv6AddressType'
+            qosMapSetConfiguration:
+              type: array
+              items:
+                type: string 
+            hessid:
+              $ref: '#/components/schemas/MacAddress'
+            apGeospatialLocation:
+              type: string
+            apCivicLocation:
+              type: string
+            anqpDomainId: 
+              type: integer
+              format: int32
+            disableDownstreamGroupAddressedForwarding:
+              type: boolean   
+            enable2pt4GHz:
+              type: boolean               
+            enable5GHz:  
+              type: boolean   
+            associatedAccessSsidNames:
+              type: array
+              items:
+                type: string
+            osuSsidName:
+              type: string
+            PasspointOperatorProfileName:
+              type: string
+            PasspointVenueProfileName:
+              type: string
+            idProviderProfileNames:
+              type: array
+              items:
+                type: string
+            apPublicLocationIdUri:
+              format: uri
+              type: string     
+            accessNetworkType:
+              $ref: '#/components/schemas/PasspointAccessNetworkType'
+            networkAuthenticationType:
+              $ref: '#/components/schemas/PasspointNetworkAuthenticationType'             
+            connectionCapabilitySet:
+               type: array
+               items:
+                  $ref: '#/components/schemas/PasspointConnectionCapability'   
+            gasAddr3Behaviour:
+               $ref: '#/components/schemas/PasspointGasAddress3Behaviour'        
+
+    PasspointIPv4AddressType:
+      type: string
+      enum:
+        - address_type_not_available
+        - public_IPv4_address_available
+        - port_restricted_IPv4_address_available
+        - single_NATed_private_IPv4_address_available
+        - double_NATed_private_IPv4_address_available
+        - port_restricted_IPv4_address_and_single_NATed_IPv4_address_available
+        - port_restricted_IPv4_address_and_double_NATed_IPv4_address_available
+        - availability_of_the_address_type_is_unknown
+
+    PasspointIPv6AddressType:
+      type: string
+      enum:
+        - address_type_not_available
+        - address_type_available
+        - availability_of_the_address_type_is_unknown
+           
+    PasspointAccessNetworkType:
+      type: string
+      enum:
+        - private_network
+        - private_network_guest_access
+        - changeable_public_network
+        - free_public_network
+        - person_device_network
+        - emergency_services_only_network
+        - test_or_experimental
+        - wildcard
+        
+    PasspointNetworkAuthenticationType:
+      type: string
+      enum:
+        - acceptance_of_terms_and_conditions
+        - online_enrollment_supported
+        - http_https_redirection
+        - dns_redirection
+        
+    PasspointConnectionCapability:
+      description: VenueType assignment.
+      type: object
+      properties: 
+        connectionCapabilitiesPortNumber:
+          type: integer
+          format: int32
+        connectionCapabilitiesIpProtocol:
+          $ref: '#/components/schemas/PasspointConnectionCapabilitiesIpProtocol'
+        connectionCapabilitiesStatus:
+          $ref: '#/components/schemas/PasspointConnectionCapabilitiesStatus'
+
+    PasspointConnectionCapabilitiesIpProtocol:
+      type: string
+      enum:
+        - ICMP
+        - TCP
+        - UDP
+    
+    PasspointConnectionCapabilitiesStatus:
+      type: string
+      enum:
+        - closed
+        - open
+        - unknown   
+
+    PasspointGasAddress3Behaviour:                
+      type: string
+      enum:
+        - p2pSpecWorkaroundFromRequest
+        - ieee80211StandardCompliantOnly
+        - forceNonCompliantBehaviourFromRequest      
 
 #
 # Objects related to pagination

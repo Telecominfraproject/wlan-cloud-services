@@ -83,7 +83,7 @@ public class ServiceMetricController {
     public GenericResponse createBulk(@RequestBody List<ServiceMetric> serviceMetrics ) {
 
     	if(serviceMetrics==null || serviceMetrics.isEmpty()) {
-    		return new GenericResponse(true, "empty metrics list");
+    		return new GenericResponse(true, "empty service_metrics_collection_config list");
     	}
     	
         LOG.debug("Creating ServiceMetrics {}", serviceMetrics.size());

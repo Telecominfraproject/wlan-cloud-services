@@ -38,7 +38,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.get(year, equipmentIds));
 
-        LOG.debug("Got {} adoption metrics for {} equipment {}", ret.size(), year, equipmentIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} equipment {}", ret.size(), year, equipmentIds);
         
         return ret;
     }
@@ -48,7 +48,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.getAggregatePerLocationPerDay(year, locationIds));
 
-        LOG.debug("Got {} adoption metrics for {} locations {}", ret.size(), year, locationIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} locations {}", ret.size(), year, locationIds);
         
         return ret;
     }
@@ -58,7 +58,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.getAggregatePerCustomerPerDay(year, customerIds));
 
-        LOG.debug("Got {} adoption metrics for {} customers {}", ret.size(), year, customerIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} customers {}", ret.size(), year, customerIds);
         
         return ret;
     }
@@ -68,7 +68,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.getAllPerMonth(year));
 
-        LOG.debug("Got {} adoption metrics per month for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per month for {}", ret.size(), year);
         
         return ret;
     }
@@ -78,7 +78,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.getAllPerWeek(year));
 
-        LOG.debug("Got {} adoption metrics per week for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per week for {}", ret.size(), year);
         
         return ret;
     }
@@ -88,7 +88,7 @@ public class AdoptionMetricsPortalController  {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsInterface.getAllPerDay(year));
 
-        LOG.debug("Got {} adoption metrics per day for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per day for {}", ret.size(), year);
         
         return ret;
     }

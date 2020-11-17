@@ -49,7 +49,7 @@ tags:
 - name: Profile
   description: |
     Profiles for various services can be associated with equipment and with other profiles.
-    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Hotspot20 Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Hotspot20 Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
+    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
 - name: Status
   description: |
     Status for the network and individual equipment.
@@ -1203,13 +1203,13 @@ components:
         - mesh
         - metrics
         - rf
-        - hotspot_2pt0
-        - operator
-        - venue
-        - id_provider
+        - passpoint
+        - passpoint_operator
+        - passpoint_venue
+        - passpoint_osu_id_provider
 
     Profile:
-      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Hotspot20 Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Hotspot20 Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
+      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
       type: object
       properties:
         id:
@@ -1257,10 +1257,10 @@ components:
           - RadiusProfile
           - SsidConfiguration
           - RfConfiguration
-          - Hotspot20IdProviderProfile
-          - Hotspot2Profile
-          - OperatorProfile
-          - VenueProfile
+          - PasspointOsuProviderProfile
+          - PasspointProfile
+          - PasspointOperatorProfile
+          - PasspointVenueProfile
           - ServiceMetricsCollectionConfigProfile
       required: 
         - model_type
@@ -1274,10 +1274,10 @@ components:
         - $ref: '#/components/schemas/RadiusProfile'
         - $ref: '#/components/schemas/SsidConfiguration'
         - $ref: '#/components/schemas/RfConfiguration'
-        - $ref: '#/components/schemas/Hotspot20IdProviderProfile'
-        - $ref: '#/components/schemas/Hotspot2Profile'
-        - $ref: '#/components/schemas/OperatorProfile'
-        - $ref: '#/components/schemas/VenueProfile'
+        - $ref: '#/components/schemas/PasspointOsuProviderProfile'
+        - $ref: '#/components/schemas/PasspointProfile'
+        - $ref: '#/components/schemas/PasspointOperatorProfile'
+        - $ref: '#/components/schemas/PasspointVenueProfile'
         - $ref: '#/components/schemas/ServiceMetricsCollectionConfigProfile'
         
       discriminator:
@@ -2084,7 +2084,7 @@ components:
         - PERCENTILE
         - AVERAGE
           
-    Hotspot20IdProviderProfile:
+    PasspointOsuProviderProfile:
       description: Properties for the id_provider profile.
       allOf:
       - $ref: '#/components/schemas/ProfileDetails'
@@ -2093,21 +2093,21 @@ components:
           model_type:
             type: string
             enum:
-            - Hotspot20IdProviderProfile
+            - PasspointOsuProviderProfile
           domainName:
             type: string
-          mccMncList:
+          PasspointMccMncList:
             type: array
             items:
-              $ref: '#/components/schemas/MccMnc'
+              $ref: '#/components/schemas/PasspointMccMnc'
           naiRealmList:
             type: array
             items:
-              $ref: '#/components/schemas/NaiRealmInformation'
-          osuIconList:
+              $ref: '#/components/schemas/PasspointNaiRealmInformation'
+          PasspointOsuIconList:
             type: array
             items:
-              $ref: '#/components/schemas/OsuIcon'
+              $ref: '#/components/schemas/PasspointOsuIcon'
           osuSsid:
             type: string
           osuServerUri:
@@ -2119,7 +2119,7 @@ components:
           osuFriendlyName:
             type: array
             items:
-              $ref: '#/components/schemas/Hotspot20Duple'  
+              $ref: '#/components/schemas/PasspointDuple'  
           osuNaiStandalone:
             type: string
           osuNaiShared:
@@ -2130,14 +2130,14 @@ components:
           osuServiceDescription:
             type: array
             items:
-              $ref: '#/components/schemas/Hotspot20Duple'
+              $ref: '#/components/schemas/PasspointDuple'
           roamingOi:
             type: array
             items:
               type: integer
               format: int8
    
-    MccMnc:
+    PasspointMccMnc:
       description: pair of mobile country code and mobile network code values 
       type: object
       properties:
@@ -2157,7 +2157,7 @@ components:
         network:
           type: string
 
-    NaiRealmInformation:
+    PasspointNaiRealmInformation:
       description: encoded 
       type: object
       properties:
@@ -2179,7 +2179,7 @@ components:
             items:
               type: string
                 
-    OsuIcon:
+    PasspointOsuIcon:
       description: properties of icons for osu provider and operator
       type: object
       properties:
@@ -2207,8 +2207,8 @@ components:
           enum:
             - image/png
            
-    Hotspot20Duple:
-      description: representation of a duple value used to map duples in the hotspot configurations where a lang:string is required
+    PasspointDuple:
+      description: representation of a duple value used to map duples in the passpoint configurations where a lang:string is required
       type: object
       properties:
         locale:
@@ -2225,7 +2225,7 @@ components:
           description: default separator between the values of a duple, by default it is a ':'
           type: string  
              
-    OperatorProfile:
+    PasspointOperatorProfile:
       description: Properties for the operator profile.
       allOf:
       - $ref: '#/components/schemas/ProfileDetails'
@@ -2234,20 +2234,20 @@ components:
           model_type:
             type: string
             enum:
-            - OperatorProfile
+            - PasspointOperatorProfile
           serverOnlyAuthenticatedL2EncryptionNetwork:
             description: OSEN
             type: boolean
           operatorFriendlyName:
             type: array
             items:
-              $ref: '#/components/schemas/Hotspot20Duple'
+              $ref: '#/components/schemas/PasspointDuple'
           defaultOperatorFriendlyName:
             type: string
           defaultOperatorFriendlyNameFr:
             type: string
 
-    VenueProfile:
+    PasspointVenueProfile:
       description: Properties for the venue profile.
       allOf:
       - $ref: '#/components/schemas/ProfileDetails'
@@ -2256,24 +2256,24 @@ components:
           model_type:
             type: string
             enum:
-            - VenueProfile
-          venueNameSet:
+            - PasspointVenueProfile
+          passpointVenueNameSet:
             type: array
             items:
-              $ref: '#/components/schemas/VenueName'
-          venueTypeAssignment:
+              $ref: '#/components/schemas/PasspointVenueName'
+          passpointVenueTypeAssignment:
             type: object
             items:                    
-              $ref: '#/components/schemas/VenueTypeAssignment'
+              $ref: '#/components/schemas/PasspointVenueTypeAssignment'
 
-    VenueName:
-       description: VenueName object.
+    PasspointVenueName:
+       description: PasspointVenueName object.
        type: object
        properties:
          venueUrl:
            type: string
                
-    VenueTypeAssignment:
+    PasspointVenueTypeAssignment:
       description: VenueType assignment.
       type: object
       properties: 
@@ -2286,8 +2286,8 @@ components:
           type: integer
           format: int32
 
-    Hotspot2Profile:
-       description: Properties for the Hotspot2Profile profile.
+    PasspointProfile:
+       description: Properties for the PasspointProfile profile.
        allOf:
         - $ref: '#/components/schemas/ProfileDetails'
         - type: object
@@ -2295,7 +2295,7 @@ components:
             model_type:
               type: string
               enum:
-              - Hotspot2Profile
+              - PasspointProfile
             enableInterworkingAndHs20:
               type: boolean
             additionalStepsRequiredForAccess:
@@ -2319,8 +2319,8 @@ components:
               type: boolean
             ipAddressTypeAvailability:
               oneOf:
-                - $ref: '#/components/schemas/IPv4PasspointAddressType'
-                - $ref: '#/components/schemas/IPv6PasspointAddressType'
+                - $ref: '#/components/schemas/PasspointIPv4AddressType'
+                - $ref: '#/components/schemas/PasspointIPv6AddressType'
             qosMapSetConfiguration:
               type: array
               items:
@@ -2346,9 +2346,9 @@ components:
                 type: string
             osuSsidName:
               type: string
-            operatorProfileName:
+            PasspointOperatorProfileName:
               type: string
-            venueProfileName:
+            PasspointVenueProfileName:
               type: string
             idProviderProfileNames:
               type: array
@@ -2358,17 +2358,17 @@ components:
               format: uri
               type: string     
             accessNetworkType:
-              $ref: '#/components/schemas/AccessNetworkType'
+              $ref: '#/components/schemas/PasspointAccessNetworkType'
             networkAuthenticationType:
-              $ref: '#/components/schemas/NetworkAuthenticationType'             
+              $ref: '#/components/schemas/PasspointNetworkAuthenticationType'             
             connectionCapabilitySet:
                type: array
                items:
-                  $ref: '#/components/schemas/ConnectionCapability'   
+                  $ref: '#/components/schemas/PasspointConnectionCapability'   
             gasAddr3Behaviour:
-               $ref: '#/components/schemas/GasAddress3Behaviour'        
+               $ref: '#/components/schemas/PasspointGasAddress3Behaviour'        
 
-    IPv4PasspointAddressType:
+    PasspointIPv4AddressType:
       type: string
       enum:
         - address_type_not_available
@@ -2380,14 +2380,14 @@ components:
         - port_restricted_IPv4_address_and_double_NATed_IPv4_address_available
         - availability_of_the_address_type_is_unknown
 
-    IPv6PasspointAddressType:
+    PasspointIPv6AddressType:
       type: string
       enum:
         - address_type_not_available
         - address_type_available
         - availability_of_the_address_type_is_unknown
            
-    AccessNetworkType:
+    PasspointAccessNetworkType:
       type: string
       enum:
         - private_network
@@ -2399,7 +2399,7 @@ components:
         - test_or_experimental
         - wildcard
         
-    NetworkAuthenticationType:
+    PasspointNetworkAuthenticationType:
       type: string
       enum:
         - acceptance_of_terms_and_conditions
@@ -2407,7 +2407,7 @@ components:
         - http_https_redirection
         - dns_redirection
         
-    ConnectionCapability:
+    PasspointConnectionCapability:
       description: VenueType assignment.
       type: object
       properties: 
@@ -2415,25 +2415,25 @@ components:
           type: integer
           format: int32
         connectionCapabilitiesIpProtocol:
-          $ref: '#/components/schemas/ConnectionCapabilitiesIpProtocol'
+          $ref: '#/components/schemas/PasspointConnectionCapabilitiesIpProtocol'
         connectionCapabilitiesStatus:
-          $ref: '#/components/schemas/ConnectionCapabilitiesStatus'
+          $ref: '#/components/schemas/PasspointConnectionCapabilitiesStatus'
 
-    ConnectionCapabilitiesIpProtocol:
+    PasspointConnectionCapabilitiesIpProtocol:
       type: string
       enum:
         - ICMP
         - TCP
         - UDP
     
-    ConnectionCapabilitiesStatus:
+    PasspointConnectionCapabilitiesStatus:
       type: string
       enum:
         - closed
         - open
         - unknown   
 
-    GasAddress3Behaviour:                
+    PasspointGasAddress3Behaviour:                
       type: string
       enum:
         - p2pSpecWorkaroundFromRequest

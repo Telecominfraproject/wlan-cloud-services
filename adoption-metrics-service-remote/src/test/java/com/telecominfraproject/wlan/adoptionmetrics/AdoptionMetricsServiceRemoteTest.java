@@ -62,10 +62,10 @@ public class AdoptionMetricsServiceRemoteTest extends BaseRemoteTest {
         samList.add(new ServiceAdoptionMetrics(2020, 1, 2, 12, customerId_1, locationId_1, equipmentId_2, 120, 220, 320));
         samList.add(new ServiceAdoptionMetrics(2020, 1, 2, 12, customerId_2, locationId_3, equipmentId_3, 42, 52, 62));
         
-        //create initial metrics
+        //create initial service_metrics_collection_config
         remoteInterface.update(samList);
 
-        //verify daily metrics for equipmentId_1
+        //verify daily service_metrics_collection_config for equipmentId_1
         List<ServiceAdoptionMetrics> ret = remoteInterface.get(2020, Collections.singleton(equipmentId_1));
         assertEquals(2, ret.size());
         ret.forEach((m) -> {
@@ -82,7 +82,7 @@ public class AdoptionMetricsServiceRemoteTest extends BaseRemoteTest {
         } );
 
         
-        //verify daily metrics for equipmentId_2
+        //verify daily service_metrics_collection_config for equipmentId_2
         ret = remoteInterface.get(2020, Collections.singleton(equipmentId_2));
         assertEquals(3, ret.size());
         ret.forEach((m) -> {
@@ -271,7 +271,7 @@ public class AdoptionMetricsServiceRemoteTest extends BaseRemoteTest {
         samList.add(new ServiceAdoptionMetrics(2010, 1, 2, 11, customerId_1, locationId_1, equipmentId_1, 10, 20, 30));
         samList.add(new ServiceAdoptionMetrics(2010, 1, 2, 12, customerId_1, locationId_1, equipmentId_1, 100, 200, 300));
         
-        //create initial metrics
+        //create initial service_metrics_collection_config
         remoteInterface.update(samList);
         
         List<ServiceAdoptionMetrics> ret = remoteInterface.get(2010, Collections.singleton(equipmentId_1));

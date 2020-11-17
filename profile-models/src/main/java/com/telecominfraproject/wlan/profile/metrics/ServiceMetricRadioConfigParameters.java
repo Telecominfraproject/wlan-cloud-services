@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricRadioConfigParameters extends CommonServiceMetricConfigParameters {
+public class ServiceMetricRadioConfigParameters extends ServiceMetricsCommonConfigParameters {
 
     private static final long serialVersionUID = 165731309820030327L;
     private RadioType radioType;

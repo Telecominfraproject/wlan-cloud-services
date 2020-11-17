@@ -334,7 +334,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        long fromTime = 0;
        long toTime = baseTimestamp;
        
-       //Paginate over all equipment and all metrics
+       //Paginate over all equipment and all service_metrics_collection_config
        PaginationContext<SystemEventRecord> context = new PaginationContext<>(10);
        PaginationResponse<SystemEventRecord> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, context);
        PaginationResponse<SystemEventRecord> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, page1.getContext());

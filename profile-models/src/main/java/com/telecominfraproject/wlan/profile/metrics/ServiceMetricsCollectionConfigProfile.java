@@ -22,7 +22,7 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
     private Set<RadioType> radioTypes;
     private Set<ServiceMetricDataType> serviceMetricDataTypes;
 
-    private Map<ServiceMetricDataType, Set<CommonServiceMetricConfigParameters>> metricConfigParameterMap;
+    private Map<ServiceMetricDataType, Set<ServiceMetricsCommonConfigParameters>> metricConfigParameterMap;
 
     public static ServiceMetricsCollectionConfigProfile createWithDefaults() {
         return new ServiceMetricsCollectionConfigProfile();
@@ -38,7 +38,7 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
 
         for (ServiceMetricDataType metricDataType : serviceMetricDataTypes) {
 
-            Set<CommonServiceMetricConfigParameters> configParameterSet = new HashSet<>();
+            Set<ServiceMetricsCommonConfigParameters> configParameterSet = new HashSet<>();
 
             getDefaultConfigForMetricType(metricDataType, radioTypes, configParameterSet, includeOffChannel);
 
@@ -57,7 +57,7 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
 
         for (ServiceMetricDataType metricDataType : serviceMetricDataTypes) {
 
-            Set<CommonServiceMetricConfigParameters> configParameterSet = new HashSet<>();
+            Set<ServiceMetricsCommonConfigParameters> configParameterSet = new HashSet<>();
 
             getDefaultConfigForMetricType(metricDataType, radioTypes, configParameterSet, true);
 
@@ -73,7 +73,7 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
      *         for the given ServiceMetricDataType
      */
     private void getDefaultConfigForMetricType(ServiceMetricDataType serviceMetricDataType, Set<RadioType> radioTypes,
-            Set<CommonServiceMetricConfigParameters> parameterSet, boolean includeOffChannel) {
+            Set<ServiceMetricsCommonConfigParameters> parameterSet, boolean includeOffChannel) {
         if (serviceMetricDataType.equals(ServiceMetricDataType.ApNode)
                 || serviceMetricDataType.equals(ServiceMetricDataType.Channel)
                 || serviceMetricDataType.equals(ServiceMetricDataType.Neighbour)) {
@@ -83,10 +83,10 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
                         .createWithDefaults();
                 surveyConfigParameters.setServiceMetricDataType(serviceMetricDataType);
                 surveyConfigParameters.setRadioType(radioType);
-                surveyConfigParameters.setChannelSurveyType(ChannelUtilizationSurveyType.ON_CHANNEL);
+                surveyConfigParameters.setChannelSurveyType(ServiceMetricsChannelUtilizationSurveyType.ON_CHANNEL);
                 surveyConfigParameters.setDelayMillisecondsThreshold(600);
                 surveyConfigParameters.setPercentUtilizationThreshold(10);
-                surveyConfigParameters.setStatsReportFormat(StatsReportFormat.RAW);
+                surveyConfigParameters.setStatsReportFormat(ServiceMetricsStatsReportFormat.RAW);
                 surveyConfigParameters.setReportingIntervalSeconds(
                         ServiceMetricConfigParameterDefaults.DEFAULT_REPORT_INTERVAL_SECONDS);
                 parameterSet.add(surveyConfigParameters);
@@ -94,10 +94,10 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
                     surveyConfigParameters = ServiceMetricSurveyConfigParameters.createWithDefaults();
                     surveyConfigParameters.setServiceMetricDataType(serviceMetricDataType);
                     surveyConfigParameters.setRadioType(radioType);
-                    surveyConfigParameters.setChannelSurveyType(ChannelUtilizationSurveyType.OFF_CHANNEL);
+                    surveyConfigParameters.setChannelSurveyType(ServiceMetricsChannelUtilizationSurveyType.OFF_CHANNEL);
                     surveyConfigParameters.setDelayMillisecondsThreshold(600);
                     surveyConfigParameters.setPercentUtilizationThreshold(10);
-                    surveyConfigParameters.setStatsReportFormat(StatsReportFormat.RAW);
+                    surveyConfigParameters.setStatsReportFormat(ServiceMetricsStatsReportFormat.RAW);
                     surveyConfigParameters.setReportingIntervalSeconds(
                             ServiceMetricConfigParameterDefaults.DEFAULT_OFF_CHANNEL_REPORT_INTERVAL_SECONDS);
                     parameterSet.add(surveyConfigParameters);
@@ -130,12 +130,12 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
         this.radioTypes = radioTypes;
     }
 
-    public Map<ServiceMetricDataType, Set<CommonServiceMetricConfigParameters>> getMetricConfigParameterMap() {
+    public Map<ServiceMetricDataType, Set<ServiceMetricsCommonConfigParameters>> getMetricConfigParameterMap() {
         return metricConfigParameterMap;
     }
 
     public void setMetricConfigParameterMap(
-            Map<ServiceMetricDataType, Set<CommonServiceMetricConfigParameters>> metricConfigParameterMap) {
+            Map<ServiceMetricDataType, Set<ServiceMetricsCommonConfigParameters>> metricConfigParameterMap) {
         this.metricConfigParameterMap = metricConfigParameterMap;
     }
 
@@ -149,7 +149,7 @@ public class ServiceMetricsCollectionConfigProfile extends ProfileDetails
 
     @Override
     public ProfileType getProfileType() {
-        return ProfileType.metrics;
+        return ProfileType.service_metrics_collection_config;
     }
 
     @Override

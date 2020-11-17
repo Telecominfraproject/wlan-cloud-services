@@ -42,7 +42,7 @@ public class CloudEventDispatcherRemoteTest extends BaseRemoteTest {
         	StreamInterface<ServiceMetric> si = new StreamInterface<ServiceMetric>() {
 
                 {
-                    LOG.info("*** Using empty stream for the metrics");
+                    LOG.info("*** Using empty stream for the service_metrics_collection_config");
                 }
                 
                 @Override

@@ -138,7 +138,7 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 			}
 
 			//find out TotalAvailableMemory in kb, which is available as part of the OperatingSystemPerformance status object
-			//we look for it separately because this status may not be populated when the first metrics are coming in
+			//we look for it separately because this status may not be populated when the first service_metrics_collection_config are coming in
 			if(context.getTotalAvailableMemoryKb()==0L) {
 				Status osPerformanceStatus = statusServiceInterface.getOrNull(customerId, equipmentId, StatusDataType.OS_PERFORMANCE);
 				if(osPerformanceStatus!=null) {

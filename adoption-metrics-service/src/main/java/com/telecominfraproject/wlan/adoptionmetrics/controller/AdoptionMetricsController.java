@@ -47,7 +47,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.get(year, equipmentIds));
 
-        LOG.debug("Got {} adoption metrics for {} equipment {}", ret.size(), year, equipmentIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} equipment {}", ret.size(), year, equipmentIds);
         
         return ret;
     }
@@ -57,7 +57,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.getAggregatePerLocationPerDay(year, locationIds));
 
-        LOG.debug("Got {} adoption metrics for {} locations {}", ret.size(), year, locationIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} locations {}", ret.size(), year, locationIds);
         
         return ret;
     }
@@ -67,7 +67,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.getAggregatePerCustomerPerDay(year, customerIds));
 
-        LOG.debug("Got {} adoption metrics for {} customers {}", ret.size(), year, customerIds);
+        LOG.debug("Got {} adoption service_metrics_collection_config for {} customers {}", ret.size(), year, customerIds);
         
         return ret;
     }
@@ -77,7 +77,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.getAllPerMonth(year));
 
-        LOG.debug("Got {} adoption metrics per month for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per month for {}", ret.size(), year);
         
         return ret;
     }
@@ -87,7 +87,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.getAllPerWeek(year));
 
-        LOG.debug("Got {} adoption metrics per week for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per week for {}", ret.size(), year);
         
         return ret;
     }
@@ -97,7 +97,7 @@ public class AdoptionMetricsController {
         ListOfServiceAdoptionMetrics ret = new ListOfServiceAdoptionMetrics();
         ret.addAll(adoptionMetricsDatastore.getAllPerDay(year));
 
-        LOG.debug("Got {} adoption metrics per day for {}", ret.size(), year);
+        LOG.debug("Got {} adoption service_metrics_collection_config per day for {}", ret.size(), year);
         
         return ret;
     }

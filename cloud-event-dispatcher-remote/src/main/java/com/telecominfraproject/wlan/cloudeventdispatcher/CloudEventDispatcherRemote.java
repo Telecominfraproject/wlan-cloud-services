@@ -38,12 +38,12 @@ public class CloudEventDispatcherRemote extends BaseRemoteClient implements Clou
 	@Override
 	public void publishMetrics(List<ServiceMetric> metricRecordList) {
 		
-        // @RequestMapping(value="/metrics", method=RequestMethod.POST)
+        // @RequestMapping(value="/service_metrics_collection_config", method=RequestMethod.POST)
         LOG.debug("calling publishMetrics {} ", metricRecordList);
         HttpEntity<String> request = new HttpEntity<>(metricRecordList.toString(), headers);
 
         ResponseEntity<GenericResponse> responseEntity = restTemplate
-                .postForEntity(getBaseUrl() + "/metrics", request, GenericResponse.class);
+                .postForEntity(getBaseUrl() + "/service_metrics_collection_config", request, GenericResponse.class);
 
         GenericResponse ret = responseEntity.getBody();
         LOG.debug("completed publishMetrics {}", ret);

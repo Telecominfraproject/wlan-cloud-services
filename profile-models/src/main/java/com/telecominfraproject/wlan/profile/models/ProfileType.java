@@ -55,12 +55,12 @@ public class ProfileType implements EnumWithId {
     radius = new ProfileType(5, "radius"), 
     captive_portal = new ProfileType(6, "captive_portal"),
     mesh = new ProfileType(7, "mesh"),
-    metrics = new ProfileType(8,"metrics"),
+    service_metrics_collection_config = new ProfileType(8,"service_metrics_collection_config"),
     rf = new ProfileType(9, "rf"),
-    hotspot_2pt0 = new ProfileType(10,"hotspot_2pt0"),
-    operator = new ProfileType(11, "operator"),
-    venue = new ProfileType(12,"venue"),
-    id_provider = new ProfileType(13,"id_provider"),  
+    passpoint = new ProfileType(10,"passpoint"),
+    passpoint_operator = new ProfileType(11, "passpoint_operator"),
+    passpoint_venue = new ProfileType(12,"passpoint_venue"),
+    passpoint_osu_id_provider = new ProfileType(13,"passpoint_osu_id_provider"),  
     UNSUPPORTED = new ProfileType(-1, "UNSUPPORTED");
     
     static {

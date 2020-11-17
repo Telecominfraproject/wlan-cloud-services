@@ -213,7 +213,7 @@ public class EquipmentAlarmsProcessorTests {
         List<Alarm> alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.AccessPointIsUnreachable));
         assertEquals(0, alarms.size());
 
-        //Now wait for the alarm to be raised because no metrics were posted
+        //Now wait for the alarm to be raised because no service_metrics_collection_config were posted
         sleep(testTimeBucketMs);
 
         //verify that alarm was raised

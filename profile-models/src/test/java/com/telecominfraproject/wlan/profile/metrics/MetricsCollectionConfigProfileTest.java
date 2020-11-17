@@ -54,7 +54,7 @@ class MetricsCollectionConfigProfileTest {
 
     @Test
     void testGetProfileType() {
-        assertTrue(metricsProfileDetails_3_radios.getProfileType().equals(ProfileType.metrics));
+        assertTrue(metricsProfileDetails_3_radios.getProfileType().equals(ProfileType.service_metrics_collection_config));
     }
 
     @Test

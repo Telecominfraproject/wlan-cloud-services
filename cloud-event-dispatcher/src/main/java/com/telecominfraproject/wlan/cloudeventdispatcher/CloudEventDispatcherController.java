@@ -50,13 +50,13 @@ public class CloudEventDispatcherController {
         return ret;
     }
     
-    @RequestMapping(value="/metrics", method=RequestMethod.POST)
+    @RequestMapping(value="/service_metrics_collection_config", method=RequestMethod.POST)
     public GenericResponse publishMetrics(@RequestBody List<ServiceMetric> metricList) {
 
         LOG.debug("calling publishMetrics {}", metricList);
 
         if(metricList==null || metricList.isEmpty()) {
-            return new GenericResponse(true, "empty metrics");
+            return new GenericResponse(true, "empty service_metrics_collection_config");
         }
         
         AtomicLong ts = new AtomicLong(System.currentTimeMillis());

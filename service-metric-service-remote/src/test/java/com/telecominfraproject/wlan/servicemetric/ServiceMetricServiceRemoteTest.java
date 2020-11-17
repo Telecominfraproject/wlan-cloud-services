@@ -117,9 +117,9 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
         long fromTime = 0;
         long toTime = baseTimestamp;
         
-        //create 150 Service metrics
+        //create 150 Service service_metrics_collection_config
         
-        //metrics to be tested
+        //service_metrics_collection_config to be tested
         for(int i = 0; i< 50; i++){
         	ServiceMetric serviceMetric = new ServiceMetric();
             serviceMetric.setCustomerId(customerId_1);
@@ -136,7 +136,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
             remoteInterface.create(serviceMetric);
         }
 
-        //metrics outside the target time
+        //service_metrics_collection_config outside the target time
         for(int i = 0; i< 50; i++){
         	ServiceMetric serviceMetric = new ServiceMetric();
             serviceMetric.setCustomerId(customerId_1);
@@ -153,7 +153,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
             remoteInterface.create(serviceMetric);
         }
         
-        //metrics for another customer
+        //service_metrics_collection_config for another customer
         for(int i = 0; i< 50; i++){
         	ServiceMetric serviceMetric = new ServiceMetric();
             serviceMetric.setCustomerId(customerId_2);
@@ -251,7 +251,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
     
     @Test
     public void testPaginationWithFilters() {
-       //create 30 Metrics for our customer_1: 3 metrics per 10 equipment 
+       //create 30 Metrics for our customer_1: 3 service_metrics_collection_config per 10 equipment 
        int customerId_1 = getNextCustomerId();
        int customerId_2 = getNextCustomerId();
        
@@ -350,7 +350,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
            apNameIdx++;
        }
 
-       //add some metrics for another customer into the mix
+       //add some service_metrics_collection_config for another customer into the mix
        for(int i = 0; i< 10; i++){
            ServiceMetric serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_2);
@@ -376,7 +376,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        long fromTime = 0;
        long toTime = baseTimestamp;
        
-       //Paginate over all equipment and all metrics
+       //Paginate over all equipment and all service_metrics_collection_config
        PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
        PaginationResponse<ServiceMetric> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
        PaginationResponse<ServiceMetric> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());

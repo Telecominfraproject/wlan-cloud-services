@@ -463,8 +463,8 @@ public abstract class BaseProfileDatastoreTest {
     	int customer_ID = 25;
 
     	Profile profile_c1 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, PROFILETYPE_TEST_NAME_PREFIX);
-    	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.operator, PROFILETYPE_TEST_NAME_PREFIX);
-    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.operator, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.passpoint_operator, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.passpoint_operator, PROFILETYPE_TEST_NAME_PREFIX);
     	Profile profile_c4 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
     	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
     	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
@@ -483,7 +483,7 @@ public abstract class BaseProfileDatastoreTest {
     	
         List<Profile> profiles1 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.ssid, null, sortBy, context)).getItems();
         profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));
-        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.operator, null, sortBy, context)).getItems();
+        List<Profile> profiles2 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.passpoint_operator, null, sortBy, context)).getItems();
         profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));
         List<Profile> profiles3 = testInterface.getForCustomer(profileByCustomerRequestFactory.create(customer_ID, ProfileType.equipment_ap, null, sortBy, context)).getItems();
         profiles1.removeIf(profile -> !profile.getName().contains(PROFILETYPE_TEST_NAME_PREFIX));

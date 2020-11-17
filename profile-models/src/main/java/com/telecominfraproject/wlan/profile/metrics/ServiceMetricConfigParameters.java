@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 
-public class ServiceMetricConfigParameters extends CommonServiceMetricConfigParameters {
+public class ServiceMetricConfigParameters extends ServiceMetricsCommonConfigParameters {
 
     private static final long serialVersionUID = 1469611396924992464L;
     private ServiceMetricDataType serviceMetricDataType;
