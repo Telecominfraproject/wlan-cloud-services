@@ -452,8 +452,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         customer.setDetails(details);
         customer = customerServiceInterface.update(customer);
 
-        createPasspointHotspot(customer, new Profile(), new Profile(), new Profile(), new Profile(), new Profile(),
-                new Profile(), new Profile(), new Profile());
+//        createPasspointHotspot(customer, new Profile(), new Profile(), new Profile(), new Profile(), new Profile(),
+//                new Profile(), new Profile(), new Profile());
 
         List<Equipment> equipmentList = new ArrayList<>();
 
