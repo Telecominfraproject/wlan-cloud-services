@@ -285,43 +285,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-        Profile profileMetrics_3_radios = new Profile();
-        profileMetrics_3_radios.setCustomerId(customer.getId());
-        profileMetrics_3_radios.setProfileType(ProfileType.service_metrics_collection_config);
-        profileMetrics_3_radios.setName("Metrics-Profile-3-radios");
-        Set<RadioType> profileMetrics_3_radioTypes = new HashSet<>();
-        profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
-        profileMetrics_3_radioTypes.add(RadioType.is5GHzL);
-        profileMetrics_3_radioTypes.add(RadioType.is5GHzU);
+        Profile profileMetrics_3_radios = create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer);
 
-        Set<ServiceMetricDataType> metricTypes = new HashSet<>();
-        metricTypes.add(ServiceMetricDataType.ApNode);
-        metricTypes.add(ServiceMetricDataType.ApSsid);
-        metricTypes.add(ServiceMetricDataType.Channel);
-        metricTypes.add(ServiceMetricDataType.Client);
-        metricTypes.add(ServiceMetricDataType.Neighbour);
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails3Radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
-        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes,
-                true);
-        profileMetrics_3_radios.setDetails(metricsProfileDetails3Radios);
-        profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
-
-        Profile profileMetrics_2_radios = new Profile();
-        profileMetrics_2_radios.setCustomerId(customer.getId());
-        profileMetrics_2_radios.setProfileType(ProfileType.service_metrics_collection_config);
-        profileMetrics_2_radios.setName("Metrics-Profile-2-radios");
-        Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
-        profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
-        profileMetrics_2_radioTypes.add(RadioType.is5GHz);
-
-        ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile
-                .createWithDefaults();
-        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes,
-                true);
-
-        profileMetrics_2_radios.setDetails(metricsProfileDetails2Radios);
-        profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
+        Profile profileMetrics_2_radios = create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer);
 
         Profile profileSsidEAP = new Profile();
         profileSsidEAP.setCustomerId(customer.getId());
@@ -340,7 +306,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         childIds.add(profileRadius.getId());
         profileSsidEAP.setChildProfileIds(childIds);
         profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
-
 
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
@@ -438,8 +403,9 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileMetrics_3_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
+        profileAp_3_radios.getChildProfileIds()
+                .add(create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer).getId());
+        profileAp_3_radios.getChildProfileIds().add(createRfProfile(customer, "TipWlan-rf").getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         // TipWlan-cloud-hotspot-access
@@ -453,7 +419,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
-        // profileAp_2_radios.getChildProfileIds().add(profileMetrics_2_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
@@ -486,6 +451,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         customer.setDetails(details);
         customer = customerServiceInterface.update(customer);
+
+        createPasspointHotspot(customer, new Profile(), new Profile(), new Profile(), new Profile(), new Profile(),
+                new Profile(), new Profile(), new Profile());
 
         List<Equipment> equipmentList = new ArrayList<>();
 
@@ -525,20 +493,20 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             String eqModel;
             switch (i % 4) {
-                case 0:
-                    eqModel = "ea8300";
-                    break;
-                case 1:
-                    eqModel = "ecw5211";
-                    break;
-                case 2:
-                    eqModel = "ecw5410";
-                    break;
-                case 3:
-                    eqModel = "ap2220";
-                    break;
-                default:
-                    eqModel = "ap2220";
+            case 0:
+                eqModel = "ea8300";
+                break;
+            case 1:
+                eqModel = "ecw5211";
+                break;
+            case 2:
+                eqModel = "ecw5410";
+                break;
+            case 3:
+                eqModel = "ap2220";
+                break;
+            default:
+                eqModel = "ap2220";
             }
             equipment.getDetails().setEquipmentModel(eqModel);
 
@@ -589,6 +557,56 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     }
 
+    private Profile create2RadioMetricsProfile(String profileName, Customer customer) {
+        Profile profileMetrics_2_radios = new Profile();
+        profileMetrics_2_radios.setCustomerId(customer.getId());
+        profileMetrics_2_radios.setProfileType(ProfileType.service_metrics_collection_config);
+        profileMetrics_2_radios.setName(profileName);
+        Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
+        profileMetrics_2_radioTypes.add(RadioType.is2dot4GHz);
+        profileMetrics_2_radioTypes.add(RadioType.is5GHz);
+
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails2Radios = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        Set<ServiceMetricDataType> metricTypes = new HashSet<>();
+        metricTypes.add(ServiceMetricDataType.ApNode);
+        metricTypes.add(ServiceMetricDataType.ApSsid);
+        metricTypes.add(ServiceMetricDataType.Channel);
+        metricTypes.add(ServiceMetricDataType.Client);
+        metricTypes.add(ServiceMetricDataType.Neighbour);
+        metricsProfileDetails2Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_2_radioTypes, metricTypes,
+                true);
+
+        profileMetrics_2_radios.setDetails(metricsProfileDetails2Radios);
+        profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
+        return profileMetrics_2_radios;
+    }
+
+    private Profile create3RadioMetricsProfile(String profileName, Customer customer) {
+        Profile profileMetrics_3_radios = new Profile();
+        profileMetrics_3_radios.setCustomerId(customer.getId());
+        profileMetrics_3_radios.setProfileType(ProfileType.service_metrics_collection_config);
+        profileMetrics_3_radios.setName(profileName);
+        Set<RadioType> profileMetrics_3_radioTypes = new HashSet<>();
+        profileMetrics_3_radioTypes.add(RadioType.is2dot4GHz);
+        profileMetrics_3_radioTypes.add(RadioType.is5GHzL);
+        profileMetrics_3_radioTypes.add(RadioType.is5GHzU);
+
+        Set<ServiceMetricDataType> metricTypes = new HashSet<>();
+        metricTypes.add(ServiceMetricDataType.ApNode);
+        metricTypes.add(ServiceMetricDataType.ApSsid);
+        metricTypes.add(ServiceMetricDataType.Channel);
+        metricTypes.add(ServiceMetricDataType.Client);
+        metricTypes.add(ServiceMetricDataType.Neighbour);
+        ServiceMetricsCollectionConfigProfile metricsProfileDetails3Radios = ServiceMetricsCollectionConfigProfile
+                .createWithDefaults();
+        metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes,
+                true);
+        profileMetrics_3_radios.setDetails(metricsProfileDetails3Radios);
+        profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
+        return profileMetrics_3_radios;
+    }
+
     protected void createPasspointHotspot(Customer customer, Profile passpointHotspotConfig,
             Profile passpointOperatorProfile, Profile passpointVenueProfile, Profile hotspot20IdProviderProfile,
             Profile hotspot20IdProviderProfile2, Profile profileSsidPsk, Profile profileSsidOsu,
@@ -609,12 +627,12 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile.getId());
         profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile2.getId());
         profileSsidOsu = profileServiceInterface.update(profileSsidOsu);
+        hotspotProfileAp = createPasspointApProfile(customer, profileSsidPsk, profileSsidOsu);
 
         passpointHotspotConfig = createPasspointHotspotConfig(customer, hotspot20IdProviderProfile2,
                 hotspot20IdProviderProfile, passpointOperatorProfile, passpointVenueProfile, profileSsidPsk,
                 profileSsidOsu);
 
-        hotspotProfileAp = createPasspointApProfile(customer, profileSsidPsk, profileSsidOsu);
     }
 
     protected Profile createPasspointHotspotConfig(Customer customer, Profile hotspot20IdProviderProfile2,
@@ -734,25 +752,37 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     protected Profile createPasspointApProfile(Customer customer, Profile profileSsidPsk, Profile profileSsidOpen) {
 
-        Profile hotspotProfileAp = new Profile();
-        hotspotProfileAp.setCustomerId(customer.getId());
-        hotspotProfileAp.setName("HotspotProfileAp");
-        hotspotProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
-        hotspotProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
-        hotspotProfileAp.getChildProfileIds().add(profileSsidOpen.getId());
-        hotspotProfileAp.getChildProfileIds().add(createPasspointRfProfile(customer).getId());
-        hotspotProfileAp = profileServiceInterface.create(hotspotProfileAp);
-        return hotspotProfileAp;
+        Profile passpointProfileAp = new Profile();
+        passpointProfileAp.setCustomerId(customer.getId());
+        passpointProfileAp.setName("ApProfile-3-radios-passpoint");
+        passpointProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
+
+        Map<RadioType, RadioProfileConfiguration> radioProfileMap_3_radios = new HashMap<>();
+        radioProfileMap_3_radios.put(RadioType.is2dot4GHz,
+                RadioProfileConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+        radioProfileMap_3_radios.put(RadioType.is5GHzL,
+                RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzL));
+        radioProfileMap_3_radios.put(RadioType.is5GHzU,
+                RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
+        ((ApNetworkConfiguration) passpointProfileAp.getDetails()).setRadioMap(radioProfileMap_3_radios);
+
+        passpointProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
+        passpointProfileAp.getChildProfileIds().add(createRfProfile(customer, "TipWlan-rf-passpoint").getId());
+        passpointProfileAp.getChildProfileIds()
+                .add(create3RadioMetricsProfile("Metrics-Profile-Passpoint", customer).getId());
+        passpointProfileAp.getChildProfileIds().add(profileSsidOpen.getId());
+        passpointProfileAp = profileServiceInterface.create(passpointProfileAp);
+        return passpointProfileAp;
 
     }
 
-    protected Profile createPasspointRfProfile(Customer customer) {
+    protected Profile createRfProfile(Customer customer, String rfName) {
 
         Profile profileRf = new Profile();
         profileRf.setCustomerId(customer.getId());
-        profileRf.setName("TipWlan-rf-passpoint");
+        profileRf.setName(rfName);
         RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
-        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf-passpoint"));
+        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf(rfName));
         profileRf.setDetails(rfConfig);
         profileRf = profileServiceInterface.create(profileRf);
 
@@ -1197,17 +1227,17 @@ public class AllInOneStartListener implements ApplicationRunner {
                 radioUtil.setNonWifi(100 * (busy - busyTx - busyRx) / surveyDurationMs);
 
                 switch (i % 3) {
-                    case 0:
-                        apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
-                        break;
-                    case 1:
-                        apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
-                        break;
-                    case 2:
-                        apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
-                        break;
-                    default:
-                        // do nothing
+                case 0:
+                    apNodeMetrics.getRadioUtilization(RadioType.is2dot4GHz).add(radioUtil);
+                    break;
+                case 1:
+                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzL).add(radioUtil);
+                    break;
+                case 2:
+                    apNodeMetrics.getRadioUtilization(RadioType.is5GHzU).add(radioUtil);
+                    break;
+                default:
+                    // do nothing
                 }
             }
 
@@ -1320,17 +1350,17 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             int idx = (int) (macAddress.getAddressAsLong() % 3);
             switch (idx) {
-                case 0:
-                    radioType = RadioType.is2dot4GHz;
-                    break;
-                case 1:
-                    radioType = RadioType.is5GHzL;
-                    break;
-                case 2:
-                    radioType = RadioType.is5GHzU;
-                    break;
-                default:
-                    radioType = RadioType.is5GHzL;
+            case 0:
+                radioType = RadioType.is2dot4GHz;
+                break;
+            case 1:
+                radioType = RadioType.is5GHzL;
+                break;
+            case 2:
+                radioType = RadioType.is5GHzU;
+                break;
+            default:
+                radioType = RadioType.is5GHzL;
             }
 
             clientSession = new ClientSession();
