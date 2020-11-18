@@ -2119,7 +2119,14 @@ components:
           osuFriendlyName:
             type: array
             items:
-              $ref: '#/components/schemas/PasspointDuple'  
+              $ref: '#/components/schemas/PasspointDuple'
+            example:
+              model_type: PasspointDuple
+              locale: en_CA
+              dupleIso3Language: eng
+              dupleName: Example provider rogers
+              defaultDupleSeparator: ':'
+              asDuple: 'eng:Example provider rogers'    
           osuNaiStandalone:
             type: string
           osuNaiShared:
@@ -2131,6 +2138,13 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/PasspointDuple'
+            example:
+              model_type: PasspointDuple
+              locale: en_CA
+              dupleIso3Language: eng
+              dupleName: Example services rogers
+              defaultDupleSeparator: ':'
+              asDuple: 'eng:Example services rogers'
           roamingOi:
             type: array
             items:
@@ -2156,8 +2170,17 @@ components:
           format: int32
         network:
           type: string
+      example:
+        model_type: PasspointMccMnc
+        mcc: 302
+        mnc: 720
+        iso: ca
+        country: Canada
+        countryCode: 1
+        network: Rogers AT&T Wireless
+        mccMncPairing: '302,720'  
 
-    PasspointNaiRealmInformation:
+    PasspointNaiRealmInformation:     
       description: encoded 
       type: object
       properties:
@@ -2166,18 +2189,86 @@ components:
           items:
             type: string
         encoding:
-          type: integer
-          format: int32
+          description: value of PasspointNaiRealmEncoding
+          $ref: '#/components/schemas/PasspointNaiRealmEncoding'
+          discriminator:
+            propertyName: id
         eapMethods:
+          description: array of EAP methods
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/PasspointEapMethods' 
         eapMap:
+          description: map of string values comrised of 'param + credential' types, keyed by EAP methods
+          example: 
+             EAP-TTLS with username/password:
+                - 'Credential Type:username/password'
+                - 'Non-EAP Inner Authentication Type:MSCHAPV2'
+             EAP-TLS with certificate:
+                - 'Credential Type:Certificate'
           type: object
-          items:
-            type: array
-            items:
-              type: string
+          additionalProperties:
+            type: string
+      example:
+           model_type: PasspointNaiRealmInformation
+           naiRealms:
+              - rogers.com
+           encoding: 0
+           eapMethods:
+              - EAP-TTLS with username/password
+              - EAP-TLS with certificate
+           eapMap:
+              EAP-TTLS with username/password:
+                 - 'Credential Type:username/password'
+                 - 'Non-EAP Inner Authentication Type:MSCHAPV2'
+              EAP-TLS with certificate:
+                 - 'Credential Type:Certificate'
+
+    PasspointEapMethods:
+      type: string
+      enum:
+        - eap_tls
+        - eap_ttls
+        - eap_mschap_v2
+        
+    PasspointNaiRealmEapAuthInnerNonEap:
+      type: string
+      enum:
+        - NAI_REALM_INNER_NON_EAP_PAP
+        - NAI_REALM_INNER_NON_EAP_CHAP
+        - NAI_REALM_INNER_NON_EAP_MSCHAP
+        - NAI_REALM_INNER_NON_EAP_MSCHAPV2
+
+    PasspointNaiRealmEapAuthParam: 
+      type: string
+      enum:
+       - NAI_REALM_EAP_AUTH_EXPANDED_EAP_METHOD
+       - NAI_REALM_EAP_AUTH_NON_EAP_INNER_AUTH
+       - NAI_REALM_EAP_AUTH_INNER_AUTH_EAP_METHOD
+       - NAI_REALM_EAP_AUTH_EXPANDED_INNER_EAP_METHOD
+       - NAI_REALM_EAP_AUTH_CRED_TYPE
+       - NAI_REALM_EAP_AUTH_TUNNELED_CRED_TYPE
+       - NAI_REALM_EAP_AUTH_VENDOR_SPECIFIC
+    
+    PasspointNaiRealmEapCredType: 
+      type: string
+      enum:    
+       - NAI_REALM_CRED_TYPE_SIM
+       - NAI_REALM_CRED_TYPE_USIM
+       - NAI_REALM_CRED_TYPE_NFC_SECURE_ELEMENT
+       - NAI_REALM_CRED_TYPE_HARDWARE_TOKEN
+       - NAI_REALM_CRED_TYPE_SOFTOKEN
+       - NAI_REALM_CRED_TYPE_CERTIFICATE
+       - NAI_REALM_CRED_TYPE_USERNAME_PASSWORD
+       - NAI_REALM_CRED_TYPE_NONE
+       - NAI_REALM_CRED_TYPE_ANONYMOUS
+       - NAI_REALM_CRED_TYPE_VENDOR_SPECIFIC
+
+    PasspointNaiRealmEncoding:
+      type: string
+      enum:    
+        - ietf_rfc_4282_encoding
+        - utf8_non_ietf_rfc_4282_encoding
                 
     PasspointOsuIcon:
       description: properties of icons for osu provider and operator
@@ -2206,6 +2297,16 @@ components:
           type: string
           enum:
             - image/png
+      example:
+        model_type: PasspointOsuIcon
+        iconWidth: 32
+        iconHeight: 32
+        languageCode: eng
+        iconLocale: en_CA
+        iconName: icon32eng
+        filePath: /tmp/icon32eng.png
+        imageUrl: 'https://localhost:9096/icon32eng.png'
+        hs20IconString: '32:32:eng:image/png:icon32eng:/tmp/icon32eng.png'   
            
     PasspointDuple:
       description: representation of a duple value used to map duples in the passpoint configurations where a lang:string is required
@@ -2272,6 +2373,14 @@ components:
        properties:
          venueUrl:
            type: string
+       example:
+         model_type: PasspointVenueName
+         locale: fr_CA
+         dupleIso3Language: fra
+         dupleName: Exemple de lieu
+         defaultDupleSeparator: ':'
+         venueUrl: 'http://www.example.com/info-fra'
+         asDuple: 'fra:Exemple de lieu'
                
     PasspointVenueTypeAssignment:
       description: VenueType assignment.
@@ -2285,7 +2394,12 @@ components:
         venueTypeId:
           type: integer
           format: int32
-
+      example:
+        model_type: ProfileVenueTypeAssignment
+        venueDescription: Research and Development Facility
+        venueGroupId: 2
+        venueTypeId: 8  
+        
     PasspointProfile:
        description: Properties for the PasspointProfile profile.
        allOf:
@@ -2346,11 +2460,14 @@ components:
                 type: string
             osuSsidName:
               type: string
-            PasspointOperatorProfileName:
+            passpointOperatorProfileName:
+              description: name of a PasspointOperatorProfile profile, must be also added to the children of this profile
               type: string
-            PasspointVenueProfileName:
+            passpointVenueProfileName:
+              description: name of a PasspointVenueProfile profile, must be also added to the children of this profile
               type: string
             idProviderProfileNames:
+              description: array containing names of PasspointOsuProviderProfiles, must be also added to the children of this profile
               type: array
               items:
                 type: string
@@ -2418,6 +2535,11 @@ components:
           $ref: '#/components/schemas/PasspointConnectionCapabilitiesIpProtocol'
         connectionCapabilitiesStatus:
           $ref: '#/components/schemas/PasspointConnectionCapabilitiesStatus'
+      example:
+        model_type: PasspointConnectionCapability
+        connectionCapabilitiesPortNumber: 8888
+        connectionCapabilitiesIpProtocol: TCP
+        connectionCapabilitiesStatus: open    
 
     PasspointConnectionCapabilitiesIpProtocol:
       type: string
@@ -2438,7 +2560,7 @@ components:
       enum:
         - p2pSpecWorkaroundFromRequest
         - ieee80211StandardCompliantOnly
-        - forceNonCompliantBehaviourFromRequest
+        - forceNonCompliantBehaviourFromRequest      
                     
 # Web Token data models
 #

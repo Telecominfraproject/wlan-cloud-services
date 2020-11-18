@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 
-public class ProfileVenueTypeAssignment extends BaseJsonModel {
+public class PasspointVenueTypeAssignment extends BaseJsonModel {
 
     private static final long serialVersionUID = -7846203730973163371L;
 
@@ -14,12 +14,12 @@ public class ProfileVenueTypeAssignment extends BaseJsonModel {
     private int venueTypeId;
 
 
-    private ProfileVenueTypeAssignment() {
+    private PasspointVenueTypeAssignment() {
 
     }
 
-    public static ProfileVenueTypeAssignment createWithDefaults() {
-        return new ProfileVenueTypeAssignment();
+    public static PasspointVenueTypeAssignment createWithDefaults() {
+        return new PasspointVenueTypeAssignment();
     }
 
 
@@ -52,8 +52,8 @@ public class ProfileVenueTypeAssignment extends BaseJsonModel {
         this.venueTypeId = venueTypeId;
     }
 
-    public ProfileVenueTypeAssignment clone() {
-        ProfileVenueTypeAssignment ret = (ProfileVenueTypeAssignment) super.clone();
+    public PasspointVenueTypeAssignment clone() {
+        PasspointVenueTypeAssignment ret = (PasspointVenueTypeAssignment) super.clone();
         ret.venueDescription = venueDescription;
         ret.venueGroupId = venueGroupId;
         ret.venueTypeId = venueTypeId;
@@ -70,10 +70,10 @@ public class ProfileVenueTypeAssignment extends BaseJsonModel {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ProfileVenueTypeAssignment)) {
+        if (!(obj instanceof PasspointVenueTypeAssignment)) {
             return false;
         }
-        ProfileVenueTypeAssignment other = (ProfileVenueTypeAssignment) obj;
+        PasspointVenueTypeAssignment other = (PasspointVenueTypeAssignment) obj;
         return Objects.equals(venueDescription, other.venueDescription) && venueGroupId == other.venueGroupId
                 && venueTypeId == other.venueTypeId;
     }

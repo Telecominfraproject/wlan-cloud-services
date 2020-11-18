@@ -16,17 +16,17 @@ public class PasspointVenueProfile extends ProfileDetails implements PushableCon
     private static final long serialVersionUID = 1942358406244382179L;
 
     private Set<PasspointVenueName> venueNameSet;
-    private ProfileVenueTypeAssignment profileVenueTypeAssignment;
+    private PasspointVenueTypeAssignment passpointVenueTypeAssignment;
 
     private PasspointVenueProfile() {
         venueNameSet = new HashSet<>();
         venueNameSet.add(PasspointVenueName.createWithDefaults());
 
-        profileVenueTypeAssignment = ProfileVenueTypeAssignment.createWithDefaults();
-        profileVenueTypeAssignment.setVenueDescription("Research and Development Facility");
+        passpointVenueTypeAssignment = PasspointVenueTypeAssignment.createWithDefaults();
+        passpointVenueTypeAssignment.setVenueDescription("Research and Development Facility");
         List<Integer> groupType = PasspointVenueInfo.venueMap.get("Research and Development Facility");
-        profileVenueTypeAssignment.setVenueGroupId(groupType.get(0));
-        profileVenueTypeAssignment.setVenueTypeId(groupType.get(1));
+        passpointVenueTypeAssignment.setVenueGroupId(groupType.get(0));
+        passpointVenueTypeAssignment.setVenueTypeId(groupType.get(1));
 
         PasspointVenueName frVenueName = PasspointVenueName.createWithDefaults();
         frVenueName.setLocale(Locale.CANADA_FRENCH);
@@ -61,28 +61,28 @@ public class PasspointVenueProfile extends ProfileDetails implements PushableCon
     }
 
 
-    public ProfileVenueTypeAssignment getVenueTypeAssignment() {
-        return profileVenueTypeAssignment;
+    public PasspointVenueTypeAssignment getVenueTypeAssignment() {
+        return passpointVenueTypeAssignment;
     }
 
 
-    public void setVenueTypeAssignment(ProfileVenueTypeAssignment profileVenueTypeAssignment) {
-        this.profileVenueTypeAssignment = profileVenueTypeAssignment;
+    public void setVenueTypeAssignment(PasspointVenueTypeAssignment passpointVenueTypeAssignment) {
+        this.passpointVenueTypeAssignment = passpointVenueTypeAssignment;
     }
 
     public PasspointVenueProfile clone() {
         PasspointVenueProfile retValue = (PasspointVenueProfile) super.clone();
         if (venueNameSet != null)
             retValue.venueNameSet = venueNameSet;
-        if (profileVenueTypeAssignment != null)
-            retValue.profileVenueTypeAssignment = profileVenueTypeAssignment;
+        if (passpointVenueTypeAssignment != null)
+            retValue.passpointVenueTypeAssignment = passpointVenueTypeAssignment;
 
         return retValue;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(venueNameSet, profileVenueTypeAssignment);
+        return Objects.hash(venueNameSet, passpointVenueTypeAssignment);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class PasspointVenueProfile extends ProfileDetails implements PushableCon
         }
         PasspointVenueProfile other = (PasspointVenueProfile) obj;
         return Objects.equals(venueNameSet, other.venueNameSet)
-                && Objects.equals(profileVenueTypeAssignment, other.profileVenueTypeAssignment);
+                && Objects.equals(passpointVenueTypeAssignment, other.passpointVenueTypeAssignment);
     }
 
 
