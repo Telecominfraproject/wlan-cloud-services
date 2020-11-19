@@ -1227,7 +1227,9 @@ components:
       enum:
         - eap_tls
         - eap_ttls
+        - eap_aka_authentication
         - eap_mschap_v2
+        - eap_aka
         
     PasspointNaiRealmEapAuthInnerNonEap:
       type: string

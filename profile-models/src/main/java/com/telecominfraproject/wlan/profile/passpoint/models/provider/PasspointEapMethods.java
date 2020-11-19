@@ -33,8 +33,10 @@ public class PasspointEapMethods extends BaseJsonModel implements EnumWithId {
     public static final PasspointEapMethods
 
     eap_tls = new PasspointEapMethods(13, "EAP-TLS with certificate"),
-            eap_ttls = new PasspointEapMethods(21, "EAP-TTLS with username/password"),
-            eap_mschap_v2 = new PasspointEapMethods(29, "EAP-MSCHAP-V2 with username/password"),
+    eap_ttls = new PasspointEapMethods(21, "EAP-TTLS with username/password"),
+    eap_aka_authentication = new PasspointEapMethods(23,"EAP-AKA Authentication"),
+    eap_mschap_v2 = new PasspointEapMethods(29, "EAP-MSCHAP-V2 with username/password"),
+    eap_aka = new PasspointEapMethods(50, "EAP-AKA'"),
 
             UNSUPPORTED = new PasspointEapMethods(-1, "UNSUPPORTED");
 
