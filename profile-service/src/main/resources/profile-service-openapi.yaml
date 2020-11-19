@@ -916,7 +916,7 @@ components:
             
     SsidSecureMode:
       type: string
-      description: security mode (open, personal, enterprise) for SsidConfiguration. Radius and EAP modes are functionally equivilent, it may be prudent to remove on at a later date
+      description: security mode (open, personal, enterprise) for SsidConfiguration. Radius and EAP modes are functionally equivalent, it may be prudent to remove on at a later date
       enum:
       - open
       - wpaPSK
