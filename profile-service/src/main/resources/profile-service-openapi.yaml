@@ -877,6 +877,12 @@ components:
             type: string
           radiusAccountingServiceName:
             type: string
+          radiusAcountingServiceInterval:
+            description: If this is set (i.e. non-null), RadiusAccountingService is configured, and SsidSecureMode is configured as Enterprise/Radius, ap will send interim accounting updates every N seconds
+            type: integer
+            format: int32
+            minimum: 60
+            maximum: 600
           captivePortalId:
             description: id of a CaptivePortalConfiguration profile, must be also added to the children of this profile
             type: integer

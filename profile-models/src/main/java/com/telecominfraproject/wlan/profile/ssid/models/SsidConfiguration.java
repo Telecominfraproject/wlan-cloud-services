@@ -36,6 +36,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     final static Integer BANDWIDTH_LIMIT_NO_LIMIT = 0;
     final static Integer BANDWIDTH_LIMIT_MAX = 800;
     final static String DEFAULT_SSID_NAME = "Default-SSID";
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = 60;
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = 600;
 
     private String ssid;
     private Set<RadioType> appliedRadios = new HashSet<>();
@@ -49,6 +51,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private Boolean noLocalSubnets;
     private String radiusServiceName;
     private String radiusAccountingServiceName;
+    private Integer radiusAcountingServiceInterval;
     private Long captivePortalId;
 
     private Integer bandwidthLimitDown;
@@ -104,9 +107,9 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setSsidAdminState(StateSetting.enabled);
         setNoLocalSubnets(false);
         setBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT);
-        setClientBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT); 
+        setClientBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT);
         setBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
-        setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT); 
+        setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
@@ -446,53 +449,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return true;
     }
 
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
-                captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
-                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName, radiusServiceName,
-                secureMode, ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof SsidConfiguration)) {
-            return false;
-        }
-        SsidConfiguration other = (SsidConfiguration) obj;
-        return Objects.equals(appliedRadios, other.appliedRadios)
-                && Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
-                && Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
-                && Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
-                && broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
-                && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
-                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
-                && Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
-                && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
-                && Objects.equals(noLocalSubnets, other.noLocalSubnets)
-                && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
-                && Objects.equals(radiusAccountingServiceName, other.radiusAccountingServiceName)
-                && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
-                && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
-                && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
-                && Objects.equals(wepConfig, other.wepConfig);
-    }
-
-    @Override
-    public SsidConfiguration clone() {
-        SsidConfiguration returnValue = (SsidConfiguration) super.clone();
-
-        if (this.wepConfig != null) {
-            returnValue.setWepConfig(this.getWepConfig().clone());
-        }
-
-        return returnValue;
-    }
-
     public String getRadiusServiceName() {
         return radiusServiceName;
     }
@@ -501,20 +457,40 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.radiusServiceName = radiusServiceName;
     }
 
-    
     public String getRadiusAccountingServiceName() {
         return radiusAccountingServiceName;
     }
 
-    
     public void setRadiusAccountingServiceName(String radiusAccountingServiceName) {
         this.radiusAccountingServiceName = radiusAccountingServiceName;
     }
 
+    public Integer getRadiusAcountingServiceInterval() {
+        return radiusAcountingServiceInterval;
+    }
+
+    public void setRadiusAcountingServiceInterval(Integer radiusAcountingServiceInterval) {
+        if (radiusAcountingServiceInterval != null) {
+            if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
+                LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
+                        RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
+                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
+            } else if (radiusAcountingServiceInterval < RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN) {
+                LOG.info("Unable to set radius accounting service interval to less than {}. Using min value of {}.",
+                        RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
+                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
+            } else {
+                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
+            }
+        } else {
+            this.radiusAcountingServiceInterval = radiusAcountingServiceInterval;
+        }
+    }
+
     public static enum SecureMode {
 
-        open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(
-                7L), wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L),
+        open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(7L),
+        wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L),
 
         UNSUPPORTED(-1L);
 
@@ -646,5 +622,162 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 radioConfig.setEnable80211v(false);
             }
         }
+    }
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((appliedRadios == null) ? 0 : appliedRadios.hashCode());
+        result = prime * result + ((bandwidthLimitDown == null) ? 0 : bandwidthLimitDown.hashCode());
+        result = prime * result + ((bandwidthLimitUp == null) ? 0 : bandwidthLimitUp.hashCode());
+        result = prime * result + ((bonjourGatewayProfileId == null) ? 0 : bonjourGatewayProfileId.hashCode());
+        result = prime * result + ((broadcastSsid == null) ? 0 : broadcastSsid.hashCode());
+        result = prime * result + ((captivePortalId == null) ? 0 : captivePortalId.hashCode());
+        result = prime * result + ((clientBandwidthLimitDown == null) ? 0 : clientBandwidthLimitDown.hashCode());
+        result = prime * result + ((clientBandwidthLimitUp == null) ? 0 : clientBandwidthLimitUp.hashCode());
+        result = prime * result + ((enable80211w == null) ? 0 : enable80211w.hashCode());
+        result = prime * result + ((forwardMode == null) ? 0 : forwardMode.hashCode());
+        result = prime * result + ((keyRefresh == null) ? 0 : keyRefresh.hashCode());
+        result = prime * result + ((keyStr == null) ? 0 : keyStr.hashCode());
+        result = prime * result + ((noLocalSubnets == null) ? 0 : noLocalSubnets.hashCode());
+        result = prime * result + ((radioBasedConfigs == null) ? 0 : radioBasedConfigs.hashCode());
+        result = prime * result + ((radiusAccountingServiceName == null) ? 0 : radiusAccountingServiceName.hashCode());
+        result = prime * result
+                + ((radiusAcountingServiceInterval == null) ? 0 : radiusAcountingServiceInterval.hashCode());
+        result = prime * result + ((radiusServiceName == null) ? 0 : radiusServiceName.hashCode());
+        result = prime * result + ((secureMode == null) ? 0 : secureMode.hashCode());
+        result = prime * result + ((ssid == null) ? 0 : ssid.hashCode());
+        result = prime * result + ((ssidAdminState == null) ? 0 : ssidAdminState.hashCode());
+        result = prime * result + ((videoTrafficOnly == null) ? 0 : videoTrafficOnly.hashCode());
+        result = prime * result + ((vlanId == null) ? 0 : vlanId.hashCode());
+        result = prime * result + ((wepConfig == null) ? 0 : wepConfig.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SsidConfiguration other = (SsidConfiguration) obj;
+        if (appliedRadios == null) {
+            if (other.appliedRadios != null)
+                return false;
+        } else if (!appliedRadios.equals(other.appliedRadios))
+            return false;
+        if (bandwidthLimitDown == null) {
+            if (other.bandwidthLimitDown != null)
+                return false;
+        } else if (!bandwidthLimitDown.equals(other.bandwidthLimitDown))
+            return false;
+        if (bandwidthLimitUp == null) {
+            if (other.bandwidthLimitUp != null)
+                return false;
+        } else if (!bandwidthLimitUp.equals(other.bandwidthLimitUp))
+            return false;
+        if (bonjourGatewayProfileId == null) {
+            if (other.bonjourGatewayProfileId != null)
+                return false;
+        } else if (!bonjourGatewayProfileId.equals(other.bonjourGatewayProfileId))
+            return false;
+        if (broadcastSsid != other.broadcastSsid)
+            return false;
+        if (captivePortalId == null) {
+            if (other.captivePortalId != null)
+                return false;
+        } else if (!captivePortalId.equals(other.captivePortalId))
+            return false;
+        if (clientBandwidthLimitDown == null) {
+            if (other.clientBandwidthLimitDown != null)
+                return false;
+        } else if (!clientBandwidthLimitDown.equals(other.clientBandwidthLimitDown))
+            return false;
+        if (clientBandwidthLimitUp == null) {
+            if (other.clientBandwidthLimitUp != null)
+                return false;
+        } else if (!clientBandwidthLimitUp.equals(other.clientBandwidthLimitUp))
+            return false;
+        if (enable80211w == null) {
+            if (other.enable80211w != null)
+                return false;
+        } else if (!enable80211w.equals(other.enable80211w))
+            return false;
+        if (forwardMode != other.forwardMode)
+            return false;
+        if (keyRefresh == null) {
+            if (other.keyRefresh != null)
+                return false;
+        } else if (!keyRefresh.equals(other.keyRefresh))
+            return false;
+        if (keyStr == null) {
+            if (other.keyStr != null)
+                return false;
+        } else if (!keyStr.equals(other.keyStr))
+            return false;
+        if (noLocalSubnets == null) {
+            if (other.noLocalSubnets != null)
+                return false;
+        } else if (!noLocalSubnets.equals(other.noLocalSubnets))
+            return false;
+        if (radioBasedConfigs == null) {
+            if (other.radioBasedConfigs != null)
+                return false;
+        } else if (!radioBasedConfigs.equals(other.radioBasedConfigs))
+            return false;
+        if (radiusAccountingServiceName == null) {
+            if (other.radiusAccountingServiceName != null)
+                return false;
+        } else if (!radiusAccountingServiceName.equals(other.radiusAccountingServiceName))
+            return false;
+        if (radiusAcountingServiceInterval == null) {
+            if (other.radiusAcountingServiceInterval != null)
+                return false;
+        } else if (!radiusAcountingServiceInterval.equals(other.radiusAcountingServiceInterval))
+            return false;
+        if (radiusServiceName == null) {
+            if (other.radiusServiceName != null)
+                return false;
+        } else if (!radiusServiceName.equals(other.radiusServiceName))
+            return false;
+        if (secureMode != other.secureMode)
+            return false;
+        if (ssid == null) {
+            if (other.ssid != null)
+                return false;
+        } else if (!ssid.equals(other.ssid))
+            return false;
+        if (ssidAdminState != other.ssidAdminState)
+            return false;
+        if (videoTrafficOnly == null) {
+            if (other.videoTrafficOnly != null)
+                return false;
+        } else if (!videoTrafficOnly.equals(other.videoTrafficOnly))
+            return false;
+        if (vlanId == null) {
+            if (other.vlanId != null)
+                return false;
+        } else if (!vlanId.equals(other.vlanId))
+            return false;
+        if (wepConfig == null) {
+            if (other.wepConfig != null)
+                return false;
+        } else if (!wepConfig.equals(other.wepConfig))
+            return false;
+        return true;
+    }
+
+    @Override
+    public SsidConfiguration clone() {
+        SsidConfiguration returnValue = (SsidConfiguration) super.clone();
+
+        if (this.wepConfig != null) {
+            returnValue.setWepConfig(this.getWepConfig().clone());
+        }
+
+        return returnValue;
     }
 }
