@@ -311,12 +311,12 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
-  /api/portalUser/idsFromUsername:
+  /api/portalUser/customerIdsForUsername:
     get:
       tags:
       - Portal User Data
       summary: Gets list of customerIds by username
-      operationId: getCustomerIdsFromUsername
+      operationId: getCustomerIdsForUsername
       parameters:
       - name: username
         in: query
