@@ -171,5 +171,22 @@ public class PortalUserPortalController  {
 
         return ret;
     }
+    
+    /**
+     * Retrieves list of CustomerIds by username
+     * @param username
+     * @return List of customerIds for the supplied username
+     */
+    @RequestMapping(value = "/portalUser/customerIdsForUsername", method=RequestMethod.GET)
+    public List<Integer> getCustomerIdsForUsername(@RequestParam String username) {
+        
+        LOG.debug("Retrieving List<CustomerIds> getCustomerIdsForUsername {}", username);
+        
+        List<Integer> ret = portalUserServiceInterface.getCustomerIdsForUsername(username);
+
+        LOG.debug("Retrieved List<CustomerIds> getCustomerIdsForUsername {} : {}", username, ret);
+
+        return ret;
+    }
    
 }

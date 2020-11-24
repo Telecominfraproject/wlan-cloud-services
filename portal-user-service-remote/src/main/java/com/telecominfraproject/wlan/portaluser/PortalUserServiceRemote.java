@@ -31,6 +31,8 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
     private static final Logger LOG = LoggerFactory.getLogger(PortalUserServiceRemote.class);
     
     private static final ParameterizedTypeReference<List<PortalUser>> PortalUser_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<PortalUser>>() {};
+    
+    private static final ParameterizedTypeReference<List<Integer>> CustomerIds_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Integer>>() {};
 
     private static final ParameterizedTypeReference<PaginationResponse<PortalUser>> PortalUser_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<PortalUser>>() {};
 
@@ -108,6 +110,25 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
         LOG.debug("completed portalUser.getByUsernameOrNull {} {} : {}", customerId, username, ret );
         
         return ret;
+    }
+    
+    @Override
+    public List<Integer> getCustomerIdsForUsername(String username) {
+        LOG.debug("calling portalUser.getCustomerIdsForUsername {} ", username);
+
+        ResponseEntity<List<Integer>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                +"/getCustomerIdsForUsername?username={username}", HttpMethod.GET,
+                null, CustomerIds_LIST_CLASS_TOKEN, username);
+        
+        List<Integer> listofCustomerIds = responseEntity.getBody();
+        if (null == listofCustomerIds) {
+        	listofCustomerIds = Collections.emptyList();
+        }
+        
+        LOG.debug("getCustomerIdsForUsername({}) return {} entries", username, listofCustomerIds.size());
+        
+        return listofCustomerIds;
     }
     
 	@Override
