@@ -466,7 +466,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         }
 	}
 	
-	public List<Integer> getIdsFromUsername(String username) {
+	public List<Integer> getCustomerIdsForUsername(String username) {
         LOG.debug("Looking up customerIds for username {} {}", username);
 
         try {

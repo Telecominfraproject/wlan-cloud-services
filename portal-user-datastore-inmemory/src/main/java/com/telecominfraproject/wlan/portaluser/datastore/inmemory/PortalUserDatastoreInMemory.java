@@ -157,7 +157,7 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     }
     
     @Override
-    public List<Integer> getIdsFromUsername(String username) {
+    public List<Integer> getCustomerIdsForUsername(String username) {
     	List<Integer> listOfCustomerIds = new ArrayList<>();
     	
     	for (PortalUser portalUser : idToPortalUserMap.values()) {
