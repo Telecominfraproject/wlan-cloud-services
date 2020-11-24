@@ -311,6 +311,32 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
+  /api/portalUser/idsFromUsername:
+    get:
+      tags:
+      - Portal User Data
+      summary: Gets list of customerIds by username
+      operationId: getCustomerIdsFromUsername
+      parameters:
+      - name: username
+        in: query
+        description: username
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
   /api/portalUser/inSet:  
     get:
       tags:

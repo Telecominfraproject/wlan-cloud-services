@@ -148,6 +148,20 @@ public class PortalUserController {
              throw exp;
         }
     }
+    
+    @RequestMapping(value = "/idsFromUsername", method = RequestMethod.GET)
+    public List<Integer> getIdsfromUsername(@RequestParam String username) {
+        LOG.debug("getIdsfromUsername({})", username);
+        try {
+            List<Integer> result = portalUserDatastore.getIdsFromUsername(username);
+            LOG.debug("getIdsfromUsername({}) return {} entries", result, result.size());
+            
+            return result;
+        } catch (Exception exp) {
+             LOG.error("getIdsfromUsername({}) exception ", username, exp);
+             throw exp;
+        }
+    }
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<PortalUser> getForCustomer(@RequestParam int customerId,
