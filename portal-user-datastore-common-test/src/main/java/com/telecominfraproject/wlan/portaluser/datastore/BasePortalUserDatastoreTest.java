@@ -176,6 +176,39 @@ public abstract class BasePortalUserDatastoreTest {
     }
     
     @Test
+    public void testGetCustomerIdsForUsername() {
+        Set<PortalUser> createdSet = new HashSet<>();
+        List<Integer> checkCustomerIdsList = new ArrayList<>();
+        String testUsername = "testSameUsername";
+
+        //Create test PortalUsers
+        PortalUser portalUser = new PortalUser();
+        portalUser.setUsername(testUsername);
+
+        for (int i = 0; i < 10; i++) {
+            portalUser.setCustomerId(i);
+            portalUser.setPassword("blah");
+            portalUser.setRole(PortalUserRole.TechSupport);
+
+            PortalUser ret = testInterface.create(portalUser);
+            createdSet.add(ret.clone());
+            
+            checkCustomerIdsList.add(i);
+        }
+        
+        List<Integer> listOfCustomerIds = testInterface.getCustomerIdsForUsername(testUsername);
+        assertEquals(10, listOfCustomerIds.size());
+        assertEquals(10, createdSet.size());
+        assertEquals(checkCustomerIdsList, listOfCustomerIds);
+		
+        // Clean up after test
+        for (PortalUser c : createdSet) {
+        	testInterface.delete(c.getId());
+        }
+
+    }
+    
+    @Test
     public void testPortalUserPagination()
     {
        //create 100 PortalUsers

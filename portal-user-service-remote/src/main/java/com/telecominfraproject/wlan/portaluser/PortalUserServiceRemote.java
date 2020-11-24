@@ -118,7 +118,7 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
 
         ResponseEntity<List<Integer>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                +"/getCustomerIdsForUsername?username={username}", HttpMethod.GET,
+                +"/customerIdsForUsername?username={username}", HttpMethod.GET,
                 null, CustomerIds_LIST_CLASS_TOKEN, username);
         
         List<Integer> listofCustomerIds = responseEntity.getBody();
