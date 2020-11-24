@@ -466,21 +466,14 @@ public class PortalUserDAO extends BaseJdbcDao {
         }
 	}
 	
-	public List<Integer> getCustomerIdsForUsername(String username) {
-        LOG.debug("Looking up customerIds for username {} {}", username);
+	public List<PortalUser> getUsersForUsername(String username) {
+        LOG.debug("Looking up PortalUsers for username {} {}", username);
 
     	List<PortalUser> ret = this.jdbcTemplate.query(SQL_GET_BY_USERNAME,
                 portalUserRowMapper, username);
         
         LOG.debug("Found List of Portal Users {}", ret);
-        
-        List<Integer> listOfCustomerIds = new ArrayList<>();
-        for (PortalUser portalUser : ret) {
-        	listOfCustomerIds.add(portalUser.getCustomerId());
-        }
-        
-        LOG.debug("getCustomerIdsForUsername() returns {} record(s)", listOfCustomerIds.size());
-        
-        return listOfCustomerIds;
+                
+        return ret;
 	}
 }

@@ -49,9 +49,9 @@ public interface PortalUserServiceInterface {
     
     /**
      * @param username
-     * @return List of customerIds for the supplied username
+     * @return List of PortalUsers for the supplied username
      */
-    List<Integer> getCustomerIdsForUsername(String username);
+    List<PortalUser> getUsersForUsername(String username);
 
     /**
      * Retrieves a list of PortalUser records that which have their Id in the provided set.

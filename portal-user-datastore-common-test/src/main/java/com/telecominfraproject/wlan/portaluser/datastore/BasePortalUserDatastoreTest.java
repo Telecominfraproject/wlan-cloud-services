@@ -176,9 +176,7 @@ public abstract class BasePortalUserDatastoreTest {
     }
     
     @Test
-    public void testGetCustomerIdsForUsername() {
-        Set<PortalUser> createdSet = new HashSet<>();
-        List<Integer> checkCustomerIdsList = new ArrayList<>();
+    public void testGetUsersForUsername() {
         String testUsername = "testSameUsername";
 
         //Create test PortalUsers
@@ -186,24 +184,21 @@ public abstract class BasePortalUserDatastoreTest {
         portalUser.setUsername(testUsername);
 
         for (int i = 0; i < 10; i++) {
-            portalUser.setCustomerId(i);
+        	if (i >= 5) {
+        		portalUser.setUsername("badUsername");
+        	}
+            portalUser.setCustomerId((int) testSequence.incrementAndGet());
             portalUser.setPassword("blah");
             portalUser.setRole(PortalUserRole.TechSupport);
 
-            PortalUser ret = testInterface.create(portalUser);
-            createdSet.add(ret.clone());
+            testInterface.create(portalUser);
             
-            checkCustomerIdsList.add(i);
         }
         
-        List<Integer> listOfCustomerIds = testInterface.getCustomerIdsForUsername(testUsername);
-        assertEquals(10, listOfCustomerIds.size());
-        assertEquals(10, createdSet.size());
-        assertEquals(checkCustomerIdsList, listOfCustomerIds);
-		
-        // Clean up after test
-        for (PortalUser c : createdSet) {
-        	testInterface.delete(c.getId());
+        List<PortalUser> listOfPortalUsers = testInterface.getUsersForUsername(testUsername);
+        assertEquals(5, listOfPortalUsers.size());
+        for (PortalUser pUser : listOfPortalUsers) {
+        	assertEquals(testUsername, pUser.getUsername());
         }
 
     }

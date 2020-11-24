@@ -57,8 +57,8 @@ public interface PortalUserDatastore {
     
     /**
      * @param username
-     * @return List of customerIds for the supplied username
+     * @return List of PortalUsers for the supplied username
      */
-    List<Integer> getCustomerIdsForUsername(String username);
+    List<PortalUser> getUsersForUsername(String username);
 
 }

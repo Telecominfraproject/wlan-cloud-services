@@ -149,16 +149,16 @@ public class PortalUserController {
         }
     }
     
-    @RequestMapping(value = "/customerIdsForUsername", method = RequestMethod.GET)
-    public List<Integer> getCustomerIdsForUsername(@RequestParam String username) {
-        LOG.debug("getCustomerIdsForUsername({})", username);
+    @RequestMapping(value = "/usersForUsername", method = RequestMethod.GET)
+    public List<PortalUser> getUsersForUsername(@RequestParam String username) {
+        LOG.debug("getUsersForUsername({})", username);
         try {
-            List<Integer> result = portalUserDatastore.getCustomerIdsForUsername(username);
-            LOG.debug("getCustomerIdsForUsername({}) return {} entries", result, result.size());
+            List<PortalUser> result = portalUserDatastore.getUsersForUsername(username);
+            LOG.debug("getUsersForUsername({}) return {} entries", result, result.size());
             
             return result;
         } catch (Exception exp) {
-             LOG.error("getCustomerIdsForUsername({}) exception ", username, exp);
+             LOG.error("getUsersForUsername({}) exception ", username, exp);
              throw exp;
         }
     }

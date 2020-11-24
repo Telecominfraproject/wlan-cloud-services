@@ -179,9 +179,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
     }
     
     @Test
-    public void testGetCustomerIdsForUsername() {
-        Set<PortalUser> createdSet = new HashSet<>();
-        List<Integer> checkCustomerIdsList = new ArrayList<>();
+    public void testGetUsersForUsername() {
         String testUsername = "testSameUsername";
 
         //Create test PortalUsers
@@ -189,24 +187,21 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         portalUser.setUsername(testUsername);
 
         for (int i = 0; i < 10; i++) {
-            portalUser.setCustomerId(i);
+        	if (i >= 5) {
+        		portalUser.setUsername("badUsername");
+        	}
+            portalUser.setCustomerId(getNextCustomerId());
             portalUser.setPassword("blah");
             portalUser.setRole(PortalUserRole.TechSupport);
 
-            PortalUser ret = remoteInterface.create(portalUser);
-            createdSet.add(ret.clone());
+            remoteInterface.create(portalUser);
             
-            checkCustomerIdsList.add(i);
         }
         
-        List<Integer> listOfCustomerIds = remoteInterface.getCustomerIdsForUsername(testUsername);
-        assertEquals(10, listOfCustomerIds.size());
-        assertEquals(10, createdSet.size());
-        assertEquals(checkCustomerIdsList, listOfCustomerIds);
-		
-        // Clean up after test
-        for (PortalUser c : createdSet) {
-        	remoteInterface.delete(c.getId());
+        List<PortalUser> listOfPortalUsers = remoteInterface.getUsersForUsername(testUsername);
+        assertEquals(5, listOfPortalUsers.size());
+        for (PortalUser pUser : listOfPortalUsers) {
+        	assertEquals(testUsername, pUser.getUsername());
         }
 
     }

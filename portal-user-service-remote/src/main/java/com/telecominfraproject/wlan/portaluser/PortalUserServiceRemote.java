@@ -32,8 +32,6 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
     
     private static final ParameterizedTypeReference<List<PortalUser>> PortalUser_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<PortalUser>>() {};
     
-    private static final ParameterizedTypeReference<List<Integer>> CustomerIds_LIST_CLASS_TOKEN = new ParameterizedTypeReference<List<Integer>>() {};
-
     private static final ParameterizedTypeReference<PaginationResponse<PortalUser>> PortalUser_PAGINATION_RESPONSE_CLASS_TOKEN = new ParameterizedTypeReference<PaginationResponse<PortalUser>>() {};
 
 
@@ -113,22 +111,22 @@ public class PortalUserServiceRemote extends BaseRemoteClient implements PortalU
     }
     
     @Override
-    public List<Integer> getCustomerIdsForUsername(String username) {
-        LOG.debug("calling portalUser.getCustomerIdsForUsername {} ", username);
+    public List<PortalUser> getUsersForUsername(String username) {
+        LOG.debug("calling portalUser.getUsersForUsername {} ", username);
 
-        ResponseEntity<List<Integer>> responseEntity = restTemplate.exchange(
+        ResponseEntity<List<PortalUser>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                +"/customerIdsForUsername?username={username}", HttpMethod.GET,
-                null, CustomerIds_LIST_CLASS_TOKEN, username);
+                +"/usersForUsername?username={username}", HttpMethod.GET,
+                null, PortalUser_LIST_CLASS_TOKEN, username);
         
-        List<Integer> listofCustomerIds = responseEntity.getBody();
-        if (null == listofCustomerIds) {
-        	listofCustomerIds = Collections.emptyList();
+        List<PortalUser> listOfPortalUsers = responseEntity.getBody();
+        if (null == listOfPortalUsers) {
+        	listOfPortalUsers = Collections.emptyList();
         }
         
-        LOG.debug("getCustomerIdsForUsername({}) return {} entries", username, listofCustomerIds.size());
+        LOG.debug("getUsersForUsername({}) return {} entries", username, listOfPortalUsers.size());
         
-        return listofCustomerIds;
+        return listOfPortalUsers;
     }
     
 	@Override

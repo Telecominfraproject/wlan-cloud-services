@@ -157,16 +157,16 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     }
     
     @Override
-    public List<Integer> getCustomerIdsForUsername(String username) {
-    	List<Integer> listOfCustomerIds = new ArrayList<>();
+    public List<PortalUser> getUsersForUsername(String username) {
+    	List<PortalUser> listOfPortalUsers = new ArrayList<>();
     	
     	for (PortalUser portalUser : idToPortalUserMap.values()) {
     		if (portalUser.getUsername().equals(username)) {
-    			listOfCustomerIds.add(portalUser.getCustomerId());
+    			listOfPortalUsers.add(portalUser);
     		}
     	}
     	
-    	return listOfCustomerIds;
+    	return listOfPortalUsers;
     }
     
     @Override
