@@ -131,6 +131,11 @@ public class PortalUserDAO extends BaseJdbcDao {
     		" from " + TABLE_NAME + " " + 
     		" where customerId = ? ";
     
+    private static final String SQL_GET_BY_USERNAME = 
+    		"select " + ALL_COLUMNS +
+    		" from " + TABLE_NAME + " " + 
+    		" where username = ? ";
+    
     private static final String SQL_GET_BY_CUSTOMERID_AND_USERNAME = SQL_GET_BY_CUSTOMER_ID +
     		" and username = ?";
 
@@ -459,5 +464,16 @@ public class PortalUserDAO extends BaseJdbcDao {
             LOG.debug("Could not find PortalUser for username {} {}", customerId, username);
             return null;
         }
+	}
+	
+	public List<PortalUser> getUsersForUsername(String username) {
+        LOG.debug("Looking up PortalUsers for username {} {}", username);
+
+    	List<PortalUser> ret = this.jdbcTemplate.query(SQL_GET_BY_USERNAME,
+                portalUserRowMapper, username);
+        
+        LOG.debug("Found List of Portal Users {}", ret);
+                
+        return ret;
 	}
 }

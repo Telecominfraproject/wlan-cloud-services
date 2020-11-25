@@ -46,6 +46,12 @@ public interface PortalUserServiceInterface {
      * @return PortalUser for the supplied username or null if it cannot be found
      */
     PortalUser getByUsernameOrNull(int customerId, String username);
+    
+    /**
+     * @param username
+     * @return List of PortalUsers for the supplied username
+     */
+    List<PortalUser> getUsersForUsername(String username);
 
     /**
      * Retrieves a list of PortalUser records that which have their Id in the provided set.

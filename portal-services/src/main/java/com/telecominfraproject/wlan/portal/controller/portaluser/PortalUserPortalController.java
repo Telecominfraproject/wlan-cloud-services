@@ -171,5 +171,25 @@ public class PortalUserPortalController  {
 
         return ret;
     }
+    
+    /**
+     * Retrieves list of PortalUsers by username
+     * @param username
+     * @return List of PortalUsers for the supplied username
+     */
+    @RequestMapping(value = "/portalUser/usersForUsername", method=RequestMethod.GET)
+    public ListOfPortalUsers getUsersForUsername(@RequestParam String username) {
+        
+        LOG.debug("Retrieving List<PortalUser> getUsersForUsername {}", username);
+        
+        List<PortalUser> result = portalUserServiceInterface.getUsersForUsername(username);
+        
+        ListOfPortalUsers ret = new ListOfPortalUsers();
+        ret.addAll(result);
+
+        LOG.debug("Retrieved List<PortalUser> getUsersForUsername {} : {}", username, ret);
+
+        return ret;
+    }
    
 }

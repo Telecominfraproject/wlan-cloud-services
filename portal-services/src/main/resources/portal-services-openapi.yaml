@@ -10403,6 +10403,30 @@ paths:
                 $ref: '#/components/schemas/PortalUser'
         500:
           $ref: '#/components/responses/GenericApiError'
+          
+  /portal/portalUser/usersForUsername:
+    get:
+      tags:
+      - Portal Users
+      summary: Get Portal Users for username
+      operationId: getUsersForUsername
+      parameters:
+      - name: username
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalUser'
+        500:
+          $ref: '#/components/responses/GenericApiError'
 
   /portal/status/forCustomer:
     get:

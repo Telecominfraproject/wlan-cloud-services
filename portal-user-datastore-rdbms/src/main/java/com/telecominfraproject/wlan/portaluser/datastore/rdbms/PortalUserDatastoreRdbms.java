@@ -43,6 +43,12 @@ public class PortalUserDatastoreRdbms implements PortalUserDatastore {
     }
     
     @Override
+    public List<PortalUser> getUsersForUsername(String username) {
+        return portalUserDAO.getUsersForUsername(username);
+    }
+    
+    
+    @Override
     public PortalUser update(PortalUser portalUser) {
         return portalUserDAO.update(portalUser);
     }

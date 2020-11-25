@@ -311,6 +311,31 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
+  /api/portalUser/usersForUsername:
+    get:
+      tags:
+      - Portal User Data
+      summary: Gets list of Portal Users by username
+      operationId: getUsersForUsername
+      parameters:
+      - name: username
+        in: query
+        description: username
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalUser'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+          
   /api/portalUser/inSet:  
     get:
       tags:
