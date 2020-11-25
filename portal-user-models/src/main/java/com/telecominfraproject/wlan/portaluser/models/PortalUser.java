@@ -112,7 +112,9 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 	@JsonIgnore
 	@Deprecated
 	public void setRole(PortalUserRole role) {
-		roles = Arrays.asList(role);
+		if (roles == null) {
+			roles = Arrays.asList(role);
+		}
 	}
 	
 	@Override
