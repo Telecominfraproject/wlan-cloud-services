@@ -10408,7 +10408,7 @@ paths:
     get:
       tags:
       - Portal Users
-      summary: Get customerIds for username
+      summary: Get Portal Users for username
       operationId: getUsersForUsername
       parameters:
       - name: username
