@@ -4,6 +4,7 @@ insert into portal_user (
     username,
     password,
     role,
+    roles,
     details,
     createdTimestamp,
     lastModifiedTimestamp
@@ -13,6 +14,7 @@ insert into portal_user (
     'test',
     'blah',
     1,
+    '[1]',
     null,
     0,0
 );
