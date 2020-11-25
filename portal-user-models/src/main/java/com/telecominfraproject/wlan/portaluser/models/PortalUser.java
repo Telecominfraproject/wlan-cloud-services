@@ -1,8 +1,10 @@
 package com.telecominfraproject.wlan.portaluser.models;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
@@ -21,7 +23,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
     //TODO: put more fields here, generate getters/setters for them
     private String username;
     private String password;
-    private List<PortalUserRole> role;
+    private List<PortalUserRole> roles;
     
     private PortalUserDetails details;
     
@@ -71,6 +73,10 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 	public PortalUserDetails getDetails() {
 		return details;
 	}
+	
+	public void setDetails(PortalUserDetails details) {
+		this.details = details;
+	}
 
 	public String getPassword() {
 		return password;
@@ -80,18 +86,29 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		this.password = password;
 	}
 
-	public List<PortalUserRole> getRole() {
-		return role;
+	public List<PortalUserRole> getRoles() {
+		return roles;
 	}
 
-	public void setRole(List<PortalUserRole> role) {
-		this.role = role;
+	public void setRoles(List<PortalUserRole> roles) {
+		this.roles = roles;
 	}
 
-	public void setDetails(PortalUserDetails details) {
-		this.details = details;
+	@JsonIgnore
+	@Deprecated
+	public PortalUserRole getRole() {
+		if (roles == null || roles.isEmpty()) {
+			return null;
+		}
+		return roles.get(0);
 	}
-
+	
+	@JsonIgnore
+	@Deprecated
+	public void setRole(PortalUserRole role) {
+		roles = Arrays.asList(role);
+	}
+	
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -117,7 +134,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, username, password, role, details);
+		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, username, password, roles, details);
 	}
 
 	@Override
@@ -133,7 +150,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
 				&& Objects.equals(username, other.username)
 				&& Objects.equals(password, other.password)
-				&& Objects.equals(role, other.role)
+				&& Objects.equals(roles, other.roles)
 				&& Objects.equals(details, other.details);
 	}
     

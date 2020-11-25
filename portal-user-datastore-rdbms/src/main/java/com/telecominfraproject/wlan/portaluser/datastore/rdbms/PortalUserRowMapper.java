@@ -35,7 +35,7 @@ public class PortalUserRowMapper implements RowMapper<PortalUser> {
         portalUser.setPassword(rs.getString(colIdx++));
         List<PortalUserRole> listOfRoles = new ArrayList<>();
         listOfRoles.add(PortalUserRole.getById(rs.getInt(colIdx++)));
-        portalUser.setRole(listOfRoles);
+        portalUser.setRoles(listOfRoles);
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {

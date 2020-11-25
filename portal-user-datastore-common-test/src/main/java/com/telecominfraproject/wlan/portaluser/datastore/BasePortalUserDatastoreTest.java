@@ -50,7 +50,7 @@ public abstract class BasePortalUserDatastoreTest {
         assertEquals(portalUser.getUsername(), created.getUsername());
         assertEquals(portalUser.getCustomerId(), created.getCustomerId());
         assertEquals(portalUser.getPassword(), created.getPassword());
-        assertEquals(portalUser.getRole(), created.getRole());
+        assertEquals(portalUser.getRoles(), created.getRoles());
         assertNotNull(created.getDetails());
         assertEquals(portalUser.getDetails(), created.getDetails());
                 
@@ -135,7 +135,7 @@ public abstract class BasePortalUserDatastoreTest {
             portalUser.setUsername("test_" + i);
             portalUser.setCustomerId(i);
             portalUser.setPassword("blah");
-            portalUser.setRole(Arrays.asList(PortalUserRole.TechSupport));
+            portalUser.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
             PortalUser ret = testInterface.create(portalUser);
 
@@ -189,7 +189,7 @@ public abstract class BasePortalUserDatastoreTest {
         	}
             portalUser.setCustomerId((int) testSequence.incrementAndGet());
             portalUser.setPassword("blah");
-            portalUser.setRole(Arrays.asList(PortalUserRole.TechSupport));
+            portalUser.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
             testInterface.create(portalUser);
             
@@ -218,7 +218,7 @@ public abstract class BasePortalUserDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setUsername("qr_"+apNameIdx);
            mdl.setPassword("blah");
-           mdl.setRole(Arrays.asList(PortalUserRole.TechSupport));
+           mdl.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
            apNameIdx++;
            testInterface.create(mdl);
@@ -229,7 +229,7 @@ public abstract class BasePortalUserDatastoreTest {
            mdl.setCustomerId(customerId_2);
            mdl.setUsername("qr_"+apNameIdx);
            mdl.setPassword("blah");
-           mdl.setRole(Arrays.asList(PortalUserRole.TechSupport));
+           mdl.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
            apNameIdx++;
            testInterface.create(mdl);
@@ -327,7 +327,7 @@ public abstract class BasePortalUserDatastoreTest {
         result.setCustomerId((int) nextId);
         result.setUsername("test-" + nextId); 
         result.setPassword("blah");
-        result.setRole(Arrays.asList(PortalUserRole.TechSupport));
+        result.setRoles(Arrays.asList(PortalUserRole.TechSupport));
         PortalUserDetails details = new PortalUserDetails();
         details.setSampleDetailsStr("test-details-" + nextId);
 		result.setDetails(details );

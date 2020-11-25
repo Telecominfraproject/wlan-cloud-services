@@ -58,7 +58,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         portalUser.setUsername("test");
         portalUser.setCustomerId(getNextCustomerId());
         portalUser.setPassword("blah");
-        portalUser.setRole(Arrays.asList(PortalUserRole.TechSupport));
+        portalUser.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
         PortalUser ret = remoteInterface.create(portalUser);
         assertNotNull(ret);        
@@ -138,7 +138,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
             portalUser.setUsername("test_" + i);
             portalUser.setCustomerId(customerId);
             portalUser.setPassword("blah");
-            portalUser.setRole(Arrays.asList(PortalUserRole.TechSupport));
+            portalUser.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
             PortalUser ret = remoteInterface.create(portalUser);
 
@@ -192,7 +192,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         	}
             portalUser.setCustomerId(getNextCustomerId());
             portalUser.setPassword("blah");
-            portalUser.setRole(Arrays.asList(PortalUserRole.TechSupport));
+            portalUser.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
             remoteInterface.create(portalUser);
             
@@ -221,7 +221,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
            mdl.setCustomerId(customerId_1);
            mdl.setUsername("qr_"+apNameIdx);
            mdl.setPassword("blah");
-           mdl.setRole(Arrays.asList(PortalUserRole.TechSupport));
+           mdl.setRoles(Arrays.asList(PortalUserRole.TechSupport));
 
            apNameIdx++;
            remoteInterface.create(mdl);
@@ -232,7 +232,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
            mdl.setCustomerId(customerId_2);
            mdl.setUsername("qr_"+apNameIdx);
            mdl.setPassword("blah");
-           mdl.setRole(Arrays.asList(PortalUserRole.TechSupport));
+           mdl.setRoles(Arrays.asList(PortalUserRole.TechSupport));
            
            apNameIdx++;
            remoteInterface.create(mdl);
@@ -332,7 +332,7 @@ public class PortalUserServiceRemoteTest extends BaseRemoteTest {
         assertEquals(expected.getUsername(), actual.getUsername());
         assertEquals(expected.getCustomerId(), actual.getCustomerId());
         assertEquals(expected.getPassword(), actual.getPassword());
-        assertEquals(expected.getRole(), actual.getRole());
+        assertEquals(expected.getRoles(), actual.getRoles());
         
         //TODO: add more fields to check here
     }

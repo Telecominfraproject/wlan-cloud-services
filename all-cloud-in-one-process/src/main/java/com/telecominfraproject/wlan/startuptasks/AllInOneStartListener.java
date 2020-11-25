@@ -199,7 +199,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         for (int i = 0; i < 5; i++) {
             PortalUser portalUser = new PortalUser();
             portalUser.setCustomerId(customer.getId());
-            portalUser.setRole(Arrays.asList(PortalUserRole.CustomerIT));
+            portalUser.setRoles(Arrays.asList(PortalUserRole.CustomerIT));
             portalUser.setPassword("pwd" + i);
             portalUser.setUsername("user-" + i);
             portalUserServiceInterface.create(portalUser);

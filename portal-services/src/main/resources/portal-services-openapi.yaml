@@ -2656,7 +2656,7 @@ components:
           type: string
         password:
           type: string
-        role:
+        roles:
           type: array
           items:
             $ref: '#/components/schemas/PortalUserRole'
