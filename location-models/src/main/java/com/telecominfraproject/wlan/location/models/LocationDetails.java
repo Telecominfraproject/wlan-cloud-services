@@ -19,21 +19,6 @@ public class LocationDetails extends BaseJsonModel {
         return new LocationDetails();
     }
 
-    private static Map<DayOfTheWeek, LocationActivityDetails> createDefaultActivityDetails() {
-
-        Map<DayOfTheWeek, LocationActivityDetails> tmp = new EnumMap<>(DayOfTheWeek.class);
-
-        for (DayOfTheWeek day : DayOfTheWeek.values()) {
-            LocationActivityDetails details = new LocationActivityDetails();
-            details.setBusyTime("13:30");
-            details.setQuietTime("3:30");
-            details.setTimezone(DEFAULT_TIMEZONE);
-            tmp.put(day, details);
-        }
-
-        return tmp;
-    }
-
     private CountryCode countryCode;
 
     private Map<DayOfTheWeek, LocationActivityDetails> dailyActivityDetails;
@@ -49,6 +34,21 @@ public class LocationDetails extends BaseJsonModel {
         this.rrmEnabled = true;
         this.dailyActivityDetails = createDefaultActivityDetails();
     }
+    
+    private static Map<DayOfTheWeek, LocationActivityDetails> createDefaultActivityDetails() {
+
+        Map<DayOfTheWeek, LocationActivityDetails> tmp = new EnumMap<>(DayOfTheWeek.class);
+
+        for (DayOfTheWeek day : DayOfTheWeek.values()) {
+            LocationActivityDetails details = new LocationActivityDetails();
+            details.setBusyTime("13:30");
+            details.setQuietTime("3:00");
+            details.setTimezone(DEFAULT_TIMEZONE);
+            tmp.put(day, details);
+        }
+
+        return tmp;
+    }    
 
     @Override
     public LocationDetails clone() {
@@ -72,7 +72,7 @@ public class LocationDetails extends BaseJsonModel {
         return countryCode;
     }
 
-    public Map<DayOfTheWeek, LocationActivityDetails> getDailyRebalancingDetails() {
+    public Map<DayOfTheWeek, LocationActivityDetails> getDailyActivityDetails() {
         return dailyActivityDetails;
     }
 
@@ -103,8 +103,8 @@ public class LocationDetails extends BaseJsonModel {
         this.countryCode = countryCode;
     }
 
-    public void setDailyRebalancingDetails(Map<DayOfTheWeek, LocationActivityDetails> dailyRebalancingDetails) {
-        this.dailyActivityDetails = dailyRebalancingDetails;
+    public void setDailyActivityDetails(Map<DayOfTheWeek, LocationActivityDetails> dailyActivityDetails) {
+        this.dailyActivityDetails = dailyActivityDetails;
     }
 
     public void setMaintenanceWindow(ScheduleSetting maintenanceWindow) {
