@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.portal.controller.webtoken;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -189,7 +190,7 @@ public class WebTokenIntrospectorController {
         	 
         	 portalUser = new PortalUser();
         	 portalUser.setUsername(superUserName);
-        	 portalUser.setRole(PortalUserRole.SuperUser);
+        	 portalUser.setRole(Arrays.asList(PortalUserRole.SuperUser));
         } else {
         	//lookup the portal user with this username
         	portalUser = portalUserServiceInterface.getByUsernameOrNull(customerIdForWebToken, body.getUserId());
@@ -226,7 +227,7 @@ public class WebTokenIntrospectorController {
         System.out.println("UUID="+uuid);
         PortalUser portalUser = new PortalUser();
 	   	portalUser.setUsername(superUserName);
-	   	portalUser.setRole(PortalUserRole.SuperUser);
+	   	portalUser.setRole(Arrays.asList(PortalUserRole.SuperUser));
 	   	portalUser.setId(42);
 
         String token = createAccessToken(portalUser);
@@ -288,7 +289,7 @@ public class WebTokenIntrospectorController {
         PortalUser portalUser = new PortalUser();
         portalUser.setUsername(userName);
         portalUser.setId(userId);
-        portalUser.setRole(PortalUserRole.valueOf(userRole));
+        portalUser.setRole(Arrays.asList(PortalUserRole.valueOf(userRole)));
         
         //create new accessToken and refreshToken
 

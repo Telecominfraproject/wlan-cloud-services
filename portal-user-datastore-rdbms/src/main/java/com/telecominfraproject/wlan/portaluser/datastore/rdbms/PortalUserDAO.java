@@ -190,7 +190,7 @@ public class PortalUserDAO extends BaseJdbcDao {
                         ps.setInt(colIdx++, portalUser.getCustomerId());
                         ps.setString(colIdx++, portalUser.getUsername());
                         ps.setString(colIdx++, portalUser.getPassword());
-                        ps.setInt(colIdx++, portalUser.getRole().getId());
+                        ps.setInt(colIdx++, portalUser.getRole().get(0).getId());
                       	ps.setBytes(colIdx++, (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -262,7 +262,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         		portalUser.getCustomerId(),
                 portalUser.getUsername(),
                 portalUser.getPassword(),
-                portalUser.getRole().getId(),
+                portalUser.getRole().get(0).getId(),
                 (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null ,
                                 
                 //portalUser.getCreatedTimestamp(), - not updating this one

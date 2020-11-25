@@ -2657,7 +2657,9 @@ components:
         password:
           type: string
         role:
-          $ref: '#/components/schemas/PortalUserRole'
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalUserRole'
         createdTimestamp:
           type: integer
           format: int64
@@ -2675,7 +2677,16 @@ components:
       type: string
       enum:
       - SuperUser
+      - SuperUser_RO
       - CustomerIT
+      - CustomerIT_RO
+      - Distributor
+      - Distributor_RO
+      - ManagedServiceProvider
+      - ManagedServiceProvider_RO
+      - TechSupport
+      - TechSupport_RO
+      - Public
 
 #
 # Status data models

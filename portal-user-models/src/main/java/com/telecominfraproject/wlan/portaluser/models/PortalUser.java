@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.portaluser.models;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -20,7 +21,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
     //TODO: put more fields here, generate getters/setters for them
     private String username;
     private String password;
-    private PortalUserRole role;
+    private List<PortalUserRole> role;
     
     private PortalUserDetails details;
     
@@ -79,11 +80,11 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		this.password = password;
 	}
 
-	public PortalUserRole getRole() {
+	public List<PortalUserRole> getRole() {
 		return role;
 	}
 
-	public void setRole(PortalUserRole role) {
+	public void setRole(List<PortalUserRole> role) {
 		this.role = role;
 	}
 
