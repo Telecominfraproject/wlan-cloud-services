@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -198,7 +199,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         for (int i = 0; i < 5; i++) {
             PortalUser portalUser = new PortalUser();
             portalUser.setCustomerId(customer.getId());
-            portalUser.setRole(PortalUserRole.CustomerIT);
+            portalUser.setRoles(Arrays.asList(PortalUserRole.CustomerIT));
             portalUser.setPassword("pwd" + i);
             portalUser.setUsername("user-" + i);
             portalUserServiceInterface.create(portalUser);

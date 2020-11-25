@@ -8,6 +8,7 @@ create table portal_user (
     username varchar(100),
     password varchar(300),
     role int,
+    roles varchar(600),
     details varbinary(65535),
     
     createdTimestamp bigint not null,
@@ -17,3 +18,6 @@ create table portal_user (
 
 create index idx_portal_user_customerId on portal_user (customerId);
 create unique index portal_user_customerId_username on portal_user (customerId, username);
+
+alter table portal_user add column IF NOT EXISTS roles varchar(600);
+update portal_user set roles = '[' || role || ']' where roles is null;

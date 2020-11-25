@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.portaluser.models;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -20,7 +22,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
     //TODO: put more fields here, generate getters/setters for them
     private String username;
     private String password;
-    private PortalUserRole role;
+    private List<PortalUserRole> roles;
     
     private PortalUserDetails details;
     
@@ -70,6 +72,10 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 	public PortalUserDetails getDetails() {
 		return details;
 	}
+	
+	public void setDetails(PortalUserDetails details) {
+		this.details = details;
+	}
 
 	public String getPassword() {
 		return password;
@@ -79,18 +85,35 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		this.password = password;
 	}
 
+	public List<PortalUserRole> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<PortalUserRole> roles) {
+		// This is to cover the backwards-compatibility case when the
+		// roles property is not provided, but the role property is provided.
+		// This check can be removed when the deprecated getRole/setRole are
+		// removed.
+		if (roles != null) {
+			this.roles = roles;
+		}
+	}
+
+	@Deprecated
 	public PortalUserRole getRole() {
-		return role;
+		if (roles == null || roles.isEmpty()) {
+			return null;
+		}
+		return roles.get(0);
 	}
-
+	
+	@Deprecated
 	public void setRole(PortalUserRole role) {
-		this.role = role;
+		if (roles == null) {
+			roles = Arrays.asList(role);
+		}
 	}
-
-	public void setDetails(PortalUserDetails details) {
-		this.details = details;
-	}
-
+	
 	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
@@ -116,7 +139,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, username, password, role, details);
+		return Objects.hash(createdTimestamp, customerId, id, lastModifiedTimestamp, username, password, roles, details);
 	}
 
 	@Override
@@ -132,7 +155,7 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp 
 				&& Objects.equals(username, other.username)
 				&& Objects.equals(password, other.password)
-				&& Objects.equals(role, other.role)
+				&& Objects.equals(roles, other.roles)
 				&& Objects.equals(details, other.details);
 	}
     

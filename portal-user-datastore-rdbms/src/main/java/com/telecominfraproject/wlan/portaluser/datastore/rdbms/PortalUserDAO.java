@@ -58,6 +58,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         "username",
         "password",
         "role",
+        "roles",
         "details",
         //make sure the order of properties matches this list and list in PortalUserRowMapper and list in create/update methods
         
@@ -191,6 +192,9 @@ public class PortalUserDAO extends BaseJdbcDao {
                         ps.setString(colIdx++, portalUser.getUsername());
                         ps.setString(colIdx++, portalUser.getPassword());
                         ps.setInt(colIdx++, portalUser.getRole().getId());
+                        List<Integer> listOfRoleIds = new ArrayList<Integer>();
+                        portalUser.getRoles().forEach(y -> listOfRoleIds.add(y.getId()));
+                        ps.setString(colIdx++, listOfRoleIds.toString());
                       	ps.setBytes(colIdx++, (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null);
                         
                         ps.setLong(colIdx++, ts);
@@ -255,6 +259,9 @@ public class PortalUserDAO extends BaseJdbcDao {
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = portalUser.getLastModifiedTimestamp();
         
+        List<Integer> listOfRoleIds = new ArrayList<>();
+        portalUser.getRoles().forEach(y -> listOfRoleIds.add(y.getId()));
+        
         int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
                 //portalUser.getId(), - not updating this one
 
@@ -263,6 +270,7 @@ public class PortalUserDAO extends BaseJdbcDao {
                 portalUser.getUsername(),
                 portalUser.getPassword(),
                 portalUser.getRole().getId(),
+                listOfRoleIds.toString(),
                 (portalUser.getDetails()!=null)?portalUser.getDetails().toZippedBytes():null ,
                                 
                 //portalUser.getCreatedTimestamp(), - not updating this one

@@ -2,6 +2,9 @@ package com.telecominfraproject.wlan.portaluser.datastore.rdbms;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,15 @@ public class PortalUserRowMapper implements RowMapper<PortalUser> {
         portalUser.setUsername(rs.getString(colIdx++));
         portalUser.setPassword(rs.getString(colIdx++));
         portalUser.setRole(PortalUserRole.getById(rs.getInt(colIdx++)));
+        
+        String rolesString = rs.getString(colIdx++);
+        rolesString = rolesString.replace("[", ""); // remove brackets
+        rolesString = rolesString.replace("]", ""); 
+        rolesString = rolesString.replace(" ", ""); 
+        List<String> listOfRoleIds = Arrays.asList(rolesString.split(",", -1));
+        List<PortalUserRole> listOfRoles = new ArrayList<>();
+        listOfRoleIds.forEach(y -> listOfRoles.add(PortalUserRole.getById(Integer.parseInt(y))));
+        portalUser.setRoles(listOfRoles);
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {
