@@ -3,12 +3,14 @@ package com.telecominfraproject.wlan.status.equipment.report.models;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +30,10 @@ public class EquipmentScanDetails extends StatusDetails
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentScanDetails.class);
 
 
-    // Neighbouring APs that belong to a different customer that is managed by
-    // A2W
+    // Neighbouring APs that belong to a different customer that is managed by us. The map key is our customerId. 
     private Map<Integer, List<ManagedNeighbourEquipmentInfo>> managedNeighbours = new HashMap<>();
 
-    // Neighbouring APs that are not managed by A2W
+    // Neighbouring APs that are not managed by us
     private List<UnmanagedNeighbourEquipmentInfo> unmanagedNeighbours = new ArrayList<>();
 
     @Override
@@ -76,18 +77,32 @@ public class EquipmentScanDetails extends StatusDetails
      * 
      */
     @JsonIgnore
-    // NOTE: THIS IS CALLED FROM RULES (so doing a "called from" will not show
-    // you where
-    // it's used.
     public boolean seesEquipment(long equipmentId) {
-        for (ManagedNeighbourEquipmentInfo managedInfo : getManagedNeighboursList()) {
-            if (managedInfo.getEquipmentId() == equipmentId) {
-                return true;
+        if (managedNeighbours != null) {
+            for (List<ManagedNeighbourEquipmentInfo> list : managedNeighbours.values()) {
+                for (ManagedNeighbourEquipmentInfo managedInfo : list) {
+                    if (managedInfo.getEquipmentId() == equipmentId) {
+                        return true;
+                    }
+                }
             }
         }
 
         return false;
+    }
+    
+    /**
+     * @return all equipmentIds for the neighbours of this equipment 
+     */
+    @JsonIgnore
+    public Set<Long> getNeighbourEquipmentIds(){
+        Set<Long> ret = new HashSet<>();
 
+        if (managedNeighbours != null) {
+            managedNeighbours.values().forEach(mnl -> mnl.forEach( mn -> ret.add(mn.getEquipmentId())));
+        }
+
+        return ret;
     }
 
     @JsonIgnore
