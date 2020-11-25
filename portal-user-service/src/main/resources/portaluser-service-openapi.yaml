@@ -312,6 +312,7 @@ paths:
           $ref: '#/components/responses/GenericApiError'
           
   /api/portalUser/customerIdsForUsername:
+  /api/portalUser/usersForUsername:
     get:
       tags:
       - Portal User Data
