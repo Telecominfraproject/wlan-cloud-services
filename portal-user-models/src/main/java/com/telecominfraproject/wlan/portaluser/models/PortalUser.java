@@ -91,7 +91,13 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 	}
 
 	public void setRoles(List<PortalUserRole> roles) {
-		this.roles = roles;
+		// This is to cover the backwards-compatibility case when the
+		// roles property is not provided, but the role property is provided.
+		// This check can be removed when the deprecated getRole/setRole are
+		// removed.
+		if (roles != null) {
+			this.roles = roles;
+		}
 	}
 
 	@JsonIgnore
