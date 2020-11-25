@@ -20,4 +20,4 @@ create index idx_portal_user_customerId on portal_user (customerId);
 create unique index portal_user_customerId_username on portal_user (customerId, username);
 
 alter table portal_user add column IF NOT EXISTS roles varchar(600);
-update portal_user set roles = '[' + role + ']' where roles is null
+update portal_user set roles = '[' || role || ']' where roles is null;
