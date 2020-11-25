@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
@@ -100,7 +99,6 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		}
 	}
 
-	@JsonIgnore
 	@Deprecated
 	public PortalUserRole getRole() {
 		if (roles == null || roles.isEmpty()) {
@@ -109,7 +107,6 @@ public class PortalUser extends BaseJsonModel implements HasCustomerId {
 		return roles.get(0);
 	}
 	
-	@JsonIgnore
 	@Deprecated
 	public void setRole(PortalUserRole role) {
 		if (roles == null) {
