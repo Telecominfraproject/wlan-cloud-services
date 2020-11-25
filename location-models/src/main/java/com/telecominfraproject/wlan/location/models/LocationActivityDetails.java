@@ -11,17 +11,13 @@ public class LocationActivityDetails extends BaseJsonModel {
     private String quietTime; // Format XX:XX (24h syntax)
     private String timezone;
     
-    private long lastBusySnapshot;
-
     public LocationActivityDetails()
     {
         // for serialization
         this.busyTime = "13:30";
         this.quietTime = "3:00";
         
-        this.lastBusySnapshot = 0L;
-        
-        this.timezone = "Canada/Eastern";
+        this.timezone = LocationDetails.DEFAULT_TIMEZONE;
     }
 
     public String getBusyTime() {
@@ -48,17 +44,9 @@ public class LocationActivityDetails extends BaseJsonModel {
         this.timezone = timezone;
     }
 
-    public long getLastBusySnapshot() {
-        return lastBusySnapshot;
-    }
-
-    public void setLastBusySnapshot(long lastBusySnapshot) {
-        this.lastBusySnapshot = lastBusySnapshot;
-    }
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(busyTime, lastBusySnapshot, quietTime, timezone);
+		return Objects.hash(busyTime, quietTime, timezone);
 	}
 
 	@Override
@@ -70,7 +58,7 @@ public class LocationActivityDetails extends BaseJsonModel {
 			return false;
 		}
 		LocationActivityDetails other = (LocationActivityDetails) obj;
-		return Objects.equals(busyTime, other.busyTime) && lastBusySnapshot == other.lastBusySnapshot
+		return Objects.equals(busyTime, other.busyTime) 
 				&& Objects.equals(quietTime, other.quietTime)
 				&& Objects.equals(timezone, other.timezone);
 	}
