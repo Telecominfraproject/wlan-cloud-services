@@ -10404,12 +10404,12 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
-  /portal/portalUser/customerIdsForUsername:
+  /portal/portalUser/usersForUsername:
     get:
       tags:
       - Portal Users
       summary: Get customerIds for username
-      operationId: getCustomerIdsForUsername
+      operationId: getUsersForUsername
       parameters:
       - name: username
         in: query
@@ -10424,8 +10424,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: integer
-                  format: int32
+                  $ref: '#/components/schemas/PortalUser'
         500:
           $ref: '#/components/responses/GenericApiError'
 

@@ -177,7 +177,7 @@ public class PortalUserPortalController  {
      * @param username
      * @return List of PortalUsers for the supplied username
      */
-    @RequestMapping(value = "/portalUser/sersForUsername", method=RequestMethod.GET)
+    @RequestMapping(value = "/portalUser/usersForUsername", method=RequestMethod.GET)
     public ListOfPortalUsers getUsersForUsername(@RequestParam String username) {
         
         LOG.debug("Retrieving List<PortalUser> getUsersForUsername {}", username);
