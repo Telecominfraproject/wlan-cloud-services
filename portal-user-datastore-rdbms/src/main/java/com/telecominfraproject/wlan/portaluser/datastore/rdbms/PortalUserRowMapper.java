@@ -37,11 +37,15 @@ public class PortalUserRowMapper implements RowMapper<PortalUser> {
         portalUser.setRole(PortalUserRole.getById(rs.getInt(colIdx++)));
         
         String rolesString = rs.getString(colIdx++);
-        rolesString.substring(1, rolesString.length() - 1); // remove brackets
+        rolesString = rolesString.replace("[", ""); // remove brackets
+        rolesString = rolesString.replace("]", ""); 
+        rolesString = rolesString.replace(" ", ""); 
         List<String> listOfRoleIds = Arrays.asList(rolesString.split(",", -1));
         List<PortalUserRole> listOfRoles = new ArrayList<>();
-        listOfRoleIds.forEach(y -> listOfRoles.add(
-        		PortalUserRole.getById(Integer.parseInt(y.substring(1, y.length() - 1)))));
+        for (String roleIdString : listOfRoleIds) {
+        	int roleId = Integer.parseInt(roleIdString);
+        	listOfRoleIds.forEach(y -> listOfRoles.add(PortalUserRole.getById(roleId)));
+        }
         portalUser.setRoles(listOfRoles);
         
         byte[] zippedBytes = rs.getBytes(colIdx++);
