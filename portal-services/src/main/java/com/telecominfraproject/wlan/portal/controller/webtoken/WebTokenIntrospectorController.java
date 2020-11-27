@@ -313,8 +313,8 @@ public class WebTokenIntrospectorController {
         	+"\",\"expiryTime\":"+(System.currentTimeMillis() + accessTokenExpiryMs)
         	+",\"customerId\":"+customerIdForWebToken
         	+",\"userName\":\""+portalUser.getUsername()+"\""        	
-        	+",\"userId\":"+portalUser.getId()        	
-        	+",\"userRole\":\""+portalUser.getRoles()+"\""        	
+        	+",\"userId\":"+portalUser.getId()
+        	+",\"userRole\":[\""+portalUser.getRoles().get(0)+"\"]"
         	+"}" );
         return accessToken;
     }
