@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelHopSettings;
 import com.telecominfraproject.wlan.core.model.equipment.RadioBestApSettings;
@@ -15,19 +12,17 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.equipment.models.ActiveScanSettings;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration.ApModel;
-import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 import com.telecominfraproject.wlan.equipment.models.ManagementRate;
 import com.telecominfraproject.wlan.equipment.models.MimoMode;
 import com.telecominfraproject.wlan.equipment.models.MulticastRate;
 import com.telecominfraproject.wlan.equipment.models.NeighbouringAPListConfiguration;
 import com.telecominfraproject.wlan.equipment.models.RadioMode;
 import com.telecominfraproject.wlan.equipment.models.StateSetting;
+import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 public class RfElementConfiguration extends BaseJsonModel {
 
 	private static final long serialVersionUID = 1071268246965238451L;
-	
-    private static final Logger LOG = LoggerFactory.getLogger(RfElementConfiguration.class);
     
     private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
     static {
@@ -312,48 +307,6 @@ public class RfElementConfiguration extends BaseJsonModel {
     }
 	
 	@Override
-	public int hashCode() {
-		return Objects.hash(rf, radioMode, radioType, beaconInterval, forceScanDuringVoice, rtsCtsThreshold, channelBandwidth,
-				mimoMode, maxNumClients, multicastRate, activeScanSettings, managementRate, rxCellSizeDb,
-				probeResponseThresholdDb, clientDisconnectThresholdDb, eirpTxPower, bestApEnabled,
-				neighbouringListApConfig, minAutoCellSize, perimeterDetectionEnabled, 
-				channelHopSettings, bestApSettings);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof RfElementConfiguration))
-			return false;
-		RfElementConfiguration other = (RfElementConfiguration) obj;
-		return Objects.equals(rf, other.rf)
-				&& this.radioType == other.radioType
-				&& this.radioMode == other.radioMode
-				&& Objects.equals(beaconInterval, other.beaconInterval)
-				&& Objects.equals(forceScanDuringVoice, other.forceScanDuringVoice)
-				&& Objects.equals(rtsCtsThreshold, other.rtsCtsThreshold)
-				&& Objects.equals(channelBandwidth, other.channelBandwidth)
-				&& Objects.equals(mimoMode, other.mimoMode)
-				&& Objects.equals(maxNumClients, other.maxNumClients)
-				&& Objects.equals(multicastRate, other.multicastRate)
-				&& Objects.equals(activeScanSettings, other.activeScanSettings)
-				&& Objects.equals(managementRate, other.managementRate)
-				&& Objects.equals(rxCellSizeDb, other.rxCellSizeDb)
-				&& Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
-				&& Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
-				&& Objects.equals(eirpTxPower, other.eirpTxPower)
-				&& Objects.equals(bestApEnabled, other.bestApEnabled)
-				&& Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
-				&& Objects.equals(minAutoCellSize, other.minAutoCellSize)
-				&& Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
-				&& Objects.equals(channelHopSettings, other.channelHopSettings)
-				&& Objects.equals(bestApSettings, other.bestApSettings);
-	}
-	
-	@Override
 	public boolean hasUnsupportedValue() {
 		if (super.hasUnsupportedValue()) {
 			return true;
@@ -389,6 +342,43 @@ public class RfElementConfiguration extends BaseJsonModel {
                 throw new ConfigurationException("Radio Configuration not valid: 5GHz radio can't be set to GN radio mode.");
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(activeScanSettings, autoChannelSelection, beaconInterval, bestApEnabled, bestApSettings,
+                channelBandwidth, channelHopSettings, clientDisconnectThresholdDb, eirpTxPower, forceScanDuringVoice,
+                managementRate, maxNumClients, mimoMode, minAutoCellSize, multicastRate, neighbouringListApConfig,
+                perimeterDetectionEnabled, probeResponseThresholdDb, radioMode, radioType, rf, rtsCtsThreshold,
+                rxCellSizeDb);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RfElementConfiguration other = (RfElementConfiguration) obj;
+        return Objects.equals(activeScanSettings, other.activeScanSettings)
+                && autoChannelSelection == other.autoChannelSelection
+                && Objects.equals(beaconInterval, other.beaconInterval)
+                && Objects.equals(bestApEnabled, other.bestApEnabled)
+                && Objects.equals(bestApSettings, other.bestApSettings) && channelBandwidth == other.channelBandwidth
+                && Objects.equals(channelHopSettings, other.channelHopSettings)
+                && Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
+                && Objects.equals(eirpTxPower, other.eirpTxPower) && forceScanDuringVoice == other.forceScanDuringVoice
+                && managementRate == other.managementRate && Objects.equals(maxNumClients, other.maxNumClients)
+                && mimoMode == other.mimoMode && Objects.equals(minAutoCellSize, other.minAutoCellSize)
+                && multicastRate == other.multicastRate
+                && Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
+                && Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
+                && Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
+                && radioMode == other.radioMode && radioType == other.radioType && Objects.equals(rf, other.rf)
+                && Objects.equals(rtsCtsThreshold, other.rtsCtsThreshold)
+                && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
     }
 
 }

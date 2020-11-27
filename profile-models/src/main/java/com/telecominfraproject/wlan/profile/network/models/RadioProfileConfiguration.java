@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.profile.network.models;
 
+import java.util.Objects;
+
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -51,40 +53,6 @@ public class RadioProfileConfiguration extends BaseJsonModel implements Pushable
         return !equals(previousVersion);
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((bestApEnabled == null) ? 0 : bestApEnabled.hashCode());
-        result = prime * result + ((bestAPSteerType == null) ? 0 : bestAPSteerType.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        RadioProfileConfiguration other = (RadioProfileConfiguration) obj;
-        if (bestApEnabled == null) {
-            if (other.bestApEnabled != null)
-                return false;
-        } else if (!bestApEnabled.equals(other.bestApEnabled))
-            return false;
-
-        if (bestAPSteerType == null ) {
-            if (other.bestAPSteerType != null) {
-                return false;
-            }
-        } else if (!bestAPSteerType.equals(other.bestAPSteerType)) {
-            return false;
-        }
-        return true;
-    }
-
     public Boolean getBestApEnabled() {
         return bestApEnabled;
     }
@@ -111,4 +79,23 @@ public class RadioProfileConfiguration extends BaseJsonModel implements Pushable
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bestAPSteerType, bestApEnabled);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RadioProfileConfiguration other = (RadioProfileConfiguration) obj;
+        return bestAPSteerType == other.bestAPSteerType && Objects.equals(bestApEnabled, other.bestApEnabled);
+    }
+    
+    
 }

@@ -10,6 +10,7 @@ import org.pegdown.PegDownProcessor;
 import org.springframework.util.CollectionUtils;
 
 import com.telecominfraproject.wlan.core.model.entity.InetAddressConstants;
+import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
@@ -21,7 +22,7 @@ import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
  * @author mpreston
  *
  */
-public class CaptivePortalConfiguration extends ProfileDetails 
+public class CaptivePortalConfiguration extends ProfileDetails implements PushableConfiguration<CaptivePortalConfiguration>
 {
 
     private static final long serialVersionUID = -7369822768587770363L;
@@ -523,5 +524,10 @@ public class CaptivePortalConfiguration extends ProfileDetails
         }
         
         throw new DsDataValidationException("'" + entry + "' is an invalid walled garden allowlist format.");
+    }
+
+    @Override
+    public boolean needsToBeUpdatedOnDevice(CaptivePortalConfiguration previousVersion) {
+        return !equals(previousVersion);
     }    
 }

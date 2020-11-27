@@ -102,10 +102,7 @@ public class MeshGroup extends ProfileDetails implements PushableConfiguration<M
 
     @Override
     public boolean needsToBeUpdatedOnDevice(final MeshGroup previousVersion) {
-        if (this.property.needsToBeUpdatedOnDevice(previousVersion.getProperty())) {
-            return true;
-        }
-        return false;
+        return !equals(previousVersion);
     }
 
     public void setMembers(List<MeshGroupMember> members) {

@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
@@ -27,7 +28,7 @@ import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
  * @author yongli
  *
  */
-public class RadiusProfile extends ProfileDetails {
+public class RadiusProfile extends ProfileDetails implements PushableConfiguration<RadiusProfile> {
     private static final long serialVersionUID = 5489888031341902764L;
 
     public static final String DEFALUT_PROFILE_NAME = "Default";
@@ -156,34 +157,6 @@ public class RadiusProfile extends ProfileDetails {
         return result;
     }
 
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof RadiusProfile)) {
-            return false;
-        }
-        RadiusProfile other = (RadiusProfile) obj;
-        if (this.serviceRegionMap == null) {
-            if (other.serviceRegionMap != null) {
-                return false;
-            }
-        } else if (!this.serviceRegionMap.equals(other.serviceRegionMap)) {
-            return false;
-        }
-        if (this.subnetConfiguration == null) {
-            if (other.subnetConfiguration != null) {
-                return false;
-            }
-        } else if (!this.subnetConfiguration.equals(other.subnetConfiguration)) {
-            return false;
-        }
-        return true;
-    }
-
     public RadiusServiceRegion findServiceRegion(String regionName) {
         if (null != this.serviceRegionMap) {
             return this.serviceRegionMap.get(regionName);
@@ -254,11 +227,6 @@ public class RadiusProfile extends ProfileDetails {
         return this.subnetConfiguration.size();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(serviceRegionMap, subnetConfiguration);
-    }
-
     /**
      * DO NOT use this directly. It's only used by JSON serialization. Use
      * {@link #addRadiusServiceRegion(RadiusServiceRegion)}.
@@ -313,4 +281,30 @@ public class RadiusProfile extends ProfileDetails {
             }
         }
     }
+
+    @Override
+    public boolean needsToBeUpdatedOnDevice(RadiusProfile previousVersion) {
+        if (this.equals(previousVersion)) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceRegionMap, subnetConfiguration);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RadiusProfile other = (RadiusProfile) obj;
+        return Objects.equals(serviceRegionMap, other.serviceRegionMap)
+                && Objects.equals(subnetConfiguration, other.subnetConfiguration);
+    }
+    
+    
 }

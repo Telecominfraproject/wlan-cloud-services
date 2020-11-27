@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.profile.rf.models;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,5 +64,24 @@ public class RfConfiguration extends ProfileDetails implements PushableConfigura
 	public ProfileType getProfileType() {
 		return ProfileType.rf;
 	}
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rfConfigMap);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RfConfiguration other = (RfConfiguration) obj;
+        return Objects.equals(rfConfigMap, other.rfConfigMap);
+    }
+	
+	
 
 }

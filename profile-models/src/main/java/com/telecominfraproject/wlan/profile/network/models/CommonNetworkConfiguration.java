@@ -137,38 +137,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         return ret;
     }
 
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(equipmentDiscovery, equipmentType, greLocalInetAddr, greParentIfName, greRemoteInetAddr,
-                greRemoteMacAddr, greTunnelName, ledControlEnabled, networkConfigVersion, ntpServer, rtlsSettings,
-                syntheticClientEnabled, syslogRelay, vlan, vlanNative);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof CommonNetworkConfiguration)) {
-            return false;
-        }
-        CommonNetworkConfiguration other = (CommonNetworkConfiguration) obj;
-        return Objects.equals(equipmentDiscovery, other.equipmentDiscovery)
-                && Objects.equals(equipmentType, other.equipmentType)
-                && Objects.equals(greLocalInetAddr, other.greLocalInetAddr)
-                && Objects.equals(greParentIfName, other.greParentIfName)
-                && Objects.equals(greRemoteInetAddr, other.greRemoteInetAddr)
-                && Objects.equals(greRemoteMacAddr, other.greRemoteMacAddr)
-                && Objects.equals(greTunnelName, other.greTunnelName)
-                && Objects.equals(ledControlEnabled, other.ledControlEnabled)
-                && Objects.equals(networkConfigVersion, other.networkConfigVersion)
-                && Objects.equals(ntpServer, other.ntpServer) && Objects.equals(rtlsSettings, other.rtlsSettings)
-                && Objects.equals(syntheticClientEnabled, other.syntheticClientEnabled)
-                && Objects.equals(syslogRelay, other.syslogRelay) && vlan == other.vlan
-                && Objects.equals(vlanNative, other.vlanNative);
-    }
-
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -247,4 +215,37 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     public Boolean getVlanNative() {
         return vlanNative;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(equipmentDiscovery, equipmentType, greLocalInetAddr, greParentIfName, greRemoteInetAddr,
+                greRemoteMacAddr, greTunnelName, ledControlEnabled, networkConfigVersion, ntpServer, rtlsSettings,
+                syntheticClientEnabled, syslogRelay, vlan, vlanNative);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CommonNetworkConfiguration other = (CommonNetworkConfiguration) obj;
+        return Objects.equals(equipmentDiscovery, other.equipmentDiscovery)
+                && Objects.equals(equipmentType, other.equipmentType)
+                && Objects.equals(greLocalInetAddr, other.greLocalInetAddr)
+                && Objects.equals(greParentIfName, other.greParentIfName)
+                && Objects.equals(greRemoteInetAddr, other.greRemoteInetAddr)
+                && Objects.equals(greRemoteMacAddr, other.greRemoteMacAddr)
+                && Objects.equals(greTunnelName, other.greTunnelName)
+                && Objects.equals(ledControlEnabled, other.ledControlEnabled)
+                && Objects.equals(networkConfigVersion, other.networkConfigVersion)
+                && Objects.equals(ntpServer, other.ntpServer) && Objects.equals(rtlsSettings, other.rtlsSettings)
+                && Objects.equals(syntheticClientEnabled, other.syntheticClientEnabled)
+                && Objects.equals(syslogRelay, other.syslogRelay) && vlan == other.vlan
+                && Objects.equals(vlanNative, other.vlanNative);
+    }
+    
+    
 }

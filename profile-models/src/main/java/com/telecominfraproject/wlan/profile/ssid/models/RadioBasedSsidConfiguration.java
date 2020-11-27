@@ -51,13 +51,18 @@ public class RadioBasedSsidConfiguration extends BaseJsonModel
     }
 
     @Override
+    public boolean needsToBeUpdatedOnDevice(RadioBasedSsidConfiguration previousVersion) {
+        return !Objects.equals(this, previousVersion);
+    }
+
+    public static RadioBasedSsidConfiguration generateDefault(RadioType radioType) {
+        // We don't care about the radio type yet.
+        return new RadioBasedSsidConfiguration();
+    }
+
+    @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((enable80211k == null) ? 0 : enable80211k.hashCode());
-        result = prime * result + ((enable80211r == null) ? 0 : enable80211r.hashCode());
-        result = prime * result + ((enable80211v == null) ? 0 : enable80211v.hashCode());
-        return result;
+        return Objects.hash(enable80211k, enable80211r, enable80211v);
     }
 
     @Override
@@ -69,32 +74,10 @@ public class RadioBasedSsidConfiguration extends BaseJsonModel
         if (getClass() != obj.getClass())
             return false;
         RadioBasedSsidConfiguration other = (RadioBasedSsidConfiguration) obj;
-        if (enable80211k == null) {
-            if (other.enable80211k != null)
-                return false;
-        } else if (!enable80211k.equals(other.enable80211k))
-            return false;
-        if (enable80211r == null) {
-            if (other.enable80211r != null)
-                return false;
-        } else if (!enable80211r.equals(other.enable80211r))
-            return false;
-        if (enable80211v == null) {
-            if (other.enable80211v != null)
-                return false;
-        } else if (!enable80211v.equals(other.enable80211v))
-            return false;
-        return true;
+        return Objects.equals(enable80211k, other.enable80211k) && Objects.equals(enable80211r, other.enable80211r)
+                && Objects.equals(enable80211v, other.enable80211v);
     }
-
-    @Override
-    public boolean needsToBeUpdatedOnDevice(RadioBasedSsidConfiguration previousVersion) {
-        return Objects.equals(this, previousVersion);
-    }
-
-    public static RadioBasedSsidConfiguration generateDefault(RadioType radioType) {
-        // We don't care about the radio type yet.
-        return new RadioBasedSsidConfiguration();
-    }
+    
+    
 
 }

@@ -1,5 +1,7 @@
 package com.telecominfraproject.wlan.profile.radius.models;
 
+import java.util.Objects;
+
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 /**
@@ -23,46 +25,6 @@ public class RadiusServiceRegion extends BaseRadiusServerCfgGroup {
 
     public RadiusServiceRegion clone() {
         RadiusServiceRegion result = (RadiusServiceRegion) super.clone();
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof RadiusServiceRegion)) {
-            return false;
-        }
-        RadiusServiceRegion other = (RadiusServiceRegion) obj;
-        if (regionName == null) {
-            if (other.regionName != null) {
-                return false;
-            }
-        } else if (!regionName.equals(other.regionName)) {
-            return false;
-        }
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((regionName == null) ? 0 : regionName.hashCode());
         return result;
     }
 
@@ -92,4 +54,26 @@ public class RadiusServiceRegion extends BaseRadiusServerCfgGroup {
                     "invalid service zone configuration " + regionName + ", " + e.getLocalizedMessage(), e);
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(regionName);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RadiusServiceRegion other = (RadiusServiceRegion) obj;
+        return Objects.equals(regionName, other.regionName);
+    }
+    
+    
 }

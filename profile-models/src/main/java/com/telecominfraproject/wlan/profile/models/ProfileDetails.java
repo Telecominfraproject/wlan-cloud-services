@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.profile.models;
 
+import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 /**
@@ -26,4 +27,5 @@ public abstract class ProfileDetails extends BaseJsonModel {
     }
     
     public abstract ProfileType getProfileType(); 
+    
 }

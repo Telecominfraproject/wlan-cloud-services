@@ -212,12 +212,12 @@ public class PasspointOsuProviderProfile extends ProfileDetails
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (!(obj instanceof PasspointOsuProviderProfile)) {
+        if (obj == null)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         PasspointOsuProviderProfile other = (PasspointOsuProviderProfile) obj;
         return Objects.equals(domainName, other.domainName) && Objects.equals(mccMncList, other.mccMncList)
                 && Objects.equals(naiRealmList, other.naiRealmList)
@@ -229,6 +229,8 @@ public class PasspointOsuProviderProfile extends ProfileDetails
                 && Objects.equals(osuServiceDescription, other.osuServiceDescription)
                 && Objects.equals(roamingOi, other.roamingOi);
     }
+
+  
 
 
 }

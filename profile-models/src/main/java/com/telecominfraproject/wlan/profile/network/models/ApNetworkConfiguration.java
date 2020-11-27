@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.profile.network.models;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.AutoOrManualString;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
@@ -86,32 +87,6 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration implement
     {
        return new ApNetworkConfiguration();
     }
-    
-    
-   @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((radioMap == null) ? 0 : radioMap.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ApNetworkConfiguration other = (ApNetworkConfiguration) obj;
-        if (radioMap == null) {
-            if (other.radioMap != null)
-                return false;
-        } else if (!radioMap.equals(other.radioMap))
-            return false;
-        return true;
-    }
 
 @Override
    public boolean needsToBeUpdatedOnDevice(ApNetworkConfiguration previousVersion) 
@@ -143,4 +118,25 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration implement
     ApNetworkConfiguration a = ApNetworkConfiguration.createWithDefaults();
     System.out.println(a);
 }
+
+   @Override
+   public int hashCode() {
+       final int prime = 31;
+       int result = super.hashCode();
+       result = prime * result + Objects.hash(radioMap);
+       return result;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+       if (this == obj)
+           return true;
+       if (!super.equals(obj))
+           return false;
+       if (getClass() != obj.getClass())
+           return false;
+       ApNetworkConfiguration other = (ApNetworkConfiguration) obj;
+       return Objects.equals(radioMap, other.radioMap);
+   }
+   
 }
