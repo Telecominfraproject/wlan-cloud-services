@@ -1458,23 +1458,28 @@ components:
               type: boolean               
             enable5GHz:  
               type: boolean   
-            associatedAccessSsidNames:
+            associatedAccessSsidProfileIds:
               type: array
               items:
-                type: string
-            osuSsidName:
-              type: string
-            passpointOperatorProfileName:
-              description: name of a PasspointOperatorProfile profile, must be also added to the children of this profile
-              type: string
-            passpointVenueProfileName:
-              description: name of a PasspointVenueProfile profile, must be also added to the children of this profile
-              type: string
-            idProviderProfileNames:
-              description: array containing names of PasspointOsuProviderProfiles, must be also added to the children of this profile
+                type: integer
+                format: int64
+            osuSsidProfileId:
+              type: integer
+              format: int64
+            passpointOperatorProfileId:
+              description: Profile Id of a PasspointOperatorProfile profile, must be also added to the children of this profile
+              type: integer
+              format: int64
+            passpointVenueProfileId:
+              description: Profile Id of a PasspointVenueProfile profile, must be also added to the children of this profile
+              type: integer
+              format: int64
+            passpointOsuProviderProfileIds:
+              description: array containing Profile Ids of PasspointOsuProviderProfiles, must be also added to the children of this profile
               type: array
               items:
-                type: string
+                type: integer
+                format: int64
             apPublicLocationIdUri:
               format: uri
               type: string     

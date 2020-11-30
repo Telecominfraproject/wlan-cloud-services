@@ -1,7 +1,6 @@
 package com.telecominfraproject.wlan.profile.passpoint.models;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -63,16 +62,16 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
 
     private boolean enable2pt4GHz;
     private boolean enable5GHz;
+   
+    private List<Long> associatedAccessSsidProfileIds;
 
-    private List<String> associatedAccessSsidNames;
+    private Long osuSsidProfileId;
 
-    private String osuSsidName;
+    private Long passpointOperatorProfileId;
 
-    private String operatorProfileName;
-
-    private String venueProfileName;
-
-    private Set<String> idProviderProfileNames;
+    private Long passpointVenueProfileId;
+    
+    private Set<Long> passpointOsuProviderProfileIds;
 
     private PasspointProfile() {
 
@@ -96,14 +95,6 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         termsAndConditionsFile.setFileType(FileType.TEXT);
         enable2pt4GHz = true;
         enable5GHz = true;
-        operatorProfileName = "TipWlan-Hotspot20-Operator";
-        venueProfileName = "TipWlan-Hotspot20-Venue";
-        idProviderProfileNames = new HashSet<>();
-        idProviderProfileNames.add("TipWlan-Hotspot20-OSU-Provider");
-        osuSsidName = "TipWlan-cloud-3-radios";
-        associatedAccessSsidNames = new ArrayList<>();
-        associatedAccessSsidNames.add("TipWlan-cloud-hotspot-access");
-
     }
 
     public static PasspointProfile createWithDefaults() {
@@ -313,53 +304,61 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
     public void setEnable5GHz(boolean enable5gHz) {
         enable5GHz = enable5gHz;
     }
-
-    public List<String> getAssociatedSsids() {
-        return associatedAccessSsidNames;
+    public PasspointAccessNetworkType getPasspointAccessNetworkType() {
+        return passpointAccessNetworkType;
     }
 
-    public void setAssociatedSsids(List<String> associatedSsids) {
-        this.associatedAccessSsidNames = associatedSsids;
+    public void setPasspointAccessNetworkType(PasspointAccessNetworkType passpointAccessNetworkType) {
+        this.passpointAccessNetworkType = passpointAccessNetworkType;
     }
 
-    public List<String> getAssociatedAccessSsidNames() {
-        return associatedAccessSsidNames;
+    public PasspointNetworkAuthenticationType getPasspointNetworkAuthenticationType() {
+        return passpointNetworkAuthenticationType;
     }
 
-    public void setAssociatedAccessSsidNames(List<String> associatedAccessSsidNames) {
-        this.associatedAccessSsidNames = associatedAccessSsidNames;
+    public void setPasspointNetworkAuthenticationType(
+            PasspointNetworkAuthenticationType passpointNetworkAuthenticationType) {
+        this.passpointNetworkAuthenticationType = passpointNetworkAuthenticationType;
     }
 
-    public String getOsuSsidName() {
-        return osuSsidName;
+    public List<Long> getAssociatedAccessSsidProfileIds() {
+        return associatedAccessSsidProfileIds;
     }
 
-    public void setOsuSsidName(String osuSsidName) {
-        this.osuSsidName = osuSsidName;
+    public void setAssociatedAccessSsidProfileIds(List<Long> associatedAccessSsidProfileIds) {
+        this.associatedAccessSsidProfileIds = associatedAccessSsidProfileIds;
     }
 
-    public String getOperatorProfileName() {
-        return operatorProfileName;
+    public Long getOsuSsidProfileId() {
+        return osuSsidProfileId;
     }
 
-    public void setOperatorProfileName(String operatorProfileName) {
-        this.operatorProfileName = operatorProfileName;
+    public void setOsuSsidProfileId(Long osuSsidProfileId) {
+        this.osuSsidProfileId = osuSsidProfileId;
     }
 
-    public String getVenueProfileName() {
-        return venueProfileName;
+    public Long getPasspointOperatorProfileId() {
+        return passpointOperatorProfileId;
     }
 
-    public void setVenueProfileName(String venueProfileName) {
-        this.venueProfileName = venueProfileName;
+    public void setPasspointOperatorProfileId(Long passpointOperatorProfileId) {
+        this.passpointOperatorProfileId = passpointOperatorProfileId;
     }
 
-    public Set<String> getIdProviderProfileNames() {
-        return idProviderProfileNames;
+    public Long getPasspointVenueProfileId() {
+        return passpointVenueProfileId;
     }
 
-    public void setIdProviderProfileNames(Set<String> idProviderProfileNames) {
-        this.idProviderProfileNames = idProviderProfileNames;
+    public void setPasspointVenueProfileId(Long passpointVenueProfileId) {
+        this.passpointVenueProfileId = passpointVenueProfileId;
+    }
+
+    public Set<Long> getPasspointOsuProviderProfileIds() {
+        return passpointOsuProviderProfileIds;
+    }
+
+    public void setPasspointOsuProviderProfileIds(Set<Long> passpointOsuProviderProfileIds) {
+        this.passpointOsuProviderProfileIds = passpointOsuProviderProfileIds;
     }
 
     @Override
@@ -393,48 +392,48 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         returnValue.setEnable2pt4GHz(enable2pt4GHz);
         returnValue.setEnable5GHz(enable5GHz);
 
-        if (associatedAccessSsidNames != null) {
-            returnValue.setAssociatedSsids(associatedAccessSsidNames);
+        if (associatedAccessSsidProfileIds != null) {
+            returnValue.setAssociatedAccessSsidProfileIds(associatedAccessSsidProfileIds);
         }
 
-        returnValue.setOsuSsidName(osuSsidName);
+        returnValue.setOsuSsidProfileId(osuSsidProfileId);
 
-        if (idProviderProfileNames != null) {
-            returnValue.setIdProviderProfileNames(idProviderProfileNames);
+        if (passpointOsuProviderProfileIds != null) {
+            returnValue.setPasspointOsuProviderProfileIds(passpointOsuProviderProfileIds);
         }
 
-        returnValue.setOperatorProfileName(operatorProfileName);
-        returnValue.setVenueProfileName(venueProfileName);
+        returnValue.setPasspointOperatorProfileId(passpointOperatorProfileId);
+        returnValue.setPasspointVenueProfileId(passpointVenueProfileId);
 
         return returnValue;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(passpointAccessNetworkType, additionalStepsRequiredForAccess, anqpDomainId, apCivicLocation,
-                apGeospatialLocation, apPublicLocationIdUri, associatedAccessSsidNames, connectionCapabilitySet,
-                deauthRequestTimeout, disableDownstreamGroupAddressedForwarding, emergencyServicesReachable,
-                enable2pt4GHz, enable5GHz, enableInterworkingAndHs20, gasAddr3Behaviour, hessid, idProviderProfileNames,
-                internetConnectivity, ipAddressTypeAvailability, passpointNetworkAuthenticationType, operatingClass,
-                operatorProfileName, osuSsidName, qosMapSetConfiguration, termsAndConditionsFile,
-                unauthenticatedEmergencyServiceAccessible, venueProfileName, whitelistDomain);
+        return Objects.hash(additionalStepsRequiredForAccess, anqpDomainId, apCivicLocation, apGeospatialLocation,
+                apPublicLocationIdUri, associatedAccessSsidProfileIds, connectionCapabilitySet, deauthRequestTimeout,
+                disableDownstreamGroupAddressedForwarding, emergencyServicesReachable, enable2pt4GHz, enable5GHz,
+                enableInterworkingAndHs20, gasAddr3Behaviour, hessid, internetConnectivity, ipAddressTypeAvailability,
+                operatingClass, osuSsidProfileId, passpointAccessNetworkType, passpointNetworkAuthenticationType,
+                passpointOperatorProfileId, passpointOsuProviderProfileIds, passpointVenueProfileId,
+                qosMapSetConfiguration, termsAndConditionsFile, unauthenticatedEmergencyServiceAccessible,
+                whitelistDomain);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (!(obj instanceof PasspointProfile)) {
+        if (obj == null)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         PasspointProfile other = (PasspointProfile) obj;
-        return Objects.equals(passpointAccessNetworkType, other.passpointAccessNetworkType)
-                && additionalStepsRequiredForAccess == other.additionalStepsRequiredForAccess
+        return additionalStepsRequiredForAccess == other.additionalStepsRequiredForAccess
                 && anqpDomainId == other.anqpDomainId && Objects.equals(apCivicLocation, other.apCivicLocation)
                 && Objects.equals(apGeospatialLocation, other.apGeospatialLocation)
                 && Objects.equals(apPublicLocationIdUri, other.apPublicLocationIdUri)
-                && Objects.equals(associatedAccessSsidNames, other.associatedAccessSsidNames)
+                && Objects.equals(associatedAccessSsidProfileIds, other.associatedAccessSsidProfileIds)
                 && Objects.equals(connectionCapabilitySet, other.connectionCapabilitySet)
                 && deauthRequestTimeout == other.deauthRequestTimeout
                 && disableDownstreamGroupAddressedForwarding == other.disableDownstreamGroupAddressedForwarding
@@ -442,20 +441,18 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
                 && enable2pt4GHz == other.enable2pt4GHz && enable5GHz == other.enable5GHz
                 && enableInterworkingAndHs20 == other.enableInterworkingAndHs20
                 && Objects.equals(gasAddr3Behaviour, other.gasAddr3Behaviour) && Objects.equals(hessid, other.hessid)
-                && Objects.equals(idProviderProfileNames, other.idProviderProfileNames)
                 && internetConnectivity == other.internetConnectivity
                 && Objects.equals(ipAddressTypeAvailability, other.ipAddressTypeAvailability)
+                && operatingClass == other.operatingClass && Objects.equals(osuSsidProfileId, other.osuSsidProfileId)
+                && Objects.equals(passpointAccessNetworkType, other.passpointAccessNetworkType)
                 && Objects.equals(passpointNetworkAuthenticationType, other.passpointNetworkAuthenticationType)
-                && operatingClass == other.operatingClass
-                && Objects.equals(operatorProfileName, other.operatorProfileName)
-                && Objects.equals(osuSsidName, other.osuSsidName)
+                && Objects.equals(passpointOperatorProfileId, other.passpointOperatorProfileId)
+                && Objects.equals(passpointOsuProviderProfileIds, other.passpointOsuProviderProfileIds)
+                && Objects.equals(passpointVenueProfileId, other.passpointVenueProfileId)
                 && Objects.equals(qosMapSetConfiguration, other.qosMapSetConfiguration)
                 && Objects.equals(termsAndConditionsFile, other.termsAndConditionsFile)
                 && unauthenticatedEmergencyServiceAccessible == other.unauthenticatedEmergencyServiceAccessible
-                && Objects.equals(venueProfileName, other.venueProfileName)
                 && Objects.equals(whitelistDomain, other.whitelistDomain);
     }
-
-
 
 }
