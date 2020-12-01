@@ -161,7 +161,7 @@ public class SsidConfigurationTests
    
    private void testBadWepKeyCreation(String key, WepType type) {
        try {
-           WepKey badKey = new WepKey(key, type);
+           new WepKey(key, type);
        } catch (Exception e) {
            // expected
        }

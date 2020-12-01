@@ -286,9 +286,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-        Profile profileMetrics_3_radios = create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer);
-
-        Profile profileMetrics_2_radios = create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer);
+        create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId());
+        create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer.getId());
 
         Profile profileSsidEAP = new Profile();
         profileSsidEAP.setCustomerId(customer.getId());
@@ -405,8 +404,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds()
-                .add(create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer).getId());
-        profileAp_3_radios.getChildProfileIds().add(createRfProfile(customer, "TipWlan-rf").getId());
+                .add(create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId()).getId());
+        profileAp_3_radios.getChildProfileIds().add(createRfProfile(customer.getId(), "TipWlan-rf").getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         // TipWlan-cloud-hotspot-access
@@ -460,12 +459,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         Profile hotspot20IdProviderProfile2 = new Profile();
         Profile profileSsidPsk = new Profile();
         Profile profileSsidOsu = new Profile();
-        Profile hotspotProfileAp = new Profile();
+        Profile hotspotProfileAp = createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
+                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu);
 
-        createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
-                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu,
-                hotspotProfileAp);
-
+        LOG.info("Passpoint AP Profile {}", hotspotProfileAp);
+        
         List<Equipment> equipmentList = new ArrayList<>();
 
         for (int i = 1; i <= numEquipmentToCreateOnStartup; i++) {
@@ -568,9 +566,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     }
 
-    private Profile create2RadioMetricsProfile(String profileName, Customer customer) {
+    private Profile create2RadioMetricsProfile(String profileName, int customerId) {
         Profile profileMetrics_2_radios = new Profile();
-        profileMetrics_2_radios.setCustomerId(customer.getId());
+        profileMetrics_2_radios.setCustomerId(customerId);
         profileMetrics_2_radios.setProfileType(ProfileType.service_metrics_collection_config);
         profileMetrics_2_radios.setName(profileName);
         Set<RadioType> profileMetrics_2_radioTypes = new HashSet<>();
@@ -589,13 +587,12 @@ public class AllInOneStartListener implements ApplicationRunner {
                 true);
 
         profileMetrics_2_radios.setDetails(metricsProfileDetails2Radios);
-        profileMetrics_2_radios = profileServiceInterface.create(profileMetrics_2_radios);
-        return profileMetrics_2_radios;
+        return profileServiceInterface.create(profileMetrics_2_radios);
     }
 
-    private Profile create3RadioMetricsProfile(String profileName, Customer customer) {
+    private Profile create3RadioMetricsProfile(String profileName, int customerId) {
         Profile profileMetrics_3_radios = new Profile();
-        profileMetrics_3_radios.setCustomerId(customer.getId());
+        profileMetrics_3_radios.setCustomerId(customerId);
         profileMetrics_3_radios.setProfileType(ProfileType.service_metrics_collection_config);
         profileMetrics_3_radios.setName(profileName);
         Set<RadioType> profileMetrics_3_radioTypes = new HashSet<>();
@@ -614,14 +611,12 @@ public class AllInOneStartListener implements ApplicationRunner {
         metricsProfileDetails3Radios.setAllNetworkConfigParametersToDefaults(profileMetrics_3_radioTypes, metricTypes,
                 true);
         profileMetrics_3_radios.setDetails(metricsProfileDetails3Radios);
-        profileMetrics_3_radios = profileServiceInterface.create(profileMetrics_3_radios);
-        return profileMetrics_3_radios;
+        return profileServiceInterface.create(profileMetrics_3_radios);
     }
 
-    protected void createPasspointHotspot(Customer customer, Profile passpointHotspotConfig,
+    protected Profile createPasspointHotspot(Customer customer, Profile passpointHotspotConfig,
             Profile passpointOperatorProfile, Profile passpointVenueProfile, Profile hotspot20IdProviderProfile,
-            Profile hotspot20IdProviderProfile2, Profile profileSsidPsk, Profile profileSsidOsu,
-            Profile hotspotProfileAp) {
+            Profile hotspot20IdProviderProfile2, Profile profileSsidPsk, Profile profileSsidOsu) {
 
         profileSsidPsk = createPasspointAccessSsid(customer);
         profileSsidOsu = createPasspointOsuSsid(customer);
@@ -638,45 +633,47 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile.getId());
         profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile2.getId());
         profileSsidOsu = profileServiceInterface.update(profileSsidOsu);
-        hotspotProfileAp = createPasspointApProfile(customer, profileSsidPsk, profileSsidOsu);
 
-        passpointHotspotConfig = createPasspointHotspotConfig(customer, passpointHotspotConfig,
-                hotspot20IdProviderProfile2, hotspot20IdProviderProfile, passpointOperatorProfile,
-                passpointVenueProfile, profileSsidPsk, profileSsidOsu);
+        passpointHotspotConfig = createPasspointHotspotConfig(customer.getId(), hotspot20IdProviderProfile2.getId(), hotspot20IdProviderProfile.getId(), passpointOperatorProfile.getId(),
+                passpointVenueProfile.getId(), profileSsidPsk.getId(), profileSsidOsu.getId());
+        
+        profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
+        profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
 
-        LOG.info("Passpoint Hotspot Config {}",
-                profileServiceInterface.get(passpointHotspotConfig.getId()));
+        
+        return createPasspointApProfile(customer.getId(), profileSsidPsk.getId(), profileSsidOsu.getId());
+
+        
+        
 
     }
 
-    protected Profile createPasspointHotspotConfig(Customer customer, Profile passpointHotspotConfig,
-            Profile hotspot20IdProviderProfile2, Profile hotspot20IdProviderProfile, Profile passpointOperatorProfile,
-            Profile passpointVenueProfile, Profile profileSsidPsk, Profile profileSsidOpen) {
-        passpointHotspotConfig.setCustomerId(customer.getId());
+    protected Profile createPasspointHotspotConfig(int customerId, Long hotspot20IdProviderProfile2Id, Long hotspot20IdProviderProfileId,  Long passpointOperatorProfileId,
+            Long passpointVenueProfileId,Long profileSsidPskId, Long profileSsidOpenId ) {
+        Profile passpointHotspotConfig = new Profile();
+        passpointHotspotConfig.setCustomerId(customerId);
         passpointHotspotConfig.setName("TipWlan-Passpoint-Config");
         passpointHotspotConfig.setProfileType(ProfileType.passpoint);
         Set<Long> passpointHotspotConfigChildIds = new HashSet<>();
-        passpointHotspotConfigChildIds.add(passpointOperatorProfile.getId());
-        passpointHotspotConfigChildIds.add(passpointVenueProfile.getId());
-        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile.getId());
-        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile2.getId());
+        passpointHotspotConfigChildIds.add(passpointOperatorProfileId);
+        passpointHotspotConfigChildIds.add(passpointVenueProfileId);
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfileId);
+        passpointHotspotConfigChildIds.add(hotspot20IdProviderProfile2Id);
         passpointHotspotConfig.setChildProfileIds(passpointHotspotConfigChildIds);
         passpointHotspotConfig.setDetails(PasspointProfile.createWithDefaults());
         Set<Long> providerIds = new HashSet<>();
-        providerIds.add(hotspot20IdProviderProfile.getId());
-        providerIds.add(hotspot20IdProviderProfile2.getId());
+        providerIds.add(hotspot20IdProviderProfileId);
+        providerIds.add(hotspot20IdProviderProfile2Id);
         ((PasspointProfile) passpointHotspotConfig.getDetails()).setPasspointOsuProviderProfileIds(providerIds);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-                .setPasspointOperatorProfileId(passpointOperatorProfile.getId());
+        .setPasspointOperatorProfileId(passpointOperatorProfileId);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-                .setPasspointVenueProfileId(passpointVenueProfile.getId());
-        ((PasspointProfile) passpointHotspotConfig.getDetails()).setOsuSsidProfileId(profileSsidOpen.getId());
+        .setPasspointVenueProfileId(passpointVenueProfileId);
+        ((PasspointProfile) passpointHotspotConfig.getDetails()).setOsuSsidProfileId(profileSsidOpenId);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-                .setAssociatedAccessSsidProfileIds(List.of(profileSsidPsk.getId()));
-        passpointHotspotConfig = profileServiceInterface.create(passpointHotspotConfig);
-        profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
-        profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
-        return passpointHotspotConfig;
+        .setAssociatedAccessSsidProfileIds(List.of(profileSsidPskId));
+
+        return profileServiceInterface.create(passpointHotspotConfig);
     }
 
     protected Profile createPasspointIdProviderProfile(Customer customer, Profile providerProfile, String providerName,
@@ -697,7 +694,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         mccMncList.add(passpointMccMnc);
         Set<String> naiRealms = new HashSet<>();
         naiRealms.add(naiRealm);
-        naiRealm.split(".");
         List<Byte> roamingOi = new ArrayList<>();
         roamingOi.add(Byte.valueOf("1"));
         roamingOi.add(Byte.valueOf("2"));
@@ -765,10 +761,10 @@ public class AllInOneStartListener implements ApplicationRunner {
         return profileSsidPsk;
     }
 
-    protected Profile createPasspointApProfile(Customer customer, Profile profileSsidPsk, Profile profileSsidOpen) {
+    protected Profile createPasspointApProfile(int customerId, long profileSsidPskId, long profileSsidOpenId) {
 
         Profile passpointProfileAp = new Profile();
-        passpointProfileAp.setCustomerId(customer.getId());
+        passpointProfileAp.setCustomerId(customerId);
         passpointProfileAp.setName("ApProfile-3-radios-passpoint");
         passpointProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
 
@@ -781,27 +777,26 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) passpointProfileAp.getDetails()).setRadioMap(radioProfileMap_3_radios);
 
-        passpointProfileAp.getChildProfileIds().add(profileSsidPsk.getId());
-        passpointProfileAp.getChildProfileIds().add(createRfProfile(customer, "TipWlan-rf-passpoint").getId());
+        passpointProfileAp.getChildProfileIds().add(profileSsidPskId);
+        passpointProfileAp.getChildProfileIds().add(createRfProfile(customerId, "TipWlan-rf-passpoint").getId());
         passpointProfileAp.getChildProfileIds()
-                .add(create3RadioMetricsProfile("Metrics-Profile-Passpoint", customer).getId());
-        passpointProfileAp.getChildProfileIds().add(profileSsidOpen.getId());
+                .add(create3RadioMetricsProfile("Metrics-Profile-Passpoint", customerId).getId());
+        passpointProfileAp.getChildProfileIds().add(profileSsidOpenId);
         passpointProfileAp = profileServiceInterface.create(passpointProfileAp);
         return passpointProfileAp;
 
     }
 
-    protected Profile createRfProfile(Customer customer, String rfName) {
+    protected Profile createRfProfile(int customerId, String rfProfileName) {
 
         Profile profileRf = new Profile();
-        profileRf.setCustomerId(customer.getId());
-        profileRf.setName(rfName);
+        profileRf.setCustomerId(customerId);
+        profileRf.setName(rfProfileName);
         RfConfiguration rfConfig = RfConfiguration.createWithDefaults();
-        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf(rfName));
+        rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf(rfProfileName));
         profileRf.setDetails(rfConfig);
-        profileRf = profileServiceInterface.create(profileRf);
+        return profileServiceInterface.create(profileRf);
 
-        return profileRf;
     }
 
     protected Profile createOsuProviderProfile(Customer customer, Profile hotspot20IdProviderProfile,

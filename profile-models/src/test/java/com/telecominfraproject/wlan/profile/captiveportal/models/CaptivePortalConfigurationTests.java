@@ -239,7 +239,9 @@ public class CaptivePortalConfigurationTests {
         try {
             CaptivePortalConfiguration.validateCaptivePortalProfile(config);
             fail(errorMsg);
-        } catch(Exception expected) { }
+        } catch(Exception expected) { 
+            // expected
+        }
         allowList.clear();
     }
 }
