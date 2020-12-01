@@ -41,8 +41,6 @@ public class PasspointDuple extends BaseJsonModel implements PushableConfigurati
     public void setDupleIso3Language(String language) {
         this.locale = new Locale(language);
         this.dupleIso3Language = locale.getISO3Language();
-        LOG.info("Update dupleIso3Language to {}, auto-updates locale to {} for PasspointDuple {}",
-                this.dupleIso3Language, locale, dupleName);
     }
 
 
@@ -54,8 +52,6 @@ public class PasspointDuple extends BaseJsonModel implements PushableConfigurati
     public void setLocale(Locale locale) {
         this.locale = locale;
         this.dupleIso3Language = locale.getISO3Language();
-        LOG.info("Update locale to {}, auto-updates dupleIso3Language to {} for PasspointDuple {}", this.locale,
-                dupleIso3Language, dupleName);
     }
 
 
