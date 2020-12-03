@@ -94,7 +94,7 @@ public class ProfileControllerTest {
         Exception exception = assertThrows(GenericErrorException.class, () -> {
         	profileController.create(profile2);
         });
-    	assertEquals("Cannot create profile with the same name and ProfileType", exception.getMessage());
+    	assertEquals("Profile with the same name and type already exists", exception.getMessage());
     }
         
     private void assertEqualProfiles(

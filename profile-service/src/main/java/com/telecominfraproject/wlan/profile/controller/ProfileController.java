@@ -81,7 +81,7 @@ public class ProfileController {
         if (!getForCustomer(profile.getCustomerId(), profile.getProfileType(), profile.getName(), null, null)
         		.getItems().isEmpty()) {
         	LOG.error("profile exists with name and type ({}, {})", profile.getName(), profile.getProfileType());
-        	throw new GenericErrorException("Cannot create profile with the same name and ProfileType");
+        	throw new GenericErrorException("Profile with the same name and type already exists");
         }
         
 
