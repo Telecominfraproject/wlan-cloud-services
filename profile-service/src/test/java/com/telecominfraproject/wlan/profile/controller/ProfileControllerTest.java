@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.profile.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreI
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.server.exceptions.GenericErrorException;
 
 /**
  * @author dtoptygin
@@ -73,6 +75,26 @@ public class ProfileControllerTest {
         //Delete - success
         profileController.delete(ret.getId());
         
+    }
+    
+    @Test
+    public void testSameProfileValidation() {
+        Profile profile1 = new Profile();
+        profile1.setName("test");
+        profile1.setProfileType(ProfileType.equipment_ap);
+
+        Profile ret1 = profileController.create(profile1);
+        assertNotNull(ret1);
+        
+        
+        Profile profile2 = new Profile();
+        profile2.setName("test");
+        profile2.setProfileType(ProfileType.equipment_ap);
+
+        Exception exception = assertThrows(GenericErrorException.class, () -> {
+        	profileController.create(profile2);
+        });
+    	assertEquals("Profile with the same name and type already exists", exception.getMessage());
     }
         
     private void assertEqualProfiles(

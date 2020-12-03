@@ -31,6 +31,7 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
+import com.telecominfraproject.wlan.server.exceptions.GenericErrorException;
 
 
 /**
@@ -75,6 +76,14 @@ public class ProfileController {
             LOG.error("Failed to create Profile, request contains unsupported value: {}", profile);
             throw new DsDataValidationException("Profile contains unsupported value");
         }
+        
+        // Check that there are no other profiles of the same type with the same name
+        if (!getForCustomer(profile.getCustomerId(), profile.getProfileType(), profile.getName(), null, null)
+        		.getItems().isEmpty()) {
+        	LOG.error("profile exists with name and type ({}, {})", profile.getName(), profile.getProfileType());
+        	throw new GenericErrorException("Profile with the same name and type already exists");
+        }
+        
 
         long ts = System.currentTimeMillis();
         if (profile.getCreatedTimestamp() == 0) {
