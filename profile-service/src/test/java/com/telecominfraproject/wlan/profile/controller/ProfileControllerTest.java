@@ -76,26 +76,6 @@ public class ProfileControllerTest {
         profileController.delete(ret.getId());
         
     }
-    
-    @Test
-    public void testSameProfileValidation() {
-        Profile profile1 = new Profile();
-        profile1.setName("test");
-        profile1.setProfileType(ProfileType.equipment_ap);
-
-        Profile ret1 = profileController.create(profile1);
-        assertNotNull(ret1);
-        
-        
-        Profile profile2 = new Profile();
-        profile2.setName("test");
-        profile2.setProfileType(ProfileType.equipment_ap);
-
-        Exception exception = assertThrows(GenericErrorException.class, () -> {
-        	profileController.create(profile2);
-        });
-    	assertEquals("Profile with the same name and type already exists", exception.getMessage());
-    }
         
     private void assertEqualProfiles(
             Profile expected,
