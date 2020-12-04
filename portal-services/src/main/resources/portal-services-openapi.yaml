@@ -1937,6 +1937,10 @@ components:
       - wpaEAP
       - wpa2EAP
       - wpa2OnlyEAP
+      - wpa3OnlySAE
+      - wpa3MixedSAE
+      - wpa3OnlyEAP
+      - wpa3MixedEAP      
 
     RadioBasedSsidConfigurationMap:
       properties:
@@ -3975,6 +3979,7 @@ components:
       - OPEN
       - RADIUS
       - PSK
+      - SAE
       
     SteerType:
       type: string

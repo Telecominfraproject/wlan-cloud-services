@@ -352,10 +352,11 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     public static enum SecureMode {
 
         open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(7L),
-        wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L),
+        wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L), wpa3OnlySAE(11L), wpa3MixedSAE(12L), wpa3OnlyEAP(13L),wpa3MixedEAP(14L),
 
         UNSUPPORTED(-1L);
 
+        
         private final long id;
         private static final Map<Long, SecureMode> ELEMENTS = new HashMap<>();
 
@@ -392,6 +393,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
         public static boolean isWPA2_Enterprise_or_Personal(SecureMode mode) {
             return mode == wpa2OnlyPSK || mode == wpa2OnlyRadius;
+        }
+        
+        public static boolean isWPA3_Enterprise_or_Personal(SecureMode mode) {
+            return mode == wpa3OnlySAE || mode == wpa3OnlyEAP;
         }
 
     }
