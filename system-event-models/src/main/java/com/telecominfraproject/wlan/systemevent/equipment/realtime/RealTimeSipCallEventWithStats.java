@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
@@ -30,6 +31,10 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     private Long associationId;
     private MacAddress macAddress;
     private List<RtpFlowStats> statuses;
+    private int channel;
+    private RadioType radioType;
+    private List<String> codecs;
+    private String providerDomain;
 
     protected RealTimeSipCallEventWithStats(RealTimeEventType eventType, int customerId, long equipmentId,
             Long timestamp) {
@@ -77,11 +82,44 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
         return (associationId != null) && (associationId != 0);
     }
 
+    public int getChannel() {
+        return channel;
+    }
+
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+
+    public RadioType getRadioType() {
+        return radioType;
+    }
+
+    public void setRadioType(RadioType radioType) {
+        this.radioType = radioType;
+    }
+
+    public List<String> getCodecs() {
+        return codecs;
+    }
+
+    public void setCodecs(List<String> codecs) {
+        this.codecs = codecs;
+    }
+
+    public String getProviderDomain() {
+        return providerDomain;
+    }
+
+    public void setProviderDomain(String providerDomain) {
+        this.providerDomain = providerDomain;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = (prime * result) + Objects.hash(associationId, macAddress, sipCallId, statuses);
+        result = (prime * result) +
+                Objects.hash(associationId, macAddress, sipCallId, statuses, channel, radioType, codecs, providerDomain);
         return result;
     }
 
@@ -98,7 +136,9 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
         }
         RealTimeSipCallEventWithStats other = (RealTimeSipCallEventWithStats) obj;
         return Objects.equals(associationId, other.associationId) && Objects.equals(macAddress, other.macAddress)
-                && Objects.equals(sipCallId, other.sipCallId) && Objects.equals(statuses, other.statuses);
+                && Objects.equals(sipCallId, other.sipCallId) && Objects.equals(statuses, other.statuses)
+                && Objects.equals(channel, other.channel) && Objects.equals(radioType, other.radioType)
+                && Objects.equals(codecs, other.codecs) && Objects.equals(providerDomain, other.providerDomain);
     }
 
     @Override

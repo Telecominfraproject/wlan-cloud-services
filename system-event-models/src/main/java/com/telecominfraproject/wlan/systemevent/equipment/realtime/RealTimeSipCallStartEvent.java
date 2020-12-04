@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
@@ -22,6 +23,8 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     private List<String> codecs;
     private String providerDomain;
     private String deviceInfo;
+    private int channel;
+    private RadioType radioType;
 
     public RealTimeSipCallStartEvent(int customerId, long equipmentId, Long timestamp) {
         super(RealTimeEventType.SipCallStart, customerId, equipmentId, timestamp);
@@ -45,7 +48,8 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
         RealTimeSipCallStartEvent other = (RealTimeSipCallStartEvent) obj;
         return Objects.equals(associationId, other.associationId) && Objects.equals(codecs, other.codecs)
                 && Objects.equals(deviceInfo, other.deviceInfo) && Objects.equals(macAddress, other.macAddress)
-                && Objects.equals(providerDomain, other.providerDomain) && Objects.equals(sipCallId, other.sipCallId);
+                && Objects.equals(providerDomain, other.providerDomain) && Objects.equals(sipCallId, other.sipCallId)
+                && Objects.equals(channel, other.channel) && Objects.equals(radioType, other.radioType);
     }
 
     public Long getAssociationId() {
@@ -84,7 +88,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
         final int prime = 31;
         int result = super.hashCode();
         result = (prime * result)
-                + Objects.hash(associationId, codecs, deviceInfo, macAddress, providerDomain, sipCallId);
+                + Objects.hash(associationId, codecs, deviceInfo, macAddress, providerDomain, sipCallId, channel, radioType);
         return result;
     }
 
@@ -130,17 +134,33 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
         return (associationId != null) && (associationId != 0);
     }
 
+    public int getChannel() {
+        return channel;
+    }
+
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+
+    public RadioType getRadioType() {
+        return radioType;
+    }
+
+    public void setRadioType(RadioType radioType) {
+        this.radioType = radioType;
+    }
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
         }
 
-        if (hasUnsupportedValue(macAddress)) {
-            return true;
-        }
-        return false;
+        return hasUnsupportedValue(macAddress);
     }
 
-
+    @Override
+    public RealTimeSipCallStartEvent clone() {
+        return (RealTimeSipCallStartEvent) super.clone();
+    }
 }
