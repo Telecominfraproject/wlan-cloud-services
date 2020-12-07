@@ -49,7 +49,8 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     	
     	for (Profile inMemProfile : idToProfileMap.values()) {
     		if (profile.getName().equals(inMemProfile.getName()) && 
-    				profile.getProfileType().equals(inMemProfile.getProfileType())) {
+    			profile.getProfileType().equals(inMemProfile.getProfileType()) && 
+    			profile.getCustomerId() == inMemProfile.getCustomerId()) {
     			throw new DsDuplicateEntityException("Profile with the same name and type already exists");
     		}
     	}
@@ -103,6 +104,16 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     @Override
     public Profile update(Profile profile) {
         Profile existingProfile = get(profile.getId());
+        
+        for (Profile inMemProfile : idToProfileMap.values()) {
+        	if (!inMemProfile.equals(existingProfile)) {
+	    		if (profile.getName().equals(inMemProfile.getName()) && 
+	    			profile.getProfileType().equals(inMemProfile.getProfileType()) && 
+	    			profile.getCustomerId() == inMemProfile.getCustomerId()) {
+	    			throw new DsDuplicateEntityException("Profile with the same name and type already exists");
+	    		}
+        	}
+    	}
         
         if(existingProfile.getLastModifiedTimestamp()!=profile.getLastModifiedTimestamp()){
             LOG.debug("Concurrent modification detected for Profile with id {} expected version is {} but version in db was {}", 

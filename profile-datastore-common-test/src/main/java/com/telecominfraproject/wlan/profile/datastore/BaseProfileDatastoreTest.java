@@ -49,7 +49,7 @@ public abstract class BaseProfileDatastoreTest {
     public void testCRUD() {
     	int nextId = getNextCustomerId();
 
-    	Profile profile = createProfileObject(nextId);
+    	Profile profile = createProfileObject(nextId, "test");
 
         //create
     	Profile created = testInterface.create(profile);
@@ -125,10 +125,9 @@ public abstract class BaseProfileDatastoreTest {
     }
     
     @Test
-    public void testSameNameAndTypeException() {
-    	int nextId = getNextCustomerId();
+    public void testCreateSameNameAndTypeException() {
 
-    	Profile profile = createProfileObject(nextId);
+    	Profile profile = createProfileObject(getNextCustomerId(), "test");
 
         //create
     	Profile created = testInterface.create(profile);
@@ -141,6 +140,43 @@ public abstract class BaseProfileDatastoreTest {
         //delete after successful test
         Profile retrieved = testInterface.delete(created.getId());
         assertNotNull(retrieved);
+
+    }
+    
+    @Test
+    public void testUpdateSameNameAndTypeException() {
+    	int nextId = getNextCustomerId();
+
+    	Profile profile = createProfileObject(nextId, "test");
+    	Profile profile_2 = createProfileObject(nextId, "testDuplicate");
+
+        //create
+    	Profile created = testInterface.create(profile);
+    	// create 2nd profile to trigger exception on update
+    	Profile created_2 = testInterface.create(profile_2);
+    	
+    	SsidConfiguration config = (SsidConfiguration) created.getDetails();
+    	config.setSsid("updatedSsidName");
+    	created.setDetails(config);
+    	
+    	// Update should work on same profile changing details
+    	Profile updated = testInterface.update(created);
+    	
+    	updated.setName("testDuplicate-" + nextId);
+    	
+    	// Update should not work on updating name/type/customerId to the same as another profile
+    	assertThrows(DsDuplicateEntityException.class, () -> {
+    		// This should throw expected error
+         	testInterface.update(updated);
+        });
+        
+        //delete after successful test
+        Profile retrieved = testInterface.delete(created.getId());
+        assertNotNull(retrieved);
+        
+        //delete after successful test
+        Profile retrieved_2 = testInterface.delete(created_2.getId());
+        assertNotNull(retrieved_2);
 
     }
     
@@ -313,9 +349,10 @@ public abstract class BaseProfileDatastoreTest {
     
     @Test
     public void testChildProfiles() {
+    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(getNextCustomerId());
-    	Profile profile_c2 = createProfileObject(getNextCustomerId());
+    	Profile profile_c1 = createProfileObject(nextId, "testChild1");
+    	Profile profile_c2 = createProfileObject(nextId, "testChild2");
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
@@ -324,7 +361,7 @@ public abstract class BaseProfileDatastoreTest {
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(getNextCustomerId());
+    	Profile profile_p1 = createProfileObject(nextId, "testParent1");
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
 
     	profile_p1 = testInterface.create(profile_p1);
@@ -332,7 +369,7 @@ public abstract class BaseProfileDatastoreTest {
     	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId())), profile_p1.getChildProfileIds());
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(getNextCustomerId());
+    	Profile profile_p2 = createProfileObject(nextId, "testParent2");
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
 
     	profile_p2 = testInterface.create(profile_p2);
@@ -367,26 +404,27 @@ public abstract class BaseProfileDatastoreTest {
     
     @Test
     public void testGetProfileWithChildren(){
+    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(getNextCustomerId());
-    	Profile profile_c2 = createProfileObject(getNextCustomerId());
+    	Profile profile_c1 = createProfileObject(nextId, "testChild1");
+    	Profile profile_c2 = createProfileObject(nextId, "testChild2");
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(getNextCustomerId());
+    	Profile profile_p1 = createProfileObject(nextId, "testParent1");
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = testInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(getNextCustomerId());
+    	Profile profile_p2 = createProfileObject(nextId, "testParent2");
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = testInterface.create(profile_p2);
     	
     	//create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp1 = createProfileObject(nextId, "testGrandchild1");
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = testInterface.create(profile_gp1);
     	
@@ -414,31 +452,32 @@ public abstract class BaseProfileDatastoreTest {
 
     @Test
     public void testGetTopLevelProfiles() {
+    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(getNextCustomerId());
-    	Profile profile_c2 = createProfileObject(getNextCustomerId());
+    	Profile profile_c1 = createProfileObject(nextId, "testChild1");
+    	Profile profile_c2 = createProfileObject(nextId, "testChild2");
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(getNextCustomerId());
+    	Profile profile_p1 = createProfileObject(nextId, "testParent1");
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = testInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(getNextCustomerId());
+    	Profile profile_p2 = createProfileObject(nextId, "testParent2");
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = testInterface.create(profile_p2);
     	
     	//grand-parent - create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp1 = createProfileObject(nextId, "testGrandchild1");
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = testInterface.create(profile_gp1);
     	
     	//another grand-parent - create with 1 child and 1 grand child
-    	Profile profile_gp2 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp2 = createProfileObject(nextId, "testGrandchild2");
     	profile_gp2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId())));
     	profile_gp2 = testInterface.create(profile_gp2);
     	
@@ -554,13 +593,12 @@ public abstract class BaseProfileDatastoreTest {
         assertEquals(profiles3_different_case.size(), 3);
     }
 
-    private Profile createProfileObject(int customerId) {
+    private Profile createProfileObject(int customerId, String name) {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
-        result.setName("test-" + customerId); 
-        result.setProfileType(ProfileType.ssid);
+        result.setName(name + "-" + customerId); 
         SsidConfiguration details = SsidConfiguration.createWithDefaults();
-        details.setSsid("test-details-" + customerId);
+        details.setSsid(name + "-details-" + customerId);
 		result.setDetails(details );
         return result;
     }

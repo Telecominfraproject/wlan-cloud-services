@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,6 +28,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
@@ -115,6 +117,62 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
             //expected it
         }
         
+    }
+    
+    @Test
+    public void testCreateSameNameAndTypeException() {
+
+    	Profile profile = createProfileObject(getNextCustomerId(), "test");
+
+        //create
+    	Profile created = remoteInterface.create(profile);
+    	
+    	assertThrows(DsDuplicateEntityException.class, () -> {
+    		// This should throw expected error
+    		remoteInterface.create(profile);
+         });
+        
+        //delete after successful test
+        Profile retrieved = remoteInterface.delete(created.getId());
+        assertNotNull(retrieved);
+
+    }
+    
+    @Test
+    public void testUpdateSameNameAndTypeException() {
+    	int nextId = getNextCustomerId();
+
+    	Profile profile = createProfileObject(nextId, "test");
+    	Profile profile_2 = createProfileObject(nextId, "testDuplicate");
+
+        //create
+    	Profile created = remoteInterface.create(profile);
+    	// create 2nd profile to trigger exception on update
+    	Profile created_2 = remoteInterface.create(profile_2);
+    	
+    	SsidConfiguration config = (SsidConfiguration) created.getDetails();
+    	config.setSsid("updatedSsidName");
+    	created.setDetails(config);
+    	
+    	// Update should work on same profile changing details
+    	Profile updated = remoteInterface.update(created);
+    	
+    	updated.setName("testDuplicate-" + nextId);
+    	
+    	// Update should not work on updating name/type/customerId to the same as another profile
+    	assertThrows(DsDuplicateEntityException.class, () -> {
+    		// This should throw expected error
+    		remoteInterface.update(updated);
+        });
+        
+        //delete after successful test
+        Profile retrieved = remoteInterface.delete(created.getId());
+        assertNotNull(retrieved);
+        
+        //delete after successful test
+        Profile retrieved_2 = remoteInterface.delete(created_2.getId());
+        assertNotNull(retrieved_2);
+
     }
     
     
@@ -289,26 +347,27 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     @Test
     public void testGetProfileWithChildren(){
+    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(getNextCustomerId());
-    	Profile profile_c2 = createProfileObject(getNextCustomerId());
+    	Profile profile_c1 = createProfileObject(nextId, "testChild1");
+    	Profile profile_c2 = createProfileObject(nextId, "testChild2");
 
         //create with no children
     	profile_c1 = remoteInterface.create(profile_c1);
     	profile_c2 = remoteInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(getNextCustomerId());
+    	Profile profile_p1 = createProfileObject(nextId, "testParent1");
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = remoteInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(getNextCustomerId());
+    	Profile profile_p2 = createProfileObject(nextId, "testParent2");
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = remoteInterface.create(profile_p2);
     	
     	//create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp1 = createProfileObject(nextId, "testGrandchild1");
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = remoteInterface.create(profile_gp1);
     	
@@ -337,31 +396,32 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     @Test
     public void testGetTopLevelProfiles(){
+    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(getNextCustomerId());
-    	Profile profile_c2 = createProfileObject(getNextCustomerId());
+    	Profile profile_c1 = createProfileObject(nextId, "testChild1");
+    	Profile profile_c2 = createProfileObject(nextId, "testChild2");
 
         //create with no children
     	profile_c1 = remoteInterface.create(profile_c1);
     	profile_c2 = remoteInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(getNextCustomerId());
+    	Profile profile_p1 = createProfileObject(nextId, "testParent1");
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = remoteInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(getNextCustomerId());
+    	Profile profile_p2 = createProfileObject(nextId, "testParent2");
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = remoteInterface.create(profile_p2);
     	
     	//grand-parent - create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp1 = createProfileObject(nextId, "testGrandchild1");
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = remoteInterface.create(profile_gp1);
     	
     	//another grand-parent - create with 1 child and 1 grand child
-    	Profile profile_gp2 = createProfileObject(getNextCustomerId());
+    	Profile profile_gp2 = createProfileObject(nextId, "testGrandchild2");
     	profile_gp2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId())));
     	profile_gp2 = remoteInterface.create(profile_gp2);
     	
@@ -399,12 +459,12 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     }
     
-    private Profile createProfileObject(int customerId) {
+    private Profile createProfileObject(int customerId, String name) {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
-        result.setName("test-" + customerId); 
+        result.setName(name + "-" + customerId); 
         SsidConfiguration details = SsidConfiguration.createWithDefaults();
-        details.setSsid("test-details-" + customerId);
+        details.setSsid(name + "-details-" + customerId);
 		result.setDetails(details );
         return result;
     }
