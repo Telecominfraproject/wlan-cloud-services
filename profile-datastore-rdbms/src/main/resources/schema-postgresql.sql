@@ -14,6 +14,7 @@ create table if not exists profile (
 );
 
 create index if not exists idx_profile_customerId on profile (customerId);
+create unique index if not exists idx_profile_customerId_profileType_name on profile (customerId, name, profileType); 
 
 create table if not exists profile_map (
     customerId int,

@@ -3,7 +3,6 @@ package com.telecominfraproject.wlan.profile.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,12 +15,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
 import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreInMemory;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
-import com.telecominfraproject.wlan.server.exceptions.GenericErrorException;
 
 /**
  * @author dtoptygin

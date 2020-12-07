@@ -31,7 +31,6 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
-import com.telecominfraproject.wlan.server.exceptions.GenericErrorException;
 
 
 /**

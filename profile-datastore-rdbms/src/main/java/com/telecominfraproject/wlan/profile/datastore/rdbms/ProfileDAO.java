@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
-import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
@@ -273,25 +272,30 @@ public class ProfileDAO extends BaseJdbcDao {
 
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = profile.getLastModifiedTimestamp();
+        int updateCount;
         
-        int updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
-                //profile.getId(), - not updating this one
-
-                //TODO: add remaining properties from Profile here
-        		profile.getCustomerId(),
-        		profile.getProfileType().getId(),
-                profile.getName(),
-                (profile.getDetails()!=null)?profile.getDetails().toZippedBytes():null ,
-                                
-                //profile.getCreatedTimestamp(), - not updating this one
-                newLastModifiedTs,
-                
-                // use id for update operation
-                profile.getId(),
-                // use lastModifiedTimestamp for data protection against concurrent modifications
-                incomingLastModifiedTs,
-                isSkipCheckForConcurrentUpdates()
-        });
+        try {
+	        updateCount = this.jdbcTemplate.update(SQL_UPDATE, new Object[]{ 
+	                //profile.getId(), - not updating this one
+	
+	                //TODO: add remaining properties from Profile here
+	        		profile.getCustomerId(),
+	        		profile.getProfileType().getId(),
+	                profile.getName(),
+	                (profile.getDetails()!=null)?profile.getDetails().toZippedBytes():null ,
+	                                
+	                //profile.getCreatedTimestamp(), - not updating this one
+	                newLastModifiedTs,
+	                
+	                // use id for update operation
+	                profile.getId(),
+	                // use lastModifiedTimestamp for data protection against concurrent modifications
+	                incomingLastModifiedTs,
+	                isSkipCheckForConcurrentUpdates()
+	        }); 
+        } catch (DuplicateKeyException e) {
+            throw new DsDuplicateEntityException(e);
+        }
         
         if(updateCount==0){
             

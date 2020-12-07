@@ -20,6 +20,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
 import com.telecominfraproject.wlan.profile.datastore.ProfileDatastore;
@@ -44,6 +45,14 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
         
     	if(profile.hasUnsupportedValue()) {
     		throw new IllegalStateException("unsupported value in profile object");
+    	}
+    	
+    	for (Profile inMemProfile : idToProfileMap.values()) {
+    		if (profile.getName().equals(inMemProfile.getName()) && 
+    			profile.getProfileType().equals(inMemProfile.getProfileType()) && 
+    			profile.getCustomerId() == inMemProfile.getCustomerId()) {
+    			throw new DsDuplicateEntityException("Profile with the same name and type already exists");
+    		}
     	}
     	
         Profile profileCopy = profile.clone();
@@ -95,6 +104,16 @@ public class ProfileDatastoreInMemory extends BaseInMemoryDatastore implements P
     @Override
     public Profile update(Profile profile) {
         Profile existingProfile = get(profile.getId());
+        
+        for (Profile inMemProfile : idToProfileMap.values()) {
+        	if (!inMemProfile.equals(existingProfile)) {
+	    		if (profile.getName().equals(inMemProfile.getName()) && 
+	    			profile.getProfileType().equals(inMemProfile.getProfileType()) && 
+	    			profile.getCustomerId() == inMemProfile.getCustomerId()) {
+	    			throw new DsDuplicateEntityException("Profile with the same name and type already exists");
+	    		}
+        	}
+    	}
         
         if(existingProfile.getLastModifiedTimestamp()!=profile.getLastModifiedTimestamp()){
             LOG.debug("Concurrent modification detected for Profile with id {} expected version is {} but version in db was {}", 
