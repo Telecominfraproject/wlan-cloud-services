@@ -16,12 +16,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
+import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreInMemory;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
-import com.telecominfraproject.wlan.server.exceptions.GenericErrorException;
 
 /**
  * @author dtoptygin
@@ -91,10 +90,9 @@ public class ProfileControllerTest {
         profile2.setName("test");
         profile2.setProfileType(ProfileType.equipment_ap);
 
-        Exception exception = assertThrows(GenericErrorException.class, () -> {
+        assertThrows(DsDuplicateEntityException.class, () -> {
         	profileController.create(profile2);
         });
-    	assertEquals("Profile with the same name and type already exists", exception.getMessage());
     }
         
     private void assertEqualProfiles(

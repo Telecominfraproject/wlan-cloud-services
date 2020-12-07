@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,6 +25,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
@@ -45,7 +47,7 @@ public abstract class BaseProfileDatastoreTest {
 
     @Test
     public void testCRUD() {
-    	int nextId = (int) testSequence.getAndIncrement();
+    	int nextId = getNextCustomerId();
 
     	Profile profile = createProfileObject(nextId);
 
@@ -119,6 +121,26 @@ public abstract class BaseProfileDatastoreTest {
         }catch(DsEntityNotFoundException e ){
         	//expected it
         }
+
+    }
+    
+    @Test
+    public void testSameNameAndTypeException() {
+    	int nextId = getNextCustomerId();
+
+    	Profile profile = createProfileObject(nextId);
+
+        //create
+    	Profile created = testInterface.create(profile);
+    	
+    	assertThrows(DsDuplicateEntityException.class, () -> {
+    		// This should throw expected error
+         	testInterface.create(profile);
+         });
+        
+        //delete after successful test
+        Profile retrieved = testInterface.delete(created.getId());
+        assertNotNull(retrieved);
 
     }
     
@@ -291,10 +313,9 @@ public abstract class BaseProfileDatastoreTest {
     
     @Test
     public void testChildProfiles() {
-    	int nextId = (int) testSequence.getAndIncrement();
 
-    	Profile profile_c1 = createProfileObject(nextId);
-    	Profile profile_c2 = createProfileObject(nextId);
+    	Profile profile_c1 = createProfileObject(getNextCustomerId());
+    	Profile profile_c2 = createProfileObject(getNextCustomerId());
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
@@ -303,7 +324,7 @@ public abstract class BaseProfileDatastoreTest {
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject((int)nextId);
+    	Profile profile_p1 = createProfileObject(getNextCustomerId());
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
 
     	profile_p1 = testInterface.create(profile_p1);
@@ -311,7 +332,7 @@ public abstract class BaseProfileDatastoreTest {
     	assertEquals(new HashSet<>(Arrays.asList(profile_c1.getId())), profile_p1.getChildProfileIds());
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject((int)nextId);
+    	Profile profile_p2 = createProfileObject(getNextCustomerId());
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
 
     	profile_p2 = testInterface.create(profile_p2);
@@ -346,27 +367,26 @@ public abstract class BaseProfileDatastoreTest {
     
     @Test
     public void testGetProfileWithChildren(){
-    	int nextId = (int) testSequence.getAndIncrement();
 
-    	Profile profile_c1 = createProfileObject(nextId);
-    	Profile profile_c2 = createProfileObject(nextId);
+    	Profile profile_c1 = createProfileObject(getNextCustomerId());
+    	Profile profile_c2 = createProfileObject(getNextCustomerId());
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(nextId);
+    	Profile profile_p1 = createProfileObject(getNextCustomerId());
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = testInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(nextId);
+    	Profile profile_p2 = createProfileObject(getNextCustomerId());
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = testInterface.create(profile_p2);
     	
     	//create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(nextId);
+    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = testInterface.create(profile_gp1);
     	
@@ -393,33 +413,32 @@ public abstract class BaseProfileDatastoreTest {
     }
 
     @Test
-    public void testGetTopLevelProfiles(){
-    	int nextId = (int) testSequence.getAndIncrement();
+    public void testGetTopLevelProfiles() {
 
-    	Profile profile_c1 = createProfileObject(nextId);
-    	Profile profile_c2 = createProfileObject(nextId);
+    	Profile profile_c1 = createProfileObject(getNextCustomerId());
+    	Profile profile_c2 = createProfileObject(getNextCustomerId());
 
         //create with no children
     	profile_c1 = testInterface.create(profile_c1);
     	profile_c2 = testInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(nextId);
+    	Profile profile_p1 = createProfileObject(getNextCustomerId());
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = testInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(nextId);
+    	Profile profile_p2 = createProfileObject(getNextCustomerId());
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = testInterface.create(profile_p2);
     	
     	//grand-parent - create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(nextId);
+    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = testInterface.create(profile_gp1);
     	
     	//another grand-parent - create with 1 child and 1 grand child
-    	Profile profile_gp2 = createProfileObject(nextId);
+    	Profile profile_gp2 = createProfileObject(getNextCustomerId());
     	profile_gp2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId())));
     	profile_gp2 = testInterface.create(profile_gp2);
     	
@@ -464,10 +483,10 @@ public abstract class BaseProfileDatastoreTest {
 
     	Profile profile_c1 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, PROFILETYPE_TEST_NAME_PREFIX);
     	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.passpoint_operator, PROFILETYPE_TEST_NAME_PREFIX);
-    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.passpoint_operator, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.passpoint_operator, PROFILETYPE_TEST_NAME_PREFIX + "_2");
     	Profile profile_c4 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
-    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
-    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX);
+    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX + "_2");
+    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.equipment_ap, PROFILETYPE_TEST_NAME_PREFIX + "_3");
     	
     	testInterface.create(profile_c1);
     	testInterface.create(profile_c2);
@@ -503,10 +522,10 @@ public abstract class BaseProfileDatastoreTest {
 
     	Profile profile_c1 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name1);
     	Profile profile_c2 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name2);
-    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name2);
+    	Profile profile_c3 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name2 + "_2");
     	Profile profile_c4 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
-    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
-    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3);
+    	Profile profile_c5 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3 + "_2");
+    	Profile profile_c6 = createProfileObjectForGetForCustomerTest(customer_ID, ProfileType.ssid, name3 + "_3");
     	
     	testInterface.create(profile_c1);
     	testInterface.create(profile_c2);
@@ -539,6 +558,7 @@ public abstract class BaseProfileDatastoreTest {
     	Profile result = new Profile();        
         result.setCustomerId(customerId);
         result.setName("test-" + customerId); 
+        result.setProfileType(ProfileType.ssid);
         SsidConfiguration details = SsidConfiguration.createWithDefaults();
         details.setSsid("test-details-" + customerId);
 		result.setDetails(details );
@@ -551,5 +571,9 @@ public abstract class BaseProfileDatastoreTest {
         result.setName(name + customerId); 
         result.setProfileType(profileType);
         return result;
+    }
+    
+    private int getNextCustomerId() {
+    	return (int) testSequence.getAndIncrement();
     }
 }

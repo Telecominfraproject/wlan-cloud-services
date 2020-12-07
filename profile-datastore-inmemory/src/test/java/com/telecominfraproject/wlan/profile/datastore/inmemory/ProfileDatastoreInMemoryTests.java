@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.profile.datastore.BaseProfileDatastoreTest;
-import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreInMemory;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 
 /**

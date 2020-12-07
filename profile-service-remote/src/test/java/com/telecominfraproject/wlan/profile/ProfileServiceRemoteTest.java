@@ -289,27 +289,26 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     @Test
     public void testGetProfileWithChildren(){
-    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(nextId);
-    	Profile profile_c2 = createProfileObject(nextId);
+    	Profile profile_c1 = createProfileObject(getNextCustomerId());
+    	Profile profile_c2 = createProfileObject(getNextCustomerId());
 
         //create with no children
     	profile_c1 = remoteInterface.create(profile_c1);
     	profile_c2 = remoteInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(nextId);
+    	Profile profile_p1 = createProfileObject(getNextCustomerId());
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = remoteInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(nextId);
+    	Profile profile_p2 = createProfileObject(getNextCustomerId());
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = remoteInterface.create(profile_p2);
     	
     	//create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(nextId);
+    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = remoteInterface.create(profile_gp1);
     	
@@ -338,32 +337,31 @@ public class ProfileServiceRemoteTest extends BaseRemoteTest {
 
     @Test
     public void testGetTopLevelProfiles(){
-    	int nextId = getNextCustomerId();
 
-    	Profile profile_c1 = createProfileObject(nextId);
-    	Profile profile_c2 = createProfileObject(nextId);
+    	Profile profile_c1 = createProfileObject(getNextCustomerId());
+    	Profile profile_c2 = createProfileObject(getNextCustomerId());
 
         //create with no children
     	profile_c1 = remoteInterface.create(profile_c1);
     	profile_c2 = remoteInterface.create(profile_c2);
     	
     	//create with 1 child
-    	Profile profile_p1 = createProfileObject(nextId);
+    	Profile profile_p1 = createProfileObject(getNextCustomerId());
     	profile_p1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId())));
     	profile_p1 = remoteInterface.create(profile_p1);
 
     	//create with 2 children
-    	Profile profile_p2 = createProfileObject(nextId);
+    	Profile profile_p2 = createProfileObject(getNextCustomerId());
     	profile_p2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_c1.getId(), profile_c2.getId())));
     	profile_p2 = remoteInterface.create(profile_p2);
     	
     	//grand-parent - create with 2 children and 2 grand children
-    	Profile profile_gp1 = createProfileObject(nextId);
+    	Profile profile_gp1 = createProfileObject(getNextCustomerId());
     	profile_gp1.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId(), profile_p2.getId())));
     	profile_gp1 = remoteInterface.create(profile_gp1);
     	
     	//another grand-parent - create with 1 child and 1 grand child
-    	Profile profile_gp2 = createProfileObject(nextId);
+    	Profile profile_gp2 = createProfileObject(getNextCustomerId());
     	profile_gp2.setChildProfileIds(new HashSet<>(Arrays.asList(profile_p1.getId())));
     	profile_gp2 = remoteInterface.create(profile_gp2);
     	
