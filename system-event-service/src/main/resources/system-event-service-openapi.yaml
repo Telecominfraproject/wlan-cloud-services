@@ -868,6 +868,7 @@ components:
       - OPEN
       - RADIUS
       - PSK
+      - SAE
       
     SteerType:
       type: string
