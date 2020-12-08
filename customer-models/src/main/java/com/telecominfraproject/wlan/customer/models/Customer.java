@@ -29,7 +29,7 @@ public class Customer extends BaseJsonModel{
         this.id = customer.id;
         this.name = customer.name;
         this.email = customer.email;
-        this.details = details;
+        this.details = customer.details;
         this.createdTimestamp = customer.createdTimestamp;
         this.lastModifiedTimestamp = customer.lastModifiedTimestamp;
     }
