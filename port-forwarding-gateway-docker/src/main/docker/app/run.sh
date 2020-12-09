@@ -40,7 +40,8 @@ HOST_PROPS+=" -Dtip.wlan.websocketSessionTokenEncryptionKey=$PF_GATEWAY_ENCRYPTI
 HOST_PROPS+=" -Dtip.wlan.externallyVisibleHostName=$PF_GATEWAY_EXT_HOST"
 HOST_PROPS+=" -Dtip.wlan.externallyVisiblePort=$PF_GATEWAY_EXT_PORT"
 
+JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:' '} "
 
-export ALL_PROPS="$PROFILES $LOGGING_PROPS $HOST_PROPS"
+export ALL_PROPS="$JVM_EXTRA_PROPS $PROFILES $LOGGING_PROPS $HOST_PROPS"
 
 java $ALL_PROPS -jar app.jar

@@ -13,6 +13,8 @@ then
   HOST_PROPS+=" -Dtip.wlan.introspectTokenApi.host=${BACKEND_SERVER}:9091"
 fi
 
-export ALL_PROPS="$LOGGING_PROPS $HOST_PROPS"
+JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:' '} "
+
+export ALL_PROPS="$JVM_EXTRA_PROPS $LOGGING_PROPS $HOST_PROPS"
 
 java $ALL_PROPS -jar app.jar

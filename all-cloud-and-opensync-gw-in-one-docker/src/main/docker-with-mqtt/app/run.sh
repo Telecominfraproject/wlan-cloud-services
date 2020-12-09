@@ -171,7 +171,9 @@ echo "https://github.com/Telecominfraproject/wlan-cloud-services/blob/master/por
 
 SPRING_EXTRA_PROPS=" --add-opens java.base/java.lang=ALL-UNNAMED"
 
-export ALL_PROPS="$PROFILES $SSL_PROPS $CLIENT_MQTT_SSL_PROPS $OVSDB_PROPS $MQTT_PROPS $LOGGING_PROPS $RESTAPI_PROPS $SPRING_EXTRA_PROPS "
+JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:' '} "
+
+export ALL_PROPS="$JVM_EXTRA_PROPS $PROFILES $SSL_PROPS $CLIENT_MQTT_SSL_PROPS $OVSDB_PROPS $MQTT_PROPS $LOGGING_PROPS $RESTAPI_PROPS $SPRING_EXTRA_PROPS "
 
 echo Starting dynamic opensync wifi controller
 

@@ -35,6 +35,8 @@ HOST_PROPS+=" -Dtip.wlan.adoptionMetricsServiceBaseUrl=$PROV_URL"
 REMOTE_DEBUG_PORT=5006
 REMOTE_DEBUG=" -agentlib:jdwp=transport=dt_socket,server=y,address=*:$REMOTE_DEBUG_PORT,suspend=n"
 
-export ALL_PROPS="$LOGGING_PROPS $HOST_PROPS $FILE_STORE_PROPS $REMOTE_DEBUG"
+JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:' '} "
+
+export ALL_PROPS="$JVM_EXTRA_PROPS $LOGGING_PROPS $HOST_PROPS $FILE_STORE_PROPS $REMOTE_DEBUG"
 
 java $ALL_PROPS -jar app.jar
