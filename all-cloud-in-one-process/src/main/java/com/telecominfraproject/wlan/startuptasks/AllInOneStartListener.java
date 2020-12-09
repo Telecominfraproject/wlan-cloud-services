@@ -286,8 +286,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-        create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId());
-        create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer.getId());
+        Profile profileMetrics_3_radios = create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId());
+        Profile profileMetrics_2_radios = create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer.getId());
 
         Profile profileSsidEAP = new Profile();
         profileSsidEAP.setCustomerId(customer.getId());
@@ -404,8 +404,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds()
-                .add(create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId()).getId());
-        profileAp_3_radios.getChildProfileIds().add(createRfProfile(customer.getId(), "TipWlan-rf").getId());
+                .add(profileMetrics_3_radios.getId());
+        profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         // TipWlan-cloud-hotspot-access
