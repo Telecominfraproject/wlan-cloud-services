@@ -30,10 +30,15 @@ HOST_PROPS+=" -Dtip.wlan.manufacturerServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.equipmentServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
 
-REMOTE_DEBUG_PORT=5007
-REMOTE_DEBUG=" -agentlib:jdwp=transport=dt_socket,server=y,address=*:$REMOTE_DEBUG_PORT,suspend=n"
+REMOTE_DEBUG_PORT=${REMOTE_DEBUG_PORT:-'5007'}
+if [ "x$REMOTE_DEBUG_ENABLE" == "xtrue" ]
+then
+  REMOTE_DEBUG=" -agentlib:jdwp=transport=dt_socket,server=y,address=*:$REMOTE_DEBUG_PORT,suspend=n"
+else
+  REMOTE_DEBUG=" "
+fi
 
-JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:' '} "
+JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:-' '} "
 
 export ALL_PROPS="$JVM_EXTRA_PROPS $PROFILES $LOGGING_PROPS $DATABASE_PROPS $HOST_PROPS $REMOTE_DEBUG"
 
