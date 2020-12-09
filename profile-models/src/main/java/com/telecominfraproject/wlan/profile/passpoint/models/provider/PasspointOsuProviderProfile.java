@@ -31,9 +31,10 @@ public class PasspointOsuProviderProfile extends ProfileDetails
     private String osuNaiShared;
     private List<Integer> osuMethodList;
     private List<PasspointDuple> osuServiceDescription;
-    private static final int MIN_ROAMING_OI_OCTETS = 3;
-    private static final int MAX_ROAMING__OI_OCTETS = 15;
-    private List<Byte> roamingOi;
+    private static final int MIN_ROAMING_OI_LENGTH = 6; // 6 hex characters, i.e. 004096, E8F5F4
+    private static final int MAX_ROAMING_OI_LENGTH = 30; // 15 hex characters i.e. BAA2D00100BAA2D001004096E8F5F4
+    
+    private List<String> roamingOi; // strings of OI hex number, includes leading 0 where appropriate
 
 
     private static final long serialVersionUID = -6146454085334670280L;
@@ -53,7 +54,7 @@ public class PasspointOsuProviderProfile extends ProfileDetails
         osuFriendlyName = new ArrayList<>();
         osuMethodList = new ArrayList<>();
         osuServiceDescription = new ArrayList<>();
-        roamingOi = new ArrayList<>(MIN_ROAMING_OI_OCTETS);
+        roamingOi = new ArrayList<>();
     }
 
     public static PasspointOsuProviderProfile createWithDefaults() {
@@ -155,23 +156,23 @@ public class PasspointOsuProviderProfile extends ProfileDetails
         this.osuServiceDescription = osuServiceDescription;
     }
 
-    public List<Byte> getRoamingOi() {
+    public List<String> getRoamingOi() {
         return roamingOi;
     }
 
 
-    public void setRoamingOi(List<Byte> roamingOi) {
+    public void setRoamingOi(List<String> roamingOi) {
         this.roamingOi = roamingOi;
     }
 
 
     public static int getMinRoamingOiOctets() {
-        return MIN_ROAMING_OI_OCTETS;
+        return MIN_ROAMING_OI_LENGTH;
     }
 
 
     public static int getMaxRoamingOiOctets() {
-        return MAX_ROAMING__OI_OCTETS;
+        return MAX_ROAMING_OI_LENGTH;
     }
 
 
