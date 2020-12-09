@@ -2162,8 +2162,7 @@ components:
           roamingOi:
             type: array
             items:
-              type: integer
-              format: int8
+              type: string
    
     PasspointMccMnc:
       description: pair of mobile country code and mobile network code values 
