@@ -20,7 +20,9 @@ import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
@@ -66,6 +68,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 			    ret = ret &&
 			    		(
 			    			ser.getDetails() instanceof EquipmentChangedEvent ||
+			    			ser.getDetails() instanceof EquipmentRemovedEvent ||
 			    			ser.getDetails() instanceof ProfileAddedEvent ||
 			    			ser.getDetails() instanceof ProfileChangedEvent ||
 			    			ser.getDetails() instanceof ProfileRemovedEvent ||
@@ -90,6 +93,9 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	case "EquipmentChangedEvent":
 	    		process((EquipmentChangedEvent) se);
 	    		break;
+	    	case "EquipmentRemovedEvent":
+                process((EquipmentRemovedEvent) se);
+                break;
 	    	case "ProfileAddedEvent":
 	    		process((ProfileAddedEvent) se);
 	    		break;
@@ -112,7 +118,12 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 			LOG.debug("Processing EquipmentChangedEvent");
 			equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(), model.getEquipmentId()));
 		}
-
+		
+        private void process(EquipmentRemovedEvent model) {
+            LOG.debug("Processing EquipmentRemovedEvent");
+            equipmentGatewayInterface.sendCommand(new CEGWCloseSessionRequest(model.getPayload().getInventoryId(), model.getEquipmentId()));
+        }
+        
 		private void process(ProfileAddedEvent model) {
 			LOG.debug("Processing ProfileAddedEvent {}", model.getPayload().getId());
 			processProfile(model.getPayload());
