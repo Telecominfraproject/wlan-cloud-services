@@ -48,5 +48,4 @@ RUN chmod +x /app/run.sh
 EXPOSE 1883 6640 6643 4043 4044
 
 WORKDIR /app
-ENTRYPOINT ["/app/run.sh"]
-CMD [""]
+CMD ["/app/run.sh"]
