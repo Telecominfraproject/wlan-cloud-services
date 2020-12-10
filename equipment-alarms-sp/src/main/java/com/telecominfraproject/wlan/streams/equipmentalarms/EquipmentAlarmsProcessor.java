@@ -25,6 +25,8 @@ import com.telecominfraproject.wlan.alarm.models.AlarmScopeType;
 import com.telecominfraproject.wlan.alarm.models.OriginatorType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
@@ -55,7 +57,7 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
         @Value("${tip.wlan.equipmentAlarmProcessor.timeBucketMs:300000}") //5 minutes aggregation buckets
         private long timeBucketMs;
 
-        @Value("${tip.wlan.equipmentAlarmProcessor.checkAlarmsIntervalMs:10000}") //check for raising/clearing alarms every 10 seconds
+        @Value("${tip.wlan.equipmentAlarmProcessor.checkAlarmsIntervalMs:15000}") //check for raising/clearing alarms every 15 seconds
         private long checkAlarmsIntervalMs;
 
         @Value("${tip.wlan.equipmentAlarmProcessor.temperatureThresholdInC:80}")
@@ -77,6 +79,9 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 
         @Autowired
         private StatusServiceInterface statusServiceInterface;
+
+        @Autowired
+        private EquipmentServiceInterface equipmentServiceInterface;
 
 	    @Override
 	    protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -201,9 +206,38 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 					while(true) {
 	                	LOG.trace("Checking if alarms need to be raised");
 
-	                	List<EquipmentAlarmsContext> contexts = new ArrayList<>(contextPerEquipmentIdMap.values());
-		                	
-	                	contexts.forEach(context -> {
+	                	//take a snapshot of existing contexts for this iteration of alarm checks
+                        List<EquipmentAlarmsContext> contexts = new ArrayList<>(contextPerEquipmentIdMap.values());
+                        
+                        HashSet<Long> equipmentIdsFromContexts = new HashSet<>();
+                        contexts.forEach(ctx -> equipmentIdsFromContexts.add(ctx.getEquipmentId()));
+
+                        //get a list of equipment records for the current contexts
+                        HashSet<Long> existingEquipmentIds = new HashSet<>();
+
+	                	try {
+                            List<Equipment> existingEquipment = equipmentServiceInterface.get(equipmentIdsFromContexts);
+                            existingEquipment.forEach(e -> existingEquipmentIds.add(e.getId()));
+                        } catch(Exception e) {
+                            LOG.error("Error when retrieving existing equipment",  e);
+                            sleep(checkAlarmsIntervalMs);
+                            continue;
+                        }
+
+                        		                	
+	                	for(EquipmentAlarmsContext context : contexts ) {
+	                	    
+	                	    if(!existingEquipmentIds.contains(context.getEquipmentId())) {
+                                //equipment was removed, let's delete the context and remove all existing alarms for that equipmentId
+	                	        try {
+    	                	        contextPerEquipmentIdMap.remove(context.getEquipmentId());
+    	                	        alarmServiceInterface.delete(context.getCustomerId(), context.getEquipmentId());
+	                            } catch(Exception e) {
+	                                LOG.error("Error when removing stale alarms for deleted equipment",  e);
+	                            }
+	                	        //nothing else to do for this context
+	                	        continue;
+	                	    }
 	                		
 	                		context.removeOldDataSamples();
 	                		
@@ -255,15 +289,12 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 			                	}
 		                	
 	                		});
-	                	});
+	                		
+	                	}
 	                	
 	                	LOG.trace("Done alarms check");
 
-	                	try {
-	                		Thread.sleep(checkAlarmsIntervalMs);
-	                	} catch (InterruptedException e) {
-	                		Thread.currentThread().interrupt();
-						}
+	                	sleep(checkAlarmsIntervalMs);
 	                	
 					}
 				}
@@ -278,6 +309,14 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 			alarmCodeSet.add(AlarmCode.MemoryUtilization);
 			alarmCodeSet.add(AlarmCode.AccessPointIsUnreachable);
 
+	    }
+
+	    private static void sleep(long ms) {
+            try {
+                Thread.sleep(ms);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
 	    }
 
 }

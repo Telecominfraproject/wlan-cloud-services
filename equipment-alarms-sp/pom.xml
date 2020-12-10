@@ -42,6 +42,12 @@
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
 
+      <dependency>
+        <artifactId>equipment-service-interface</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+      </dependency>
+
       <!-- unit tests dependencies -->
       <dependency>
         <artifactId>single-process-streams</artifactId>
