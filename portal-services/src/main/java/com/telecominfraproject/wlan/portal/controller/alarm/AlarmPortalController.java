@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.portal.controller.alarm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,10 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairIntString;
+import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 
 /**
  * @author dtoptygin
@@ -43,6 +48,13 @@ public class AlarmPortalController  {
     @Autowired
     private AlarmServiceInterface alarmServiceInterface;
 
+    @Autowired
+    private EquipmentServiceInterface equipmentServiceInterface;
+
+    @Autowired
+    private CustomerServiceInterface customerServiceInterface;
+
+    
     @RequestMapping(value = "/alarm/forEquipment", method = RequestMethod.GET)
     public ListOfAlarms getAlarms(@RequestParam int customerId, 
     		@RequestParam Set<Long> equipmentIds,  
@@ -128,6 +140,56 @@ public class AlarmPortalController  {
 
     @RequestMapping(value = "/alarm/resetCounts", method = RequestMethod.POST)
     public GenericResponse resetAlarmCounters() {
+        //first remove all alarms for non-existent equipment, if any
+        
+        LOG.info("Processing obsolete alarms");
+        
+        Set<Long> alarmEquipmentIds = new HashSet<>();
+        Set<Long> existingEquipmentIds =  new HashSet<>();
+        
+        int batchSize = 100;
+        int continueAfterCustomerId = 0;
+        
+        //go through all the customers
+        List<PairIntString> customerBatch = customerServiceInterface.getAll(batchSize , continueAfterCustomerId );
+        while(!customerBatch.isEmpty()) {
+            
+            for(PairIntString item : customerBatch) {
+                int customerId = item.getIntVal();
+                
+                LOG.debug("Processing obsolete alarms for customer {}", customerId);
+
+                //process alarms for one customer
+                PaginationContext<Alarm> context = new PaginationContext<Alarm>(100);
+                while(!context.isLastPage()) {
+                    PaginationResponse<Alarm> alarmPage = alarmServiceInterface.getForCustomer(customerId, null, null, -1, null, context );
+                    alarmEquipmentIds.clear();
+                    alarmPage.getItems().forEach(a -> alarmEquipmentIds.add(a.getEquipmentId()));
+        
+                    if(!alarmEquipmentIds.isEmpty()) {
+                        List<Equipment> existingEquipment = equipmentServiceInterface.get(alarmEquipmentIds);
+                        existingEquipmentIds.clear();
+                        existingEquipment.forEach(e -> existingEquipmentIds.add(e.getId()));
+                        
+                        alarmEquipmentIds.removeAll(existingEquipmentIds);
+                        if(!alarmEquipmentIds.isEmpty()) {
+                            LOG.debug("Removing obsolete alarms for customer {} equipment {} ", customerId, alarmEquipmentIds);
+                            alarmEquipmentIds.forEach(eqId -> alarmServiceInterface.delete(customerId, eqId));
+                        }
+                    }
+                    
+                    context = alarmPage.getContext();
+                }
+                
+                continueAfterCustomerId = customerId;
+            }
+            
+            customerBatch = customerServiceInterface.getAll(batchSize , continueAfterCustomerId );
+        }
+        
+        LOG.info("Completed processing of obsolete alarms");
+        
+        //now re-calculate alarm counts 
         return alarmServiceInterface.resetAlarmCounters();
     }
 
