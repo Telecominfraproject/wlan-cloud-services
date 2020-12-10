@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.profile.models.ProfileDetails;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
@@ -16,10 +13,6 @@ import com.telecominfraproject.wlan.profile.passpoint.models.PasspointMccMnc;
 
 public class PasspointOsuProviderProfile extends ProfileDetails
         implements PushableConfiguration<PasspointOsuProviderProfile> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PasspointOsuProviderProfile.class);
-
-    private String domainName;
 
     private List<PasspointMccMnc> mccMncList;
     private List<PasspointNaiRealmInformation> naiRealmList;
@@ -38,14 +31,6 @@ public class PasspointOsuProviderProfile extends ProfileDetails
 
 
     private static final long serialVersionUID = -6146454085334670280L;
-
-    public String getDomainName() {
-        return domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
 
     private PasspointOsuProviderProfile() {
         mccMncList = new ArrayList<>();
@@ -185,7 +170,6 @@ public class PasspointOsuProviderProfile extends ProfileDetails
 
     public PasspointOsuProviderProfile clone() {
         PasspointOsuProviderProfile ret = (PasspointOsuProviderProfile) super.clone();
-        ret.domainName = getDomainName();
         if (mccMncList != null)
             ret.mccMncList = getMccMncList();
         if (naiRealmList != null)
@@ -207,8 +191,8 @@ public class PasspointOsuProviderProfile extends ProfileDetails
 
     @Override
     public int hashCode() {
-        return Objects.hash(domainName, mccMncList, naiRealmList, osuFriendlyName, osuIconList, osuMethodList,
-                osuNaiShared, osuNaiStandalone, osuServerUri, osuServiceDescription, roamingOi);
+        return Objects.hash(mccMncList, naiRealmList, osuFriendlyName, osuIconList, osuMethodList, osuNaiShared,
+                osuNaiStandalone, osuServerUri, osuServiceDescription, roamingOi);
     }
 
     @Override
@@ -220,8 +204,7 @@ public class PasspointOsuProviderProfile extends ProfileDetails
         if (getClass() != obj.getClass())
             return false;
         PasspointOsuProviderProfile other = (PasspointOsuProviderProfile) obj;
-        return Objects.equals(domainName, other.domainName) && Objects.equals(mccMncList, other.mccMncList)
-                && Objects.equals(naiRealmList, other.naiRealmList)
+        return Objects.equals(mccMncList, other.mccMncList) && Objects.equals(naiRealmList, other.naiRealmList)
                 && Objects.equals(osuFriendlyName, other.osuFriendlyName)
                 && Objects.equals(osuIconList, other.osuIconList) && Objects.equals(osuMethodList, other.osuMethodList)
                 && Objects.equals(osuNaiShared, other.osuNaiShared)
@@ -232,6 +215,8 @@ public class PasspointOsuProviderProfile extends ProfileDetails
     }
 
   
+
+
 
 
 }

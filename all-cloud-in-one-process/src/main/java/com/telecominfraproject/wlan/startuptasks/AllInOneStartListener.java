@@ -403,8 +403,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
-        profileAp_3_radios.getChildProfileIds()
-                .add(profileMetrics_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
@@ -419,7 +417,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_2_radios.put(RadioType.is5GHz, RadioProfileConfiguration.createWithDefaults(RadioType.is5GHz));
         ((ApNetworkConfiguration) profileAp_2_radios.getDetails()).setRadioMap(radioProfileMap_2_radios);
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
-        profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
+        profileAp_2_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
         Profile enterpriseProfileAp = new Profile();
@@ -725,7 +723,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         passpointOperatorProfile.setName("TipWlan-Passpoint-Operator");
         passpointOperatorProfile.setProfileType(ProfileType.passpoint_operator);
         passpointOperatorProfile.setDetails(PasspointOperatorProfile.createWithDefaults());
+        ((PasspointOperatorProfile)passpointOperatorProfile.getDetails()).setDomainNameList(Set.of("rogers.com","telus.com","bell.ca"));      
         passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
+        
         return passpointOperatorProfile;
     }
 
@@ -846,7 +846,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         naiRealmList.add(naiRealmInfo);
         passpointIdProviderProfile.setNaiRealmList(naiRealmList);
-        passpointIdProviderProfile.setDomainName(domainName);
         passpointIdProviderProfile.setOsuNaiStandalone("anonymous@" + domainName);
         passpointIdProviderProfile.setOsuNaiShared("anonymous@" + domainName);
         List<Integer> methodList = new ArrayList<>();

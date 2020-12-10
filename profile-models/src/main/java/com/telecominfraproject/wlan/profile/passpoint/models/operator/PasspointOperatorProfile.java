@@ -24,6 +24,7 @@ public class PasspointOperatorProfile extends ProfileDetails implements Pushable
     private Set<PasspointDuple> operatorFriendlyName;
     private String defaultOperatorFriendlyName = "Default friendly passpoint_operator name";
     private String defaultOperatorFriendlyNameFr = "Nom de l'opérateur convivial par défaut";
+    private Set<String> domainNameList;
 
     private PasspointOperatorProfile() {
         serverOnlyAuthenticatedL2EncryptionNetwork = false;
@@ -76,6 +77,14 @@ public class PasspointOperatorProfile extends ProfileDetails implements Pushable
         this.operatorFriendlyName = operatorFriendlyName;
     }
 
+    public Set<String> getDomainNameList() {
+        return domainNameList;
+    }
+
+    public void setDomainNameList(Set<String> domainNameList) {
+        this.domainNameList = domainNameList;
+    }
+
     @Override
     public boolean needsToBeUpdatedOnDevice(PasspointOperatorProfile previousVersion) {
         if (this.equals(previousVersion)) {
@@ -91,27 +100,34 @@ public class PasspointOperatorProfile extends ProfileDetails implements Pushable
             returnValue.operatorFriendlyName = this.operatorFriendlyName;
         returnValue.serverOnlyAuthenticatedL2EncryptionNetwork = this.serverOnlyAuthenticatedL2EncryptionNetwork;
         returnValue.x509CertificateLocation = this.x509CertificateLocation;
+        returnValue.domainNameList = this.domainNameList;
         return returnValue;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(operatorFriendlyName, serverOnlyAuthenticatedL2EncryptionNetwork, x509CertificateLocation);
+        return Objects.hash(defaultOperatorFriendlyName, defaultOperatorFriendlyNameFr, domainNameList,
+                operatorFriendlyName, serverOnlyAuthenticatedL2EncryptionNetwork, x509CertificateLocation);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (!(obj instanceof PasspointOperatorProfile)) {
+        if (obj == null)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         PasspointOperatorProfile other = (PasspointOperatorProfile) obj;
-        return Objects.equals(operatorFriendlyName, other.operatorFriendlyName)
+        return Objects.equals(defaultOperatorFriendlyName, other.defaultOperatorFriendlyName)
+                && Objects.equals(defaultOperatorFriendlyNameFr, other.defaultOperatorFriendlyNameFr)
+                && Objects.equals(domainNameList, other.domainNameList)
+                && Objects.equals(operatorFriendlyName, other.operatorFriendlyName)
                 && serverOnlyAuthenticatedL2EncryptionNetwork == other.serverOnlyAuthenticatedL2EncryptionNetwork
                 && Objects.equals(x509CertificateLocation, other.x509CertificateLocation);
     }
+
+   
 
 
 }

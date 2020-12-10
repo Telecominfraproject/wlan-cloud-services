@@ -1100,8 +1100,6 @@ components:
             type: string
             enum:
             - PasspointOsuProviderProfile
-          domainName:
-            type: string
           PasspointMccMncList:
             type: array
             items:
@@ -1155,6 +1153,13 @@ components:
             type: array
             items:
               type: string
+            example:
+              roamingOi:
+              - BAA2D00100
+              - BAA2D00000
+              - F4F5E8F5F4
+              - '005014'
+              - '004096'               
    
     PasspointMccMnc:
       description: pair of mobile country code and mobile network code values 
@@ -1350,10 +1355,36 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/PasspointDuple'
+          domainNameList:
+            type: array
+            items:
+              type: string
           defaultOperatorFriendlyName:
             type: string
           defaultOperatorFriendlyNameFr:
             type: string
+      example:
+          model_type: PasspointOperatorProfile
+          serverOnlyAuthenticatedL2EncryptionNetwork: false
+          x509CertificateLocation: "/etc/ca.pem"
+          operatorFriendlyName:
+          - model_type: PasspointDuple
+            locale: en_CA
+            dupleIso3Language: eng
+            dupleName: Default friendly passpoint_operator name
+            defaultDupleSeparator: ":"
+            asDuple: eng:Default friendly passpoint_operator name
+          - model_type: PasspointDuple
+            locale: fr_CA
+            dupleIso3Language: fra
+            dupleName: Nom de l'opérateur convivial par défaut
+            defaultDupleSeparator: ":"
+            asDuple: fra:Nom de l'opérateur convivial par défaut
+          domainNameList:
+          - telus.com
+          - bell.ca
+          - rogers.com
+          profileType: passpoint_operator                  
 
     PasspointVenueProfile:
       description: Properties for the venue profile.
