@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.portal.controller.profile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,6 +86,15 @@ public class ProfilePortalController  {
     public Profile deleteProfile(@RequestParam long profileId) {
         LOG.debug("Deleting profile {}", profileId);
 
+        List<PairLongLong> countOfEquipmentThatUsesProfile = getCountsOfEquipmentThatUseProfiles(Collections.singleton(profileId));
+        
+        countOfEquipmentThatUsesProfile.forEach(pair -> {
+            //value1 is profileId, value2 is count of equipment that uses it
+            if(pair.getValue2()!=0) {
+                throw new IllegalStateException("Profile with id "+ profileId + " is in use by " +pair.getValue2()+ " network equipment and cannot be deleted");
+            }
+        });
+        
         Profile ret = profileServiceInterface.delete(profileId);
 
         return ret;
