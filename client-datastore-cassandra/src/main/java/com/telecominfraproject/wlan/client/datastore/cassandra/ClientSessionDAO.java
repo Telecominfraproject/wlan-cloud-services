@@ -456,8 +456,20 @@ public class ClientSessionDAO {
 			while (rs.getAvailableWithoutFetching() > 0) {
 				macAddrSet.add(new MacAddress(rs.one().getLong("macAddress")));
 			}
+
+			//get all the sessions for the involved mac addresses
 			List<ClientSession> pageSessions = getSessions(customerId, macAddrSet);
-			pageItems.addAll(pageSessions);			
+
+			//apply local filtering because retrieved sessions may be from different equipments and locations
+			pageSessions.forEach(cs -> {
+			    //apply locationId and equipmentId filtering in here
+                if ((locationIds == null || locationIds.isEmpty() || locationIds.contains(cs.getLocationId()))
+                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId())) ) 
+                {
+	                    pageItems.add(cs);
+	             }
+			});
+
 			break;
 		default:
 			LOG.warn("Unknown filter option:", filterOptions);
