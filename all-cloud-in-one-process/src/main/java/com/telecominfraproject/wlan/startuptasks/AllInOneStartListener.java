@@ -87,6 +87,7 @@ import com.telecominfraproject.wlan.profile.models.common.FileCategory;
 import com.telecominfraproject.wlan.profile.models.common.FileType;
 import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
+import com.telecominfraproject.wlan.profile.network.models.GreTunnelConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.passpoint.models.PasspointDuple;
 import com.telecominfraproject.wlan.profile.passpoint.models.PasspointMccMnc;
@@ -402,6 +403,21 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_3_radios.put(RadioType.is5GHzU,
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
+        
+        try {
+            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", "wan",
+                    InetAddress.getByName("10.0.0.129"), InetAddress.getByName("192.168.1.101"),
+                    MacAddress.valueOf("64:4b:f0:20:57:ff"), Set.of(Integer.valueOf(100))));
+            ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setGreTunnelConfigurations(greTunnels);
+            
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    
+        
+        
+        
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
