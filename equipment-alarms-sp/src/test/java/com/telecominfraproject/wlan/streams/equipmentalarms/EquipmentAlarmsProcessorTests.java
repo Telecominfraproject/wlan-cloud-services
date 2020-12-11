@@ -22,6 +22,12 @@ import com.telecominfraproject.wlan.alarm.datastore.inmemory.AlarmDatastoreInMem
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceLocal;
+import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
+import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApPerformance;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
@@ -37,6 +43,7 @@ import com.telecominfraproject.wlan.streams.simple.SimpleStreamsConfig;
 @Import(value = { EquipmentAlarmsProcessor.class, SimpleStreamsConfig.class, StreamMessageDispatcher.class,
         AlarmServiceLocal.class, AlarmController.class, AlarmDatastoreInMemory.class,
         StatusServiceLocal.class, StatusController.class, StatusDatastoreInMemory.class,
+        EquipmentServiceLocal.class, EquipmentController.class, EquipmentDatastoreInMemory.class,
         CloudEventDispatcherEmpty.class,
         //EquipmentAlarmsProcessorTests.Config.class,
         })
@@ -58,6 +65,9 @@ public class EquipmentAlarmsProcessorTests {
 
     @Autowired 
     AlarmServiceInterface alarmService;
+
+    @Autowired 
+    EquipmentServiceInterface equipmentService;
 
     protected static final AtomicLong testSequence = new AtomicLong(1);
         
@@ -84,7 +94,14 @@ public class EquipmentAlarmsProcessorTests {
     @Test
     public void testCPUTemperatureAlarm() {
         int customerId = getNextCustomerId();        
-        long equipmentId = getNextEquipmentId();
+        
+        Equipment equipment = new Equipment();
+        equipment.setCustomerId(customerId);
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setInventoryId("testCPUTemperatureAlarm");
+        equipment.setName(equipment.getInventoryId());
+        equipment = equipmentService.create(equipment);
+        long equipmentId = equipment.getId();
         
         ServiceMetric record = new ServiceMetric(customerId , equipmentId );
         //create metric a bit in the future so that it gets picked up by the processor and not simply discarded
@@ -131,11 +148,51 @@ public class EquipmentAlarmsProcessorTests {
         
     }
     
+    @Test
+    public void testCPUTemperatureAlarm_NoEquipment() {
+        int customerId = getNextCustomerId();        
+        long equipmentId = -5;
+        
+        ServiceMetric record = new ServiceMetric(customerId , equipmentId );
+        //create metric a bit in the future so that it gets picked up by the processor and not simply discarded
+        record.setCreatedTimestamp(System.currentTimeMillis() + 2 * testTimeBucketMs);
+        
+        ApNodeMetrics apNodeMetrics = new ApNodeMetrics();
+        record.setDetails(apNodeMetrics);
+        
+        ApPerformance apPerformance = new ApPerformance();
+        apNodeMetrics.setApPerformance(apPerformance);
+
+        //we will force the CPUTemperature alarm to be raised
+        apPerformance.setCpuTemperature(85);
+        
+        apPerformance.setCpuUtilized(new int[] {  70, 70 });
+
+        apPerformance.setFreeMemory(30000000);
+        
+        //publish metric that should trigger alarm for the CPU Temperature
+        metricStreamInterface.publish(record );
+        
+        //wait for the metric to be processed
+        sleep(2 * testTimeBucketMs);
+        
+        //verify that alarm was not raised - because equipment for that alarm does not exist
+        List<Alarm> alarms = alarmService.get(customerId, Collections.singleton(equipmentId), Collections.singleton(AlarmCode.CPUTemperature));
+        assertEquals(0, alarms.size());
+
+    }
     
     @Test
     public void testCPUUtilizationAlarm() {
         int customerId = getNextCustomerId();        
-        long equipmentId = getNextEquipmentId();
+
+        Equipment equipment = new Equipment();
+        equipment.setCustomerId(customerId);
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setInventoryId("testCPUUtilizationAlarm");
+        equipment.setName(equipment.getInventoryId());
+        equipment = equipmentService.create(equipment);
+        long equipmentId = equipment.getId();
         
         ServiceMetric record = new ServiceMetric(customerId , equipmentId );
         //create metric a bit in the future so that it gets picked up by the processor and not simply discarded
@@ -184,7 +241,14 @@ public class EquipmentAlarmsProcessorTests {
     @Test
     public void testAccessPointIsUnreachableAlarm() {
         int customerId = getNextCustomerId();
-        long equipmentId = getNextEquipmentId();
+
+        Equipment equipment = new Equipment();
+        equipment.setCustomerId(customerId);
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setInventoryId("testAccessPointIsUnreachableAlarm");
+        equipment.setName(equipment.getInventoryId());
+        equipment = equipmentService.create(equipment);
+        long equipmentId = equipment.getId();
 
         ServiceMetric record = new ServiceMetric(customerId , equipmentId );
         //create metric a bit in the future so that it gets picked up by the processor and not simply discarded
