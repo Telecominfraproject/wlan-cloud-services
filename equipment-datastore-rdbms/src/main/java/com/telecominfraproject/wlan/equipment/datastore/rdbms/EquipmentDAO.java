@@ -859,17 +859,21 @@ public class EquipmentDAO extends BaseJdbcDao {
         		(psl) -> {
         				String oui = psl.getValue1();
         				int eqCount = psl.getValue2().intValue();
-        				
+
 			        	totalCount.addAndGet(eqCount);
-			        	
-			        	if(oui!=null) {
-			        		AtomicInteger cnt = perOuiMap.get(oui);
-			        		if(cnt == null) {
-			        			cnt = new AtomicInteger();
-			        			perOuiMap.put(oui, cnt);
-			        		}
-			        		cnt.addAndGet(eqCount);
-			        	}
+
+                        if(oui==null) {
+                            //oui is null, but we want counts to be consistent, so add it into the mix
+                            oui = "FFFFFF";
+                        }
+
+                        AtomicInteger cnt = perOuiMap.get(oui);
+                        if(cnt == null) {
+                            cnt = new AtomicInteger();
+                            perOuiMap.put(oui, cnt);
+                        }
+                        cnt.addAndGet(eqCount);
+
         		});
 
     	CustomerEquipmentCounts ret = new CustomerEquipmentCounts();
