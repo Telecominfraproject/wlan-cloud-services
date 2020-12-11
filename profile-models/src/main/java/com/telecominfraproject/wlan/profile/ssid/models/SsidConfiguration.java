@@ -1,5 +1,6 @@
 package com.telecominfraproject.wlan.profile.ssid.models;
 
+import java.net.InetAddress;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +53,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private String radiusServiceName;
     private String radiusAccountingServiceName;
     private Integer radiusAcountingServiceInterval;
+    private String radiusNasId;
+    private InetAddress radiusNasIp;
+    private String radiusOperName;
+    
     private Long captivePortalId;
 
     private Integer bandwidthLimitDown;
@@ -349,6 +354,30 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         }
     }
 
+    public String getRadiusNasId() {
+        return radiusNasId;
+    }
+
+    public void setRadiusNasId(String radiusNasId) {
+        this.radiusNasId = radiusNasId;
+    }
+
+    public String getRadiusOperName() {
+        return radiusOperName;
+    }
+
+    public void setRadiusOperName(String radiusOperName) {
+        this.radiusOperName = radiusOperName;
+    }
+
+    public InetAddress getRadiusNasIp() {
+        return radiusNasIp;
+    }
+
+    public void setRadiusNasIp(InetAddress radiusNasIp) {
+        this.radiusNasIp = radiusNasIp;
+    }
+
     public static enum SecureMode {
 
         open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(7L),
@@ -511,8 +540,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
                 keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName,
-                radiusAcountingServiceInterval, radiusServiceName, secureMode, ssid, ssidAdminState, videoTrafficOnly,
-                vlanId, wepConfig);
+                radiusAcountingServiceInterval, radiusNasId, radiusNasIp, radiusOperName, radiusServiceName, secureMode,
+                ssid, ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
     }
 
     @Override
@@ -537,11 +566,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
                 && Objects.equals(radiusAccountingServiceName, other.radiusAccountingServiceName)
                 && Objects.equals(radiusAcountingServiceInterval, other.radiusAcountingServiceInterval)
+                && Objects.equals(radiusNasId, other.radiusNasId) && Objects.equals(radiusNasIp, other.radiusNasIp)
+                && Objects.equals(radiusOperName, other.radiusOperName)
                 && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
                 && Objects.equals(wepConfig, other.wepConfig);
     }
-    
+
+  
     
 }
