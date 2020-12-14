@@ -2743,7 +2743,7 @@ components:
         customerId: 2
         username: new_user
         password: pwd
-        role: CustomerIT
+        roles: [ "CustomerIT" ]
           
     PortalUserRole:
       type: string
@@ -10215,6 +10215,11 @@ paths:
           application/json:
             schema:
                 $ref: '#/components/schemas/ProfileType'
+      - name: nameSubstring
+        in: query
+        required: false
+        schema:
+          type: string
       - name: sortBy
         in: query
         description: sort options

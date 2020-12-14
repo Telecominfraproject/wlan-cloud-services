@@ -91,7 +91,7 @@ components:
         customerId: 2
         username: new_user
         password: pwd
-        role: CustomerIT
+        roles: [ "CustomerIT" ]
           
     PortalUserRole:
       type: string
