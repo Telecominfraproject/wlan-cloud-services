@@ -645,20 +645,25 @@ components:
           type: integer
           format: int32
         rxCellSizeDb:
-          # equipment->details->radioMap->rxCellSizeDb->value
+          # if source is auto/manual, equipment->details->radioMap->rxCellSizeDb->SourceSelectionValue->value
+          # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->rxCellSizeDb
           $ref: '#/components/schemas/SourceSelectionValue'
         probeResponseThresholdDb:
-          #equipment->details->radioMap->probeResponseThresholdDb->value
+          # if source is auto/manual, equipment->details->radioMap->probeResponseThresholdDb->SourceSelectionValue->value
+          # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->probeResponseThresholdDb
           $ref: '#/components/schemas/SourceSelectionValue'
         clientDisconnectThresholdDb:
-          #equipment->details->radioMap->clientDisconnectThresholdDb->value
+          # if source is auto/manual, equipment->details->radioMap->clientDisconnectThresholdDb->SourceSelectionValue->value
+          # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->clientDisconnectThresholdDb
           $ref: '#/components/schemas/SourceSelectionValue'
         dropInSnrPercentage:
-          #equipment->details->radioMap->bestApSettings->dropInSnrPercentage
+          # if source is auto/manual, equipment->details->radioMap->SourceSelectionSteering->value->dropInSnrPercentage
+          # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->bestApSettings->dropInSnrPercentage
           type: integer
           format: int32
         minLoadFactor:
-          #equipment->details->radioMap->bestApSettings->minLoadFactor
+          # if source is auto/manual, equipment->details->radioMap->SourceSelectionSteering->value->minLoadFactor
+          # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->bestApSettings->minLoadFactor
           type: integer
           format: int32
           

@@ -1914,7 +1914,7 @@ paths:
   /api/profile/forCustomer:
     get:
       tags:
-      - Profile
+      - Profile Data
       summary: Get Profiles By customerId
       operationId: getProfilesByCustomerId
       parameters:
@@ -1932,6 +1932,11 @@ paths:
           application/json:
             schema:
                 $ref: '#/components/schemas/ProfileType'
+      - name: nameSubstring
+        in: query
+        required: false
+        schema:
+          type: string
       - name: sortBy
         in: query
         description: sort options
