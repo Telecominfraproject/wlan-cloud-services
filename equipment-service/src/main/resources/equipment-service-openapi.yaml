@@ -64,6 +64,16 @@ components:
 # Equipment data models
 #
 
+    MacAddress:
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+          - MacAddress
+        addressAsString:
+          type: string
+
     EquipmentType:
       type: string
       enum:
@@ -97,6 +107,8 @@ components:
           type: string
         longitude:
           type: string
+        baseMacAddress:
+          $ref: '#/components/schemas/MacAddress'
         serial:
           type: string
         createdTimestamp:

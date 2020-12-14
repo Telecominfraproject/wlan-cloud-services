@@ -660,6 +660,8 @@ components:
           type: string
         longitude:
           type: string
+        baseMacAddress:
+          $ref: '#/components/schemas/MacAddress'
         serial:
           type: string
         createdTimestamp:
