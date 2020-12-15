@@ -10,9 +10,11 @@ create table equipment_location (
     name varchar(100),
     parentId BIGINT,
     details varchar(65535),
-    
     createdTimestamp bigint not null,
     lastModifiedTimestamp bigint not null,
+
+    detailsBin varbinary(65535),
+
     FOREIGN KEY (parentId) REFERENCES equipment_location(id) ON DELETE RESTRICT
 );
 

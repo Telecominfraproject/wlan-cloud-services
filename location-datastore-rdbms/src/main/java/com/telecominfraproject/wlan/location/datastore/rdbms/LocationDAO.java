@@ -50,22 +50,23 @@ public class LocationDAO extends BaseJdbcDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocationDatastoreRdbms.class);
 
-    private static final LocationDetails DEFAULT_DETAILS = LocationDetails.createWithDefaults();
-
     private static final String COL_ID = "id";
+
+    // skip filling the details; instead fill in detailsBin
+    private static final String DETAILS_ID = "details";
 
     private static final String[] ALL_COLUMNS_LIST = { COL_ID,
 
             // add columns from properties of Location in here
-            "locationType", "customerId", "name", "parentId", "details",
+            "locationType", "customerId", "name", "parentId", DETAILS_ID,
             // make sure the order of properties matches this list and list in
             // LocationRowMapper and list in create/update
             // methods
 
-            "createdTimestamp", "lastModifiedTimestamp" };
+            "createdTimestamp", "lastModifiedTimestamp" , "detailsBin"};
 
-    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
+    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID, DETAILS_ID));
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, DETAILS_ID, "createdTimestamp"));
 
     private static final String TABLE_NAME = "equipment_location";
     private static final String TABLE_PREFIX = "s.";
@@ -189,9 +190,9 @@ public class LocationDAO extends BaseJdbcDao {
 	                }else {
 	                	ps.setNull(colIdx++, Types.BIGINT);
 	                }
-                    ps.setString(colIdx++, generatePatch(location.getDetails()));
                     ps.setLong(colIdx++, ts);
                     ps.setLong(colIdx++, ts);
+                    ps.setBytes(colIdx++, (location.getDetails() != null) ? location.getDetails().toZippedBytes() : null);
                     return ps;
                 }
             }, keyHolder);
@@ -234,11 +235,10 @@ public class LocationDAO extends BaseJdbcDao {
                 location.getLocationType().getId(), 
                 location.getCustomerId(),
                 location.getName(), 
-                location.getParentId()>0?location.getParentId():null,
-                generatePatch(location.getDetails()),
+                (location.getParentId() > 0) ? location.getParentId() : null,
                 // location.getCreatedTimestamp(), - not updating this one
                 newLastModifiedTs,
-
+                (location.getDetails() != null) ? location.getDetails().toZippedBytes() : null,
                 // use id for update operation
                 location.getId(),
                 // use lastModifiedTimestamp for data protection against
@@ -463,29 +463,6 @@ public class LocationDAO extends BaseJdbcDao {
         ret.getContext().setStartAfterItem(null);
 
         return ret;
-    }
-    private static String generatePatch(LocationDetails details) {
-        try {
-            if (details != null) {
-                return JsonPatchUtil.generatePatch(DEFAULT_DETAILS, details);
-            } else {
-                return null;
-            }
-        } catch (JsonPatchException e) {
-            throw new SerializationException(e);
-        }
-    }
-
-    static LocationDetails generateDetails(String patch) {
-        try {
-            if (patch != null) {
-                return JsonPatchUtil.apply(DEFAULT_DETAILS, patch, LocationDetails.class);
-            } else {
-                return DEFAULT_DETAILS;
-            }
-        } catch (JsonPatchException e) {
-            throw new SerializationException(e);
-        }
     }
 
 }
