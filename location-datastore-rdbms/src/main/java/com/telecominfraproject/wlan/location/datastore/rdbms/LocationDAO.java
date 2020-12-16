@@ -48,25 +48,27 @@ import com.telecominfraproject.wlan.server.exceptions.SerializationException;
 @Transactional(propagation = Propagation.MANDATORY)
 public class LocationDAO extends BaseJdbcDao {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LocationDatastoreRdbms.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LocationDAO.class);
+
+    private static final LocationDetails DEFAULT_DETAILS = LocationDetails.createWithDefaults();
 
     private static final String COL_ID = "id";
 
-    // skip filling the details; instead fill in detailsBin
-    private static final String DETAILS_ID = "details";
+    // The details column is deprecated and will be removed; instead use detailsBin
+    private static final String DEPRECATED_DETAILS_ID = "details";
 
     private static final String[] ALL_COLUMNS_LIST = { COL_ID,
 
             // add columns from properties of Location in here
-            "locationType", "customerId", "name", "parentId", DETAILS_ID,
+            "locationType", "customerId", "name", "parentId", DEPRECATED_DETAILS_ID,
             // make sure the order of properties matches this list and list in
             // LocationRowMapper and list in create/update
             // methods
 
             "createdTimestamp", "lastModifiedTimestamp" , "detailsBin"};
 
-    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID, DETAILS_ID));
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, DETAILS_ID, "createdTimestamp"));
+    private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID, DEPRECATED_DETAILS_ID));
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, DEPRECATED_DETAILS_ID, "createdTimestamp"));
 
     private static final String TABLE_NAME = "equipment_location";
     private static final String TABLE_PREFIX = "s.";
@@ -465,4 +467,15 @@ public class LocationDAO extends BaseJdbcDao {
         return ret;
     }
 
+    static LocationDetails generateDetails(String patch) {
+        try {
+            if (patch != null) {
+                return JsonPatchUtil.apply(DEFAULT_DETAILS, patch, LocationDetails.class);
+            } else {
+                return DEFAULT_DETAILS;
+            }
+        } catch (JsonPatchException e) {
+            throw new SerializationException(e);
+        }
+    }
 }

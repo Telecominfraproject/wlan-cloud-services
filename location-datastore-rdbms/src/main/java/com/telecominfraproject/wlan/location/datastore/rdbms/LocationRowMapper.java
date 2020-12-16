@@ -32,7 +32,8 @@ public class LocationRowMapper implements RowMapper<Location> {
         location.setCustomerId(rs.getInt(colIdx++));
         location.setName(rs.getString(colIdx++));
         location.setParentId(rs.getLong(colIdx++)); //when DB value is null, parentId is set to 0
-        colIdx++; // skip getting LocationDetails from 'details' column. Instead use detailsBin
+        // Get LocationDetails from 'details' column. Assign to location's details only if detailsBin == null
+        LocationDetails oldDetails = LocationDAO.generateDetails(rs.getString(colIdx++));
 
         location.setCreatedTimestamp(rs.getLong(colIdx++));
         location.setLastModifiedTimestamp(rs.getLong(colIdx++));
@@ -40,8 +41,12 @@ public class LocationRowMapper implements RowMapper<Location> {
         byte[] zippedBytes = rs.getBytes(colIdx++);
         if (zippedBytes !=null) {
             try {
-                LocationDetails details = BaseJsonModel.fromZippedBytes(zippedBytes, LocationDetails.class);
-                location.setDetails(details);
+                LocationDetails detailsBin = BaseJsonModel.fromZippedBytes(zippedBytes, LocationDetails.class);
+                if (detailsBin != null) {
+                    location.setDetails(detailsBin);
+                } else if (oldDetails != null) {
+                    location.setDetails(oldDetails);
+                }
             } catch (RuntimeException exp) {
                 LOG.error("Failed to decode LocationDetails from database for id = {}", location.getId());
             }
