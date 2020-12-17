@@ -289,7 +289,7 @@ public class WebTokenIntrospectorController {
         PortalUser portalUser = new PortalUser();
         portalUser.setUsername(userName);
         portalUser.setId(userId);
-        portalUser.setRoles(Arrays.asList(PortalUserRole.valueOf(userRole)));
+        portalUser.setRoles(Arrays.asList(PortalUserRole.getByName(userRole)));
         
         //create new accessToken and refreshToken
 
