@@ -4,16 +4,29 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.ChannelHopReason;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 
-public class RealTimeChannelHopEvent extends RealTimeEvent {
+public class RealTimeChannelHopEvent extends RealTimeEvent implements HasCustomerId, HasEquipmentId, HasProducedTimestamp  {
 
-    private static final long serialVersionUID = -2724701914926591192L;
+	private static final long serialVersionUID = -6563378014741823278L;
     private Integer oldChannel;
     private Integer newChannel;
     private ChannelHopReason reasonCode;
-    private long changeTimestamp;
     private RadioType radioType;
 
+    /**
+     * Constructor used by JSON
+     */
+    private RealTimeChannelHopEvent() {
+        super();
+    }
+    
+    public static RealTimeChannelHopEvent createWithDefaults () {
+        return new RealTimeChannelHopEvent();
+    }
+    
     public RealTimeChannelHopEvent(RealTimeEventType eventType, int customerId, long equipmentId, RadioType radioType,
             Long timestamp) {
         super(RealTimeEventType.Channel_Hop, customerId, equipmentId, timestamp);
@@ -26,14 +39,6 @@ public class RealTimeChannelHopEvent extends RealTimeEvent {
         this.newChannel = newChannel;
         this.oldChannel = oldChannel;
         this.reasonCode = reasonCode;
-    }
-
-    public long getChangeTimestamp() {
-        return changeTimestamp;
-    }
-
-    public void setChangeTimestamp(long changeTimestamp) {
-        this.changeTimestamp = changeTimestamp;
     }
 
     public Integer getOldChannel() {
@@ -83,7 +88,7 @@ public class RealTimeChannelHopEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(changeTimestamp, newChannel, oldChannel, radioType, reasonCode);
+        result = prime * result + Objects.hash(newChannel, oldChannel, radioType, reasonCode);
         return result;
     }
 
@@ -99,7 +104,8 @@ public class RealTimeChannelHopEvent extends RealTimeEvent {
             return false;
         }
         RealTimeChannelHopEvent other = (RealTimeChannelHopEvent) obj;
-        return changeTimestamp == other.changeTimestamp && Objects.equals(newChannel, other.newChannel)
+        return Objects.equals(getEventTimestamp(), other.getEventTimestamp())
+        		&& Objects.equals(newChannel, other.newChannel)
                 && Objects.equals(oldChannel, other.oldChannel) && radioType == other.radioType
                 && reasonCode == other.reasonCode;
     }
