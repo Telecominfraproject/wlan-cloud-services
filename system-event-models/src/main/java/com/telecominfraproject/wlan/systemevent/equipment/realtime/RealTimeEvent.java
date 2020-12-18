@@ -2,20 +2,15 @@ package com.telecominfraproject.wlan.systemevent.equipment.realtime;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
-public abstract class RealTimeEvent extends SystemEvent {
+public abstract class RealTimeEvent extends SystemEvent implements HasCustomerId, HasEquipmentId, HasProducedTimestamp {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -7566162295309710952L;
-
-    /**
-     * Timestamp when event occurred
-     */
-    private Long eventTimestamp;
+	private static final long serialVersionUID = -406572942058780057L;
 
     /**
      * Type of event
@@ -28,6 +23,7 @@ public abstract class RealTimeEvent extends SystemEvent {
 
     protected RealTimeEvent() {
         // serial
+    	super(0);
     }
 
     protected RealTimeEvent(RealTimeEventType eventType, int customerId, long equipmentId, Long timestamp) {
@@ -35,13 +31,11 @@ public abstract class RealTimeEvent extends SystemEvent {
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.eventType = eventType;
-        eventTimestamp = timestamp;
     }
 
     protected RealTimeEvent(RealTimeEventType eventType, Long timestamp) {
         super(timestamp);
         this.eventType = eventType;
-        eventTimestamp = timestamp;
     }
 
     @Override
@@ -61,12 +55,7 @@ public abstract class RealTimeEvent extends SystemEvent {
             return false;
         }
         RealTimeEvent other = (RealTimeEvent) obj;
-        return Objects.equals(eventTimestamp, other.eventTimestamp) && (eventType == other.eventType);
-    }
-
-    @Override
-    public long getEventTimestamp() {
-        return eventTimestamp;
+        return getEventTimestamp() == other.getEventTimestamp() && (eventType == other.eventType);
     }
 
     public RealTimeEventType getEventType() {
@@ -77,7 +66,7 @@ public abstract class RealTimeEvent extends SystemEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = (prime * result) + Objects.hash(eventTimestamp, eventType);
+        result = (prime * result) + Objects.hash(eventType);
         return result;
     }
 
