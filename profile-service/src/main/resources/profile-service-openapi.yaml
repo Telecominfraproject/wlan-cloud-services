@@ -906,15 +906,6 @@ components:
             format: int32
             minimum: 60
             maximum: 600
-          radiusNasId:
-            description: String identifying the NAS (AP) – Default shall be set to the AP BSSID for the particular SSID/WLAN
-            type: string
-          radiusNasIp:
-            description:  NAS-IP AVP - Default it shall be the WAN IP address of the AP when AP communicates with RADIUS server directly.
-            type: string
-          radiusOperName:
-            description: Carries the operator namespace identifier and the operator name.  The operator name is combined with the namespace identifier to uniquely identify the owner of an access network.  The value of the Operator-Name is a non-NULL terminated text. This is not to be confused with the Passpoint Operator Domain
-            type: string
           radiusNasConfiguration:
             $ref: '#/components/schemas/RadiusNasConfiguration'            
           captivePortalId:
