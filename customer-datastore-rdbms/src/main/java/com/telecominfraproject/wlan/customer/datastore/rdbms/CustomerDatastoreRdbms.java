@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.customer.datastore.CustomerDatastore;
 import com.telecominfraproject.wlan.customer.models.Customer;
@@ -46,6 +49,15 @@ public class CustomerDatastoreRdbms implements CustomerDatastore {
     @Override
     public List<Customer> find(String filterStr, int maxResults) {
         return customerInfoDAO.find(filterStr, maxResults);
+    }
+    
+    @Override
+    public PaginationResponse<Customer> searchAll(String criteria, String username, 
+    		List<ColumnAndSort> sortBy, PaginationContext<Customer> context) {
+    	if (context == null) {
+    		context = new PaginationContext<>();
+    	}
+        return customerInfoDAO.searchAll(criteria, username, sortBy, context);
     }
 
     @Override

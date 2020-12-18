@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.core.server.jdbc.BaseJdbcDao;
 import com.telecominfraproject.wlan.customer.models.Customer;
@@ -57,6 +62,8 @@ public class CustomerDAO extends BaseJdbcDao {
     private static final String ALL_COLUMNS_FOR_INSERT;
     private static final String BIND_VARS_FOR_INSERT;
     private static final String ALL_COLUMNS_UPDATE;
+    
+    private static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
 
     static {
         StringBuilder strbAllColumns = new StringBuilder(1024);
@@ -65,6 +72,8 @@ public class CustomerDAO extends BaseJdbcDao {
         StringBuilder strbColumnsForUpdate = new StringBuilder(512);
         
         for (String colName : ALL_COLUMNS_LIST) {
+        	
+        	ALL_COLUMNS_LOWERCASE.add(colName.toLowerCase());
 
             strbAllColumns.append(colName).append(",");
 
@@ -112,11 +121,19 @@ public class CustomerDAO extends BaseJdbcDao {
             + " and ( lastModifiedTimestamp = ? or ? = true) ";
 
 
-    private static final String SQL_GET_ALL_NAME_OR_EMAIL_CONTAINS = "select " + ALL_COLUMNS
+    private static final String SQL_GET_ALL_NAME_CONTAINS = "select " + ALL_COLUMNS
             + " from customer_info "
-            + " where lower(name) like lower(?) or lower(email) like lower(?) or (cast ( id as varchar(25)) like (?)) limit ?";
+            + " where lower(name) like ? ";
+    
+    private static final String SQL_LIKE_EMAIL_APPEND = 
+    		"or lower(email) like ? ";
+    
+    private static final String SQL_EQUALS_EMAIL_APPEND = 
+    		"or lower(email) = ? ";
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from customer_info " + " where id in ";
+    
+    private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
 
     private static final RowMapper<Customer> customerRowMapper = new CustomerRowMapper();
 
@@ -208,10 +225,188 @@ public class CustomerDAO extends BaseJdbcDao {
 
     public List<Customer> find(String filterStr, int maxResults) {
         String filter = "%" + filterStr.toLowerCase() + "%";
-        List<Customer> results = this.jdbcTemplate.query(SQL_GET_ALL_NAME_OR_EMAIL_CONTAINS, customerRowMapper,
+        List<Customer> results = this.jdbcTemplate.query(SQL_GET_ALL_NAME_CONTAINS + SQL_LIKE_EMAIL_APPEND, customerRowMapper,
                 filter, filter, filter, maxResults);
 
         return results;
+    }
+    
+    public PaginationResponse<Customer> searchAll(String criteria, String username, List<ColumnAndSort> sortBy,
+			PaginationContext<Customer> context) {
+
+        PaginationResponse<Customer> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Customers for criteria {} with last returned page number {}",
+                    criteria, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Customers for criteria {} with last returned page number {}", 
+                criteria, context.getLastReturnedPageNumber());
+        
+        String query = SQL_GET_ALL_NAME_CONTAINS;
+
+        if (username == null) {
+        	query = query + SQL_LIKE_EMAIL_APPEND;
+        } else {
+        	query = query + SQL_EQUALS_EMAIL_APPEND;
+        }
+        
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add("%" + criteria + "%");
+        queryArgs.add("%" + criteria + "%");
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append(COL_ID);
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX ;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Customer> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                customerRowMapper);
+
+        LOG.debug("Found {} Customers for criteria {} with last returned page number {}",
+                    pageItems.size(), criteria, context.getLastReturnedPageNumber());
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
+    }
+    
+    public PaginationResponse<Customer> searchByUsername(String criteria, String username, 
+    		List<ColumnAndSort> sortBy, PaginationContext<Customer> context) {
+
+        PaginationResponse<Customer> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Customers for username {} and criteria {} with last returned page number {}",
+                    username, criteria, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Customers for username {} and criteria {} with last returned page number {}", 
+                username, criteria, context.getLastReturnedPageNumber());
+        
+        String query = SQL_GET_ALL_NAME_CONTAINS + SQL_LIKE_EMAIL_APPEND;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add("%" + criteria + "%");
+        queryArgs.add("%" + username + "%");
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append(COL_ID);
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX ;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Customer> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                customerRowMapper);
+
+        LOG.debug("Found {} Customers for email {} and criteria {} with last returned page number {}",
+                    pageItems.size(), username, criteria, context.getLastReturnedPageNumber());
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
     }
 
     public Customer delete(int id) {

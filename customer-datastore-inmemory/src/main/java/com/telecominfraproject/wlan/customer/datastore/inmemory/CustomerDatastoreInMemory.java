@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.customer.datastore.inmemory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.customer.datastore.CustomerDatastore;
 import com.telecominfraproject.wlan.customer.models.Customer;
@@ -174,6 +179,114 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
         }
 
         return result;
+    }
+    
+    @Override
+    public PaginationResponse<Customer> searchAll(String criteria, String username,
+    		final List<ColumnAndSort> sortBy, PaginationContext<Customer> context) {
+    	
+    	if (context == null) {
+    		context = new PaginationContext<>();
+    	}
+    	
+    	PaginationResponse<Customer> ret = new PaginationResponse<>();
+    	ret.setContext(context.clone());
+    	
+    	if (ret.getContext().isLastPage()) {
+    		// no more pages available according to the context
+    		return ret;
+    	}
+    	
+        List<Customer> items = new LinkedList<>();
+        
+        if (username == null) {
+	        for (Customer mdl : idToCustomerMap.values()) {
+	        	if (mdl.getName() != null && 
+	        			mdl.getName().toLowerCase().contains(criteria.toLowerCase()) || 
+	        			mdl.getEmail().toLowerCase().contains(criteria.toLowerCase())) {
+	        		items.add(mdl);
+	        	}
+	        }
+        } else {
+        	for (Customer mdl : idToCustomerMap.values()) {
+	        	if (mdl.getName() != null && 
+	        			mdl.getName().toLowerCase().contains(criteria.toLowerCase()) && 
+	        			mdl.getEmail().toLowerCase().equals(username)) {
+	        		items.add(mdl);
+	        	}
+	        }
+        }
+        
+
+        // apply sortBy columns
+        Collections.sort(items, new Comparator<Customer>() {
+            @Override
+            public int compare(Customer o1, Customer o2) {
+                if (sortBy == null || sortBy.isEmpty()) {
+                    // sort ascending by id by default
+                    return Long.compare(o1.getId(), o2.getId());
+                } else {
+                    int cmp;
+                    for (ColumnAndSort column : sortBy) {
+                        switch (column.getColumnName()) {
+                        case "email":
+                            cmp = o1.getEmail().compareTo(o2.getEmail());
+                            break;
+                        case "name":
+                            cmp = o1.getName().compareTo(o2.getName());
+                            break;
+                        default:
+                            // skip unknown column
+                            continue;
+                        }
+
+                        if (cmp != 0) {
+                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
+                        }
+
+                    }
+                }
+                return 0;
+            }
+        });
+        
+        // now select only items for the requested page
+        // find first item to add
+        int fromIndex = 0;
+        if (context.getStartAfterItem() != null) {
+            for (Customer mdl : items) {
+                fromIndex++;
+                if (mdl.getId() == context.getStartAfterItem().getId()) {
+                    break;
+                }
+            }
+        }
+
+        // find last item to add
+        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        if (toIndexExclusive > items.size()) {
+            toIndexExclusive = items.size();
+        }
+
+        // copy page items into result
+        List<Customer> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        for (Customer mdl : items.subList(fromIndex, toIndexExclusive)) {
+            selectedItems.add(mdl.clone());
+        }
+
+        ret.setItems(selectedItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        if(ret.getContext().getStartAfterItem()!=null) {
+        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
+        	Customer newStartAfterItem = new Customer();
+        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ret.getContext().setStartAfterItem(newStartAfterItem);
+        }
+
+        return ret;
     }
 
     public void clearAll() {

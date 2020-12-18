@@ -1,11 +1,15 @@
 package com.telecominfraproject.wlan.customer.datastore;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +18,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
+import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
@@ -168,69 +176,122 @@ public abstract class BaseCustomerDatastoreTest {
         }
 
     }
-
+    
     @Test
-    public void testFind() {
-        String testEmail = "makingatestemailissomuchfun@neverseenthisdomain.com";
-        String testPassword = "whoopsie";  
-        String companyName = "allofthewaysthiscompanyCanMakeYourWorldbetter";
+    public void testCustomerPagination()
+    {
+       //create 100 Customers
+       Customer mdl;
+       int customerId = (int) customerSequence.incrementAndGet();
+       
+       int customerNameIdx = 0;
+              
+       for(int i = 0; i< 50; i++){
+           mdl = new Customer();
+           mdl.setId(customerId);
+           mdl.setName("customer_one_" + customerNameIdx);
+           mdl.setEmail("someEmail_" + customerNameIdx + "@example.com");
 
-        Set<Integer> createdSet = new HashSet<>();
+           customerNameIdx++;
+           testInterface.create(mdl);
+       }
 
-        //Create test customers
-        Customer customerRequest = new Customer();
-        customerRequest.setEmail(testEmail);
-        customerRequest.setName(companyName);
+       for(int i = 0; i< 50; i++){
+    	   mdl = new Customer();
+           mdl.setId(customerId);
+           mdl.setName("customer_two_" + customerNameIdx);
+           mdl.setEmail("someEmail_" + customerNameIdx + "@example.com");
 
-        final String emailPrefix = "testingprefix";
+           customerNameIdx++;
+           testInterface.create(mdl);
+       }
 
-        for (int i = 0; i < 10; i++) {
-            customerRequest.setEmail(emailPrefix + testEmail + "_" + i);
-            customerRequest.setName(companyName + "_" + i);
+       //paginate over Customers
+       
+       List<ColumnAndSort> sortBy = new ArrayList<>();
+       sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
+       
+       PaginationContext<Customer> context = new PaginationContext<>(10);
+       PaginationResponse<Customer> page1 = testInterface.searchAll("one", null, sortBy, context);
+       PaginationResponse<Customer> page2 = testInterface.searchAll("one", null, sortBy, page1.getContext());
+       PaginationResponse<Customer> page3 = testInterface.searchAll("one", null, sortBy, page2.getContext());
+       PaginationResponse<Customer> page4 = testInterface.searchAll("one", null, sortBy, page3.getContext());
+       PaginationResponse<Customer> page5 = testInterface.searchAll("one", null, sortBy, page4.getContext());
+       PaginationResponse<Customer> page6 = testInterface.searchAll("one", null, sortBy, page5.getContext());
+       PaginationResponse<Customer> page7 = testInterface.searchAll("one", null, sortBy, page6.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1.getItems().size());
+       assertEquals(10, page2.getItems().size());
+       assertEquals(10, page3.getItems().size());
+       assertEquals(10, page4.getItems().size());
+       assertEquals(10, page5.getItems().size());
+       
+       page1.getItems().forEach(e -> assertTrue(e.getName().contains("one")));
+       page2.getItems().forEach(e -> assertTrue(e.getName().contains("one")));
+       page3.getItems().forEach(e -> assertTrue(e.getName().contains("one")));
+       page4.getItems().forEach(e -> assertTrue(e.getName().contains("one")));
+       page5.getItems().forEach(e -> assertTrue(e.getName().contains("one")));
+       
+       assertEquals(0, page6.getItems().size());
+       assertEquals(0, page7.getItems().size());
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertFalse(page2.getContext().isLastPage());
+       assertFalse(page3.getContext().isLastPage());
+       assertFalse(page4.getContext().isLastPage());
+       assertFalse(page5.getContext().isLastPage());
+       
+       assertTrue(page6.getContext().isLastPage());
+       assertTrue(page7.getContext().isLastPage());
+       
+       
+       List<String> expectedPage3Strings = new ArrayList<>(Arrays.asList(
+    		   new String[]{"customer_one_27", "customer_one_28", "customer_one_29", "customer_one_3", "customer_one_30", "customer_one_31", 
+    				   "customer_one_32", "customer_one_33", "customer_one_34", "customer_one_35" }));
+       List<String> actualPage3Strings = new ArrayList<>();
+       page3.getItems().stream().forEach(customer -> actualPage3Strings.add(customer.getName()) );
+       
+       assertEquals(expectedPage3Strings, actualPage3Strings);
+       
 
-            Customer ret = testInterface.create(customerRequest);
+       //test first page of the results with empty sort order -> default sort order (by id ascending)
+       PaginationResponse<Customer> page1EmptySort = testInterface.searchAll("one", null, Collections.emptyList(), context);
+       assertEquals(10, page1EmptySort.getItems().size());
 
-            // Keep track of created Customers for validation
-            createdSet.add(ret.getId());
-        }
+       List<String> expectedPage1EmptySortStrings = new ArrayList<>(
+    		   Arrays.asList(new String[]{"customer_one_0", "customer_one_1", "customer_one_2", "customer_one_3", "customer_one_4", "customer_one_5", 
+			   "customer_one_6", "customer_one_7", "customer_one_8", "customer_one_9" }));
+       List<String> actualPage1EmptySortStrings = new ArrayList<>();
+       page1EmptySort.getItems().stream().forEach(customer -> actualPage1EmptySortStrings.add(customer.getName()) );
 
-        // Test getting all the created Customers
-        List<Customer> customersRetrievedByEmailLike = testInterface.find(emailPrefix, 10);
-        assertEquals(10, customersRetrievedByEmailLike.size());
-        for (Customer c : customersRetrievedByEmailLike) {
-            assertTrue(createdSet.contains(c.getId()));
-        }
+       assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
-        // Test maxResults limitation
-        customersRetrievedByEmailLike = testInterface.find(emailPrefix, 5);
-        assertEquals(5, customersRetrievedByEmailLike.size());
-        for (Customer c : customersRetrievedByEmailLike) {
-            assertTrue(createdSet.contains(c.getId()));
-        }
+       //test first page of the results with null sort order -> default sort order (by id ascending)
+       PaginationResponse<Customer> page1NullSort = testInterface.searchAll("one", null, null, context);
+       assertEquals(10, page1NullSort.getItems().size());
 
-        // Test case insensitivity
-        customersRetrievedByEmailLike = testInterface.find(emailPrefix.toUpperCase(), 10);
-        assertEquals(10, customersRetrievedByEmailLike.size());
-        for (Customer c : customersRetrievedByEmailLike) {
-            assertTrue(createdSet.contains(c.getId()));
-        }
+       List<String> expectedPage1NullSortStrings = new ArrayList<>(
+    		   Arrays.asList(new String[]{"customer_one_0", "customer_one_1", "customer_one_2", "customer_one_3", "customer_one_4", "customer_one_5", 
+			   "customer_one_6", "customer_one_7", "customer_one_8", "customer_one_9" }));       
+       List<String> actualPage1NullSortStrings = new ArrayList<>();
+       page1NullSort.getItems().stream().forEach(customer -> actualPage1NullSortStrings.add(customer.getName()) );
 
-        // Test using an non-matching criteria:
-        customersRetrievedByEmailLike = testInterface.find("there is no way that any email is in there like this...right?", 10);
-        assertEquals(0, customersRetrievedByEmailLike.size());
+       assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
 
-        // Test match on just 1 Customer
-        Integer singleCustomerId = createdSet.iterator().next();
-        Customer singleCustomer = testInterface.get(singleCustomerId);
-        customersRetrievedByEmailLike = testInterface.find(singleCustomer.getEmail(), 10);
-        assertEquals(1, customersRetrievedByEmailLike.size());
-        assertEquals(singleCustomer, customersRetrievedByEmailLike.get(0));
+       
+       //test first page of the results with sort descending order by a name property 
+       PaginationResponse<Customer> page1SingleSortDesc = testInterface.searchAll("one", null, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
+       assertEquals(10, page1SingleSortDesc.getItems().size());
 
+       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(
+    		   Arrays.asList(new String[]{"customer_one_9", "customer_one_8", "customer_one_7", "customer_one_6", "customer_one_5", "customer_one_49", 
+			   "customer_one_48", "customer_one_47", "customer_one_46", "customer_one_45" }));
+       List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
+       page1SingleSortDesc.getItems().stream().forEach(customer -> actualPage1SingleSortDescStrings.add(customer.getName()) );
+       
+       assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
-        // Clean up after test
-        for (Integer cid : createdSet) {
-            testInterface.delete(cid);
-        }
     }
 
     
