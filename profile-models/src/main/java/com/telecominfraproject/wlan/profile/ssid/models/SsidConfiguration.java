@@ -73,6 +73,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private WepConfiguration wepConfig;
 
     private NetworkForwardMode forwardMode;
+    
+    private RadiusNasConfiguration radiusNasConfiguration;
 
     /**
      * @return the noLocalSubnets
@@ -118,6 +120,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
+        radiusNasConfiguration = RadiusNasConfiguration.createWithDefaults();
     }
 
     @Override
@@ -376,6 +379,20 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public void setRadiusNasIp(InetAddress radiusNasIp) {
         this.radiusNasIp = radiusNasIp;
+    }
+
+    /**
+     * @return the radiusClientConfiguration
+     */
+    public RadiusNasConfiguration getRadiusClientConfiguration() {
+        return radiusNasConfiguration;
+    }
+
+    /**
+     * @param radiusClientConfiguration the radiusClientConfiguration to set
+     */
+    public void setRadiusClientConfiguration(RadiusNasConfiguration radiusClientConfiguration) {
+        this.radiusNasConfiguration = radiusClientConfiguration;
     }
 
     public static enum SecureMode {
