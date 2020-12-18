@@ -103,6 +103,8 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AllInOneWithGatewayStartListener.class);
+	
+	private static final String DEFAULT_KEYSTRING = "w1r3l3ss-fr33d0m";
 
 	@Autowired
 	private CustomerServiceInterface customerServiceInterface;
@@ -296,14 +298,16 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 
 		Profile profileSsid_3_radios = new Profile();
 		profileSsid_3_radios.setCustomerId(customer.getId());
-		profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
+		profileSsid_3_radios.setName("TipWlan-cloud-wifi");
 		SsidConfiguration ssidConfig_3_radios = SsidConfiguration.createWithDefaults();
 		Set<RadioType> appliedRadios_3_radios = new HashSet<RadioType>();
 		appliedRadios_3_radios.add(RadioType.is2dot4GHz);
 		appliedRadios_3_radios.add(RadioType.is5GHzL);
 		appliedRadios_3_radios.add(RadioType.is5GHzU);
 		ssidConfig_3_radios.setAppliedRadios(appliedRadios_3_radios);
-		ssidConfig_3_radios.setSsid("TipWlan-cloud-3-radios");
+		ssidConfig_3_radios.setSsid("TipWlan-cloud-wifi");
+		ssidConfig_3_radios.setSecureMode(SecureMode.wpa2OnlyPSK);
+		ssidConfig_3_radios.setKeyStr(DEFAULT_KEYSTRING);
 		profileSsid_3_radios.setDetails(ssidConfig_3_radios);
 		profileSsid_3_radios = profileServiceInterface.create(profileSsid_3_radios);
 
@@ -316,6 +320,8 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		appliedRadios_2_radios.add(RadioType.is5GHz);
 		ssidConfig_2_radios.setAppliedRadios(appliedRadios_2_radios);
 		ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
+		ssidConfig_3_radios.setSecureMode(SecureMode.wpa2OnlyPSK);
+		ssidConfig_3_radios.setKeyStr(DEFAULT_KEYSTRING);
 		profileSsid_2_radios.setDetails(ssidConfig_2_radios);
 		profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
 		
