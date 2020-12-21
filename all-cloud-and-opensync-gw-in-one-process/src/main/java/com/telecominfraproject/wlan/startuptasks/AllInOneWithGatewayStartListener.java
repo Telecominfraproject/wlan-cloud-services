@@ -320,8 +320,8 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		appliedRadios_2_radios.add(RadioType.is5GHz);
 		ssidConfig_2_radios.setAppliedRadios(appliedRadios_2_radios);
 		ssidConfig_2_radios.setSsid("TipWlan-cloud-2-radios");
-		ssidConfig_3_radios.setSecureMode(SecureMode.wpa2OnlyPSK);
-		ssidConfig_3_radios.setKeyStr(DEFAULT_KEYSTRING);
+		ssidConfig_2_radios.setSecureMode(SecureMode.wpa2OnlyPSK);
+		ssidConfig_2_radios.setKeyStr(DEFAULT_KEYSTRING);
 		profileSsid_2_radios.setDetails(ssidConfig_2_radios);
 		profileSsid_2_radios = profileServiceInterface.create(profileSsid_2_radios);
 		
