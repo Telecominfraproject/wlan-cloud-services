@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.systemevent.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
 /**
@@ -38,10 +39,14 @@ public abstract class CustomerEventWithPayload<T> extends SystemEvent implements
     	this.payload = payload;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public CustomerEventWithPayload<T> clone() {
-        @SuppressWarnings("unchecked")
 		CustomerEventWithPayload<T> ret = (CustomerEventWithPayload<T>) super.clone();
+        
+        if(payload instanceof BaseJsonModel) {
+            ret.payload = (T)((BaseJsonModel) payload).clone();
+        }
         
         return ret;
     }
