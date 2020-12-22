@@ -82,7 +82,21 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
 
     @Override
     public RadioConfiguration clone() {
-        return (RadioConfiguration) super.clone();
+        RadioConfiguration ret  = (RadioConfiguration) super.clone();
+        
+        if(multicastRate!=null) {
+            ret.multicastRate = multicastRate.clone();            
+        }
+        
+        if(managementRate!=null) {
+            ret.managementRate = managementRate.clone();
+        }
+        
+        if(bestApSettings!=null) {
+            ret.bestApSettings = bestApSettings.clone();
+        }
+        
+        return ret;
     }
 
     @Override
