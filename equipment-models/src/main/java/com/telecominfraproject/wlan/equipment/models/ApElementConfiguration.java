@@ -50,24 +50,33 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 	 */
 	private Map<RadioType, RadioConfiguration> advancedRadioMap;
 
+	
+    private ApElementConfiguration() {
+        //for serialization
+        this(false);
+    }
+
+	
 	/*
 	 * NOTE: Please use the static creator
 	 */
-	private ApElementConfiguration() {
+	private ApElementConfiguration(boolean useDefaults) {
 		super(EquipmentType.AP);
 
-		/* We populate the radio map */
-		radioMap = new EnumMap<>(RadioType.class);
-		radioMap.put(RadioType.is5GHzL, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL));
-		radioMap.put(RadioType.is5GHzU, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU));
-		radioMap.put(RadioType.is2dot4GHz, ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
-
-		/* We populate the advanced radio map */
-		advancedRadioMap = new EnumMap<>(RadioType.class);
-		advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
-		advancedRadioMap.put(RadioType.is5GHzL, RadioConfiguration.createWithDefaults(RadioType.is5GHzL));
-		advancedRadioMap.put(RadioType.is5GHzU, RadioConfiguration.createWithDefaults(RadioType.is5GHzU));
-
+		if(useDefaults) {
+    		/* We populate the radio map */
+    		radioMap = new EnumMap<>(RadioType.class);
+    		radioMap.put(RadioType.is5GHzL, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzL));
+    		radioMap.put(RadioType.is5GHzU, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHzU));
+    		radioMap.put(RadioType.is2dot4GHz, ElementRadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+    
+    		/* We populate the advanced radio map */
+    		advancedRadioMap = new EnumMap<>(RadioType.class);
+    		advancedRadioMap.put(RadioType.is2dot4GHz, RadioConfiguration.createWithDefaults(RadioType.is2dot4GHz));
+    		advancedRadioMap.put(RadioType.is5GHzL, RadioConfiguration.createWithDefaults(RadioType.is5GHzL));
+    		advancedRadioMap.put(RadioType.is5GHzU, RadioConfiguration.createWithDefaults(RadioType.is5GHzU));
+		}
+		
 	}
 
 	@Override
@@ -111,7 +120,7 @@ public class ApElementConfiguration extends CommonElementConfiguration {
 	public static ApElementConfiguration createWithDefaults(String elementVersion, ApModel model) {
 
 		// The constructor will populate the radio maps
-		ApElementConfiguration returnValue = new ApElementConfiguration();
+		ApElementConfiguration returnValue = new ApElementConfiguration(true);
 		returnValue.setElementConfigVersion(elementVersion);
 		returnValue.setEquipmentType(EquipmentType.AP);
 
