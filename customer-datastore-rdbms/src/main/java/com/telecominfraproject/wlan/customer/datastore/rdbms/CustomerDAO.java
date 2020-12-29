@@ -53,20 +53,30 @@ public class CustomerDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(
             Arrays.asList(COL_ID, "createdTimestamp"));
 
-    static final String ALL_COLUMNS;
+    public static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
+
+    //use this for queries where multiple tables are involved
+    public static final String ALL_COLUMNS_WITH_PREFIX;
+    public static final String TABLE_PREFIX = "c.";
+    
+    public static final String ALL_COLUMNS;
     private static final String ALL_COLUMNS_FOR_INSERT;
     private static final String BIND_VARS_FOR_INSERT;
     private static final String ALL_COLUMNS_UPDATE;
 
     static {
         StringBuilder strbAllColumns = new StringBuilder(1024);
+        StringBuilder strbAllColumnsWithPrefix = new StringBuilder(1024);
         StringBuilder strbAllColumnsForInsert = new StringBuilder(1024);
         StringBuilder strbBindVarsForInsert = new StringBuilder(128);
         StringBuilder strbColumnsForUpdate = new StringBuilder(512);
         
         for (String colName : ALL_COLUMNS_LIST) {
 
+            ALL_COLUMNS_LOWERCASE.add(colName.toLowerCase());
+            
             strbAllColumns.append(colName).append(",");
+            strbAllColumnsWithPrefix.append(TABLE_PREFIX).append(colName).append(",");
 
             if (!columnsToSkipForInsert.contains(colName)) {
                 strbAllColumnsForInsert.append(colName).append(",");
@@ -81,11 +91,13 @@ public class CustomerDAO extends BaseJdbcDao {
 
         // remove trailing ','
         strbAllColumns.deleteCharAt(strbAllColumns.length() - 1);
+        strbAllColumnsWithPrefix.deleteCharAt(strbAllColumnsWithPrefix.length() - 1);
         strbAllColumnsForInsert.deleteCharAt(strbAllColumnsForInsert.length() - 1);
         strbBindVarsForInsert.deleteCharAt(strbBindVarsForInsert.length() - 1);
         strbColumnsForUpdate.deleteCharAt(strbColumnsForUpdate.length() - 1);
 
         ALL_COLUMNS = strbAllColumns.toString();
+        ALL_COLUMNS_WITH_PREFIX = strbAllColumnsWithPrefix.toString();
         ALL_COLUMNS_FOR_INSERT = strbAllColumnsForInsert.toString();
         BIND_VARS_FOR_INSERT = strbBindVarsForInsert.toString();
         ALL_COLUMNS_UPDATE = strbColumnsForUpdate.toString();

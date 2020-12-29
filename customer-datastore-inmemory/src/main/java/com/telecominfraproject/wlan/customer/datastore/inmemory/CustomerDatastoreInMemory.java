@@ -199,5 +199,15 @@ public class CustomerDatastoreInMemory extends BaseInMemoryDatastore implements 
         return ret;
     
     }
+
+    /**
+     * Provide access to internal idToCustomerMap so that other in-memory datastores can perform join operations efficiently.
+     * One example of such a join operation can be retrieve all customers that have a portalUsername matching a criteria. 
+     * 
+     * @return internal map of id to Customer
+     */
+    public Map<Integer, Customer> getIdToCustomerMap() {
+        return idToCustomerMap;
+    }
     
 }
