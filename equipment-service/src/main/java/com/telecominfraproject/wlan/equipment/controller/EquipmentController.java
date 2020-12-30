@@ -229,6 +229,40 @@ public class EquipmentController {
 
         return ret;
     }
+    
+    @RequestMapping(value = "/searchByMacAndName", method = RequestMethod.GET)
+    public PaginationResponse<Equipment> searchByMacAndName(@RequestParam int customerId,
+            @RequestParam(required = false) String criteria,
+            @RequestParam List<ColumnAndSort> sortBy,
+            @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+
+        LOG.debug("Looking up equipments for customer {} criteria {} last returned page number {}",
+                customerId, criteria, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<Equipment> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug("No more pages available when looking up equipments for customer {} criteria {} last returned page number {}",
+                    customerId, criteria, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<Equipment> cePage = this.equipmentDatastore
+                .searchByMacAndName(customerId, criteria, sortBy, paginationContext);
+        ret.setContext(cePage.getContext());
+        ret.getItems().addAll(cePage.getItems());
+
+        LOG.debug("Retrieved {} equipments for customer {} criteria {} ", cePage.getItems().size(),
+                customerId, criteria);
+
+        return ret;
+    }
 
     /**
      * Updates Equipment record

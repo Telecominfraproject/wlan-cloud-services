@@ -177,6 +177,9 @@ public class EquipmentDAO extends BaseJdbcDao {
 
     private static final String SQL_GET_BY_CUSTOMER_ID_AND_EQUIPMENT_TYPE = "select " + ALL_COLUMNS + " from "
             + TABLE_NAME + " " + " where customerId = ? and equipmentType = ? ";
+    
+    private static final String SQL_GET_BY_CUSTOMER_ID_AND_SEARCH_BY_MAC_AND_NAME = "select " + ALL_COLUMNS + " from "
+    		+ TABLE_NAME + " where customerId = ? and (name like ? or baseMacAddress like ?) ";
 
     private static final String SQL_GET_EQUIPMENTIDS_BY_LOCATIONIDS = "select locationId, id from "
             + TABLE_NAME + " " + " where locationId ";
@@ -618,6 +621,93 @@ public class EquipmentDAO extends BaseJdbcDao {
 
         LOG.debug("Found {} equipment {} for customer {} locations {} last returned page number {}",
                     pageItems.size(), equipmentType, customerId, locationIds, context.getLastReturnedPageNumber());
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
+    }
+    
+    public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
+            List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+
+        PaginationResponse<Equipment> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up equipments for customer {} criteria {} last returned page number {}",
+                    customerId, criteria, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up equipment for customer {} criteria {} last returned page number {}",
+                customerId, criteria, context.getLastReturnedPageNumber());
+
+        String query = SQL_GET_BY_CUSTOMER_ID_AND_SEARCH_BY_MAC_AND_NAME;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        queryArgs.add("%" + criteria.toLowerCase() + "%");
+        queryArgs.add("%" + criteria.toLowerCase() + "%");
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append(" id ");
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Equipment> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                equipmentRowMapper);
+
+        LOG.debug("Found {} equipments for customer {} criteria {} last returned page number {}",
+                    pageItems.size(), customerId, criteria, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

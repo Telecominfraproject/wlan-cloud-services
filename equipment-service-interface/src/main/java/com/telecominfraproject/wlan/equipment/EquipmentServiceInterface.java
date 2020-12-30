@@ -97,6 +97,8 @@ public interface EquipmentServiceInterface {
     PaginationResponse<Equipment> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
     PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
+    
+    PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
     /**
      * @param equipmentType
