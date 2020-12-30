@@ -233,7 +233,7 @@ public class EquipmentController {
     @RequestMapping(value = "/searchByMacAndName", method = RequestMethod.GET)
     public PaginationResponse<Equipment> searchByMacAndName(@RequestParam int customerId,
             @RequestParam(required = false) String criteria,
-            @RequestParam List<ColumnAndSort> sortBy,
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
 
     	if(paginationContext == null) {

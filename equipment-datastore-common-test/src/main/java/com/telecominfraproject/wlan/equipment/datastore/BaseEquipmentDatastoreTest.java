@@ -451,7 +451,7 @@ public abstract class BaseEquipmentDatastoreTest {
        assertEquals(expectedPage3Strings, actualPage3Strings);
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Equipment> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
+       PaginationResponse<Equipment> page1EmptySort = testInterface.searchByMacAndName(customerId_1, "A1", Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -461,7 +461,7 @@ public abstract class BaseEquipmentDatastoreTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Equipment> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
+       PaginationResponse<Equipment> page1NullSort = testInterface.searchByMacAndName(customerId_1, "A1", null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -472,7 +472,7 @@ public abstract class BaseEquipmentDatastoreTest {
 
        
        //test first page of the results with sort descending order by a name property 
-       PaginationResponse<Equipment> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
+       PaginationResponse<Equipment> page1SingleSortDesc = testInterface.searchByMacAndName(customerId_1, "A1", Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));

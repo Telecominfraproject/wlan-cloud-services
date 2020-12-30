@@ -10114,7 +10114,7 @@ paths:
       - name: sortBy
         in: query
         description: sort options
-        required: true
+        required: false
         schema:
           type: array
           items:
