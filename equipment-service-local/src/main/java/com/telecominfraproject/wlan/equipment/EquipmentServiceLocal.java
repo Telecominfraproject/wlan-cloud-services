@@ -76,6 +76,13 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
     }
     
     @Override
+    public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
+    		List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+        LOG.debug("calling equipmentController.searchByMacAndName {} {} ", customerId, criteria);
+        return equipmentController.searchByMacAndName(customerId, criteria, sortBy, context);
+    }
+    
+    @Override
     public Equipment update(Equipment equipment) {
         LOG.debug("calling equipmentController.update {} ", equipment);
         return equipmentController.update(equipment);

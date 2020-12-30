@@ -209,6 +209,24 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         return ret;
 	}
 	
+	@Override
+	public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
+			List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+		
+        LOG.debug("calling searchByMacAndName( {}, {}, {}, {} )", customerId, criteria,
+                sortBy, context);
+
+        ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
+                getBaseUrl()
+                        + "/searchByMacAndName?customerId={customerId}&criteria={criteria}&sortBy={sortBy}&paginationContext={context}",
+                HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, criteria, sortBy, context);
+
+        PaginationResponse<Equipment> ret = responseEntity.getBody();
+        LOG.debug("completed searchByMacAndName {} ", ret.getItems().size());
+
+        return ret;
+	}
+	
     @Override
     public Equipment update(Equipment equipment) {
         

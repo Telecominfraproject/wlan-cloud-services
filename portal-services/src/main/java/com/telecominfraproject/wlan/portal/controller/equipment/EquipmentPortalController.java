@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
-import com.telecominfraproject.wlan.client.ClientServiceInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -57,10 +56,6 @@ public class EquipmentPortalController  {
 
     @Autowired
     private StatusServiceInterface statusServiceInterface;
-
-    @Autowired
-    private ClientServiceInterface clientServiceInterface;
-
 
     @RequestMapping(value = "/equipment", method = RequestMethod.GET)
     public Equipment getEquipment(@RequestParam long equipmentId) {
@@ -213,6 +208,40 @@ public class EquipmentPortalController  {
 
         return ret;
     }    
+    
+    @RequestMapping(value = "/equipment/searchByMacAndName", method = RequestMethod.GET)
+    public PaginationResponse<Equipment> searchByMacAndName(@RequestParam int customerId,
+            @RequestParam(required = false) String criteria,
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
+            @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
+
+    	if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+
+        LOG.debug("Looking up equipments for customer {} criteria {} last returned page number {}",
+                customerId, criteria, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<Equipment> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug("No more pages available when looking up equipments for customer {} criteria {} last returned page number {}",
+                    customerId, criteria, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<Equipment> cePage = this.equipmentServiceInterface
+                .searchByMacAndName(customerId, criteria, sortBy, paginationContext);
+        ret.setContext(cePage.getContext());
+        ret.getItems().addAll(cePage.getItems());
+
+        LOG.debug("Retrieved {} equipments for customer {} criteria {} ", cePage.getItems().size(),
+                customerId, criteria);
+
+        return ret;
+    }
     
     @RequestMapping(value = "/equipment/defaultDetails", method=RequestMethod.GET)
     public EquipmentDetails getDefaultEquipmentDetails(@RequestParam EquipmentType equipmentType) {

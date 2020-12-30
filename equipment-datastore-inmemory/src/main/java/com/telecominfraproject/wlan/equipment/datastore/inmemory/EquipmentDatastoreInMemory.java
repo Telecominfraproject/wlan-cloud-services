@@ -457,6 +457,108 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         
         return ret;
     }
+    
+    @Override
+    public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
+            final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+
+    	if(context == null) {
+    		context = new PaginationContext<>();
+    	}
+
+        PaginationResponse<Equipment> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            return ret;
+        }
+
+        List<Equipment> items = new LinkedList<>();
+
+        // build full result list first
+        for (Equipment ce : idToEquipmentMap.values()) {
+
+            if (ce.getCustomerId() != customerId) {
+                continue;
+            }
+
+            if (ce.getName().toLowerCase().contains(criteria.toLowerCase()) || 
+            		ce.getBaseMacAddress().getAddressAsString().toLowerCase().contains(criteria.toLowerCase())) {
+                items.add(ce);
+            }
+        }
+
+        // apply sortBy columns
+        Collections.sort(items, new Comparator<Equipment>() {
+            @Override
+            public int compare(Equipment o1, Equipment o2) {
+                if (sortBy == null || sortBy.isEmpty()) {
+                    // sort ascending by equipmentId by default
+                    return Long.compare(o1.getId(), o2.getId());
+                } else {
+                    int cmp;
+                    for (ColumnAndSort column : sortBy) {
+                        switch (column.getColumnName()) {
+                        case "id":
+                            cmp = Long.compare(o1.getId(), o2.getId());
+                            break;
+                        case "name":
+                            cmp = o1.getName().compareTo(o2.getName());
+                            break;
+                        default:
+                            // skip unknown column
+                            continue;
+                        }
+
+                        if (cmp != 0) {
+                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
+                        }
+
+                    }
+                }
+                return 0;
+            }
+        });
+
+        // now select only items for the requested page
+        // find first item to add
+        int fromIndex = 0;
+        if (context.getStartAfterItem() != null) {
+            for (Equipment ce : items) {
+                fromIndex++;
+                if (ce.getId() == context.getStartAfterItem().getId()) {
+                    break;
+                }
+            }
+        }
+
+        // find last item to add
+        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
+        if (toIndexExclusive > items.size()) {
+            toIndexExclusive = items.size();
+        }
+
+        // copy page items into result
+        List<Equipment> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
+        for (Equipment ce : items.subList(fromIndex, toIndexExclusive)) {
+            selectedItems.add(ce.clone());
+        }
+
+        ret.setItems(selectedItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        if(ret.getContext().getStartAfterItem()!=null) {
+        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
+        	Equipment newStartAfterItem = new Equipment();
+        	newStartAfterItem.setId(ret.getContext().getStartAfterItem().getId());
+        	ret.getContext().setStartAfterItem(newStartAfterItem);
+        }
+        
+        return ret;
+    }
 
 
     @Override
