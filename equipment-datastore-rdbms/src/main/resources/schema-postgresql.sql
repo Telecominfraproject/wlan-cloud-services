@@ -24,6 +24,7 @@ create table if not exists  equipment (
 );
 
 create index if not exists idx_equipment_customerId on equipment (customerId);
+create index if not exists idx_equipment_customerId_name on equipment (customerId, name);
 create index if not exists idx_equipment_customerId_equipmentType on equipment (customerId, equipmentType);
 create index if not exists idx_equipment_customerId_baseMacAddress on equipment (customerId, baseMacAddress);
 create index if not exists idx_equipment_customerId_manufacturerOui on equipment (customerId, manufacturerOui);
