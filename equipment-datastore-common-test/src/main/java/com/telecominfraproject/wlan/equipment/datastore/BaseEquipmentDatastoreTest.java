@@ -365,11 +365,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl.setLocationId(2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-testEquipmentSearchByMacAndName-" + mdl.getName());
-           if (i < 10) {
-        	   mdl.setBaseMacAddress(new MacAddress("A1:FF:FF:FF:FF:0" + i));
-           } else {
-        	   mdl.setBaseMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + i));
-           }
+           mdl.setBaseMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            
            apNameIdx++;
            testInterface.create(mdl);
@@ -383,11 +379,7 @@ public abstract class BaseEquipmentDatastoreTest {
            mdl.setLocationId(2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-testEquipmentSearchByMacAndName-" + mdl.getName());
-           if (i < 10) {
-        	   mdl.setBaseMacAddress(new MacAddress("B1:FF:FF:FF:FF:0" + i));
-           } else {
-        	   mdl.setBaseMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + i));
-           }
+           mdl.setBaseMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
 
            apNameIdx++;
            testInterface.create(mdl);
