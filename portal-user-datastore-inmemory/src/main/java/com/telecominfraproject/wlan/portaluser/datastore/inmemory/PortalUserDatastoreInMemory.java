@@ -266,5 +266,18 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
         }
 
         return ret;
-    }    
+    }
+
+
+    /**
+     * Provide access to internal idToPortalUserMap so that other in-memory datastores can perform join operations efficiently.
+     * One example of such a join operation can be retrieve all customers that have a portalUsername matching a criteria. 
+     * 
+     * @return internal map of id to PortalUser
+     */
+    public static Map<Long, PortalUser> getIdToPortalUserMap() {
+        return idToPortalUserMap;
+    }
+    
+    
 }
