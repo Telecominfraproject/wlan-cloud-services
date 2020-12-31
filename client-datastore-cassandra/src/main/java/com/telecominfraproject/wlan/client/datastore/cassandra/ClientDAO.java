@@ -145,10 +145,10 @@ public class ClientDAO {
     private static final String CQL_GET_BY_MAC_STRING = 
     		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
     
-    private static final String CQL_INSERT_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS = 
+    private static final String CQL_INSERT_INTO_CLIENT_MAC_STRING = 
     		"insert into client_by_mac_string (customerId, macAddress, macAddressString) values (?, ?, ?)";
 
-    private static final String CQL_DELETE_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS = 
+    private static final String CQL_DELETE_FROM_CLIENT_MAC_STRING = 
     		"delete from client_by_mac_string where customerId = ? and macAddressString = ?";
     
     private static final RowMapper<Client> clientRowMapper = new ClientRowMapper();
@@ -184,8 +184,8 @@ public class ClientDAO {
             preparedStmt_insertBlockedList = cqlSession.prepare(CQL_INSERT_BLOCKED_LIST);
             preparedStmt_deleteBlockedList = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
             preparedStmt_getByMacString = cqlSession.prepare(CQL_GET_BY_MAC_STRING);
-            preparedStmt_insertMacString = cqlSession.prepare(CQL_INSERT_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS);
-            preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS);
+            preparedStmt_insertMacString = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_MAC_STRING);
+            preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_MAC_STRING);
             
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
