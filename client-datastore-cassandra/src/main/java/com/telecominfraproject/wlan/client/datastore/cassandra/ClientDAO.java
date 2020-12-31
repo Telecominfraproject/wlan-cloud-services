@@ -144,7 +144,7 @@ public class ClientDAO {
     
     // Statements using client_by_mac_string table
     private static final String CQL_GET_CLIENT_MAC_BY_CUSTOMER_ID = 
-    		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
+    		"select customerId, macAddress from client_by_mac_string where customerId = ?";
     
     private static final String CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING = 
     		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
