@@ -407,12 +407,21 @@ public class ClientDAO extends BaseJdbcDao {
         LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
                 customerId, macSubstring, context.getLastReturnedPageNumber());
         
-        String query = SQL_GET_BY_CUSTOMER_ID + SQL_APPEND_SEARCH_MAC_SUBSTRING;
-
-        // add filters for the query
+        String query;
         ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
-        queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        
+        if (macSubstring != null) {
+	        query = SQL_GET_BY_CUSTOMER_ID + SQL_APPEND_SEARCH_MAC_SUBSTRING;
+	
+	        // add filters for the query
+	        queryArgs.add(customerId);
+	        queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        } else {
+        	query = SQL_GET_BY_CUSTOMER_ID;
+        	
+	        // add filters for the query
+	        queryArgs.add(customerId);
+        }
 
         // add sorting options for the query
         StringBuilder strbSort = new StringBuilder(100);

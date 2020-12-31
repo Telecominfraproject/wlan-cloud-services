@@ -238,7 +238,6 @@ public abstract class BaseClientDatastoreTest {
         page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
         
         assertEquals(expectedPage3Strings, actualPage3Strings);
-
         
         //test first page of the results with empty sort order -> default sort order (by Id ascending)
         PaginationResponse<Client> page1EmptySort = testInterface.searchByMacAddress(customerId_1, "A1", Collections.emptyList(), context);
@@ -273,6 +272,91 @@ public abstract class BaseClientDatastoreTest {
 
         created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
         
+    }
+    
+    @Test
+    public void testEmptyNullSearchMacSubstring() {       
+    	Client mdl;
+    	int customerId = (int) testSequence.incrementAndGet();
+        int apNameIdx = 0;
+        List<Client> created_models = new ArrayList<>();
+        
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            mdl.setDetails(details);
+            mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("cr_"+apNameIdx);
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+            
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+    	List<ColumnAndSort> sortBy = new ArrayList<>();
+    	PaginationContext<Client> context = new PaginationContext<>(10);
+    	
+    	//test null and empty string macSubstring inputs, expecting to get all results
+        PaginationResponse<Client> emptySubstringPage1 = testInterface.searchByMacAddress(customerId, "", sortBy, context);
+        PaginationResponse<Client> emptySubstringPage2 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage1.getContext());
+        PaginationResponse<Client> emptySubstringPage3 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage2.getContext());
+        PaginationResponse<Client> emptySubstringPage4 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage3.getContext());
+        PaginationResponse<Client> emptySubstringPage5 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage4.getContext());
+        PaginationResponse<Client> emptySubstringPage6 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage5.getContext());
+        PaginationResponse<Client> emptySubstringPage7 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage6.getContext());
+        PaginationResponse<Client> emptySubstringPage8 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage7.getContext());
+        PaginationResponse<Client> emptySubstringPage9 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage8.getContext());
+        PaginationResponse<Client> emptySubstringPage10 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage9.getContext());
+        PaginationResponse<Client> emptySubstringPage11 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage10.getContext());
+        assertEquals(10, emptySubstringPage1.getItems().size());
+        assertEquals(10, emptySubstringPage2.getItems().size());
+        assertEquals(10, emptySubstringPage3.getItems().size());
+        assertEquals(10, emptySubstringPage4.getItems().size());
+        assertEquals(10, emptySubstringPage5.getItems().size());
+        assertEquals(10, emptySubstringPage6.getItems().size());
+        assertEquals(10, emptySubstringPage7.getItems().size());
+        assertEquals(10, emptySubstringPage8.getItems().size());
+        assertEquals(10, emptySubstringPage9.getItems().size());
+        assertEquals(10, emptySubstringPage10.getItems().size());
+        assertEquals(0, emptySubstringPage11.getItems().size());
+        
+        PaginationResponse<Client> nullSubstringPage1 = testInterface.searchByMacAddress(customerId, null, sortBy, context);
+        PaginationResponse<Client> nullSubstringPage2 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage1.getContext());
+        PaginationResponse<Client> nullSubstringPage3 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage2.getContext());
+        PaginationResponse<Client> nullSubstringPage4 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage3.getContext());
+        PaginationResponse<Client> nullSubstringPage5 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage4.getContext());
+        PaginationResponse<Client> nullSubstringPage6 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage5.getContext());
+        PaginationResponse<Client> nullSubstringPage7 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage6.getContext());
+        PaginationResponse<Client> nullSubstringPage8 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage7.getContext());
+        PaginationResponse<Client> nullSubstringPage9 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage8.getContext());
+        PaginationResponse<Client> nullSubstringPage10 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage9.getContext());
+        PaginationResponse<Client> nullSubstringPage11 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage10.getContext());
+        assertEquals(10, nullSubstringPage1.getItems().size());
+        assertEquals(10, nullSubstringPage2.getItems().size());
+        assertEquals(10, nullSubstringPage3.getItems().size());
+        assertEquals(10, nullSubstringPage4.getItems().size());
+        assertEquals(10, nullSubstringPage5.getItems().size());
+        assertEquals(10, nullSubstringPage6.getItems().size());
+        assertEquals(10, nullSubstringPage7.getItems().size());
+        assertEquals(10, nullSubstringPage8.getItems().size());
+        assertEquals(10, nullSubstringPage9.getItems().size());
+        assertEquals(10, nullSubstringPage10.getItems().size());
+        assertEquals(0, nullSubstringPage11.getItems().size());
+        
+        created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
     }
     
     @Test

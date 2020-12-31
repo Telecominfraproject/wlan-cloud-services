@@ -203,6 +203,14 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
 			        } 
 	    		}
 	    	);
+    	} else {
+    		idToClientMap.forEach(
+	    		(k, c) -> {
+	    			if(k.customerId == customerId) {
+	    				items.add(c.clone());
+			        } 
+	    		}
+	    	);
     	}
 
         // apply sortBy columns
@@ -273,21 +281,6 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         }
 
         return ret;
-
-//    	List<Client> ret = new ArrayList<>();
-//    	
-//    	if(macSubstring != null) {
-//	    	idToClientMap.forEach(
-//	        		(k, c) -> {
-//	        			if(k.customerId == customerId && k.mac.getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase())) {
-//				        	ret.add(c.clone());
-//				        } }
-//	        		);
-//    	}
-//
-//        LOG.debug("Found Clients by ids {}", ret);
-//
-//        return ret;
     
     }
 

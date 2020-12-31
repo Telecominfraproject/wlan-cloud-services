@@ -142,7 +142,11 @@ public class ClientDAO {
     private static final String CQL_DELETE_BLOCKED_LIST = 
     		"delete from client_blocklist where customerId = ? and  macAddress = ?";
     
-    private static final String CQL_GET_BY_MAC_STRING = 
+    // Statements using client_by_mac_string table
+    private static final String CQL_GET_CLIENT_MAC_BY_CUSTOMER_ID = 
+    		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
+    
+    private static final String CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING = 
     		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
     
     private static final String CQL_INSERT_INTO_CLIENT_MAC_STRING = 
@@ -165,7 +169,8 @@ public class ClientDAO {
     private PreparedStatement preparedStmt_getBlockedListForCustomer;
     private PreparedStatement preparedStmt_insertBlockedList;
     private PreparedStatement preparedStmt_deleteBlockedList;
-    private PreparedStatement preparedStmt_getByMacString;
+    private PreparedStatement preparedStmt_getClientMacByCustomerId;
+    private PreparedStatement preparedStmt_getClientMacLikeMacString;
     private PreparedStatement preparedStmt_insertMacString;
     private PreparedStatement preparedStmt_deleteMacString;
 
@@ -183,7 +188,8 @@ public class ClientDAO {
             preparedStmt_getBlockedListForCustomer = cqlSession.prepare(CQL_GET_BLOCKED_LIST_BY_CUSTOMER_ID);
             preparedStmt_insertBlockedList = cqlSession.prepare(CQL_INSERT_BLOCKED_LIST);
             preparedStmt_deleteBlockedList = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
-            preparedStmt_getByMacString = cqlSession.prepare(CQL_GET_BY_MAC_STRING);
+            preparedStmt_getClientMacByCustomerId = cqlSession.prepare(CQL_GET_CLIENT_MAC_BY_CUSTOMER_ID);
+            preparedStmt_getClientMacLikeMacString = cqlSession.prepare(CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING);
             preparedStmt_insertMacString = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_MAC_STRING);
             preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_MAC_STRING);
             
@@ -432,10 +438,18 @@ public class ClientDAO {
         // ***** We will ignore the order supplied by the caller for this datastore
         
         ArrayList<Object> bindVars = new ArrayList<>();
-	    bindVars.add(customerId);
-	    bindVars.add("%" + macSubstring.toLowerCase() + "%");
-                
-        BoundStatement boundStmt = preparedStmt_getByMacString.bind(bindVars.toArray());
+        BoundStatement boundStmt;
+        
+        if (macSubstring != null) {
+		    bindVars.add(customerId);
+		    bindVars.add("%" + macSubstring.toLowerCase() + "%");
+	                
+	        boundStmt = preparedStmt_getClientMacLikeMacString.bind(bindVars.toArray());
+        } else {
+		    bindVars.add(customerId);
+	                
+	        boundStmt = preparedStmt_getClientMacByCustomerId.bind(bindVars.toArray());
+        }
         //have to do it this way - setPageSize creates new object
         boundStmt = boundStmt.setPageSize(context.getMaxItemsPerPage());
         
