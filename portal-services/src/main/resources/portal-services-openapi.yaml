@@ -9411,6 +9411,63 @@ components:
             $ref: '#/components/schemas/ClientSession'
         context:
           $ref: '#/components/schemas/PaginationContextClientSession'  
+          
+    SortColumnsClient:
+      type: object
+      required:
+      - model_type
+      - columnName
+      - sortOrder
+      properties: 
+        model_type:
+          type: string
+          enum:
+          - ColumnAndSort
+        columnName:
+          type: string
+          default: macAddress
+          enum: 
+          - macAddress
+        sortOrder:
+          $ref: '#/components/schemas/SortOrder'
+          
+    PaginationContextClient:
+      type: object
+      required: 
+      - maxItemsPerPage
+      properties:
+        model_type:
+          type: string
+          enum:
+          - PaginationContext
+        maxItemsPerPage:
+          type: integer
+          format: int32
+          default: 20
+        lastReturnedPageNumber:
+          type: integer
+          format: int32
+        totalItemsReturned:
+          type: integer
+          format: int32
+        lastPage:
+          type: boolean
+        cursor:
+          type: string
+      example: 
+        model_type: PaginationContext
+        maxItemsPerPage: 10
+          
+      
+    PaginationResponseClient:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        context:
+          $ref: '#/components/schemas/PaginationContextClient'  
 
 
     SortColumnsAlarm:
@@ -10926,6 +10983,56 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
+  /portal/client/searchByMac:
+    get:
+      tags:
+      - Clients
+      summary: Get list of Clients for customerId and searching by macSubstring.
+      operationId: searchByMacAddress
+      parameters:
+      - name: customerId
+        in: query
+        description: customer id
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: macSubstring
+        in: query
+        description: MacAddress search criteria
+        required: false
+        schema:
+          type: string
+      - name: sortBy
+        in: query
+        description: sort options
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortColumnsClient'
+      - name: paginationContext
+        in: query
+        description: pagination context
+        required: false
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/PaginationContextClient'
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponseClient'
+        500:
+          $ref: '#/components/responses/GenericApiError'
 
   /portal/client/blocked:  
     get:

@@ -26,7 +26,9 @@ public class ClientRowMapper implements RowMapper<Client> {
         Client client = new Client();
         int colIdx=1;
         client.setMacAddress(new MacAddress(rs.getLong(colIdx++)));
-
+        // macAddressString here does not need to map again to Client Object
+        colIdx++;
+        
         //TODO: add columns from properties Client in here. 
         //make sure order of fields is the same as defined in Client
         client.setCustomerId(rs.getInt(colIdx++));

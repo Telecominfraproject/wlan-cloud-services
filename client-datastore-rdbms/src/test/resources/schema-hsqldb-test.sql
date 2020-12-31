@@ -4,6 +4,7 @@ drop table client_session if exists;
 create table client (
      -- hsqldb 
     macAddress bigint,
+    macAddressString varchar(100), 
 
     customerId int,
     details varbinary(65535),
@@ -15,6 +16,7 @@ create table client (
 );
 
 create index idx_client_customerId on client (customerId);
+create index if not exists idx_client_customerId_macAddressString on client (customerId, macAddressString);
 
 create table if not exists client_blocklist (
     -- hsqldb     

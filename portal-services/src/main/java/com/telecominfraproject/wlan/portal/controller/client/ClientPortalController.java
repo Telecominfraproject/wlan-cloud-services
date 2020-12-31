@@ -72,6 +72,44 @@ public class ClientPortalController  {
         return ret;
 
     }
+    
+    @RequestMapping(value = "/client/searchByMac", method = RequestMethod.GET)
+    public PaginationResponse<Client> searchByMacAddress(@RequestParam int customerId,  
+    		@RequestParam(required = false) String macSubstring,
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
+            @RequestParam(required = false) PaginationContext<Client> paginationContext) {
+
+        LOG.debug("searchByMac({}, {})", customerId, macSubstring);
+        
+        if(paginationContext == null) {
+    		paginationContext = new PaginationContext<>();
+    	}
+
+        LOG.debug("Looking up Clients for customer {} macSubstring {} with last returned page number {}", 
+                customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
+
+        PaginationResponse<Client> ret = new PaginationResponse<>();
+
+        if (paginationContext.isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Clients for customer {} macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
+            ret.setContext(paginationContext);
+            return ret;
+        }
+
+        PaginationResponse<Client> onePage = this.clientServiceInterface
+                .searchByMacAddress(customerId, macSubstring, sortBy, paginationContext);
+        ret.setContext(onePage.getContext());
+        ret.getItems().addAll(onePage.getItems());
+
+        LOG.debug("Retrieved {} Clients for customer {} macSubstring {}", onePage.getItems().size(), 
+                customerId, macSubstring);
+
+        return ret;
+        
+    }
 
     @RequestMapping(value = "/client/blocked", method = RequestMethod.GET)
     public ListOfClients getBlockedClients(@RequestParam int customerId) {

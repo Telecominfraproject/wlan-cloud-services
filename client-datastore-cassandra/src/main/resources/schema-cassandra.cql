@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client (
     PRIMARY KEY ((customerId, macAddress))
 ) WITH comment='Wireless client details used by TIP WLAN CloudSDK';
 
-
 CREATE INDEX IF NOT EXISTS idx_client_customerId ON tip_wlan_keyspace.client (customerId);
 
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_blocklist (
@@ -18,6 +17,16 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_blocklist (
     macAddress bigint,    
     PRIMARY KEY ((customerId), macAddress)
 ) WITH comment='Wireless client blocklist by MAC used by TIP WLAN CloudSDK';
+
+CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_by_mac_string (
+    customerId int,
+    macAddress bigint,
+    macAddressString text,    
+    
+    PRIMARY KEY (customerId, macAddressString)
+) WITH comment='Index Table to look up wireless client details by macAddress in text form used by TIP WLAN CloudSDK';
+
+CREATE CUSTOM INDEX idx_client_macAddressString ON tip_wlan_keyspace.client_by_mac_string (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
 
 
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session (

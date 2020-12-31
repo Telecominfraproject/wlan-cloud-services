@@ -141,7 +141,16 @@ public class ClientDAO {
 
     private static final String CQL_DELETE_BLOCKED_LIST = 
     		"delete from client_blocklist where customerId = ? and  macAddress = ?";
+    
+    private static final String CQL_GET_BY_MAC_STRING = 
+    		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
+    
+    private static final String CQL_INSERT_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS = 
+    		"insert into client_by_mac_string (customerId, macAddress, macAddressString) values (?, ?, ?)";
 
+    private static final String CQL_DELETE_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS = 
+    		"delete from client_by_mac_string where customerId = ? and macAddressString = ?";
+    
     private static final RowMapper<Client> clientRowMapper = new ClientRowMapper();
 
 	@Autowired
@@ -156,6 +165,9 @@ public class ClientDAO {
     private PreparedStatement preparedStmt_getBlockedListForCustomer;
     private PreparedStatement preparedStmt_insertBlockedList;
     private PreparedStatement preparedStmt_deleteBlockedList;
+    private PreparedStatement preparedStmt_getByMacString;
+    private PreparedStatement preparedStmt_insertMacString;
+    private PreparedStatement preparedStmt_deleteMacString;
 
 
 	@PostConstruct
@@ -170,8 +182,11 @@ public class ClientDAO {
         	preparedStmt_getPageForCustomer = cqlSession.prepare(CQL_GET_BY_CUSTOMER_ID);
             preparedStmt_getBlockedListForCustomer = cqlSession.prepare(CQL_GET_BLOCKED_LIST_BY_CUSTOMER_ID);
             preparedStmt_insertBlockedList = cqlSession.prepare(CQL_INSERT_BLOCKED_LIST);
-            preparedStmt_deleteBlockedList  = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
-
+            preparedStmt_deleteBlockedList = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
+            preparedStmt_getByMacString = cqlSession.prepare(CQL_GET_BY_MAC_STRING);
+            preparedStmt_insertMacString = cqlSession.prepare(CQL_INSERT_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS);
+            preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_CLIENT_FROM_CLIENT_MAC_TABLE_BY_MAC_ADDRESS);
+            
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
 			throw e;
@@ -211,6 +226,13 @@ public class ClientDAO {
 			client.setNeedToUpdateBlocklist(true);
 
 		}
+		
+		// update client_by_mac_string table
+		cqlSession.execute(preparedStmt_insertMacString.bind(
+				client.getCustomerId(),
+				client.getMacAddress().getAddressAsLong(),
+				client.getMacAddress().getAddressAsString()
+				));
 
         LOG.debug("Stored Client {}", client);
 
@@ -334,6 +356,11 @@ public class ClientDAO {
     			client.setNeedToUpdateBlocklist(true);
 
     		}
+    		
+    		// update client_by_mac_string table
+    		cqlSession.execute(preparedStmt_deleteMacString.bind(
+    				client.getCustomerId(),
+    				client.getMacAddress().getAddressAsString()));
 
         } else {
         	throw new DsEntityNotFoundException("Cannot find Client for id " + customerId + " " + clientMac);
@@ -377,6 +404,83 @@ public class ClientDAO {
 
         LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, results.size());
         return results;
+    }
+    
+    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring,
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+        LOG.debug("calling searchByMacAddress({}, {})", customerId, macSubstring);
+
+        PaginationResponse<Client> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Clients for customer {} and macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Clients for customer {} and macSubstring with last returned page number {}", 
+                customerId, macSubstring, context.getLastReturnedPageNumber());
+
+        // add sorting options for the query
+        // Cassandra allows very limited support for ordering results
+        // See https://cassandra.apache.org/doc/latest/cql/dml.html#select
+        // In here allowed orderings are the order induced by the clustering columns and the reverse of that one.
+        // also, order by with secondary indexes is not supported
+        // ***** We will ignore the order supplied by the caller for this datastore
+        
+        ArrayList<Object> bindVars = new ArrayList<>();
+	    bindVars.add(customerId);
+	    bindVars.add("%" + macSubstring.toLowerCase() + "%");
+                
+        BoundStatement boundStmt = preparedStmt_getByMacString.bind(bindVars.toArray());
+        //have to do it this way - setPageSize creates new object
+        boundStmt = boundStmt.setPageSize(context.getMaxItemsPerPage());
+        
+        if(context.getThirdPartyPagingState()!=null) {
+        	ByteBuffer currentPagingState = ByteBuffer.wrap(context.getThirdPartyPagingState());
+        	//have to do it this way - setPagingState creates new object
+        	boundStmt = boundStmt.setPagingState(currentPagingState);
+        }
+        
+		ResultSet rs = cqlSession.execute(boundStmt);
+		ByteBuffer nextPagingState = rs.getExecutionInfo().getPagingState();
+
+		List<Client> pageItems = new ArrayList<>();
+		
+		// iterate through the current page
+		while (rs.getAvailableWithoutFetching() > 0) {
+			Set<MacAddress> macSet = new HashSet<>();
+			rs.all().forEach(y -> macSet.add(new MacAddress(y.getLong("macAddress"))));
+			pageItems.addAll(get(customerId, macSet));
+		}
+
+        if (pageItems.isEmpty()) {
+            LOG.debug("Cannot find Clients for customer {} and macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, context.getLastReturnedPageNumber());
+        } else {
+            LOG.debug("Found {} Clients for customer {} and macSubstring {} with last returned page number {}",
+                    pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
+        }
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        if(nextPagingState!=null) {
+        	ret.getContext().setThirdPartyPagingState(nextPagingState.array());
+        } else {
+        	ret.getContext().setThirdPartyPagingState(null);
+        }
+        
+        // startAfterItem is not used in Cassandra datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;	
+        
     }
 
 
