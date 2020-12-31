@@ -158,8 +158,8 @@ public class ClientController {
 	    ret.setContext(onePage.getContext());
 	    ret.getItems().addAll(onePage.getItems());
 	
-	    LOG.debug("Retrieved {} Clients for customer {} ", onePage.getItems().size(), 
-	            customerId);
+	    LOG.debug("Retrieved {} Clients for customer {} and macSubstring {} ", onePage.getItems().size(), 
+	            customerId, macSubstring);
 	
 	    return ret;
         

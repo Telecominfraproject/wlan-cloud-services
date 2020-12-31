@@ -421,7 +421,7 @@ public class ClientDAO {
             return ret;
         }
 
-        LOG.debug("Looking up Clients for customer {} and macSubstring with last returned page number {}", 
+        LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
                 customerId, macSubstring, context.getLastReturnedPageNumber());
 
         // add sorting options for the query

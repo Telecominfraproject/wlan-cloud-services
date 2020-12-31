@@ -462,8 +462,8 @@ public class ClientDAO extends BaseJdbcDao {
         List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 clientRowMapper);
 
-        LOG.debug("Found {} Clients for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
+        LOG.debug("Found {} Clients for customer {} and macSubstring {} with last returned page number {}",
+                    pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

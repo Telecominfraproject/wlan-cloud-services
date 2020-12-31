@@ -78,9 +78,7 @@ public class ClientPortalController  {
     		@RequestParam(required = false) String macSubstring,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Client> paginationContext) {
-
-        LOG.debug("searchByMac({}, {})", customerId, macSubstring);
-        
+      
         if(paginationContext == null) {
     		paginationContext = new PaginationContext<>();
     	}
