@@ -25,6 +25,11 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
         this.newBackupChannels = newBackupChannels;
         this.newPrimaryChannels = newPrimaryChannels;
     }
+    
+    public CEGWNewChannelRequest(String inventoryId, long equipmentId, Map<RadioType, Integer> newBackupChannels) {
+        super(CEGWCommandType.NewChannelRequest, inventoryId, equipmentId);
+        this.newBackupChannels = newBackupChannels;
+    }
 
     @JsonIgnore
     public Integer getNewBackupChannel(RadioType radioType) {
