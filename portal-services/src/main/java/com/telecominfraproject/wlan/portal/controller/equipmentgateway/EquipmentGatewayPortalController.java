@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.portal.controller.equipmentgateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.RadioChannelChangeSettings;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWFirmwareDownloadRequest;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWRebootRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
@@ -58,6 +61,24 @@ public class EquipmentGatewayPortalController  {
         	return new GenericResponse(true,"");
         } else {
         	return new GenericResponse(false, "Failed to request firmware update: "+ response.getResultCode() + " " + response.getResultDetail());
+        }
+    }
+    
+    @RequestMapping(value = "/equipmentGateway/requestChannelChange", method = RequestMethod.POST)
+    public GenericResponse requestChannelChange(@RequestParam long equipmentId, @RequestBody RadioChannelChangeSettings radioChannelChangeSettings) {
+        LOG.debug("requestChannelChange {} {}", equipmentId);
+
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);       
+ 
+        CEGWNewChannelRequest newChannelRequest = new CEGWNewChannelRequest(equipment.getInventoryId(), equipmentId, radioChannelChangeSettings.getBackupChannel(), radioChannelChangeSettings.getPrimaryChannel());
+        
+        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(newChannelRequest);
+        LOG.debug("Channel Change Response {}", response);
+
+        if(response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true,"");
+        } else {
+            return new GenericResponse(false, "Failed to initiate channel change: "+ response.getResultCode() + " " + response.getResultDetail());
         }
     }
     
