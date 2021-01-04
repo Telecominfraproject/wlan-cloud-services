@@ -51,6 +51,12 @@ public class ClientDatastoreRdbms implements ClientDatastore {
     }
     
     @Override
+    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring,
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+    	return clientDAO.searchByMacAddress(customerId, macSubstring, sortBy, context);
+    }
+    
+    @Override
     public List<Client> getBlockedClients(int customerId) {
     	return clientDAO.getBlockedClients(customerId);
     }

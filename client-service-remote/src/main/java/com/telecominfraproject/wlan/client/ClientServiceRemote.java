@@ -108,6 +108,27 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
 	}
     
     @Override
+    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, 
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+		
+        LOG.debug("searchByMacAddress({} {})", customerId, macSubstring);
+
+        try {
+            ResponseEntity<PaginationResponse<Client>> responseEntity = restTemplate.exchange(
+                    getBaseUrl() + "/searchByMac?customerId={customerId}&macSubstring={macSubstring}&sortBy={sortBy}&paginationContext={context}", 
+                    HttpMethod.GET, null, Client_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, macSubstring, sortBy, context);
+
+            PaginationResponse<Client> result = responseEntity.getBody();
+            LOG.debug("searchByMacAddress({} {}) return {} entries", customerId, macSubstring, result.getItems().size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("searchByMacAddress({} {}) exception ", customerId, macSubstring, exp);
+            throw exp;
+        }
+
+	}
+    
+    @Override
     public List<Client> getBlockedClients(int customerId) {
         LOG.debug("getBlockedClients {}", customerId);
 

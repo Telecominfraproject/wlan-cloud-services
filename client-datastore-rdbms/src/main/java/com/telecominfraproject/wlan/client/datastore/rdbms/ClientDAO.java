@@ -51,6 +51,7 @@ public class ClientDAO extends BaseJdbcDao {
     
     private static final String[] ALL_COLUMNS_LIST = {        
         COL_ID,
+        "macAddressString", 
         
         //TODO: add colums from properties Client in here
         "customerId",
@@ -62,7 +63,7 @@ public class ClientDAO extends BaseJdbcDao {
     };
     
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp", "customerId"));
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "macAddressString", "createdTimestamp", "customerId"));
     
     private static final String TABLE_NAME = "client";
     private static final String TABLE_PREFIX = "c.";
@@ -153,6 +154,9 @@ public class ClientDAO extends BaseJdbcDao {
         ;
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where  customerId = ? and "+ COL_ID +" in ";
+    
+    private static final String SQL_APPEND_SEARCH_MAC_SUBSTRING = 
+    		"and macAddressString like ? ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -183,6 +187,7 @@ public class ClientDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from Client here 
                         ps.setLong(colIdx++, client.getMacAddress().getAddressAsLong());
+                        ps.setString(colIdx++, client.getMacAddress().getAddressAsString());
                         ps.setInt(colIdx++, client.getCustomerId());
                       	ps.setBytes(colIdx++, (client.getDetails()!=null)?client.getDetails().toZippedBytes():null);
                         
@@ -382,6 +387,102 @@ public class ClientDAO extends BaseJdbcDao {
 
         LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, results.size());
         return results;
+    }
+    
+    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, 
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+        LOG.debug("calling searchByMacAddress({}, {})", customerId, macSubstring);
+        
+        PaginationResponse<Client> ret = new PaginationResponse<>();
+        ret.setContext(context.clone());
+
+        if (ret.getContext().isLastPage()) {
+            // no more pages available according to the context
+            LOG.debug(
+                    "No more pages available when looking up Clients for customer {} and macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, context.getLastReturnedPageNumber());
+            return ret;
+        }
+
+        LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
+                customerId, macSubstring, context.getLastReturnedPageNumber());
+        
+        String query;
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        
+        if (macSubstring != null) {
+	        query = SQL_GET_BY_CUSTOMER_ID + SQL_APPEND_SEARCH_MAC_SUBSTRING;
+	
+	        // add filters for the query
+	        queryArgs.add(customerId);
+	        queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        } else {
+        	query = SQL_GET_BY_CUSTOMER_ID;
+        	
+	        // add filters for the query
+	        queryArgs.add(customerId);
+        }
+
+        // add sorting options for the query
+        StringBuilder strbSort = new StringBuilder(100);
+        strbSort.append(" order by ");
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            // use supplied sorting options
+            for (ColumnAndSort column : sortBy) {
+                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
+                    // unknown column, skip it
+                    continue;
+                }
+
+                strbSort.append(column.getColumnName());
+
+                if (column.getSortOrder() == SortOrder.desc) {
+                    strbSort.append(" desc");
+                }
+
+                strbSort.append(",");
+            }
+
+            // remove last ','
+            strbSort.deleteCharAt(strbSort.length() - 1);
+
+        } else {
+            // no sort order was specified - sort by id to have consistent
+            // paging
+            strbSort.append(COL_ID);
+        }
+
+        query += strbSort.toString();
+
+        // add pagination parameters for the query
+        query += SQL_PAGING_SUFFIX ;
+
+        queryArgs.add(context.getMaxItemsPerPage());
+        queryArgs.add(context.getTotalItemsReturned());
+
+        /*
+         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
+         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
+         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
+         * time is 758.484 ms. - DT: still acceptable for our use case
+         */
+        List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
+                clientRowMapper);
+
+        LOG.debug("Found {} Clients for customer {} and macSubstring {} with last returned page number {}",
+                    pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
+
+        ret.setItems(pageItems);
+
+        // adjust context for the next page
+        ret.prepareForNextPage();
+
+        // startAfterItem is not used in RDBMS datastores, set it to null
+        ret.getContext().setStartAfterItem(null);
+
+        return ret;
     }
 
 
