@@ -463,13 +463,14 @@ public class ClientDAO {
 		ByteBuffer nextPagingState = rs.getExecutionInfo().getPagingState();
 
 		List<Client> pageItems = new ArrayList<>();
+		Set<MacAddress> macSet = new HashSet<>();
 		
 		// iterate through the current page
 		while (rs.getAvailableWithoutFetching() > 0) {
-			Set<MacAddress> macSet = new HashSet<>();
-			rs.all().forEach(y -> macSet.add(new MacAddress(y.getLong("macAddress"))));
-			pageItems.addAll(get(customerId, macSet));
+			// macSet will contain MACs of paginated items to get Client objects via macSet
+			macSet.add(new MacAddress(rs.one().getLong("macAddress")));
 		}
+		pageItems.addAll(get(customerId, macSet));
 
         if (pageItems.isEmpty()) {
             LOG.debug("Cannot find Clients for customer {} and macSubstring {} with last returned page number {}",
