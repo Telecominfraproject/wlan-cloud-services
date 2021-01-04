@@ -11083,6 +11083,62 @@ paths:
                 $ref: '#/components/schemas/Client'
         500:
           $ref: '#/components/responses/GenericApiError'
+          
+  /portal/client/forCustomer:  
+    get:
+      tags:
+      - Clients
+      summary: Get list of clients for a given customer by equipment ids
+      operationId: getForCustomer
+      parameters:
+      - name: customerId
+        in: query
+        description: Customer ID
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: equipmentIds
+        in: query
+        description: Equipment ID
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: long
+      - name: sortBy
+        in: query
+        description: sort options
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortColumnsClient'
+      - name: paginationContext
+        in: query
+        description: pagination context
+        required: false
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/PaginationContextClient'
+            examples:
+              initialPginationContext:
+                value:
+                  model_type: PaginationContext
+                  maxItemsPerPage: 10
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponseClient'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
 
   /portal/alarm:
     put:
