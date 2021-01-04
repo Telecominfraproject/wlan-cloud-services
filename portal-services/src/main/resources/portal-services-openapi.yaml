@@ -1193,6 +1193,35 @@ components:
         obssHopMode:
           $ref: '#/components/schemas/ObssHopMode'
 
+    RadioChannelChangeSettings:
+      description: Radio Primary and Backup Channels
+      type: object
+      properties:
+        primaryChannel:
+          description: Settings for primary channels, keys by RadioType per supported frequency_band (is5GHz, is5GHzL, is5GHzU, is2dot4GHz)
+          type: object
+          example:
+            is5GHzL: 36
+            is2dot4GHz: 6
+            is5GHzU: 149
+          additionalProperties:
+              type: integer
+              minimum: 1
+              maximum: 165  
+        backupChannel:
+          description: Settings for primary channels, keys by RadioType per supported frequency_band (is5GHz, is5GHzL, is5GHzU, is2dot4GHz)
+          type: object
+          example:
+            is5GHzL: 40
+            is2dot4GHz: 1
+            is5GHzU: 153          
+          additionalProperties:
+              type: integer
+              minimum: 1
+              maximum: 165
+      required: 
+        - backupChannel 
+
 #
 # Service Profile data models
 #
@@ -12507,7 +12536,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
         500:
-          $ref: '#/components/responses/GenericApiError' 
+          $ref: '#/components/responses/GenericApiError'
+          
+  /portal/equipmentGateway/requestChannelChange:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request change of primary and/or backup channels for given frequency bands.
+      operationId: requestChannelChange
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for which the channel changes are being performed.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: RadioChannelChangeSettings info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadioChannelChangeSettings'          
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'           
                  
   /portal/adoptionMetrics/perEquipmentPerDay:
     get:
