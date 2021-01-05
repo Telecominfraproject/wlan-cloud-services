@@ -1,10 +1,8 @@
 package com.telecominfraproject.wlan.portal.controller.client;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -181,34 +179,7 @@ public class ClientPortalController  {
             return clientResponse;
         }
         
-        PaginationResponse<ClientSession> onePageSession = this.clientServiceInterface
-        		.getSessionsForCustomer(customerId, equipmentIds, null, sortBy, clientSessionContext);
-        
-        // Get clients by MacAddress from the returned client sessions
-        Set<MacAddress> macSet = new HashSet<>();
-        onePageSession.getItems().forEach(y -> macSet.add(y.getMacAddress()));
-        PaginationContext<ClientSession> returnedContextSession = onePageSession.getContext();
-        List<Client> clientList = this.clientServiceInterface.get(customerId, macSet);
-        clientList.sort((c1, c2) -> c1.getMacAddress().compareTo(c2.getMacAddress()));
-        
-        // Set final list of clients, sorted
-        clientResponse.setItems(clientList);
-        
-        
-        // Set returned session context as child
-        paginationContext.getChildren().getChildren().put("clientSessionChild", returnedContextSession);
-        
-        // Set other applicable response parameters as per returned session context
-        paginationContext.setLastReturnedPageNumber(returnedContextSession.getLastReturnedPageNumber());
-        paginationContext.setThirdPartyPagingState(returnedContextSession.getThirdPartyPagingState());
-        paginationContext.setLastPage(returnedContextSession.isLastPage());
-        
-        // Set total items returned based on actual list of client objects returning
-        paginationContext.setTotalItemsReturned(paginationContext.getTotalItemsReturned() + clientList.size());
-        
-        // Set final context for PaginationResponse
-        clientResponse.setContext(paginationContext);
-        
+        clientResponse = processClientResponseWithContextChildren(customerId, equipmentIds, sortBy, paginationContext);
 
         LOG.debug("Retrieved {} Clients for customer {} equipment {}", clientResponse.getItems().size(), 
                 customerId, equipmentIds);
@@ -281,6 +252,45 @@ public class ClientPortalController  {
                 customerId, equipmentIds, locationIds);
 
         return ret;
+    }
+    
+    private PaginationResponse<Client> processClientResponseWithContextChildren(
+    		int customerId, Set<Long> equipmentIds, List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+    	PaginationResponse<Client> clientResponse = new PaginationResponse<>();
+    	
+    	@SuppressWarnings("unchecked")
+		PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
+        		context.getChildren().getChildren().get("clientSessionChild");
+    	
+    	PaginationResponse<ClientSession> onePageSession = this.clientServiceInterface
+        		.getSessionsForCustomer(customerId, equipmentIds, null, sortBy, clientSessionContext);
+        
+        // Get clients by MacAddress from the returned client sessions
+        Set<MacAddress> macSet = new HashSet<>();
+        onePageSession.getItems().forEach(y -> macSet.add(y.getMacAddress()));
+        PaginationContext<ClientSession> returnedContextSession = onePageSession.getContext();
+        List<Client> clientList = this.clientServiceInterface.get(customerId, macSet);
+        clientList.sort((c1, c2) -> c1.getMacAddress().compareTo(c2.getMacAddress()));
+        
+        // Set final list of clients, sorted
+        clientResponse.setItems(clientList);
+        
+        
+        // Set returned session context as child
+        context.getChildren().getChildren().put("clientSessionChild", returnedContextSession);
+        
+        // Set other applicable response parameters as per returned session context
+        context.setLastReturnedPageNumber(returnedContextSession.getLastReturnedPageNumber());
+        context.setThirdPartyPagingState(returnedContextSession.getThirdPartyPagingState());
+        context.setLastPage(returnedContextSession.isLastPage());
+        
+        // Set total items returned based on actual list of client objects returning
+        context.setTotalItemsReturned(context.getTotalItemsReturned() + clientList.size());
+        
+        // Set final context for PaginationResponse
+        clientResponse.setContext(context);
+        
+        return clientResponse;
     }
 
 }
