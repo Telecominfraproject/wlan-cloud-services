@@ -1,7 +1,9 @@
 package com.telecominfraproject.wlan.portal.controller.equipment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,14 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
+import com.telecominfraproject.wlan.equipment.models.StateSetting;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 
@@ -94,6 +101,53 @@ public class EquipmentPortalController  {
     public Equipment createEquipment(@RequestBody Equipment equipment) {
         LOG.debug("Creating equipment {}", equipment.getId());
 
+        if(equipment.getEquipmentType() == EquipmentType.AP) {
+            if(equipment.getDetails() == null ) {
+                equipment.setDetails(ApElementConfiguration.createWithDefaults());
+            }
+            
+            ApElementConfiguration apElementConfig = (ApElementConfiguration) equipment.getDetails();
+            apElementConfig.setDeviceName(equipment.getName());
+            //Equipment Model will be populated by the OSGW when AP connects
+            //apElementConfig.setEquipmentModel(connectNodeInfo.model);
+            
+            Map<RadioType, RadioConfiguration> advancedRadioMap = apElementConfig.getAdvancedRadioMap();
+            Map<RadioType, ElementRadioConfiguration> radioMap = apElementConfig.getRadioMap();
+            
+            if(advancedRadioMap == null) {
+                advancedRadioMap  = new HashMap<>();
+                apElementConfig.setAdvancedRadioMap(advancedRadioMap);
+            }
+            
+            if(radioMap == null) {
+                radioMap = new HashMap<>();
+                apElementConfig.setRadioMap(radioMap);
+            }
+
+            //We will initialize all radios, and initially set them to disabled state
+            //Non-applicable radios will be removed by the OSGW when the AP connects
+            //@see com.telecominfraproject.wlan.opensync.external.integration.OpensyncExternalIntegrationCloud.apConnected(String, ConnectNodeInfo)
+            //
+            for (RadioType radioType: RadioType.validValues()) {
+                RadioConfiguration advancedRadioConfiguration = advancedRadioMap.get(radioType);
+                ElementRadioConfiguration radioConfiguration = radioMap.get(radioType);
+                
+               if(advancedRadioConfiguration == null) {
+                   advancedRadioConfiguration = RadioConfiguration.createWithDefaults(radioType);
+                   advancedRadioMap.put(radioType, advancedRadioConfiguration);
+               }
+               
+               if(radioConfiguration == null) {
+                   radioConfiguration = ElementRadioConfiguration.createWithDefaults(radioType);
+                   radioMap.put(radioType, radioConfiguration);                   
+               }
+               
+               //Disabling radio by default may be too much 
+               //advancedRadioConfiguration.setRadioAdminState(StateSetting.disabled);
+            }
+
+        }
+        
         Equipment ret = equipmentServiceInterface.create(equipment);
 
         return ret;
