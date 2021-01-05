@@ -11137,7 +11137,7 @@ paths:
               type: array
               items:
                 type: integer
-                format: long
+                format: int64
       - name: sortBy
         in: query
         description: sort options
