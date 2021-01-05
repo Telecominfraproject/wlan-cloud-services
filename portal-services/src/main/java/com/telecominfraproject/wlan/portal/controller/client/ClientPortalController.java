@@ -163,7 +163,7 @@ public class ClientPortalController  {
         @SuppressWarnings("unchecked")
 		PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
         		paginationContext.getChildren().getChildren().get("clientSessionChild");
-        if (paginationContext.getChildren().getChildren().isEmpty()) {
+        if (clientSessionContext == null) {
         	clientSessionContext = new PaginationContext<ClientSession>();
         	clientSessionContext.setMaxItemsPerPage(paginationContext.getMaxItemsPerPage());
         	paginationContext.getChildren().getChildren().put("clientSessionChild", clientSessionContext);
@@ -281,7 +281,6 @@ public class ClientPortalController  {
         
         // Set other applicable response parameters as per returned session context
         context.setLastReturnedPageNumber(returnedContextSession.getLastReturnedPageNumber());
-        context.setThirdPartyPagingState(returnedContextSession.getThirdPartyPagingState());
         context.setLastPage(returnedContextSession.isLastPage());
         
         // Set total items returned based on actual list of client objects returning
