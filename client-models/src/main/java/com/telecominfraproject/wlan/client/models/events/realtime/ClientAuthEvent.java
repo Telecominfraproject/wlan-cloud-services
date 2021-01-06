@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
@@ -7,12 +7,10 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-
-public class ClientAuthEvent extends RealTimeEvent
-{
+public class ClientAuthEvent extends RealTimeEvent {
 
     private static final long serialVersionUID = 1221389696911864515L;
-    
+
     private long sessionId;
     private String ssid;
     private MacAddress deviceMacAddress;
@@ -27,7 +25,7 @@ public class ClientAuthEvent extends RealTimeEvent
     public ClientAuthEvent(Long timestamp) {
         super(RealTimeEventType.STA_Client_Auth, timestamp);
     }
-    
+
     public ClientAuthEvent(RealTimeEventType eventType, Long timestamp) {
         super(eventType, timestamp);
     }
@@ -38,15 +36,6 @@ public class ClientAuthEvent extends RealTimeEvent
 
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
-    }
-
-    /**
-     * Use {@link #setDeviceMacAddress(deviceMacAddress)} instead. 
-     * @param address 
-     */    
-    @Deprecated
-    public void setMacAddressBytes(byte[] address) {
-        this.deviceMacAddress = address == null?null:new MacAddress(address);
     }
 
     public MacAddress getDeviceMacAddress() {
@@ -105,7 +94,7 @@ public class ClientAuthEvent extends RealTimeEvent
                 && this.radioType == other.radioType && this.sessionId == other.sessionId
                 && Objects.equals(ssid, other.ssid);
     }
-    
+
     @Override
     public ClientAuthEvent clone() {
         return (ClientAuthEvent) super.clone();
@@ -121,5 +110,5 @@ public class ClientAuthEvent extends RealTimeEvent
         }
         return false;
     }
-    
+
 }

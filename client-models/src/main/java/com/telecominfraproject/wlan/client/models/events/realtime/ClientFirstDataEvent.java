@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
@@ -22,7 +22,7 @@ public class ClientFirstDataEvent extends RealTimeEvent {
     public ClientFirstDataEvent(Long timestamp) {
         super(RealTimeEventType.STA_Client_FirstData, timestamp);
     }
-    
+
     public ClientFirstDataEvent(RealTimeEventType eventType, Long timestamp) {
         super(eventType, timestamp);
     }
@@ -35,22 +35,13 @@ public class ClientFirstDataEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    /**
-     * Use {@link #setDeviceMacAddress(deviceMacAddress)} instead. 
-     * @param address 
-     */    
-    @Deprecated
-    public void setMacAddressBytes(byte[] address) {
-        this.deviceMacAddress = address == null?null:new MacAddress(address);
-    }
-
     public MacAddress getDeviceMacAddress() {
         return deviceMacAddress;
     }
 
     public void setDeviceMacAddress(MacAddress deviceMacAddress) {
         this.deviceMacAddress = deviceMacAddress;
-   }
+    }
 
     public long getFirstDataRcvdTs() {
         return firstDataRcvdTs;
@@ -96,7 +87,7 @@ public class ClientFirstDataEvent extends RealTimeEvent {
     public ClientFirstDataEvent clone() {
         return (ClientFirstDataEvent) super.clone();
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -108,5 +99,5 @@ public class ClientFirstDataEvent extends RealTimeEvent {
         }
         return false;
     }
-    
+
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
@@ -11,22 +11,21 @@ import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent
 
 public class ClientFailureEvent extends RealTimeEvent {
     private static final long serialVersionUID = -16021752050335131L;
-    
+
     private long sessionId;
     private String ssid;
     private MacAddress deviceMacAddress;
-    private Integer reasonCode;
+    private int reasonCode;
     private String reasonString;
 
     public ClientFailureEvent(Long timestamp) {
         super(RealTimeEventType.STA_Client_Failure, timestamp);
     }
-    
+
     protected ClientFailureEvent() {
         // serialization
         this(0L);
     }
-
 
     public MacAddress getDeviceMacAddress() {
         return deviceMacAddress;
@@ -35,7 +34,6 @@ public class ClientFailureEvent extends RealTimeEvent {
     public void setDeviceMacAddress(MacAddress deviceMacAddress) {
         this.deviceMacAddress = deviceMacAddress;
     }
-
 
     public long getSessionId() {
         return sessionId;
@@ -53,11 +51,11 @@ public class ClientFailureEvent extends RealTimeEvent {
         this.ssid = ssid;
     }
 
-    public Integer getReasonCode() {
+    public int getReasonCode() {
         return reasonCode;
     }
 
-    public void setReasonCode(Integer reasonCode) {
+    public void setReasonCode(int reasonCode) {
         this.reasonCode = reasonCode;
     }
 
@@ -109,6 +107,5 @@ public class ClientFailureEvent extends RealTimeEvent {
         }
         return false;
     }
-    
 
 }

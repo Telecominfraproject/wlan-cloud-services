@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
@@ -13,19 +13,18 @@ public class ClientTimeoutEvent extends RealTimeEvent {
     private static final long serialVersionUID = -3555658720107793679L;
 
     public static enum ClientTimeoutReason {
-        IdleTooLong,
-        FailedProbe,
-        UNSUPPORTED;
-        
+        IdleTooLong, FailedProbe, UNSUPPORTED;
+
         @JsonCreator
         public static ClientTimeoutReason getByName(String value) {
             return JsonDeserializationUtils.deserializEnum(value, ClientTimeoutReason.class, UNSUPPORTED);
         }
-        
+
         public static boolean isUnsupported(ClientTimeoutReason value) {
             return UNSUPPORTED.equals(value);
         }
     }
+
     private long sessionId;
     private MacAddress deviceMacAddress;
     private long lastRecvTime;
@@ -40,7 +39,7 @@ public class ClientTimeoutEvent extends RealTimeEvent {
     public ClientTimeoutEvent(Long timestamp) {
         super(RealTimeEventType.STA_Client_Timeout, timestamp);
     }
-    
+
     public ClientTimeoutEvent(RealTimeEventType eventType, Long timestamp) {
         super(eventType, timestamp);
     }
@@ -109,12 +108,12 @@ public class ClientTimeoutEvent extends RealTimeEvent {
                 && this.lastSentTime == other.lastSentTime && this.sessionId == other.sessionId
                 && this.timeoutReason == other.timeoutReason;
     }
-    
+
     @Override
     public ClientTimeoutEvent clone() {
         return (ClientTimeoutEvent) super.clone();
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -126,5 +125,5 @@ public class ClientTimeoutEvent extends RealTimeEvent {
         }
         return false;
     }
-    
+
 }

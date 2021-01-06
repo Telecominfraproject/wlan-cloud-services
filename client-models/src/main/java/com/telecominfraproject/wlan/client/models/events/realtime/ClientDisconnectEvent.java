@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -51,11 +51,10 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     private DisconnectFrameType frameType;
     private DisconnectInitiator initiator;
     private int reasonCode;
-    private Integer internalReasonCode;
-    private Integer rssi;
+    private int internalReasonCode;
+    private int rssi;
     private String ssid;
     private RadioType radioType;
-
 
     protected ClientDisconnectEvent() {
         // serialization
@@ -68,31 +67,6 @@ public class ClientDisconnectEvent extends RealTimeEvent {
 
     public ClientDisconnectEvent(RealTimeEventType eventType, Long timestamp) {
         super(eventType, timestamp);
-    }
-
-    @Override
-    public ClientDisconnectEvent clone() {
-        return (ClientDisconnectEvent) super.clone();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof ClientDisconnectEvent)) {
-            return false;
-        }
-        ClientDisconnectEvent other = (ClientDisconnectEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && this.frameType == other.frameType
-                && this.initiator == other.initiator && Objects.equals(internalReasonCode, other.internalReasonCode)
-                && this.lastRecvTime == other.lastRecvTime && this.lastSentTime == other.lastSentTime
-                && Arrays.equals(macAddressBytes, other.macAddressBytes) && this.reasonCode == other.reasonCode
-                && Objects.equals(rssi, other.rssi) && this.sessionId == other.sessionId
-                && Objects.equals(ssid, other.ssid) && Objects.equals(radioType, other.radioType);
     }
 
     public MacAddress getDeviceMacAddress() {
@@ -123,7 +97,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         return reasonCode;
     }
 
-    public Integer getRssi() {
+    public int getRssi() {
         return rssi;
     }
 
@@ -134,38 +108,13 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     public RadioType getRadioType() {
         return radioType;
     }
-    
+
     public String getSsid() {
         return ssid;
-    }
-    
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + Arrays.hashCode(this.macAddressBytes);
-        result = prime * result + Objects.hash(deviceMacAddress, frameType, initiator, internalReasonCode, lastRecvTime,
-                lastSentTime, reasonCode, rssi, sessionId, ssid, radioType);
-        return result;
-    }
-
-    @Override
-    public boolean hasUnsupportedValue() {
-        if (super.hasUnsupportedValue()) {
-            return true;
-        }
-
-        if (DisconnectFrameType.isUnsupported(frameType) || DisconnectInitiator.isUnsupported(initiator)
-                || hasUnsupportedValue(deviceMacAddress) || RadioType.isUnsupported(radioType)){
-            return true;
-        }
-        return false;
     }
 
     public void setDeviceMacAddress(MacAddress deviceMacAddress) {
         this.deviceMacAddress = deviceMacAddress;
-        // For backward compatibility
-        this.macAddressBytes = deviceMacAddress == null ? null : deviceMacAddress.getAddress();
     }
 
     public void setFrameType(DisconnectFrameType frameType) {
@@ -188,21 +137,11 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         this.lastSentTime = lastSentTime;
     }
 
-    /**
-     * Use {@link #setDeviceMacAddress(deviceMacAddress)} instead.
-     * 
-     * @param address
-     */
-    @Deprecated
-    public void setMacAddressBytes(byte[] address) {
-        this.deviceMacAddress = address == null ? null : new MacAddress(address);
-    }
-
     public void setReasonCode(int reasonCode) {
         this.reasonCode = reasonCode;
     }
 
-    public void setRssi(Integer rssi) {
+    public void setRssi(int rssi) {
         this.rssi = rssi;
     }
 
@@ -217,4 +156,50 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     public void setRadioType(RadioType radioType) {
         this.radioType = radioType;
     }
+
+    @Override
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+
+        if (DisconnectFrameType.isUnsupported(frameType) || DisconnectInitiator.isUnsupported(initiator)
+                || hasUnsupportedValue(deviceMacAddress) || RadioType.isUnsupported(radioType)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public ClientDisconnectEvent clone() {
+        return (ClientDisconnectEvent) super.clone();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Arrays.hashCode(macAddressBytes);
+        result = prime * result + Objects.hash(deviceMacAddress, frameType, initiator, internalReasonCode, lastRecvTime,
+                lastSentTime, radioType, reasonCode, rssi, sessionId, ssid);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClientDisconnectEvent other = (ClientDisconnectEvent) obj;
+        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && frameType == other.frameType
+                && initiator == other.initiator && internalReasonCode == other.internalReasonCode
+                && lastRecvTime == other.lastRecvTime && lastSentTime == other.lastSentTime
+                && Arrays.equals(macAddressBytes, other.macAddressBytes) && radioType == other.radioType
+                && reasonCode == other.reasonCode && rssi == other.rssi && sessionId == other.sessionId
+                && Objects.equals(ssid, other.ssid);
+    }
+
 }

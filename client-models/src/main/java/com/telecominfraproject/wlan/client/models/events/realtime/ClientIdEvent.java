@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Arrays;
 
@@ -13,7 +13,7 @@ public class ClientIdEvent extends RealTimeEvent {
     private byte[] macAddressBytes;
     private MacAddress deviceMacAddress;
     private String userId;
-    
+
     protected ClientIdEvent() {
         // serialization
         this(0L);
@@ -29,23 +29,15 @@ public class ClientIdEvent extends RealTimeEvent {
     public long getSessionId() {
         return sessionId;
     }
+
     /**
-     * @param sessionId the sessionId to set
+     * @param sessionId
+     *            the sessionId to set
      */
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
     }
-    
-    /**
-     * @param macAddressBytes the macAddressBytes to set
-     * use {@link #setDeviceMacAddress(deviceMacAddress)} instead. 
-     */
-    @Deprecated
-    public void setMacAddressBytes(byte[] macAddressBytes) {
-        this.macAddressBytes = macAddressBytes;
-        this.deviceMacAddress = macAddressBytes == null?null:new MacAddress(macAddressBytes);
-   }
-    
+
     public MacAddress getDeviceMacAddress() {
         return deviceMacAddress;
     }
@@ -53,7 +45,7 @@ public class ClientIdEvent extends RealTimeEvent {
     public void setDeviceMacAddress(MacAddress deviceMacAddress) {
         this.deviceMacAddress = deviceMacAddress;
         // For backward compatibility
-        this.macAddressBytes = deviceMacAddress==null?null:deviceMacAddress.getAddress();
+        this.macAddressBytes = deviceMacAddress == null ? null : deviceMacAddress.getAddress();
     }
 
     /**
@@ -62,14 +54,18 @@ public class ClientIdEvent extends RealTimeEvent {
     public String getUserId() {
         return userId;
     }
+
     /**
-     * @param userId the userId to set
+     * @param userId
+     *            the userId to set
      */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -79,11 +75,13 @@ public class ClientIdEvent extends RealTimeEvent {
         result = prime * result + Arrays.hashCode(macAddressBytes);
         result = prime * result + (int) (sessionId ^ (sessionId >>> 32));
         result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        result = prime * result + ((deviceMacAddress == null) ? 0: deviceMacAddress.hashCode());
+        result = prime * result + ((deviceMacAddress == null) ? 0 : deviceMacAddress.hashCode());
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -94,10 +92,10 @@ public class ClientIdEvent extends RealTimeEvent {
         if (obj == null) {
             return false;
         }
-        if(!super.equals(obj)) {
+        if (!super.equals(obj)) {
             return false;
         }
-        if(!(obj instanceof ClientIdEvent)) {
+        if (!(obj instanceof ClientIdEvent)) {
             return false;
         }
         ClientIdEvent other = (ClientIdEvent) obj;
@@ -131,5 +129,5 @@ public class ClientIdEvent extends RealTimeEvent {
         }
         return false;
     }
-    
+
 }

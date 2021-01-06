@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.client.models.events;
+package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -14,7 +14,7 @@ public class ClientIpAddressEvent extends RealTimeEvent {
     private long sessionId;
     private MacAddress deviceMacAddress;
     private byte[] ipAddr;
-    
+
     protected ClientIpAddressEvent() {
         // serialization
         this(0L);
@@ -23,11 +23,10 @@ public class ClientIpAddressEvent extends RealTimeEvent {
     public ClientIpAddressEvent(Long timestamp) {
         super(RealTimeEventType.STA_Client_IP, timestamp);
     }
-    
+
     public ClientIpAddressEvent(RealTimeEventType eventType, Long timestamp) {
         super(eventType, timestamp);
     }
-
 
     public long getSessionId() {
         return sessionId;
@@ -35,16 +34,6 @@ public class ClientIpAddressEvent extends RealTimeEvent {
 
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
-    }
-
-
-    /**
-     * Use {@link #setDeviceMacAddress(deviceMacAddress)} instead. 
-     * @param address 
-     */    
-    @Deprecated
-    public void setMacAddressBytes(byte[] address) {
-        this.deviceMacAddress = address == null?null:new MacAddress(address);
     }
 
     public MacAddress getDeviceMacAddress() {
@@ -87,22 +76,22 @@ public class ClientIpAddressEvent extends RealTimeEvent {
         return Objects.equals(deviceMacAddress, other.deviceMacAddress) && Arrays.equals(ipAddr, other.ipAddr)
                 && this.sessionId == other.sessionId;
     }
-    
+
     @Override
     public ClientIpAddressEvent clone() {
         return (ClientIpAddressEvent) super.clone();
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        
+
         if (hasUnsupportedValue(deviceMacAddress)) {
             return true;
         }
         return false;
     }
-    
+
 }
