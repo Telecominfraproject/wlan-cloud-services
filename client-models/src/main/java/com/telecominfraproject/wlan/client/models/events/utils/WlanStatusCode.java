@@ -56,9 +56,9 @@ public class WlanStatusCode implements EnumWithId {
     WLAN_STATUS_REQUEST_DECLINED = new WlanStatusCode(37,"WLAN_STATUS_REQUEST_DECLINED"),
     WLAN_STATUS_INVALID_PARAMETERS = new WlanStatusCode(38,"WLAN_STATUS_INVALID_PARAMETERS"),
     WLAN_STATUS_REJECTED_WITH_SUGGESTED_CHANGES = new WlanStatusCode(39,"WLAN_STATUS_REJECTED_WITH_SUGGESTED_CHANGES"),
-    WLAN_STATUS_INVALID_IE = new WlanStatusCode(40,""),
-    WLAN_STATUS_GROUP_CIPHER_NOT_VALID = new WlanStatusCode(41,""),
-    WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID = new WlanStatusCode(42,""),
+    WLAN_STATUS_INVALID_IE = new WlanStatusCode(40,"WLAN_STATUS_INVALID_IE"),
+    WLAN_STATUS_GROUP_CIPHER_NOT_VALID = new WlanStatusCode(41,"WLAN_STATUS_GROUP_CIPHER_NOT_VALID"),
+    WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID = new WlanStatusCode(42,"WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID"),
     WLAN_STATUS_AKMP_NOT_VALID = new WlanStatusCode(43,"WLAN_STATUS_AKMP_NOT_VALID"),
     WLAN_STATUS_UNSUPPORTED_RSN_IE_VERSION = new WlanStatusCode(44,"WLAN_STATUS_UNSUPPORTED_RSN_IE_VERSION"),
     WLAN_STATUS_INVALID_RSN_IE_CAPAB = new WlanStatusCode(45,"WLAN_STATUS_INVALID_RSN_IE_CAPAB"),
@@ -144,19 +144,19 @@ public class WlanStatusCode implements EnumWithId {
     protected WlanStatusCode(int id, String name) {
         synchronized(lock) {
 
-            LOG.debug("Registering WlanReasonCode by {} : {}", this.getClass().getSimpleName(), name);
+            LOG.debug("Registering WlanStatusCode by {} : {}", this.getClass().getSimpleName(), name);
 
             this.id = id;
             this.name = name;
 
             ELEMENTS_BY_NAME.values().forEach(s -> {
                 if(s.getName().equals(name)) {
-                    throw new IllegalStateException("WlanReasonCode item for "+ name + " is already defined, cannot have more than one of them");
+                    throw new IllegalStateException("WlanStatusCode item for "+ name + " is already defined, cannot have more than one of them");
                 }                
             });
 
             if(ELEMENTS.containsKey(id)) {
-                throw new IllegalStateException("WlanReasonCode item "+ name + "("+id+") is already defined, cannot have more than one of them");
+                throw new IllegalStateException("WlanStatusCode item "+ name + "("+id+") is already defined, cannot have more than one of them");
             }
 
             ELEMENTS.put(id, this);
