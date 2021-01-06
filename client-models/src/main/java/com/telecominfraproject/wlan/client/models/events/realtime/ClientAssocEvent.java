@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.client.models.events.utils.WlanStatusCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
@@ -15,7 +16,7 @@ public class ClientAssocEvent extends RealTimeEvent {
     private MacAddress deviceMacAddress;
     private RadioType radioType;
     private boolean isReassociation;
-    private int status;
+    private WlanStatusCode status;
     private int rssi;
     private int internalSC;
     private boolean using11k;
@@ -28,7 +29,7 @@ public class ClientAssocEvent extends RealTimeEvent {
     }
 
     public ClientAssocEvent(int customerId, long equipmentId, long timestamp, long sessionId, String ssid,
-            MacAddress deviceMacAddress, RadioType radioType, boolean isReassociation, Integer status,
+            MacAddress deviceMacAddress, RadioType radioType, boolean isReassociation, WlanStatusCode status,
             Integer internalSC, Integer rssi) {
         super(RealTimeEventType.STA_Client_Assoc, customerId, equipmentId, timestamp);
         this.sessionId = sessionId;
@@ -123,7 +124,7 @@ public class ClientAssocEvent extends RealTimeEvent {
     /**
      * @return the status
      */
-    public int getStatus() {
+    public WlanStatusCode getStatus() {
         return status;
     }
 
@@ -131,7 +132,7 @@ public class ClientAssocEvent extends RealTimeEvent {
      * @param status
      *            the status to set
      */
-    public void setStatus(int status) {
+    public void setStatus(WlanStatusCode status) {
         this.status = status;
     }
 
@@ -235,8 +236,11 @@ public class ClientAssocEvent extends RealTimeEvent {
         ClientAssocEvent other = (ClientAssocEvent) obj;
         return Objects.equals(deviceMacAddress, other.deviceMacAddress) && internalSC == other.internalSC
                 && isReassociation == other.isReassociation && radioType == other.radioType && rssi == other.rssi
-                && sessionId == other.sessionId && Objects.equals(ssid, other.ssid) && status == other.status
-                && using11k == other.using11k && using11r == other.using11r && using11v == other.using11v;
+                && sessionId == other.sessionId && Objects.equals(ssid, other.ssid)
+                && Objects.equals(status, other.status) && using11k == other.using11k && using11r == other.using11r
+                && using11v == other.using11v;
     }
+
+   
 
 }

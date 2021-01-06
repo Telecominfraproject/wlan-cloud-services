@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.telecominfraproject.wlan.client.models.events.utils.WlanReasonCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
@@ -50,7 +51,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     private long lastSentTime;
     private DisconnectFrameType frameType;
     private DisconnectInitiator initiator;
-    private int reasonCode;
+    private WlanReasonCode reasonCode;
     private int internalReasonCode;
     private int rssi;
     private String ssid;
@@ -93,7 +94,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         return lastSentTime;
     }
 
-    public int getReasonCode() {
+    public WlanReasonCode getReasonCode() {
         return reasonCode;
     }
 
@@ -137,7 +138,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         this.lastSentTime = lastSentTime;
     }
 
-    public void setReasonCode(int reasonCode) {
+    public void setReasonCode(WlanReasonCode reasonCode) {
         this.reasonCode = reasonCode;
     }
 
@@ -198,8 +199,9 @@ public class ClientDisconnectEvent extends RealTimeEvent {
                 && initiator == other.initiator && internalReasonCode == other.internalReasonCode
                 && lastRecvTime == other.lastRecvTime && lastSentTime == other.lastSentTime
                 && Arrays.equals(macAddressBytes, other.macAddressBytes) && radioType == other.radioType
-                && reasonCode == other.reasonCode && rssi == other.rssi && sessionId == other.sessionId
+                && Objects.equals(reasonCode, other.reasonCode) && rssi == other.rssi && sessionId == other.sessionId
                 && Objects.equals(ssid, other.ssid);
     }
+
 
 }

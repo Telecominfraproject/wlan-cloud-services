@@ -5,6 +5,7 @@ package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.client.models.events.utils.WlanReasonCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
@@ -15,7 +16,7 @@ public class ClientFailureEvent extends RealTimeEvent {
     private long sessionId;
     private String ssid;
     private MacAddress deviceMacAddress;
-    private int reasonCode;
+    private WlanReasonCode reasonCode;
     private String reasonString;
 
     public ClientFailureEvent(Long timestamp) {
@@ -51,11 +52,11 @@ public class ClientFailureEvent extends RealTimeEvent {
         this.ssid = ssid;
     }
 
-    public int getReasonCode() {
+    public WlanReasonCode getReasonCode() {
         return reasonCode;
     }
 
-    public void setReasonCode(int reasonCode) {
+    public void setReasonCode(WlanReasonCode reasonCode) {
         this.reasonCode = reasonCode;
     }
 
@@ -65,31 +66,6 @@ public class ClientFailureEvent extends RealTimeEvent {
 
     public void setReasonString(String reasonString) {
         this.reasonString = reasonString;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + Objects.hash(deviceMacAddress, reasonCode, reasonString, sessionId, ssid);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof ClientFailureEvent)) {
-            return false;
-        }
-        ClientFailureEvent other = (ClientFailureEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && Objects.equals(reasonCode, other.reasonCode)
-                && Objects.equals(reasonString, other.reasonString) && this.sessionId == other.sessionId
-                && Objects.equals(ssid, other.ssid);
     }
 
     @Override
@@ -106,6 +82,28 @@ public class ClientFailureEvent extends RealTimeEvent {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(deviceMacAddress, reasonCode, reasonString, sessionId, ssid);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClientFailureEvent other = (ClientFailureEvent) obj;
+        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && Objects.equals(reasonCode, other.reasonCode)
+                && Objects.equals(reasonString, other.reasonString) && sessionId == other.sessionId
+                && Objects.equals(ssid, other.ssid);
     }
 
 }

@@ -2,6 +2,7 @@ package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.client.models.events.utils.WlanStatusCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
@@ -14,7 +15,7 @@ public class ClientAuthEvent extends RealTimeEvent {
     private long sessionId;
     private String ssid;
     private MacAddress deviceMacAddress;
-    private int authStatus;
+    private WlanStatusCode authStatus;
     private RadioType radioType;
 
     protected ClientAuthEvent() {
@@ -54,11 +55,11 @@ public class ClientAuthEvent extends RealTimeEvent {
         this.ssid = ssid;
     }
 
-    public int getAuthStatus() {
+    public WlanStatusCode getAuthStatus() {
         return authStatus;
     }
 
-    public void setAuthStatus(int authStatus) {
+    public void setAuthStatus(WlanStatusCode authStatus) {
         this.authStatus = authStatus;
     }
 
@@ -70,32 +71,6 @@ public class ClientAuthEvent extends RealTimeEvent {
         this.radioType = radioType;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + Objects.hash(authStatus, deviceMacAddress, radioType, sessionId, ssid);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof ClientAuthEvent)) {
-            return false;
-        }
-        ClientAuthEvent other = (ClientAuthEvent) obj;
-        return this.authStatus == other.authStatus && Objects.equals(deviceMacAddress, other.deviceMacAddress)
-                && this.radioType == other.radioType && this.sessionId == other.sessionId
-                && Objects.equals(ssid, other.ssid);
-    }
-
-    @Override
     public ClientAuthEvent clone() {
         return (ClientAuthEvent) super.clone();
     }
@@ -109,6 +84,27 @@ public class ClientAuthEvent extends RealTimeEvent {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(authStatus, deviceMacAddress, radioType, sessionId, ssid);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClientAuthEvent other = (ClientAuthEvent) obj;
+        return Objects.equals(authStatus, other.authStatus) && Objects.equals(deviceMacAddress, other.deviceMacAddress)
+                && radioType == other.radioType && sessionId == other.sessionId && Objects.equals(ssid, other.ssid);
     }
 
 }
