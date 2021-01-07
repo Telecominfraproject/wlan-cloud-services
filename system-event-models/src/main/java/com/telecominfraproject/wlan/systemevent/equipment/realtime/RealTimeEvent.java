@@ -2,15 +2,11 @@ package com.telecominfraproject.wlan.systemevent.equipment.realtime;
 
 import java.util.Objects;
 
-import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
-import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
-import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
+public abstract class RealTimeEvent extends SystemEvent {
 
-public abstract class RealTimeEvent extends SystemEvent implements HasCustomerId, HasEquipmentId, HasProducedTimestamp {
-
-	private static final long serialVersionUID = -406572942058780057L;
+    private static final long serialVersionUID = -406572942058780057L;
 
     /**
      * Type of event
@@ -21,19 +17,18 @@ public abstract class RealTimeEvent extends SystemEvent implements HasCustomerId
 
     private int customerId;
 
-    protected RealTimeEvent() {
-        // serial
-    	super(0);
+    public RealTimeEvent() {
+
     }
 
-    protected RealTimeEvent(RealTimeEventType eventType, int customerId, long equipmentId, Long timestamp) {
+    public RealTimeEvent(RealTimeEventType eventType, int customerId, long equipmentId, Long timestamp) {
         super(timestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.eventType = eventType;
     }
 
-    protected RealTimeEvent(RealTimeEventType eventType, Long timestamp) {
+    public RealTimeEvent(RealTimeEventType eventType, Long timestamp) {
         super(timestamp);
         this.eventType = eventType;
     }
@@ -51,11 +46,11 @@ public abstract class RealTimeEvent extends SystemEvent implements HasCustomerId
     public long getEquipmentId() {
         return equipmentId;
     }
-    
+
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
-    
+
     public void setEquipmentId(long equipmentId) {
         this.equipmentId = equipmentId;
     }
@@ -96,5 +91,5 @@ public abstract class RealTimeEvent extends SystemEvent implements HasCustomerId
         return customerId == other.customerId && equipmentId == other.equipmentId
                 && Objects.equals(eventType, other.eventType);
     }
-    
+
 }
