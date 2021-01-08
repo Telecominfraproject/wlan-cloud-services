@@ -49,11 +49,11 @@ public class ServiceMetricServiceLocal implements ServiceMetricServiceInterface 
 
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
         LOG.debug("calling serviceMetricController.getForCustomer {} {} {} ", fromTime, toTime, customerId);
         return serviceMetricController.getForCustomer(fromTime, toTime, customerId,
-        		equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
+        		locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
     }
 
 

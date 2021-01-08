@@ -114,6 +114,7 @@ public class ServiceMetricController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<ServiceMetric> getForCustomer(@RequestParam long fromTime, @RequestParam long toTime, 
     		@RequestParam int customerId,
+            @RequestParam(required = false) Set<Long> locationIds, 
     		@RequestParam(required = false) Set<Long> equipmentIds, 
     		@RequestParam(required = false) Set<MacAddress> clientMacAdresses, 
     		@RequestParam(required = false) Set<ServiceMetricDataType> dataTypes,
@@ -124,27 +125,25 @@ public class ServiceMetricController {
     		paginationContext = new PaginationContext<>();
     	}
     	
-        LOG.debug("Looking up ServiceMetrics for customer {} equipment {} from {} to {} with last returned page number {}", 
-                customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up ServiceMetrics for customer {} location {} equipment {} clientMacs {} from {} to {} with last returned page number {}", 
+                customerId, locationIds, equipmentIds, clientMacAdresses, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
-            LOG.debug("No more pages available when looking up ServiceMetrics for customer {} equipment {} from {} to {} with last returned page number {}", 
-                    customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
+            LOG.debug("No more pages available when looking up ServiceMetrics");
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<ServiceMetric> onePage = this.serviceMetricDatastore
                 .getForCustomer(fromTime, toTime, customerId,
-                		equipmentIds, null, clientMacAdresses, dataTypes, sortBy, paginationContext);
+                		locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} ServiceMetrics for customer {} equipment {} from {} to {} ", onePage.getItems().size(), 
-                customerId, equipmentIds, fromTime, toTime);
+        LOG.debug("Retrieved {} ServiceMetrics", onePage.getItems().size());
 
         return ret;
     }

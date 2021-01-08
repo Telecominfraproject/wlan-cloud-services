@@ -86,12 +86,22 @@ public class ServiceMetricServiceRemote extends BaseRemoteClient implements Serv
     
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {}, {}, {} )", 
-        		fromTime, toTime, customerId, equipmentIds, 
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {}, {}, {}, {} )", 
+        		fromTime, toTime, customerId, locationIds, equipmentIds, 
         		clientMacAdresses, dataTypes, sortBy, context);
+
+        String locationIdsStr = null;
+        if (locationIds != null && !locationIds.isEmpty()) {
+            locationIdsStr = locationIds.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            locationIdsStr = locationIdsStr.substring(1, locationIdsStr.length() - 1);
+        }
 
         String equipmentIdsStr = null;
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
@@ -116,10 +126,10 @@ public class ServiceMetricServiceRemote extends BaseRemoteClient implements Serv
         ResponseEntity<PaginationResponse<ServiceMetric>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
                         + "/forCustomer?fromTime={fromTime}&toTime={toTime}&customerId={customerId}"
-                        + "&equipmentIds={equipmentIdsStr}&clientMacAdresses={clientMacAdresses}&dataTypes={dataTypesStr}"
+                        + "&locationIds={locationIdsStr}&equipmentIds={equipmentIdsStr}&clientMacAdresses={clientMacAdresses}&dataTypes={dataTypesStr}"
                         + "&sortBy={sortBy}&paginationContext={paginationContext}",
                 HttpMethod.GET, null, ServiceMetric_PAGINATION_RESPONSE_CLASS_TOKEN, 
-                fromTime, toTime, customerId, equipmentIdsStr, clientMacAdresses, dataTypesStr, sortBy, context);
+                fromTime, toTime, customerId, locationIdsStr, equipmentIdsStr, clientMacAdresses, dataTypesStr, sortBy, context);
 
         PaginationResponse<ServiceMetric> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());

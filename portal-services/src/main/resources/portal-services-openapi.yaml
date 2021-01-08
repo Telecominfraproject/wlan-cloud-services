@@ -62,9 +62,25 @@ tags:
 - name: WLAN Service Metrics
   description: |
     Metrics specific to WLAN service can be created for equipment and customer.
+        
+          Notes for Cassandra datastores 
+      The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
+      All other combination of filters involve using extra index tables. 
+      The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
+      Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
+      "For more explanations - See https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544"
+              
 - name: System Events
   description: |
     Various system events can be generated and persisted by the cloud services, including provisioning-related events when data model objects are created, updated, removed. Events are associated with equipment and customer.
+        
+          Notes for Cassandra datastores 
+      The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
+      All other combination of filters involve using extra index tables. 
+      The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
+      Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
+      "For more explanations - See https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544"
+                  
 - name: Portal Users
 - name: Firmware Management
   description: |
@@ -4527,6 +4543,9 @@ components:
         customerId:
           type: integer
           format: int32
+        locationId:
+          type: integer
+          format: int64
         equipmentId:
           type: integer
           format: int64
@@ -8559,9 +8578,19 @@ components:
         customerId:
           type: integer
           format: int32
+        locationId:
+          type: integer
+          format: int64
         equipmentId:
           type: integer
           format: int64
+        clientMac:
+          description: int64 representation of the client MAC address, used internally for storage and indexing
+          type: integer
+          format: int64
+        clientMacAddress:
+          #description: read-only object representation of the client MAC address, used in UI
+          $ref: '#/components/schemas/MacAddress'
         dataType:
           $ref: '#/components/schemas/SystemEventDataType'
         eventTimestamp:
@@ -12247,7 +12276,9 @@ paths:
     get:
       tags:
       - WLAN Service Metrics
-      summary: Get list of WLAN Service Metrics for customerId, optional set of equipment ids, optional set of client MAC addresses, optional set of metric data types. Only metrics that are created between specified fromTime and toTime are retrieved.
+      summary: | 
+        Get list of WLAN Service Metrics for customerId, optional set of location ids, optional set of equipment ids, optional set of client MAC addresses, optional set of metric data types. 
+        Only metrics that are created between specified fromTime and toTime are retrieved. 
       operationId: getServiceMetricsforCustomer
       parameters:
       - name: fromTime
@@ -12271,6 +12302,17 @@ paths:
         schema:
           type: integer
           format: int32
+      - name: locationIds
+        in: query
+        description: Set of location ids. Empty or null means retrieve metrics for all locations for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
       - name: equipmentIds
         in: query
         description: Set of equipment ids. Empty or null means retrieve metrics for all equipment for the customer.
@@ -12359,6 +12401,17 @@ paths:
         schema:
           type: integer
           format: int32
+      - name: locationIds
+        in: query
+        description: Set of location ids. Empty or null means retrieve events for all locations for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
       - name: equipmentIds
         in: query
         description: Set of equipment ids. Empty or null means retrieve events for all equipment for the customer.
@@ -12370,6 +12423,16 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: clientMacs
+        in: query
+        description: Set of client MAC addresses. Empty or null means retrieve events for all client MACs for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: string
       - name: dataTypes
         in: query
         description: Set of system event data types. Empty or null means retrieve all.

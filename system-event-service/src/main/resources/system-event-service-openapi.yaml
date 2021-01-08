@@ -133,9 +133,19 @@ components:
         customerId:
           type: integer
           format: int32
+        locationId:
+          type: integer
+          format: int64
         equipmentId:
           type: integer
           format: int64
+        clientMac:
+          description: int64 representation of the client MAC address, used internally for storage and indexing
+          type: integer
+          format: int64
+        clientMacAddress:
+          #description: read-only object representation of the client MAC address, used in UI
+          $ref: '#/components/schemas/MacAddress'
         dataType:
           $ref: '#/components/schemas/SystemEventDataType'
         eventTimestamp:
@@ -4668,9 +4678,9 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: equipmentIds
+      - name: locationIds
         in: query
-        description: Set of Equipment IDs
+        description: Set of Location IDs. Empty of null means all locations for the customer. Location hierarchy is not taken into account here - only leaf locations would have any data.
         required: false
         content:
           text/plain:
@@ -4679,6 +4689,25 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: equipmentIds
+        in: query
+        description: Set of Equipment IDs. Empty of null means all equipment for the customer.
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      - name: clientMacAddresses
+        in: query
+        description: Set of Client Mac Addresses. Empty of null means all clients for the customer.
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/MacAddress'
       - name: dataTypes
         in: query
         description: Data types
@@ -4718,21 +4747,3 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
