@@ -139,7 +139,7 @@ public class ServiceMetricController {
 
         PaginationResponse<ServiceMetric> onePage = this.serviceMetricDatastore
                 .getForCustomer(fromTime, toTime, customerId,
-                		equipmentIds, clientMacAdresses, dataTypes, sortBy, paginationContext);
+                		equipmentIds, null, clientMacAdresses, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 

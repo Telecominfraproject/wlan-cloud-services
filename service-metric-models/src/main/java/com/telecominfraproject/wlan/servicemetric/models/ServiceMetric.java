@@ -8,13 +8,14 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasLocationId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
 
 /**
  * @author dtoptygin
  *
  */
-public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac, HasProducedTimestamp {
+public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac, HasLocationId, HasProducedTimestamp {
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
@@ -123,7 +124,7 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(clientMac, createdTimestamp, customerId, details, equipmentId, dataType);
+		return Objects.hash(clientMac, createdTimestamp, customerId, details, equipmentId, dataType, locationId);
 	}
 
 	@Override
@@ -137,7 +138,8 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 		ServiceMetric other = (ServiceMetric) obj;
 		return clientMac == other.clientMac && createdTimestamp == other.createdTimestamp
 				&& customerId == other.customerId && Objects.equals(details, other.details)
-				&& equipmentId == other.equipmentId && dataType == other.dataType;
+				&& equipmentId == other.equipmentId && dataType == other.dataType
+				&& locationId == other.locationId;
 	}
 
 	@Override

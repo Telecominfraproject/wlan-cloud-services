@@ -25,7 +25,9 @@ public class SystemEventRowMapper implements RowMapper<SystemEventRecord> {
         SystemEventRecord systemEventRecord = new SystemEventRecord();
 
         systemEventRecord.setCustomerId(row.getInt("customerId"));
+        systemEventRecord.setLocationId(row.getLong("locationId"));
         systemEventRecord.setEquipmentId(row.getLong("equipmentId"));
+        systemEventRecord.setClientMac(row.getLong("clientMac"));
 
         systemEventRecord.setDataType(row.getString("dataType"));
         systemEventRecord.setEventTimestamp(row.getLong("eventTimestamp"));

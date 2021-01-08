@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -91,7 +92,7 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
 
     @Override
     public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<String> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<String> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<SystemEventRecord> context) {
 
     	if(context == null) {
@@ -112,7 +113,9 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
         for (SystemEventRecord mdl : idToSystemEventRecordMap.values()) {
 
             if (mdl.getCustomerId() == customerId &&
-            		(equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
+                    (locationIds==null || locationIds.isEmpty() || locationIds.contains(mdl.getLocationId())) &&
+                    (equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
+                    (clientMacAdresses==null || clientMacAdresses.isEmpty() || clientMacAdresses.contains(mdl.getClientMacAddress())) &&
             		(dataTypes==null || dataTypes.isEmpty() || dataTypes.contains(mdl.getDataType())) &&
             		mdl.getEventTimestamp() >= fromTime &&
             		mdl.getEventTimestamp() <= toTime 
@@ -135,8 +138,14 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
                         case "eventTimestamp":
                             cmp = Long.compare(o1.getEventTimestamp(), o2.getEventTimestamp());
                             break;
+                        case "locationId":
+                            cmp = Long.compare(o1.getLocationId(), o2.getLocationId());
+                            break;
                         case "equipmentId":
                             cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
+                            break;
+                        case "clientMac":
+                            cmp = Long.compare(o1.getClientMac(), o2.getClientMac());
                             break;
                         case "dataType":
                             cmp = o1.getDataType().compareTo(o2.getDataType());
@@ -192,7 +201,9 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
         	SystemEventRecord oldStartAfterItem = ret.getContext().getStartAfterItem();
         	
         	newStartAfterItem.setCustomerId(oldStartAfterItem.getCustomerId());
+        	newStartAfterItem.setLocationId(oldStartAfterItem.getLocationId());        	
         	newStartAfterItem.setEquipmentId(oldStartAfterItem.getEquipmentId());
+        	newStartAfterItem.setClientMac(oldStartAfterItem.getClientMac());
         	newStartAfterItem.setDataType(oldStartAfterItem.getDataType());
         	newStartAfterItem.setEventTimestamp(oldStartAfterItem.getEventTimestamp());
         	

@@ -118,13 +118,13 @@ public class ServiceMetricDatastoreCassandraTests extends BaseServiceMetricDatas
         sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
         
         PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
-        PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, context);
-        PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page1.getContext());
-        PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page2.getContext());
-        PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page3.getContext());
-        PaginationResponse<ServiceMetric> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page4.getContext());
-        PaginationResponse<ServiceMetric> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page5.getContext());
-        PaginationResponse<ServiceMetric> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page6.getContext());
+        PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+        PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+        PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+        PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
+        PaginationResponse<ServiceMetric> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page4.getContext());
+        PaginationResponse<ServiceMetric> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page5.getContext());
+        PaginationResponse<ServiceMetric> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page6.getContext());
         
         //verify returned pages
         assertEquals(10, page1.getItems().size());
@@ -158,7 +158,7 @@ public class ServiceMetricDatastoreCassandraTests extends BaseServiceMetricDatas
         assertEquals(expectedPage3Strings, actualPage3Strings);
        
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.emptyList(), context);
+        PaginationResponse<ServiceMetric> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
 
         List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -168,7 +168,7 @@ public class ServiceMetricDatastoreCassandraTests extends BaseServiceMetricDatas
         assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, context);
+        PaginationResponse<ServiceMetric> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
         List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -179,7 +179,7 @@ public class ServiceMetricDatastoreCassandraTests extends BaseServiceMetricDatas
 
         
         //test first page of the results with sort descending order by a equipmentId property  -> cassandra ignores supplied sort order
-        PaginationResponse<ServiceMetric> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+        PaginationResponse<ServiceMetric> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
         List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9"  }));

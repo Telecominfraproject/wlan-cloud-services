@@ -130,7 +130,7 @@ public class SystemEventController {
 
         PaginationResponse<SystemEventRecord> onePage = this.systemEventDatastore
                 .getForCustomer(fromTime, toTime, customerId,
-                		equipmentIds, dataTypes, sortBy, paginationContext);
+                		null, equipmentIds, null, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 

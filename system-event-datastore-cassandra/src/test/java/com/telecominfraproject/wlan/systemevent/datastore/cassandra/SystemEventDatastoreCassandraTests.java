@@ -114,13 +114,13 @@ public class SystemEventDatastoreCassandraTests extends BaseSystemEventDatastore
         sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
         
         PaginationContext<SystemEventRecord> context = new PaginationContext<>(10);
-        PaginationResponse<SystemEventRecord> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, context);
-        PaginationResponse<SystemEventRecord> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page1.getContext());
-        PaginationResponse<SystemEventRecord> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page2.getContext());
-        PaginationResponse<SystemEventRecord> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page3.getContext());
-        PaginationResponse<SystemEventRecord> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page4.getContext());
-        PaginationResponse<SystemEventRecord> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page5.getContext());
-        PaginationResponse<SystemEventRecord> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page6.getContext());
+        PaginationResponse<SystemEventRecord> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+        PaginationResponse<SystemEventRecord> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+        PaginationResponse<SystemEventRecord> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+        PaginationResponse<SystemEventRecord> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
+        PaginationResponse<SystemEventRecord> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page4.getContext());
+        PaginationResponse<SystemEventRecord> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page5.getContext());
+        PaginationResponse<SystemEventRecord> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page6.getContext());
         
         //verify returned pages
         assertEquals(10, page1.getItems().size());
@@ -154,7 +154,7 @@ public class SystemEventDatastoreCassandraTests extends BaseSystemEventDatastore
         assertEquals(expectedPage3Strings, actualPage3Strings);
        
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<SystemEventRecord> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, Collections.emptyList(), context);
+        PaginationResponse<SystemEventRecord> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
 
         List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -164,7 +164,7 @@ public class SystemEventDatastoreCassandraTests extends BaseSystemEventDatastore
         assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<SystemEventRecord> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, context);
+        PaginationResponse<SystemEventRecord> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
         List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -175,7 +175,7 @@ public class SystemEventDatastoreCassandraTests extends BaseSystemEventDatastore
 
         
         //test first page of the results with sort descending order by a equipmentId property - cassandra ignores specified sort order
-        PaginationResponse<SystemEventRecord> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+        PaginationResponse<SystemEventRecord> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
         List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));

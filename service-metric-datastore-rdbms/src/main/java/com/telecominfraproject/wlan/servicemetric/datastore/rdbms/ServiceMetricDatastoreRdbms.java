@@ -46,11 +46,12 @@ public class ServiceMetricDatastoreRdbms implements ServiceMetricDatastore {
     
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
+            Set<Long> locationIds,
     		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
     	if(context ==null) {
     		context = new PaginationContext<>();
     	}
-    	return serviceMetricDAO.getForCustomer( fromTime, toTime, customerId, equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
+    	return serviceMetricDAO.getForCustomer( fromTime, toTime, customerId, locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
     }
 }

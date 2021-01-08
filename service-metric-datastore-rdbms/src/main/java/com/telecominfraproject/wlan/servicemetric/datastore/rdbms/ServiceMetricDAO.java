@@ -199,7 +199,7 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
 
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 
         PaginationResponse<ServiceMetric> ret = new PaginationResponse<>();
@@ -224,18 +224,29 @@ public class ServiceMetricDAO extends BaseJdbcDao {
         queryArgs.add(fromTime);
         queryArgs.add(toTime);
 
+        //add locationId filters
+        if (locationIds != null && !locationIds.isEmpty()) {
+            queryArgs.addAll(locationIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and locationId in (");
+            strb.append("?,".repeat(locationIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+
         //add equipmentId filters
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(equipmentIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
@@ -247,12 +258,9 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and clientMac in (");
-            for (int i = 0; i < clientMacAdresses.size(); i++) {
-                strb.append("?");
-                if (i < clientMacAdresses.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(clientMacAdresses.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
@@ -265,12 +273,9 @@ public class ServiceMetricDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and dataType in (");
-            for (int i = 0; i < dataTypes.size(); i++) {
-                strb.append("?");
-                if (i < dataTypes.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(dataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();

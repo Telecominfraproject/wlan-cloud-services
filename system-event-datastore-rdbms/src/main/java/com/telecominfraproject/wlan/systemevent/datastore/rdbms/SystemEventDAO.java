@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -46,7 +47,9 @@ public class SystemEventDAO extends BaseJdbcDao {
         
         //TODO: add colums from properties SystemEvent in here
         "customerId",
+        "locationId",
         "equipmentId",
+        "clientMac",
         "dataType",
         "eventTimestamp",
         "details"
@@ -56,7 +59,9 @@ public class SystemEventDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(
     		"customerId",
+    		"locationId",
             "equipmentId",
+            "clientMac",
             "dataType",
             "eventTimestamp"));
     
@@ -161,7 +166,9 @@ public class SystemEventDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from SystemEventRecord here 
                         ps.setInt(colIdx++, systemEventRecord.getCustomerId());
+                        ps.setLong(colIdx++, systemEventRecord.getLocationId());
                         ps.setLong(colIdx++, systemEventRecord.getEquipmentId());
+                        ps.setLong(colIdx++, systemEventRecord.getClientMac());                        
                         ps.setString(colIdx++, systemEventRecord.getDataType());
                         ps.setLong(colIdx++, systemEventRecord.getEventTimestamp());
                         
@@ -212,7 +219,9 @@ public class SystemEventDAO extends BaseJdbcDao {
                             
                             //TODO: add remaining properties from SystemEventRecord here 
                             ps.setInt(colIdx++, systemEventRecord.getCustomerId());
+                            ps.setLong(colIdx++, systemEventRecord.getLocationId());
                             ps.setLong(colIdx++, systemEventRecord.getEquipmentId());
+                            ps.setLong(colIdx++, systemEventRecord.getClientMac());
                             ps.setString(colIdx++, systemEventRecord.getDataType());
                             ps.setLong(colIdx++, systemEventRecord.getEventTimestamp());
                             
@@ -239,7 +248,9 @@ public class SystemEventDAO extends BaseJdbcDao {
 	
 
     public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<String> dataTypes,
+            Set<Long> locationIds,
+            Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses,          
+    		Set<String> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<SystemEventRecord> context) {
 
         PaginationResponse<SystemEventRecord> ret = new PaginationResponse<>();
@@ -264,23 +275,48 @@ public class SystemEventDAO extends BaseJdbcDao {
         queryArgs.add(fromTime);
         queryArgs.add(toTime);
 
+        //add locationId filters
+        if (locationIds != null && !locationIds.isEmpty()) {
+            queryArgs.addAll(locationIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and locationId in (");
+            strb.append("?,".repeat(locationIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+
         //add equipmentId filters
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(equipmentIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
         }
-      
+
+        //add clientMac filters
+        if (clientMacAdresses != null && !clientMacAdresses.isEmpty()) {
+            clientMacAdresses.forEach(m -> queryArgs.add(m.getAddressAsLong()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and clientMac in (");
+            strb.append("?,".repeat(clientMacAdresses.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
 
         //add DataType filters
         if (dataTypes != null && !dataTypes.isEmpty()) {
@@ -288,12 +324,9 @@ public class SystemEventDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and dataType in (");
-            for (int i = 0; i < dataTypes.size(); i++) {
-                strb.append("?");
-                if (i < dataTypes.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(dataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);            
             strb.append(") ");
 
             query += strb.toString();
