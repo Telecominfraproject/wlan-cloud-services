@@ -1225,7 +1225,7 @@ components:
               minimum: 1
               maximum: 165  
         backupChannel:
-          description: Settings for primary channels, keys by RadioType per supported frequency_band (is5GHz, is5GHzL, is5GHzU, is2dot4GHz)
+          description: Settings for backup channels, keys by RadioType per supported frequency_band (is5GHz, is5GHzL, is5GHzU, is2dot4GHz)
           type: object
           example:
             is5GHzL: 40
@@ -2716,6 +2716,7 @@ components:
         - ieee80211StandardCompliantOnly
         - forceNonCompliantBehaviourFromRequest      
                     
+#
 # Web Token data models
 #
 
