@@ -2094,7 +2094,7 @@ components:
         userDefinedNasIp:
           description: user entered IP address if the nasClientIp is 'USER_DEFINED'.  This should not be enabled and will not be passed to the AP unless the nasClientIp is USER_DEFINED.
           type: string
-        nasOperatorId:
+        operatorId:
           description: Carries the operator namespace identifier and the operator name.  The operator name is combined with the namespace identifier to uniquely identify the owner of an access network.  The value of the Operator-Name is a non-NULL terminated text. This is not to be confused with the Passpoint Operator Domain
           type: string
       

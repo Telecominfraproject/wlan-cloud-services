@@ -287,26 +287,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-        Profile profileMetrics_3_radios = create3RadioMetricsProfile("Metrics-Profile-3-Radios", customer.getId());
-        Profile profileMetrics_2_radios = create2RadioMetricsProfile("Metrics-Profile-2-Radios", customer.getId());
-
-        Profile profileSsidEAP = new Profile();
-        profileSsidEAP.setCustomerId(customer.getId());
-        profileSsidEAP.setName("TipWlan-cloud-Enterprise");
-        SsidConfiguration ssidConfigEAP = SsidConfiguration.createWithDefaults();
-        Set<RadioType> appliedRadiosEAP = new HashSet<RadioType>();
-        appliedRadiosEAP.add(RadioType.is2dot4GHz);
-        appliedRadiosEAP.add(RadioType.is5GHzL);
-        appliedRadiosEAP.add(RadioType.is5GHzU);
-        ssidConfigEAP.setAppliedRadios(appliedRadiosEAP);
-        ssidConfigEAP.setSecureMode(SecureMode.wpaEAP);
-        ssidConfigEAP.setKeyStr("testing123");
-        profileSsidEAP.setDetails(ssidConfigEAP);
-        ssidConfigEAP.setRadiusServiceName(profileRadius.getName());
-        Set<Long> childIds = new HashSet<Long>();
-        childIds.add(profileRadius.getId());
-        profileSsidEAP.setChildProfileIds(childIds);
-        profileSsidEAP = profileServiceInterface.create(profileSsidEAP);
+       
 
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
@@ -374,22 +355,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
 
-        // BonjourGateway profile
-        Profile bonjourProfile = new Profile();
-        bonjourProfile.setCustomerId(customer.getId());
-        bonjourProfile.setName("Bonjour-gateway");
-        bonjourProfile.setProfileType(ProfileType.bonjour);
-        BonjourGatewayProfile bonjourGatewayConfig = new BonjourGatewayProfile();
-        bonjourGatewayConfig.setProfileDescription("Bonjour Gateway Configuration for Design Testing");
-        BonjourServiceSet bonjourServiceSet = new BonjourServiceSet();
-        bonjourServiceSet.setVlanId((short) 1);
-        bonjourServiceSet.addServiceName(BonjourService.SFTP.getServiceName());
-        bonjourServiceSet.addServiceName(BonjourService.SSH.getServiceName());
-        bonjourServiceSet.addServiceName(BonjourService.AirPort.getServiceName());
-        bonjourGatewayConfig.addBonjourServiceSet(bonjourServiceSet);
-        bonjourProfile.setDetails(bonjourGatewayConfig);
-        bonjourProfile = profileServiceInterface.create(bonjourProfile);
-
         Profile profileAp_3_radios = new Profile();
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
@@ -436,12 +401,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileAp_2_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
 
-        Profile enterpriseProfileAp = new Profile();
-        enterpriseProfileAp.setCustomerId(customer.getId());
-        enterpriseProfileAp.setName("EnterpriseApProfile");
-        enterpriseProfileAp.setDetails(ApNetworkConfiguration.createWithDefaults());
-        enterpriseProfileAp.getChildProfileIds().add(profileSsidEAP.getId());
-        enterpriseProfileAp = profileServiceInterface.create(enterpriseProfileAp);
 
         // configure equipment auto-provisioning for the customer
         CustomerDetails details = new CustomerDetails();
@@ -466,18 +425,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         customer.setDetails(details);
         customer = customerServiceInterface.update(customer);
 
-        Profile passpointHotspotConfig = new Profile();
-        Profile passpointOperatorProfile = new Profile();
-        Profile passpointVenueProfile = new Profile();
-        Profile hotspot20IdProviderProfile = new Profile();
-        Profile hotspot20IdProviderProfile2 = new Profile();
-        Profile profileSsidPsk = new Profile();
-        Profile profileSsidOsu = new Profile();
-        Profile hotspotProfileAp = createPasspointHotspot(customer, passpointHotspotConfig, passpointOperatorProfile, passpointVenueProfile,
-                hotspot20IdProviderProfile, hotspot20IdProviderProfile2, profileSsidPsk, profileSsidOsu);
-
-        LOG.info("Passpoint AP Profile {}", hotspotProfileAp);
-        
         List<Equipment> equipmentList = new ArrayList<>();
 
         for (int i = 1; i <= numEquipmentToCreateOnStartup; i++) {
@@ -502,11 +449,9 @@ public class AllInOneStartListener implements ApplicationRunner {
             // setting the region to the location used in location_2, so assign
             // profiles
             // based on this
-            if (i <= 32) {
-                equipment.setProfileId(profileAp_3_radios.getId());
-            } else {
-                equipment.setProfileId(enterpriseProfileAp.getId());
-            }
+
+            equipment.setProfileId(profileAp_3_radios.getId());
+           
             equipment.setInventoryId("ap-" + i);
             equipment.setName("AP " + i);
             equipment.setBaseMacAddress(new MacAddress(
@@ -540,11 +485,8 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             createAlarmsForEquipment(equipment);
 
-            if (i <= 32) {
-                createClientSessions(equipment, ssidConfig_3_radios);
-            } else {
-                createClientSessions(equipment, ssidConfigEAP);
-            }
+            createClientSessions(equipment, ssidConfig_3_radios);
+                
 
             createServiceMetrics(equipment);
 
