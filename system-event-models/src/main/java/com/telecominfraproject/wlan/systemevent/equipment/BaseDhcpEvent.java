@@ -26,7 +26,11 @@ public abstract class BaseDhcpEvent extends SystemEvent {
         super(eventTimestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
-        setSessionId(sessionId);
+        if (sessionId != null) {
+            setSessionId(sessionId);
+        } else {
+            setSessionId(0L);
+        }
     }
 
     public BaseDhcpEvent() {
