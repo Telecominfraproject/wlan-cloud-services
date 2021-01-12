@@ -913,13 +913,10 @@ public class SystemEventDatastoreCassandra implements SystemEventDatastore {
         
         // startAfterItem is not used in Cassandra datastores, set it to null
         ret.getContext().setStartAfterItem(null);
-        
-        if(filterOptions == FilterOptions.location && !pageItems.isEmpty()) {
-            //when using client-side filtering for locations we may be hitting the situations when current page has less than max items, but it is not the last page
-            //since we're skipping the empty pages when doing client-side filtering, we can use final pageItems.isEmpty() as an indicator of the last page.  
-            ret.getContext().setLastPage(false);
-        }
-        
+
+        //in cassandra we will rely only on nextPagingState to set the lastPage indicator
+        ret.getContext().setLastPage(false);
+
         if(pagingState == null) {
             //in cassandra, if there are no more pages available, the pagingState is returned as null by the driver
             //this overrides all other heuristics related to guessing the indication of the last page

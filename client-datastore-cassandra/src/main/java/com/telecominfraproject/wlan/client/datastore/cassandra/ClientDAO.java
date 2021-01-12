@@ -440,7 +440,7 @@ public class ClientDAO {
         ArrayList<Object> bindVars = new ArrayList<>();
         BoundStatement boundStmt;
         
-        if (macSubstring != null) {
+        if (macSubstring != null && !macSubstring.isEmpty()) {
 		    bindVars.add(customerId);
 		    bindVars.add("%" + macSubstring.toLowerCase() + "%");
 	                
@@ -493,6 +493,15 @@ public class ClientDAO {
         
         // startAfterItem is not used in Cassandra datastores, set it to null
         ret.getContext().setStartAfterItem(null);
+        
+        //in cassandra we will rely only on nextPagingState to set the lastPage indicator
+        ret.getContext().setLastPage(false);
+
+        if(nextPagingState == null) {
+            //in cassandra, if there are no more pages available, the pagingState is returned as null by the driver
+            //this overrides all other heuristics related to guessing the indication of the last page
+            ret.getContext().setLastPage(true);
+        }
 
         return ret;	
         
@@ -564,6 +573,15 @@ public class ClientDAO {
         
         // startAfterItem is not used in Cassandra datastores, set it to null
         ret.getContext().setStartAfterItem(null);
+
+        //in cassandra we will rely only on nextPagingState to set the lastPage indicator
+        ret.getContext().setLastPage(false);
+
+        if(nextPagingState == null) {
+            //in cassandra, if there are no more pages available, the pagingState is returned as null by the driver
+            //this overrides all other heuristics related to guessing the indication of the last page
+            ret.getContext().setLastPage(true);
+        }
 
         return ret;	
     }

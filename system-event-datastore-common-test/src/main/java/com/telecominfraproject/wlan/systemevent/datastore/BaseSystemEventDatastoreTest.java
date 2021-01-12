@@ -34,7 +34,7 @@ public abstract class BaseSystemEventDatastoreTest {
     protected SystemEventDatastore testInterface;
 
     protected static final AtomicLong testSequence = new AtomicLong(1);
-
+    
     @Test
     public void testCRD() {
     	long baseTimestamp = System.currentTimeMillis();
@@ -216,7 +216,7 @@ public abstract class BaseSystemEventDatastoreTest {
         PaginationResponse<SystemEventRecord> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
-        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+        List<String> expectedPage1SingleSortDescStrings = getPagination_expectedPage1SingleSortDescStrings();
         List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
         page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((TestSystemEvent) ce.getDetails()).getPayload()) );
         
@@ -228,6 +228,10 @@ public abstract class BaseSystemEventDatastoreTest {
         used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
 
      }
+    
+    protected List<String> getPagination_expectedPage1SingleSortDescStrings(){ 
+        return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
+    }
 
 
     @Test

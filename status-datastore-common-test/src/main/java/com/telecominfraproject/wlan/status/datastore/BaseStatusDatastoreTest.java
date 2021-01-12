@@ -236,7 +236,7 @@ public abstract class BaseStatusDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       List<String> expectedPage3Strings = getStatusPagination_expectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
@@ -254,7 +254,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getStatusPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
@@ -264,7 +264,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = expectedPage1EmptySortStrings;
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
@@ -275,7 +275,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getStatusPagination_expectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
@@ -284,6 +284,18 @@ public abstract class BaseStatusDatastoreTest {
        //delete
        allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
 
+    }
+    
+    protected List<String> getStatusPagination_expectedPage1SingleSortDescStrings(){ 
+        return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
+    }
+    
+    protected List<String> getStatusPagination_expectedPage1EmptySortStrings(){
+        return Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" });
+    }
+    
+    protected List<String> getStatusPagination_expectedPage3Strings(){ 
+        return Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" });
     }
     
     @Test
@@ -349,7 +361,9 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
-           
+
+           allCreatedStatuses.add(mdl);
+
            EquipmentProtocolStatusData details2 = new EquipmentProtocolStatusData();
            details2.setSerialNumber("qr_"+apNameIdx);
            mdl.setDetails(details2);
@@ -360,7 +374,9 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
-           
+
+           allCreatedStatuses.add(mdl);
+
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
            details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);
@@ -651,6 +667,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
            
+           allCreatedStatuses.add(mdl);
+
            EquipmentProtocolStatusData details2 = new EquipmentProtocolStatusData();
            details2.setSerialNumber("qr_"+apNameIdx);
            mdl.setDetails(details2);
@@ -662,6 +680,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
            
+           allCreatedStatuses.add(mdl);
+
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
            details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);

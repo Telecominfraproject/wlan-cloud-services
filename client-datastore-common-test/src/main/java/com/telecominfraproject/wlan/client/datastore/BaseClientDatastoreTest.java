@@ -264,7 +264,7 @@ public abstract class BaseClientDatastoreTest {
         PaginationResponse<Client> page1SingleSortDesc = testInterface.searchByMacAddress(customerId_1, "A1", Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
-        List<String> expectedPage1SingleSortDescStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+        List<String> expectedPage1SingleSortDescStrings = getSearchByMac_ExpectedPage1SingleSortDescStrings();
         List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
         page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
         
@@ -272,6 +272,13 @@ public abstract class BaseClientDatastoreTest {
 
         created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
         
+    }
+    
+    /**
+     * This method is overridden in the cassandra datastore because cassandra does not handle sort order
+     */
+    protected List<String> getSearchByMac_ExpectedPage1SingleSortDescStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
     }
     
     @Test
@@ -436,7 +443,7 @@ public abstract class BaseClientDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       List<String> expectedPage3Strings = getClientPagination_ExpectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
        
@@ -447,7 +454,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getClientPagination_ExpectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
 
@@ -457,7 +464,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = new ArrayList<>(expectedPage1EmptySortStrings);
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
 
@@ -468,7 +475,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getClientPagination_ExpectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
        
@@ -476,6 +483,18 @@ public abstract class BaseClientDatastoreTest {
 
        created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
 
+    }
+
+    protected List<String> getClientPagination_ExpectedPage3Strings() {
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+    }
+
+    protected List<String> getClientPagination_ExpectedPage1EmptySortStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+    }
+
+    protected List<String> getClientPagination_ExpectedPage1SingleSortDescStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
     }
 
     
@@ -849,8 +868,22 @@ public abstract class BaseClientDatastoreTest {
        
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
+
+       Set<String> expectedAllPagesStrings = new HashSet<>();
+       for(int i=0; i<50; i++) {
+           expectedAllPagesStrings.add("qr_"+i);
+       }
+       Set<String> actualAllPagesStrings = new HashSet<>();
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       page1.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page2.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page3.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page4.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page5.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       
+       assertEquals(expectedAllPagesStrings, actualAllPagesStrings);
+       
+       List<String> expectedPage3Strings = getClientSessionPagination_expectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
@@ -861,7 +894,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1EmptySort = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
 
@@ -871,7 +904,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1NullSort = testInterface.getSessionsForCustomer(customerId_1, null, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
 
@@ -882,7 +915,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1SingleSortDesc = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getClientSessionPagination_expectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
@@ -1020,6 +1053,19 @@ public abstract class BaseClientDatastoreTest {
        createdList.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
        createdListExtra.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
     }
+    
+    protected List<String> getClientSessionPagination_expectedPage1EmptySortStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+    }
+    
+    protected List<String> getClientSessionPagination_expectedPage3Strings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+    }
+
+    protected List<String> getClientSessionPagination_expectedPage1SingleSortDescStrings() { 
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+    }
+    
     
     protected ClientSession createClientSessionObject() {
     	ClientSession result = new ClientSession();
