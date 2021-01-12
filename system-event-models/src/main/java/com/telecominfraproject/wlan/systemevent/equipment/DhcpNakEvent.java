@@ -9,12 +9,12 @@ public class DhcpNakEvent extends BaseDhcpEvent {
     private static final long serialVersionUID = -8648265834227002667L;
     private boolean fromInternal = false;
 
-    public DhcpNakEvent(int customerId, long equipmentId, long eventTimestamp, Long sessionId) {
+    public DhcpNakEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId) {
         super(customerId, equipmentId, eventTimestamp, sessionId);
     }
 
     public DhcpNakEvent() {
-        super(0, 0, 0, null);
+        super(0,0L,0L,0L);
     }
 
     /**

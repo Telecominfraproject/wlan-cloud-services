@@ -10,16 +10,14 @@ package com.telecominfraproject.wlan.systemevent.equipment;
 public class DhcpDeclineEvent extends BaseDhcpEvent {
     private static final long serialVersionUID = -7745659083975485467L;
 
-    public DhcpDeclineEvent(int customerId, long equipmentId, long eventTimestamp, Long sessionId){
+    public DhcpDeclineEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId){
     	super(customerId,equipmentId,eventTimestamp, sessionId);
     }
     
-	public DhcpDeclineEvent() {
-        super(0,0,0, null);
-	}
-	
-	
-	
+    public DhcpDeclineEvent() {
+        super(0,0L,0L,0L);
+    }
+
     @Override
     public int hashCode() {
         return super.hashCode();

@@ -9,13 +9,13 @@ public class DhcpDiscoverEvent extends BaseDhcpEvent {
     private static final long serialVersionUID = -8290687227649478971L;
     private String hostName;
 
-    public DhcpDiscoverEvent(int customerId, long equipmentId, long eventTimestamp, Long sessionId){
+    public DhcpDiscoverEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId){
     	super(customerId,equipmentId,eventTimestamp,sessionId);
     }
-
-	public DhcpDiscoverEvent() {
-        super(0,0,0, null);
-	}
+    
+    public DhcpDiscoverEvent() {
+        super(0,0L,0L,0L);
+    }
 
     /**
      * @return the hostName

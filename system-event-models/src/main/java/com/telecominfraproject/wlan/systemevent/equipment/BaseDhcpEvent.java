@@ -22,19 +22,15 @@ public abstract class BaseDhcpEvent extends SystemEvent {
     private int customerId;
     private long equipmentId;
 
-    public BaseDhcpEvent(int customerId, long equipmentId, long eventTimestamp, Long sessionId) {
+    protected BaseDhcpEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId) {
         super(eventTimestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
-        if (sessionId != null) {
-            setSessionId(sessionId);
-        } else {
-            setSessionId(0L);
-        }
+        this.sessionId = sessionId;
     }
 
-    public BaseDhcpEvent() {
-        // for serialization
+    protected BaseDhcpEvent() {
+        super();
     }
 
     public MacAddress getDeviceMacAddress() {
@@ -155,6 +151,7 @@ public abstract class BaseDhcpEvent extends SystemEvent {
                 && Objects.equals(relayIp, other.relayIp) && sessionId == other.sessionId && vlanId == other.vlanId
                 && xId == other.xId;
     }
+
     
     
 }
