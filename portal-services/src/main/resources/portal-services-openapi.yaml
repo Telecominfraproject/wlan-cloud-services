@@ -20,8 +20,9 @@ servers:
   
 
 tags:
-- name: Data Model Overview
+- name: Overview
   description: |
+    ## Data Model ##
     A Customer has Locations.
 
     Locations can be arranged in a hierarchy of Country -> Site -> Building -> Floor.
@@ -31,8 +32,14 @@ tags:
     Customer can have multiple Network Configurations (settings that can be attached to multiple equipment instances like SSIDs, radius server settings, etc.).
 
     Each Equipment can be linked to only one Network Configuration.
+    
+    Network Configurations are linked to various service Profiles.
 
     Each Equipment also has an Element Configuration (radio settings that are not shared between equipment instances).
+    
+    ---
+    For details on how to process large data sets - see the section "Pagination of results" below.
+
 - name: Login
 - name: Customer
   description: |
@@ -49,7 +56,11 @@ tags:
 - name: Profile
   description: |
     Profiles for various services can be associated with equipment and with other profiles.
-    Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
+    - Each AccessPoint refers to at most one profile of type equipment_ap. 
+    - Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property. 
+    - Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. 
+    - Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. 
+    - Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
 - name: Status
   description: |
     Status for the network and individual equipment.
@@ -63,41 +74,127 @@ tags:
   description: |
     Metrics specific to WLAN service can be created for equipment and customer.
         
-          Notes for Cassandra datastores 
-      The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
-      All other combination of filters involve using extra index tables. 
-      The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
-      Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
-      "For more explanations - See https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544"
+    *Notes for Cassandra datastores:* 
+    -  The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
+    -  All other combination of filters involve using extra index tables. 
+    -  The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
+    -  Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
+      For more explanations - See [this discussion](https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544)
               
 - name: System Events
   description: |
     Various system events can be generated and persisted by the cloud services, including provisioning-related events when data model objects are created, updated, removed. Events are associated with equipment and customer.
         
-          Notes for Cassandra datastores 
-      The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
-      All other combination of filters involve using extra index tables. 
-      The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
-      Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
-      "For more explanations - See https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544"
+    *Notes for Cassandra datastores:* 
+    -  The most efficient way to use this API is by providing non-empty values for all filters except locationIds. 
+    -  All other combination of filters involve using extra index tables. 
+    -  The least efficient way to query is to provide locationIds and some (but not all) other filters as this would involve client-side filtering.
+    -  Sorting options are ignored for Cassandra datastore, the returned data will be ordered, and the timestamp is part of the sort order, but that's about all. 
+      For more explanations - See [this discussion](https://stackoverflow.com/questions/35708118/where-and-order-by-clauses-in-cassandra-cql#35708544)
                   
 - name: Portal Users
 - name: Firmware Management
   description: |
-    Firmware versions describe firmware binary files, which can be stored in CloudSDK file broker, or at any publically accessible URL.
-    Firmware tracks define upgrade maintenance window.
-    Firmware versions per equipment model are assigned to a firmware track.
-    There is one DEFAULT firmware track, and there can be many other firmware tracks, with different names.
-    A firmware track can be associated with a customer. If no such explicit customer association exist, then the DEFAULT track will be applied to the customer. 
+    ## 
+    - Firmware versions describe firmware binary files, which can be stored in CloudSDK file broker, or at any publically accessible URL.
+    - Firmware tracks define upgrade maintenance window.
+    - Firmware versions per equipment model are assigned to a firmware track.
+    - There is one DEFAULT firmware track, and there can be many other firmware tracks, with different names.
+    - A firmware track can be associated with a customer. If no such explicit customer association exist, then the DEFAULT track will be applied to the customer. 
 - name: Manufacturer OUI
   description: |
     Manufacturer records alow translation from OUI (first 3 pieces of the MAC address) into the manufacturer names.
 - name: File Services
   description: |
-    Simple filestore service that allows stand-alone CloudSDK to serve firmware images to the APs. Supports only single level directory. Files can be stored and retrieved with webtoken auth by the portal and with client certificate auth by the AP.
+    ##
+    - Simple filestore service that allows stand-alone CloudSDK to serve firmware images to the APs. 
+    - Supports only single level directory. 
+    - Files can be stored and retrieved with webtoken auth by the portal and with client certificate auth by the AP.
 - name: Service Adoption Metrics
   description: |
     APIs to retrieve aggregated metrics for WiFi service adoption.
+
+- name: Pagination of results
+  description: |
+    ## Pagination of results
+    Many APIs return their results in pages to support very large datasets.
+    The intended way of iterating through the pages of results is as follows 
+      - create an initial pagination context with desired max items per page, then make the initial call to the
+      get... API with that context. 
+      - Retrieve the items from the returned page1.getItems() and process them. 
+      - Retrieve the updated page context from the returned page and pass the **whole context object (unmodified)** to the 
+      next call of get... API to get the next page of results. 
+      - Repeat the process above until pageX.getContext().isLastPage() != true.
+    
+    Additional notes
+      - parameters to get... API must not change as you iterate through pages of results
+      - sort options are ignored for Cassandra datastores (they are only applied for in-memory and RDBMS datastores) 
+      - Context returned from the previous call should be used as the pagination context for the next call. Until lastPage = true.
+      - Do not re-use contexts between calls, i.e. do not keep using the context from the first call.
+      
+    Java example
+    ```
+       PaginationContext<ClientSession> pContext = new PaginationContext<>(100);
+       while(!pContext.isLastPage()) {
+           PaginationResponse<ClientSession> page = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, pContext);
+           page.getItems().forEach(cs -> {
+               //process each returned client session in the returned page
+           });
+           //get the context for the next page of results
+           pContext = page.getContext();
+       }    
+    ```
+    Curl examples
+      > First call:
+    ```
+      curl -X GET "https://cloudsdk.example.com/portal/client/session/forCustomer?customerId=2&paginationContext=%7B%22model_type%22%3A%22PaginationContext%22%2C%22maxItemsPerPage%22%3A100%7D" -H  "accept: application/json" -H  "Authorization: Bearer $webtoken"
+    ```
+      > Result:
+    ```
+      {
+        "model_type": "PaginationResponse",
+        "items": [
+          {
+            "model_type": "ClientSession",
+            ...
+          }, 
+          ...
+        ],
+        "context": {
+          "model_type": "PaginationContext",
+          "cursor": "bnVsb1234...c9PQ==",
+          "lastPage": false,
+          "lastReturnedPageNumber": 1,
+          "maxItemsPerPage": 100,
+          "totalItemsReturned": 100
+        }
+      }
+    ```
+      > Second call:
+    ```
+      curl -X GET "https://cloudsdk.example.com/portal/client/session/forCustomer?customerId=2&paginationContext=%7B%22model_type%22%3A%22PaginationContext%22%2C%22cursor%22%3A%22bnVsb...c9PQ%3D%3D%22%2C%22lastPage%22%3Afalse%2C%22lastReturnedPageNumber%22%3A1%2C%22maxItemsPerPage%22%3A100%2C%22totalItemsReturned%22%3A100%7D" -H  "accept: application/json" -H  "Authorization: Bearer $webtoken"
+    ```
+      > Result:
+    ```
+      {
+        "model_type": "PaginationResponse",
+        "items": [
+          {
+            "model_type": "ClientSession",
+            ...
+          }, 
+          ...
+        ],
+        "context": {
+          "model_type": "PaginationContext",
+          "cursor": "bnVsbblah...c9PQ==",
+          "lastPage": false,
+          "lastReturnedPageNumber": 2,
+          "maxItemsPerPage": 100,
+          "totalItemsReturned": 200
+        }
+      }    
+    ```
 
 components:
   securitySchemes:
