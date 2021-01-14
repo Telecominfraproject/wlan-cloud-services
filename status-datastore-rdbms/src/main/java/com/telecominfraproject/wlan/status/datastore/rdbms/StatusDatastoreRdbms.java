@@ -34,8 +34,8 @@ public class StatusDatastoreRdbms implements StatusDatastore {
     }
     
     @Override
-    public List<Status> delete(int customerId, long equipmentId) {
-        return statusDAO.delete(customerId, equipmentId);
+    public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes) {
+        return statusDAO.delete(customerId, equipmentId, statusDataTypes);
     }
     
     @Override

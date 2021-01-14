@@ -134,8 +134,10 @@ public class StatusDatastoreCassandra implements StatusDatastore {
         private static final String CQL_INSERT_BY_DATATYPE =
                 "insert into status_by_datatype (customerId, equipmentId, statusDataType) values ( ?, ?, ? )";
 
-        private static final String CQL_DELETE_BY_DATATYPE =
-                "delete from status_by_datatype where customerId = ? and equipmentId = ? and statusDataType = ?";
+        private static final String CQL_DELETE_BY_DATATYPE_HEADER =
+                "delete from status_by_datatype where customerId = ? and equipmentId = ? ";
+
+        private static final String CQL_DELETE_BY_DATATYPE = CQL_DELETE_BY_DATATYPE_HEADER + " and statusDataType = ?";
 
     private static final RowMapper<Status> statusRowMapper = new StatusRowMapper();
     
@@ -278,6 +280,75 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 
         LOG.debug("Deleted Statuses {}", ret);
                 
+        return ret;
+	}
+	
+	@Override
+	public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes) {
+	    
+	    if(statusDataTypes == null || statusDataTypes.isEmpty()) {
+	        return delete(customerId, equipmentId);
+	    }
+	    
+        List<Status> ret = getForEquipment(customerId, Set.of(equipmentId), statusDataTypes);
+
+        //
+        // Delete from the main table
+        //
+
+        String query = CQL_DELETE;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        queryArgs.add(equipmentId);
+
+        //add statusDataType filters
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+            statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append(" and statusDataType in (");
+            strb.append("?,".repeat(statusDataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }     
+        
+        PreparedStatement preparedStmt = cqlSession.prepare(query); 
+        cqlSession.execute(preparedStmt.bind(queryArgs.toArray()));
+
+        //
+        // Clear the index table
+        //
+        query = CQL_DELETE_BY_DATATYPE_HEADER;
+
+        // add filters for the query
+        queryArgs.clear();
+        queryArgs.add(customerId);
+        queryArgs.add(equipmentId);
+
+        //add statusDataType filters
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+            statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append(" and statusDataType in (");
+            strb.append("?,".repeat(statusDataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }     
+        
+        preparedStmt = cqlSession.prepare(query); 
+        cqlSession.execute(preparedStmt.bind(queryArgs.toArray()));
+
+        LOG.debug("Deleted Statuses {}", ret);
+        
         return ret;
 	}
 

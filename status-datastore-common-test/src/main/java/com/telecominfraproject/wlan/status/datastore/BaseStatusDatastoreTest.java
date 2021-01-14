@@ -22,6 +22,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolStatusData;
 import com.telecominfraproject.wlan.status.equipment.report.models.OperatingSystemPerformance;
@@ -29,6 +30,7 @@ import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
+import com.telecominfraproject.wlan.status.network.models.NetworkAggregateStatusData;
 
 /**
  * @author dtoptygin
@@ -803,6 +805,55 @@ public abstract class BaseStatusDatastoreTest {
        allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
 
 	}
+
+    @Test
+    public void testDelete() {
+        //create
+        Status status1 = testInterface.update(createStatusObject());
+
+        Status status2 = new Status();
+        status2.setCustomerId(status1.getCustomerId());
+        status2.setEquipmentId(status1.getEquipmentId());
+        status2.setDetails(new EquipmentProtocolStatusData());
+        status2 = testInterface.update(status2);
+
+        Status status3 = new Status();
+        status3.setCustomerId(status1.getCustomerId());
+        status3.setEquipmentId(status1.getEquipmentId());
+        status3.setDetails(new NetworkAggregateStatusData());
+        status3 = testInterface.update(status3);
+
+        List<Status> statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(3, statusList.size());
+        
+        //delete with specific data types
+        List<Status> deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), Set.of(StatusDataType.PROTOCOL, StatusDataType.NETWORK_AGGREGATE));
+        assertEquals(2, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(1, statusList.size());
+
+        //now test delete with null data types
+        deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), null);
+        assertEquals(1, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(0, statusList.size());
+
+        //now test delete with empty data types
+        Status status4 = new Status();
+        status4.setCustomerId(status1.getCustomerId());
+        status4.setEquipmentId(status1.getEquipmentId());
+        status4.setDetails(new CustomerPortalDashboardStatus());
+        status4 = testInterface.update(status4);
+
+        deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), Set.of());
+        assertEquals(1, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(0, statusList.size());
+
+    }
     
     protected Status createStatusObject() {
     	Status result = new Status();

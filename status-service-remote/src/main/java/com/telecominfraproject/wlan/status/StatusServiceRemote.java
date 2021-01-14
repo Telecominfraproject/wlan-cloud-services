@@ -223,24 +223,34 @@ public class StatusServiceRemote extends BaseRemoteClient implements StatusServi
     }
     
     @Override
-    public List<Status> delete(int customerId, long equipmentId) {
+    public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes) {
 		
-        LOG.debug("delete({}, {})", customerId, equipmentId);
+        LOG.debug("delete({}, {}, {})", customerId, equipmentId, statusDataTypes);
 
         
+        String statusDataTypesStr = null;
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+            statusDataTypesStr = statusDataTypes.toString();
+            // remove [] around the string, otherwise will get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            statusDataTypesStr = statusDataTypesStr.substring(1, statusDataTypesStr.length() - 1);
+        }
+
         try {
             ResponseEntity<List<Status>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "?customerId={customerId}&equipmentId={equipmentId}", HttpMethod.DELETE,
-                    null, Status_LIST_CLASS_TOKEN, customerId, equipmentId);
+                    getBaseUrl() + "?customerId={customerId}&equipmentId={equipmentId}&statusDataTypes={statusDataTypesStr}", HttpMethod.DELETE,
+                    null, Status_LIST_CLASS_TOKEN, customerId, equipmentId, statusDataTypesStr);
 
             List<Status> result = responseEntity.getBody();
             if (null == result) {
                 result = Collections.emptyList();
             }
-            LOG.debug("delete({}, {}) returns {} entries", customerId, equipmentId, result.size());
+            LOG.debug("delete({}, {}, {}) returns {} entries", customerId, equipmentId, statusDataTypes, result.size());
             return result;
         } catch (Exception exp) {
-            LOG.error("delete({}, {}) exception ", customerId, equipmentId, exp);
+            LOG.error("delete({}, {}, {}) exception ", customerId, equipmentId, statusDataTypes, exp);
             throw exp;
         }
 

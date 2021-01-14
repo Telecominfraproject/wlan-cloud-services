@@ -28,13 +28,25 @@ public interface StatusDatastore {
     Status update(Status status);
     
     /**
-     * Deletes a list of Status records for a given customer equipment.
+     * Deletes all Status records for a given customer equipment.
      * 
      * @param customerId
      * @param equipmentId
      * @return list of deleted Status objects.
      */
-    List<Status> delete(int customerId, long equipmentId);
+    default public List<Status> delete(int customerId, long equipmentId){
+        return delete(customerId, equipmentId, null);
+    }
+
+    /**
+     * Deletes Status records for a given customer equipment.
+     * 
+     * @param customerId
+     * @param equipmentId
+     * @param statusDataTypes - null or empty means delete all
+     * @return list of deleted Status objects.
+     */
+    List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes);
 
     /**
      * Force bulk update of the status objects. If a particular record was not there, it will be created. LastModifiedTs checks are not enforced in this method, it will overwrite any previously stored status object.

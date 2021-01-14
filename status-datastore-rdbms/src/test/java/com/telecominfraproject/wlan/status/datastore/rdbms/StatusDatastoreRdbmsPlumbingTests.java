@@ -60,7 +60,7 @@ public class StatusDatastoreRdbmsPlumbingTests extends BaseJdbcTest {
         Status ret = statusDatastore.getOrNull(1,1L, StatusDataType.getById(1));        
 
         //DELETE Test
-        statusDAO.delete(ret.getCustomerId(), ret.getEquipmentId());
+        statusDAO.delete(ret.getCustomerId(), ret.getEquipmentId(), null);
         
        	assertNull(statusDatastore.getOrNull(1,1L, StatusDataType.getById(1)));
                 

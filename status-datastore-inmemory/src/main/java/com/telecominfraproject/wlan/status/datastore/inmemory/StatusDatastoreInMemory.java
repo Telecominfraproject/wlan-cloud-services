@@ -107,12 +107,11 @@ public class StatusDatastoreInMemory extends BaseInMemoryDatastore implements St
     }
 
 
-    
     @Override
-    public List<Status> delete(int customerId, long equipmentId) {
+    public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> dataTypes) {
     	List<CustomerEquipmentStatusId> keysToRemove = new ArrayList<>();
 		idToStatusMap.keySet().forEach(k -> {
-			if (k.customerId == customerId && k.equipmentId == equipmentId) {
+			if (k.customerId == customerId && k.equipmentId == equipmentId && (dataTypes == null || dataTypes.isEmpty() || dataTypes.contains(k.statusDataType) ) ) {
 				keysToRemove.add(k);
 			}
 		});
