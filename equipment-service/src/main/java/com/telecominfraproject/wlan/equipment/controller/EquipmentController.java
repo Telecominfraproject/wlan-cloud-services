@@ -197,41 +197,8 @@ public class EquipmentController {
 
     @RequestMapping(value = "/forCustomerWithFilter", method = RequestMethod.GET)
     public PaginationResponse<Equipment> getForCustomerWithFilter(@RequestParam int customerId,
-            @RequestParam EquipmentType equipmentType, @RequestParam Set<Long> locationIds,
-            @RequestParam List<ColumnAndSort> sortBy,
-            @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
-
-    	if(paginationContext == null) {
-    		paginationContext = new PaginationContext<>();
-    	}
-
-        LOG.debug("Looking up equipment {} for customer {} locations {} last returned page number {}", equipmentType,
-                customerId, locationIds, paginationContext.getLastReturnedPageNumber());
-
-        PaginationResponse<Equipment> ret = new PaginationResponse<>();
-
-        if (paginationContext.isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up equipment {} for customer {} locations {} last returned page number {}",
-                    equipmentType, customerId, locationIds, paginationContext.getLastReturnedPageNumber());
-            ret.setContext(paginationContext);
-            return ret;
-        }
-
-        PaginationResponse<Equipment> cePage = this.equipmentDatastore
-                .getForCustomer(customerId, equipmentType, locationIds, sortBy, paginationContext);
-        ret.setContext(cePage.getContext());
-        ret.getItems().addAll(cePage.getItems());
-
-        LOG.debug("Retrieved {} equipment {} for customer {} locations {} ", cePage.getItems().size(), equipmentType,
-                customerId, locationIds);
-
-        return ret;
-    }
-    
-    @RequestMapping(value = "/searchByMacAndName", method = RequestMethod.GET)
-    public PaginationResponse<Equipment> searchByMacAndName(@RequestParam int customerId,
+            @RequestParam(required = false) EquipmentType equipmentType, 
+            @RequestParam(required = false) Set<Long> locationIds,
             @RequestParam(required = false) String criteria,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
@@ -240,26 +207,27 @@ public class EquipmentController {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up equipments for customer {} criteria {} last returned page number {}",
-                customerId, criteria, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up equipment {} for customer {} locations {} criteria {} last returned page number {}", equipmentType,
+                customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
-            LOG.debug("No more pages available when looking up equipments for customer {} criteria {} last returned page number {}",
-                    customerId, criteria, paginationContext.getLastReturnedPageNumber());
+            LOG.debug(
+                    "No more pages available when looking up equipment {} for customer {} locations {} criteria {} last returned page number {}",
+                    equipmentType, customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<Equipment> cePage = this.equipmentDatastore
-                .searchByMacAndName(customerId, criteria, sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentType, locationIds, criteria, sortBy, paginationContext);
         ret.setContext(cePage.getContext());
         ret.getItems().addAll(cePage.getItems());
 
-        LOG.debug("Retrieved {} equipments for customer {} criteria {} ", cePage.getItems().size(),
-                customerId, criteria);
+        LOG.debug("Retrieved {} equipment {} for customer {} locations {} criteria {}", cePage.getItems().size(), equipmentType,
+                customerId, locationIds, criteria);
 
         return ret;
     }

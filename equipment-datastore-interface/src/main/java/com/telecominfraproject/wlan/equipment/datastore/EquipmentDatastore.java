@@ -59,9 +59,7 @@ public interface EquipmentDatastore {
      */
     PaginationResponse<Equipment> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
-    PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
-
-    PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
+    PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
     /**
      * Find equipment ids for the equipment that refers (directly or indirectly) to the specified set of profile ids.
