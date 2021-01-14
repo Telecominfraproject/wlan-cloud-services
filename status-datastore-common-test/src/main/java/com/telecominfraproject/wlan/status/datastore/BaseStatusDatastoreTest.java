@@ -22,6 +22,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
+import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolStatusData;
 import com.telecominfraproject.wlan.status.equipment.report.models.OperatingSystemPerformance;
@@ -29,6 +30,7 @@ import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
+import com.telecominfraproject.wlan.status.network.models.NetworkAggregateStatusData;
 
 /**
  * @author dtoptygin
@@ -236,7 +238,7 @@ public abstract class BaseStatusDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       List<String> expectedPage3Strings = getStatusPagination_expectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
@@ -254,7 +256,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getStatusPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
@@ -264,7 +266,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = expectedPage1EmptySortStrings;
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
 
@@ -275,7 +277,7 @@ public abstract class BaseStatusDatastoreTest {
        PaginationResponse<Status> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getStatusPagination_expectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((EquipmentAdminStatusData) ce.getDetails()).getStatusMessage()) );
        
@@ -284,6 +286,18 @@ public abstract class BaseStatusDatastoreTest {
        //delete
        allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
 
+    }
+    
+    protected List<String> getStatusPagination_expectedPage1SingleSortDescStrings(){ 
+        return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
+    }
+    
+    protected List<String> getStatusPagination_expectedPage1EmptySortStrings(){
+        return Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" });
+    }
+    
+    protected List<String> getStatusPagination_expectedPage3Strings(){ 
+        return Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" });
     }
     
     @Test
@@ -349,7 +363,9 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
-           
+
+           allCreatedStatuses.add(mdl);
+
            EquipmentProtocolStatusData details2 = new EquipmentProtocolStatusData();
            details2.setSerialNumber("qr_"+apNameIdx);
            mdl.setDetails(details2);
@@ -360,7 +376,9 @@ public abstract class BaseStatusDatastoreTest {
            mdl = new Status();
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
-           
+
+           allCreatedStatuses.add(mdl);
+
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
            details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);
@@ -651,6 +669,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
            
+           allCreatedStatuses.add(mdl);
+
            EquipmentProtocolStatusData details2 = new EquipmentProtocolStatusData();
            details2.setSerialNumber("qr_"+apNameIdx);
            mdl.setDetails(details2);
@@ -662,6 +682,8 @@ public abstract class BaseStatusDatastoreTest {
            mdl.setCustomerId(customerId_1);
            mdl.setEquipmentId(equipmentIds_1[i]);
            
+           allCreatedStatuses.add(mdl);
+
            OperatingSystemPerformance details3 = new OperatingSystemPerformance();
            details3.setAvgFreeMemoryKb(apNameIdx);
            mdl.setDetails(details3);
@@ -783,6 +805,55 @@ public abstract class BaseStatusDatastoreTest {
        allCreatedStatuses.forEach(s ->  testInterface.delete(s.getCustomerId(), s.getEquipmentId()));
 
 	}
+
+    @Test
+    public void testDelete() {
+        //create
+        Status status1 = testInterface.update(createStatusObject());
+
+        Status status2 = new Status();
+        status2.setCustomerId(status1.getCustomerId());
+        status2.setEquipmentId(status1.getEquipmentId());
+        status2.setDetails(new EquipmentProtocolStatusData());
+        status2 = testInterface.update(status2);
+
+        Status status3 = new Status();
+        status3.setCustomerId(status1.getCustomerId());
+        status3.setEquipmentId(status1.getEquipmentId());
+        status3.setDetails(new NetworkAggregateStatusData());
+        status3 = testInterface.update(status3);
+
+        List<Status> statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(3, statusList.size());
+        
+        //delete with specific data types
+        List<Status> deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), Set.of(StatusDataType.PROTOCOL, StatusDataType.NETWORK_AGGREGATE));
+        assertEquals(2, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(1, statusList.size());
+
+        //now test delete with null data types
+        deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), null);
+        assertEquals(1, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(0, statusList.size());
+
+        //now test delete with empty data types
+        Status status4 = new Status();
+        status4.setCustomerId(status1.getCustomerId());
+        status4.setEquipmentId(status1.getEquipmentId());
+        status4.setDetails(new CustomerPortalDashboardStatus());
+        status4 = testInterface.update(status4);
+
+        deletedList = testInterface.delete(status1.getCustomerId(), status1.getEquipmentId(), Set.of());
+        assertEquals(1, deletedList.size());
+        
+        statusList = testInterface.getForEquipment(status1.getCustomerId(), Set.of(status1.getEquipmentId()), null);
+        assertEquals(0, statusList.size());
+
+    }
     
     protected Status createStatusObject() {
     	Status result = new Status();

@@ -20,7 +20,7 @@ public class RadiusNasConfiguration extends BaseJsonModel
     NasIpType nasClientIp;
     String userDefinedNasId;
     String userDefinedNasIp;
-    String nasOperatorId;
+    String operatorId;
 
     private RadiusNasConfiguration() {
         nasClientId = NasIdType.DEFAULT;
@@ -88,17 +88,17 @@ public class RadiusNasConfiguration extends BaseJsonModel
     }
 
     /**
-     * @return the nasOperatorId
+     * @return the operatorId
      */
-    public String getNasOperatorId() {
-        return nasOperatorId;
+    public String getOperatorId() {
+        return operatorId;
     }
 
     /**
-     * @param nasOperatorId the nasOperatorId to set
+     * @param operatorId the operatorId to set
      */
-    public void setNasOperatorId(String nasOperatorId) {
-        this.nasOperatorId = nasOperatorId;
+    public void setOperatorId(String operatorId) {
+        this.operatorId = operatorId;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class RadiusNasConfiguration extends BaseJsonModel
 
     @Override
     public int hashCode() {
-        return Objects.hash(nasClientId, nasClientIp, nasOperatorId, userDefinedNasId, userDefinedNasIp);
+        return Objects.hash(nasClientId, nasClientIp, operatorId, userDefinedNasId, userDefinedNasIp);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class RadiusNasConfiguration extends BaseJsonModel
             return false;
         RadiusNasConfiguration other = (RadiusNasConfiguration) obj;
         return nasClientId == other.nasClientId && nasClientIp == other.nasClientIp
-                && Objects.equals(nasOperatorId, other.nasOperatorId)
+                && Objects.equals(operatorId, other.operatorId)
                 && Objects.equals(userDefinedNasId, other.userDefinedNasId)
                 && Objects.equals(userDefinedNasIp, other.userDefinedNasIp);
     }

@@ -260,18 +260,21 @@ public abstract class BaseRoutingDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<Long> expectedPage3Longs = new ArrayList<	>(Arrays.asList(new Long[]{20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L }));
+       List<Long> expectedPage3Longs = getRoutingPagination_expectedPage3Longs();
        List<Long> actualPage3Longs = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Longs.add( ce.getEquipmentId()) );
        
-       assertEquals(expectedPage3Longs, actualPage3Longs);
+       if(!expectedPage3Longs.isEmpty()) {
+           //cassandra datastore does not orded the results the way other datastores do, so we'll skip this check for it
+           assertEquals(expectedPage3Longs, actualPage3Longs);
+       }
 
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
        PaginationResponse<EquipmentRoutingRecord> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<Long> expectedPage1EmptySortLongs = new ArrayList<>(Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L }));
+       List<Long> expectedPage1EmptySortLongs = getRoutingPagination_expectedPage1EmptySortLongs(customerId_1);
        List<Long> actualPage1EmptySortLongs = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortLongs.add( ce.getEquipmentId()) );
 
@@ -281,7 +284,7 @@ public abstract class BaseRoutingDatastoreTest {
        PaginationResponse<EquipmentRoutingRecord> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<Long> expectedPage1NullSortLongs = new ArrayList<>(Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L }));
+       List<Long> expectedPage1NullSortLongs = expectedPage1EmptySortLongs;
        List<Long> actualPage1NullSortLongs = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortLongs.add( ce.getEquipmentId()) );
 
@@ -292,7 +295,7 @@ public abstract class BaseRoutingDatastoreTest {
        PaginationResponse<EquipmentRoutingRecord> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<Long> expectedPage1SingleSortDescLongs = new ArrayList<	>(Arrays.asList(new Long[]{ 49L, 48L, 47L, 46L, 45L, 44L, 43L, 42L, 41L, 40L }));
+       List<Long> expectedPage1SingleSortDescLongs = getRoutingPagination_expectedPage1SingleSortDescLongs(customerId_1);
        List<Long> actualPage1SingleSortDescLongs = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescLongs.add( ce.getEquipmentId()) );
        
@@ -302,6 +305,19 @@ public abstract class BaseRoutingDatastoreTest {
        testInterface.deleteGateway(gateway.getId());
 
     }
+    
+    protected List<Long> getRoutingPagination_expectedPage1SingleSortDescLongs(int customerId){ 
+        return Arrays.asList(new Long[]{ 49L, 48L, 47L, 46L, 45L, 44L, 43L, 42L, 41L, 40L });
+    }
+    
+    protected List<Long> getRoutingPagination_expectedPage1EmptySortLongs(int customerId){ 
+        return Arrays.asList(new Long[]{0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L });
+    }
+    
+    protected List<Long> getRoutingPagination_expectedPage3Longs(){ 
+        return Arrays.asList(new Long[]{20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L });
+    }
+    
     
     @Test
     public void testGatewayCRUD(){

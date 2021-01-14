@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.portal.controller.systemevent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -43,7 +45,9 @@ public class SystemEventPortalController  {
     @RequestMapping(value = "/systemEvent/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<SystemEventRecord> getForCustomer(@RequestParam long fromTime, @RequestParam long toTime, 
     		@RequestParam int customerId,
-    		@RequestParam(required = false) Set<Long> equipmentIds, 
+            @RequestParam(required = false) Set<Long> locationIds,
+            @RequestParam(required = false) Set<Long> equipmentIds, 
+            @RequestParam(required = false) Set<String> clientMacs, 
     		@RequestParam(required = false) Set<String> dataTypes,
     		@RequestParam(required = false) List<ColumnAndSort> sortBy, 
     		@RequestParam(required = false) PaginationContext<SystemEventRecord> paginationContext) {    
@@ -65,9 +69,15 @@ public class SystemEventPortalController  {
             return ret;
         }
 
+        Set<MacAddress> macSet = new HashSet<>();
+
+        if(clientMacs!=null) {
+            clientMacs.forEach(m -> macSet.add(m!=null?new MacAddress(m):null));
+        }
+
         PaginationResponse<SystemEventRecord> onePage = this.systemEventInterface
                 .getForCustomer(fromTime, toTime, customerId,
-                		equipmentIds, dataTypes, sortBy, paginationContext);
+                        locationIds, equipmentIds, macSet, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 

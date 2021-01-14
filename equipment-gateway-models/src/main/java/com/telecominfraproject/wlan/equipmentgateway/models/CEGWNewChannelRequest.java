@@ -12,15 +12,20 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
      *
      */
     private static final long serialVersionUID = -8251272945594285119L;
-    /**
-     *
-     */
+
+    private Map<RadioType, Integer> newPrimaryChannels = new EnumMap<>(RadioType.class);
     private Map<RadioType, Integer> newBackupChannels = new EnumMap<>(RadioType.class);
 
     protected CEGWNewChannelRequest() {
         // serial
     }
 
+    public CEGWNewChannelRequest(String inventoryId, long equipmentId, Map<RadioType, Integer> newBackupChannels, Map<RadioType,Integer> newPrimaryChannels) {
+        super(CEGWCommandType.NewChannelRequest, inventoryId, equipmentId);
+        this.newBackupChannels = newBackupChannels;
+        this.newPrimaryChannels = newPrimaryChannels;
+    }
+    
     public CEGWNewChannelRequest(String inventoryId, long equipmentId, Map<RadioType, Integer> newBackupChannels) {
         super(CEGWCommandType.NewChannelRequest, inventoryId, equipmentId);
         this.newBackupChannels = newBackupChannels;
@@ -47,6 +52,28 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
         this.newBackupChannels = newBackupChannels;
     }
 
+    @JsonIgnore
+    public Integer getNewPrimaryChannel(RadioType radioType) {
+        return newPrimaryChannels.get(radioType);
+    }
+    
+    @JsonIgnore
+    public void setNewPrimaryChannel(RadioType radioType, Integer newPrimaryChannel) {
+        if (this.newPrimaryChannels == null) {
+            this.newPrimaryChannels = new EnumMap<>(RadioType.class);
+        }
+        this.newPrimaryChannels.put(radioType, newPrimaryChannel);
+    }
+    
+    public Map<RadioType, Integer> getNewPrimaryChannels() {
+        return newPrimaryChannels;
+    }
+
+    public void setNewPrimaryChannels(Map<RadioType, Integer> newPrimaryChannels) {
+        this.newPrimaryChannels = newPrimaryChannels;
+    }
+    
+    
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
@@ -57,6 +84,11 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
                 return true;
             }
         }
+        if (newPrimaryChannels != null && !newPrimaryChannels.isEmpty()) {
+            if (newPrimaryChannels.get(RadioType.UNSUPPORTED) != null) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -64,23 +96,23 @@ public class CEGWNewChannelRequest extends EquipmentCommand {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(newBackupChannels);
+        result = prime * result + Objects.hash(newBackupChannels, newPrimaryChannels);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (!super.equals(obj)) {
+        if (!super.equals(obj))
             return false;
-        }
-        if (!(obj instanceof CEGWNewChannelRequest)) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         CEGWNewChannelRequest other = (CEGWNewChannelRequest) obj;
-        return Objects.equals(newBackupChannels, other.newBackupChannels);
+        return Objects.equals(newBackupChannels, other.newBackupChannels)
+                && Objects.equals(newPrimaryChannels, other.newPrimaryChannels);
     }
+
+    
 
 }

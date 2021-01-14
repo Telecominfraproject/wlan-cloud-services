@@ -29,6 +29,14 @@ public interface ClientDatastore {
      * @return list of matching Client objects.
      */
     List<Client> get(int customerId, Set<MacAddress> clientMacSet);
+    
+    /**
+     * Retrieves a list of Client records that have mac addresses that match a given substring.
+     * 
+     * @param macSubstring
+     * @return next page of matching Client objects.
+     */
+    PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
 
     /**
      * <br>Retrieves all of the Client records that are mapped to the provided customerId.

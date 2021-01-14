@@ -12,26 +12,21 @@ public class SystemEventRecordKey extends BaseJsonModel {
     private static final long serialVersionUID = -8445333816441019450L;
 
     private int customerId;
+    private long locationId;
     private long equipmentId;
+    private long clientMac;
     private String dataType;
     private long eventTimestamp;
 
     public SystemEventRecordKey() {
-        super();
+        //for serialization
     }
     
-    public SystemEventRecordKey(int customerId, long equipmentId, String dataType, long eventTimestamp) {
-        super();
-        this.customerId = customerId;
-        this.equipmentId = equipmentId;
-        this.dataType = dataType;
-        this.eventTimestamp = eventTimestamp;
-    }
-
     public SystemEventRecordKey(SystemEventRecord systemEventRecord) {
-        super();
         this.customerId = systemEventRecord.getCustomerId();
+        this.locationId = systemEventRecord.getLocationId();
         this.equipmentId = systemEventRecord.getEquipmentId();
+        this.clientMac = systemEventRecord.getClientMac();
         this.dataType = systemEventRecord.getDataType();
         this.eventTimestamp = systemEventRecord.getEventTimestamp();
     }
@@ -52,14 +47,6 @@ public class SystemEventRecordKey extends BaseJsonModel {
         this.equipmentId = equipmentId;
     }
 
-    public String getPayloadType() {
-        return dataType;
-    }
-
-    public void setPayloadType(String payloadType) {
-        this.dataType = payloadType;
-    }
-
     public long getEventTimestamp() {
         return eventTimestamp;
     }
@@ -67,10 +54,34 @@ public class SystemEventRecordKey extends BaseJsonModel {
     public void setEventTimestamp(long eventTimestamp) {
         this.eventTimestamp = eventTimestamp;
     }
+    
+	public long getLocationId() {
+        return locationId;
+    }
 
-	@Override
+    public void setLocationId(long locationId) {
+        this.locationId = locationId;
+    }
+
+    public long getClientMac() {
+        return clientMac;
+    }
+
+    public void setClientMac(long clientMac) {
+        this.clientMac = clientMac;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    @Override
 	public int hashCode() {
-		return Objects.hash(customerId, equipmentId, eventTimestamp, dataType);
+		return Objects.hash(customerId, locationId, equipmentId, clientMac, eventTimestamp, dataType);
 	}
 
 	@Override
@@ -82,7 +93,8 @@ public class SystemEventRecordKey extends BaseJsonModel {
 			return false;
 		}
 		SystemEventRecordKey other = (SystemEventRecordKey) obj;
-		return customerId == other.customerId && equipmentId == other.equipmentId
+		return customerId == other.customerId && locationId == other.locationId  && equipmentId == other.equipmentId
+		        && clientMac == other.clientMac
 				&& eventTimestamp == other.eventTimestamp && Objects.equals(dataType, other.dataType);
 	}
     

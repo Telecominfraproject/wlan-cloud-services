@@ -1401,6 +1401,16 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: statusDataTypes
+        in: query
+        description: Status Data Types
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                 $ref: '#/components/schemas/StatusDataType'          
       responses:
         200:
           description: Successful operation

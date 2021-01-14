@@ -53,3 +53,9 @@ delete from equipment_routing where id = 1;
 select * from equipment_routing where customerId = 1;
 
 select * from equipment_routing where equipmentId = 1;
+
+---
+--- Clean up data
+---
+truncate table equipment_gateway;
+truncate table equipment_routing;

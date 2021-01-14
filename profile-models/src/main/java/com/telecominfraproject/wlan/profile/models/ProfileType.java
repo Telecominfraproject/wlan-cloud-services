@@ -60,7 +60,8 @@ public class ProfileType implements EnumWithId {
     passpoint = new ProfileType(10,"passpoint"),
     passpoint_operator = new ProfileType(11, "passpoint_operator"),
     passpoint_venue = new ProfileType(12,"passpoint_venue"),
-    passpoint_osu_id_provider = new ProfileType(13,"passpoint_osu_id_provider"),  
+    passpoint_osu_id_provider = new ProfileType(13,"passpoint_osu_id_provider"),
+    ap_event_rate = new ProfileType(14,"ap_event_rate"),
     UNSUPPORTED = new ProfileType(-1, "UNSUPPORTED");
     
     static {

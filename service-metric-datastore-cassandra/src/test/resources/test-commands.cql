@@ -274,6 +274,65 @@ select * from service_metric_by_mac_and_equipment_datatype where customerId = 1 
 select clientMac, dataType from service_metric_by_mac_and_equipment_datatype where customerId = 1 and equipmentId = 1 and createdTimestamp < 1594837188000 allow filtering;
 delete from service_metric_by_mac_and_equipment_datatype where customerId = 1 and equipmentId = 1 and clientMac in (1, 2)  and dataType in (1,2,3) and createdTimestamp < 1594837188000;
 
+-------------------------------------------------------------------------------- 
+-- Operations on service_metric_by_location
+--------------------------------------------------------------------------------
+
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837187000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837188000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837189000);
+
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837187000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837188000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837189000);
+
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837187000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837188000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837189000);
+
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837187000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837188000);
+insert into service_metric_by_location (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837189000);
+
+select * from service_metric_by_location ;
+
+select * from service_metric_by_location where customerId = 1 and locationId in (1, 2) and createdTimestamp >= 1594837187000 and createdTimestamp <= 1594837189000;
+
+delete from service_metric_by_location where customerId = 1 and locationId  = 1 and createdTimestamp < 1594837188000;
+
+-------------------------------------------------------------------------------- 
+-- Operations on service_metric_by_location_all_filters
+--------------------------------------------------------------------------------
+
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837187000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837188000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 1, 197, 1, 1, 1594837189000);
+
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837187000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837188000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 1, 2, 197, 1, 1, 1594837189000);
+
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837187000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837188000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 1, 1594837189000);
+
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837187000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837188000);
+insert into service_metric_by_location_all_filters (customerId, locationId, equipmentId, dayOfYear, clientMac, dataType, createdTimestamp) values ( 1, 2, 2, 197, 2, 2, 1594837189000);
+
+select * from service_metric_by_location_all_filters ;
+
+--this does not work - all columns need to be provided for filtering
+--select * from service_metric_by_location_all_filters where customerId = 1 and locationId in (1, 2) and createdTimestamp >= 1594837187000 and createdTimestamp <= 1594837189000;
+
+
+select * from service_metric_by_location_all_filters where customerId = 1 and locationId in (1, 2)  and equipmentId in (1, 2)  and clientMac in (1, 2) and dataType in (1,2,3) and createdTimestamp >= 1594837187000 and createdTimestamp <= 1594837189000;
+
+-- not performance-efficient, but this query is used only in the tests, so it's ok
+
+select * from service_metric_by_location_all_filters where customerId = 1 and equipmentId = 1 and createdTimestamp < 1594837189000 allow filtering;
+
+delete  from service_metric_by_location_all_filters where customerId = 1 and locationId in (1, 2)  and equipmentId in (1, 2)  and clientMac in (1, 2) and dataType in (1,2,3) and createdTimestamp < 1594837188000;
 
 -------------------------------------------------------------------------------- 
 -- Commands to drop the tables 
@@ -288,7 +347,8 @@ drop table service_metric_by_customer_datatype;
 drop table service_metric_by_equipment_datatype;
 drop table service_metric_by_mac_datatype;
 drop table service_metric_by_mac_and_equipment_datatype;
-
+drop table service_metric_by_location;
+drop table service_metric_by_location_all_filters;
 
 -------------------------------------------------------------------------------- 
 -- Commands to clean up after the test 
@@ -303,5 +363,5 @@ TRUNCATE TABLE service_metric_by_customer_datatype ;
 TRUNCATE TABLE service_metric_by_equipment_datatype ;
 TRUNCATE TABLE service_metric_by_mac_datatype ;
 TRUNCATE TABLE service_metric_by_mac_and_equipment_datatype ;
-
-
+TRUNCATE TABLE service_metric_by_location;
+TRUNCATE TABLE service_metric_by_location_all_filters;

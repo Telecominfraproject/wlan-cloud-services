@@ -19,6 +19,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
+import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -26,11 +30,6 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
-
-import com.telecominfraproject.wlan.alarm.models.Alarm;
-import com.telecominfraproject.wlan.alarm.models.AlarmCode;
-import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
-import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
 
 /**
  * @author dtoptygin
@@ -209,6 +208,9 @@ public abstract class BaseAlarmDatastoreTest {
        Set<Long> equipmentIds = new HashSet<>();
        Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.AssocFailure));
        long pastTimestamp = 0;
+       Set<Long> equipmentIds_c2 = new HashSet<>();
+       
+       testInterface.resetAlarmCounters();
        
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
@@ -226,10 +228,13 @@ public abstract class BaseAlarmDatastoreTest {
            testInterface.create(mdl);
        }
 
+       testInterface.resetAlarmCounters();
+
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
            mdl.setCustomerId(customerId_2);
-           mdl.setScopeId("qr_"+apNameIdx);           
+           mdl.setScopeId("qr_"+apNameIdx);
+           equipmentIds_c2.add(mdl.getEquipmentId());
            apNameIdx++;
            testInterface.create(mdl);
        }
@@ -274,7 +279,7 @@ public abstract class BaseAlarmDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       List<String> expectedPage3Strings = getAlarmPagination_expectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getScopeId()) );
        
@@ -285,7 +290,7 @@ public abstract class BaseAlarmDatastoreTest {
        PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getAlarmPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(ce.getScopeId()) );
 
@@ -295,7 +300,7 @@ public abstract class BaseAlarmDatastoreTest {
        PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = expectedPage1EmptySortStrings;
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(ce.getScopeId()) );
 
@@ -306,7 +311,7 @@ public abstract class BaseAlarmDatastoreTest {
        PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getAlarmPagination_expectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(ce.getScopeId()) );
        
@@ -342,7 +347,28 @@ public abstract class BaseAlarmDatastoreTest {
        page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
+       testInterface.resetAlarmCounters();
+
+       //clean up after the test
+       equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId));
+       equipmentIds_c2.forEach(eqId -> testInterface.delete(customerId_2, eqId));
+       
+       testInterface.resetAlarmCounters();
+
     }
+    
+    protected List<String> getAlarmPagination_expectedPage3Strings(){
+        return Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" });
+    }
+    
+    protected List<String> getAlarmPagination_expectedPage1EmptySortStrings() {
+        return Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" });
+    }
+    
+    protected List<String> getAlarmPagination_expectedPage1SingleSortDescStrings(){ 
+        return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
+    }
+    
     
     @Test
     public void testAlarmCountsModel() {

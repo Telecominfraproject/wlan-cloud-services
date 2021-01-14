@@ -70,7 +70,7 @@ public class StatusControllerTest {
         assertEqualStatuss(status, ret);
         
         //Delete - success
-        statusController.delete(ret.getCustomerId(), ret.getEquipmentId());
+        statusController.delete(ret.getCustomerId(), ret.getEquipmentId(), null);
         
     }
         

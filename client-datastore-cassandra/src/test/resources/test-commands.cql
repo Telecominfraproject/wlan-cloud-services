@@ -5,8 +5,8 @@ use tip_wlan_keyspace;
 --------------------------------------------------------------------------------
 
 insert into client (customerId, macAddress, createdTimestamp, lastModifiedTimestamp, details) values ( 1, 1, 1594837187000, 1594837187000, textAsBlob('test1') );
-insert into client (customerId, macAddress, createdTimestamp, lastModifiedTimestamp, details) values ( 1, 2, 1594837187000, 1594837187000, textAsBlob('test2') );
-insert into client (customerId, macAddress, createdTimestamp, lastModifiedTimestamp, details) values ( 1, 3, 1594837187000, 1594837187000, textAsBlob('test3') );
+insert into client (customerId, macAddress, createdTimestamp, lastModifiedTimestamp, details) values ( 1, 2, 1594837187001, 1594837187001, textAsBlob('test2') );
+insert into client (customerId, macAddress, createdTimestamp, lastModifiedTimestamp, details) values ( 1, 3, 1594837187002, 1594837187002, textAsBlob('test3') );
 
 select * from client where customerId = 1 and macAddress = 1;
 
@@ -14,13 +14,24 @@ select * from client where customerId = 1 and macAddress in (1,2);
 
 select * from client where customerId = 1;
 
-
 update client set details=textAsBlob('test1_u'), lastModifiedTimestamp = 1594837187001 where customerId = 1 and macAddress = 1 IF lastModifiedTimestamp = 1594837187000 ;
 
 select lastModifiedTimestamp from client where customerId = 1 and macAddress = 1;
             
 delete from client where customerId = 1 and macAddress = 1;
 
+-- Index table for looking up clients by macAddress substring:
+-- insert into it when client record is inserted
+-- delete from it when client record is deleted
+-- no update
+
+insert into client_by_mac_string (customerId, macAddress, macAddressString) values ( 1, 1, 'a1:ff:ff:ff:af:fa');
+insert into client_by_mac_string (customerId, macAddress, macAddressString) values ( 1, 2, 'b1:ff:ff:ff:bf:fb');
+insert into client_by_mac_string (customerId, macAddress, macAddressString) values ( 1, 3, 'c1:ff:ff:ff:cf:fc');
+
+select * from client_by_mac_string where customerId = 1 and macAddressString like '%cf%';
+
+delete from client_by_mac_string where customerId = 1 and macAddressString = 'c1:ff:ff:ff:cf:fc';
 
 -------------------------------------------------------------------------------- 
 -- Operations on client_blocklist
@@ -122,4 +133,5 @@ select customerId, locationId, equipmentId, macAddress from client_session_by_lo
  TRUNCATE TABLE client_session_by_location ;
  TRUNCATE TABLE client_session_by_equipment ;
  TRUNCATE TABLE client_session;
+ TRUNCATE TABLE client_by_mac_string;
  TRUNCATE TABLE client;

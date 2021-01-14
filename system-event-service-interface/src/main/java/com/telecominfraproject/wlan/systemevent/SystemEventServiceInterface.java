@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.systemevent;
 import java.util.List;
 import java.util.Set;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -38,7 +39,9 @@ public interface SystemEventServiceInterface {
 	 * @param fromTime
 	 * @param toTime
 	 * @param customerId
-	 * @param equipmentIds - null or empty means all equipment for customer
+     * @param locationIds - null or empty means all locations for customer
+     * @param equipmentIds - null or empty means all equipment for customer
+     * @param clientMacAdresses - null or empty means all client MAC addresses
 	 * @param dataTypes - null or empty means all event data types
 	 * @param sortBy
 	 * @param context
@@ -48,9 +51,22 @@ public interface SystemEventServiceInterface {
 			long fromTime,
 			long toTime,
 			int customerId, 
-			Set<Long> equipmentIds,
+            Set<Long> locationIds,
+            Set<Long> equipmentIds,
+            Set<MacAddress> clientMacAdresses, 
 			Set<String> dataTypes, 
 			List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context);
+
+	default public  PaginationResponse<SystemEventRecord> getForCustomer(
+            long fromTime,
+            long toTime,
+            int customerId, 
+            Set<Long> equipmentIds,
+            Set<String> dataTypes, 
+            List<ColumnAndSort> sortBy,
+            PaginationContext<SystemEventRecord> context){
+	    return getForCustomer(fromTime, toTime, customerId, null, equipmentIds, null, dataTypes, sortBy, context);
+	}
 
 }

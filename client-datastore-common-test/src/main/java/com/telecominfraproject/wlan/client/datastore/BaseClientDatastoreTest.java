@@ -159,6 +159,214 @@ public abstract class BaseClientDatastoreTest {
     }
     
     @Test
+    public void testSearchByMacAddress() {
+    	//create 100 Clients
+        Client mdl;
+        int customerId_1 = (int) testSequence.incrementAndGet();
+
+        List<Client> created_models = new ArrayList<>();
+        
+        int apNameIdx = 0;
+        
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_1);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            mdl.setDetails(details);
+            mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId_1);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("cr_"+apNameIdx);
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+            
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+
+        //paginate over Clients
+        
+        List<ColumnAndSort> sortBy = new ArrayList<>();
+        sortBy.addAll(Arrays.asList(new ColumnAndSort("macAddress")));
+        
+        PaginationContext<Client> context = new PaginationContext<>(10);
+        PaginationResponse<Client> page1 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, context);
+        PaginationResponse<Client> page2 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page1.getContext());
+        PaginationResponse<Client> page3 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page2.getContext());
+        PaginationResponse<Client> page4 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page3.getContext());
+        PaginationResponse<Client> page5 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page4.getContext());
+        PaginationResponse<Client> page6 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page5.getContext());
+        PaginationResponse<Client> page7 = testInterface.searchByMacAddress(customerId_1, "A1", sortBy, page6.getContext());
+        
+        //verify returned pages
+        assertEquals(10, page1.getItems().size());
+        assertEquals(10, page2.getItems().size());
+        assertEquals(10, page3.getItems().size());
+        assertEquals(10, page4.getItems().size());
+        assertEquals(10, page5.getItems().size());
+        
+        page1.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+        page2.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+        page3.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+        page4.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+        page5.getItems().forEach(e -> assertEquals(customerId_1, e.getCustomerId()) );
+        
+        assertEquals(0, page6.getItems().size());
+        assertEquals(0, page7.getItems().size());
+        
+        assertFalse(page1.getContext().isLastPage());
+        assertFalse(page2.getContext().isLastPage());
+        assertFalse(page3.getContext().isLastPage());
+        assertFalse(page4.getContext().isLastPage());
+        assertFalse(page5.getContext().isLastPage());
+        
+        assertTrue(page6.getContext().isLastPage());
+        assertTrue(page7.getContext().isLastPage());
+        
+        List<String> expectedPage3Strings = new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+        List<String> actualPage3Strings = new ArrayList<>();
+        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
+        
+        assertEquals(expectedPage3Strings, actualPage3Strings);
+        
+        //test first page of the results with empty sort order -> default sort order (by Id ascending)
+        PaginationResponse<Client> page1EmptySort = testInterface.searchByMacAddress(customerId_1, "A1", Collections.emptyList(), context);
+        assertEquals(10, page1EmptySort.getItems().size());
+
+        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+        List<String> actualPage1EmptySortStrings = new ArrayList<>();
+        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
+
+        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
+
+        //test first page of the results with null sort order -> default sort order (by Id ascending)
+        PaginationResponse<Client> page1NullSort = testInterface.searchByMacAddress(customerId_1, "A1", null, context);
+        assertEquals(10, page1NullSort.getItems().size());
+
+        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+        List<String> actualPage1NullSortStrings = new ArrayList<>();
+        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
+
+        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
+
+        
+        //test first page of the results with sort descending order by a macAddress property 
+        PaginationResponse<Client> page1SingleSortDesc = testInterface.searchByMacAddress(customerId_1, "A1", Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
+        assertEquals(10, page1SingleSortDesc.getItems().size());
+
+        List<String> expectedPage1SingleSortDescStrings = getSearchByMac_ExpectedPage1SingleSortDescStrings();
+        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
+        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
+        
+        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
+
+        created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
+        
+    }
+    
+    /**
+     * This method is overridden in the cassandra datastore because cassandra does not handle sort order
+     */
+    protected List<String> getSearchByMac_ExpectedPage1SingleSortDescStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+    }
+    
+    @Test
+    public void testEmptyNullSearchMacSubstring() {       
+    	Client mdl;
+    	int customerId = (int) testSequence.incrementAndGet();
+        int apNameIdx = 0;
+        List<Client> created_models = new ArrayList<>();
+        
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("qr_"+apNameIdx);
+            mdl.setDetails(details);
+            mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+
+        for(int i = 0; i< 50; i++){
+            mdl = new Client();
+            mdl.setCustomerId(customerId);
+            ClientInfoDetails details = new ClientInfoDetails();
+            details.setAlias("cr_"+apNameIdx);
+            mdl.setDetails(details );
+            mdl.setMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
+            
+            apNameIdx++;
+            mdl = testInterface.create(mdl);
+            created_models.add(mdl);
+        }
+    	List<ColumnAndSort> sortBy = new ArrayList<>();
+    	PaginationContext<Client> context = new PaginationContext<>(10);
+    	
+    	//test null and empty string macSubstring inputs, expecting to get all results
+        PaginationResponse<Client> emptySubstringPage1 = testInterface.searchByMacAddress(customerId, "", sortBy, context);
+        PaginationResponse<Client> emptySubstringPage2 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage1.getContext());
+        PaginationResponse<Client> emptySubstringPage3 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage2.getContext());
+        PaginationResponse<Client> emptySubstringPage4 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage3.getContext());
+        PaginationResponse<Client> emptySubstringPage5 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage4.getContext());
+        PaginationResponse<Client> emptySubstringPage6 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage5.getContext());
+        PaginationResponse<Client> emptySubstringPage7 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage6.getContext());
+        PaginationResponse<Client> emptySubstringPage8 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage7.getContext());
+        PaginationResponse<Client> emptySubstringPage9 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage8.getContext());
+        PaginationResponse<Client> emptySubstringPage10 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage9.getContext());
+        PaginationResponse<Client> emptySubstringPage11 = testInterface.searchByMacAddress(customerId, "", sortBy, emptySubstringPage10.getContext());
+        assertEquals(10, emptySubstringPage1.getItems().size());
+        assertEquals(10, emptySubstringPage2.getItems().size());
+        assertEquals(10, emptySubstringPage3.getItems().size());
+        assertEquals(10, emptySubstringPage4.getItems().size());
+        assertEquals(10, emptySubstringPage5.getItems().size());
+        assertEquals(10, emptySubstringPage6.getItems().size());
+        assertEquals(10, emptySubstringPage7.getItems().size());
+        assertEquals(10, emptySubstringPage8.getItems().size());
+        assertEquals(10, emptySubstringPage9.getItems().size());
+        assertEquals(10, emptySubstringPage10.getItems().size());
+        assertEquals(0, emptySubstringPage11.getItems().size());
+        
+        PaginationResponse<Client> nullSubstringPage1 = testInterface.searchByMacAddress(customerId, null, sortBy, context);
+        PaginationResponse<Client> nullSubstringPage2 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage1.getContext());
+        PaginationResponse<Client> nullSubstringPage3 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage2.getContext());
+        PaginationResponse<Client> nullSubstringPage4 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage3.getContext());
+        PaginationResponse<Client> nullSubstringPage5 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage4.getContext());
+        PaginationResponse<Client> nullSubstringPage6 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage5.getContext());
+        PaginationResponse<Client> nullSubstringPage7 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage6.getContext());
+        PaginationResponse<Client> nullSubstringPage8 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage7.getContext());
+        PaginationResponse<Client> nullSubstringPage9 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage8.getContext());
+        PaginationResponse<Client> nullSubstringPage10 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage9.getContext());
+        PaginationResponse<Client> nullSubstringPage11 = testInterface.searchByMacAddress(customerId, null, sortBy, nullSubstringPage10.getContext());
+        assertEquals(10, nullSubstringPage1.getItems().size());
+        assertEquals(10, nullSubstringPage2.getItems().size());
+        assertEquals(10, nullSubstringPage3.getItems().size());
+        assertEquals(10, nullSubstringPage4.getItems().size());
+        assertEquals(10, nullSubstringPage5.getItems().size());
+        assertEquals(10, nullSubstringPage6.getItems().size());
+        assertEquals(10, nullSubstringPage7.getItems().size());
+        assertEquals(10, nullSubstringPage8.getItems().size());
+        assertEquals(10, nullSubstringPage9.getItems().size());
+        assertEquals(10, nullSubstringPage10.getItems().size());
+        assertEquals(0, nullSubstringPage11.getItems().size());
+        
+        created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
+    }
+    
+    @Test
     public void testClientPagination()
     {
        //create 100 Clients
@@ -235,7 +443,7 @@ public abstract class BaseClientDatastoreTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       List<String> expectedPage3Strings = getClientPagination_ExpectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
        
@@ -246,7 +454,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1EmptySort = testInterface.getForCustomer(customerId_1, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getClientPagination_ExpectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
 
@@ -256,7 +464,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1NullSort = testInterface.getForCustomer(customerId_1, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = new ArrayList<>(expectedPage1EmptySortStrings);
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
 
@@ -267,7 +475,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<Client> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getClientPagination_ExpectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientInfoDetails)ce.getDetails()).getAlias()) );
        
@@ -275,6 +483,18 @@ public abstract class BaseClientDatastoreTest {
 
        created_models.forEach(m -> testInterface.delete(m.getCustomerId(), m.getMacAddress()));
 
+    }
+
+    protected List<String> getClientPagination_ExpectedPage3Strings() {
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+    }
+
+    protected List<String> getClientPagination_ExpectedPage1EmptySortStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+    }
+
+    protected List<String> getClientPagination_ExpectedPage1SingleSortDescStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
     }
 
     
@@ -648,8 +868,22 @@ public abstract class BaseClientDatastoreTest {
        
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
+
+       Set<String> expectedAllPagesStrings = new HashSet<>();
+       for(int i=0; i<50; i++) {
+           expectedAllPagesStrings.add("qr_"+i);
+       }
+       Set<String> actualAllPagesStrings = new HashSet<>();
        
-       List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+       page1.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page2.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page3.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page4.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       page5.getItems().stream().forEach( ce -> actualAllPagesStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
+       
+       assertEquals(expectedAllPagesStrings, actualAllPagesStrings);
+       
+       List<String> expectedPage3Strings = getClientSessionPagination_expectedPage3Strings();
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
@@ -660,7 +894,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1EmptySort = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
-       List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1EmptySortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1EmptySortStrings = new ArrayList<>();
        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
 
@@ -670,7 +904,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1NullSort = testInterface.getSessionsForCustomer(customerId_1, null, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
-       List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+       List<String> expectedPage1NullSortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
        List<String> actualPage1NullSortStrings = new ArrayList<>();
        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
 
@@ -681,7 +915,7 @@ public abstract class BaseClientDatastoreTest {
        PaginationResponse<ClientSession> page1SingleSortDesc = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
-       List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+       List<String> expectedPage1SingleSortDescStrings = getClientSessionPagination_expectedPage1SingleSortDescStrings();
        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
@@ -819,6 +1053,19 @@ public abstract class BaseClientDatastoreTest {
        createdList.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
        createdListExtra.forEach(c -> testInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
     }
+    
+    protected List<String> getClientSessionPagination_expectedPage1EmptySortStrings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
+    }
+    
+    protected List<String> getClientSessionPagination_expectedPage3Strings(){
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
+    }
+
+    protected List<String> getClientSessionPagination_expectedPage1SingleSortDescStrings() { 
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+    }
+    
     
     protected ClientSession createClientSessionObject() {
     	ClientSession result = new ClientSession();

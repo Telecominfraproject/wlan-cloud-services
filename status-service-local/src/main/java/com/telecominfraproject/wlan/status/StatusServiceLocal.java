@@ -72,8 +72,8 @@ public class StatusServiceLocal implements StatusServiceInterface {
 
 
     @Override
-	public List<Status> delete(int customerId, long equipmentId) {
-		return statusController.delete(customerId, equipmentId);
+	public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes) {
+		return statusController.delete(customerId, equipmentId, statusDataTypes);
 	}
 
 }

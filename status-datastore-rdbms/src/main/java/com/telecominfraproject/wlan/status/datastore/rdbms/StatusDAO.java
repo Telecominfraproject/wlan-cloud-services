@@ -301,10 +301,31 @@ public class StatusDAO extends BaseJdbcDao {
     	 return ret;
     }
     
-    public List<Status> delete(int customerId, long equipmentId) {
-    	List<Status> ret = get(customerId, equipmentId);
+    public List<Status> delete(int customerId, long equipmentId, Set<StatusDataType> statusDataTypes) {
+    	List<Status> ret = getForEquipment(customerId, Set.of(equipmentId), statusDataTypes);
         
-        this.jdbcTemplate.update(SQL_DELETE, customerId, equipmentId);
+        String query = SQL_DELETE;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
+        queryArgs.add(equipmentId);
+
+        //add statusDataType filters
+        if (statusDataTypes != null && !statusDataTypes.isEmpty()) {
+            statusDataTypes.forEach(sdt -> queryArgs.add(sdt.getId()));
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and statusDataType in (");
+            strb.append("?,".repeat(statusDataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
+            strb.append(") ");
+
+            query += strb.toString();
+        }     
+        
+        this.jdbcTemplate.update(query, queryArgs.toArray());
                 
         LOG.debug("Deleted Statuses {}", ret);
         
@@ -361,12 +382,9 @@ public class StatusDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(equipmentIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
@@ -378,12 +396,9 @@ public class StatusDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and statusDataType in (");
-            for (int i = 0; i < statusDataTypes.size(); i++) {
-                strb.append("?");
-                if (i < statusDataTypes.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(statusDataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
@@ -472,12 +487,9 @@ public class StatusDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(equipmentIds.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();
@@ -489,12 +501,9 @@ public class StatusDAO extends BaseJdbcDao {
 
             StringBuilder strb = new StringBuilder(100);
             strb.append("and statusDataType in (");
-            for (int i = 0; i < statusDataTypes.size(); i++) {
-                strb.append("?");
-                if (i < statusDataTypes.size() - 1) {
-                    strb.append(",");
-                }
-            }
+            strb.append("?,".repeat(statusDataTypes.size()));
+            // remove last ','
+            strb.deleteCharAt(strb.length() - 1);
             strb.append(") ");
 
             query += strb.toString();

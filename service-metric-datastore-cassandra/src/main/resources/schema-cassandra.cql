@@ -1,5 +1,5 @@
 ---
--- Man Table that stores metric details
+-- Main Table that stores metric details
 ---
 
 
@@ -129,5 +129,33 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.service_metric_by_equipment_datatyp
 
     PRIMARY KEY ((customerId, clientMac), equipmentId, dataType, createdTimestamp)
 ) WITH comment='Look up Wlan service metrics by client Mac address and equipment and datatype. Records automatically expire after 90 days'
+    AND default_time_to_live = 7776000;
+ 
+ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.service_metric_by_location (
+    customerId int,
+    equipmentId bigint,
+    dayOfYear int,
+    clientMac bigint,
+    dataType int,
+
+    createdTimestamp bigint,
+    locationId bigint,   
+
+    PRIMARY KEY ((customerId, locationId), createdTimestamp, equipmentId, clientMac, dataType)
+) WITH comment='Look up Wlan service metrics by location. Records automatically expire after 90 days'
+    AND default_time_to_live = 7776000;
+
+ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.service_metric_by_location_all_filters (
+    customerId int,
+    equipmentId bigint,
+    dayOfYear int,
+    clientMac bigint,
+    dataType int,
+
+    createdTimestamp bigint,
+    locationId bigint,   
+
+    PRIMARY KEY ((customerId, locationId), equipmentId, clientMac, dataType, createdTimestamp)
+) WITH comment='Look up Wlan service metrics by location. Records automatically expire after 90 days'
     AND default_time_to_live = 7776000;
  

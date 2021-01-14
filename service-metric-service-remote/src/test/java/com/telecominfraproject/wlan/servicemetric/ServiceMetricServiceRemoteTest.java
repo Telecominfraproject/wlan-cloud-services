@@ -69,7 +69,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
 
         //create single
         remoteInterface.create(serviceMetric);        
-        PaginationResponse<ServiceMetric> resp = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        PaginationResponse<ServiceMetric> resp = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertEquals(1, resp.getItems().size());
         assertEquals(serviceMetric, resp.getItems().get(0)); 
             
@@ -90,7 +90,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
 
         //create bulk
         remoteInterface.create(metricsToCreate);
-        PaginationResponse<ServiceMetric> respBulk = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        PaginationResponse<ServiceMetric> respBulk = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertEquals(11, respBulk.getItems().size());
         metricsToCreate.forEach(m -> assertTrue(respBulk.getItems().contains(m)));
         assertTrue(respBulk.getItems().contains(serviceMetric));
@@ -98,7 +98,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
                 
         //delete
         remoteInterface.delete(serviceMetric.getCustomerId(), serviceMetric.getEquipmentId(), baseTimestamp + 1);
-        resp = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        resp = remoteInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertTrue(resp.getItems().isEmpty());
         
     }
@@ -176,13 +176,13 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
         sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
         
         PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
-        PaginationResponse<ServiceMetric> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, context);
-        PaginationResponse<ServiceMetric> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page1.getContext());
-        PaginationResponse<ServiceMetric> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page2.getContext());
-        PaginationResponse<ServiceMetric> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page3.getContext());
-        PaginationResponse<ServiceMetric> page5 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page4.getContext());
-        PaginationResponse<ServiceMetric> page6 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page5.getContext());
-        PaginationResponse<ServiceMetric> page7 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page6.getContext());
+        PaginationResponse<ServiceMetric> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+        PaginationResponse<ServiceMetric> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+        PaginationResponse<ServiceMetric> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+        PaginationResponse<ServiceMetric> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
+        PaginationResponse<ServiceMetric> page5 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page4.getContext());
+        PaginationResponse<ServiceMetric> page6 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page5.getContext());
+        PaginationResponse<ServiceMetric> page7 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page6.getContext());
         
         //verify returned pages
         assertEquals(10, page1.getItems().size());
@@ -216,7 +216,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
         assertEquals(expectedPage3Strings, actualPage3Strings);
        
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1EmptySort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.emptyList(), context);
+        PaginationResponse<ServiceMetric> page1EmptySort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
 
         List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -226,7 +226,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
         assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1NullSort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, context);
+        PaginationResponse<ServiceMetric> page1NullSort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
         List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -237,7 +237,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
 
         
         //test first page of the results with sort descending order by a equipmentId property 
-        PaginationResponse<ServiceMetric> page1SingleSortDesc = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+        PaginationResponse<ServiceMetric> page1SingleSortDesc = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
         List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
@@ -265,10 +265,23 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
     	   clientMacs.add(new MacAddress(getNextEquipmentId())); 
        }
        
+       long[] locationIds = new long[10];
+       for(int i=0; i<10; i++) {
+           locationIds[i] =  getNextLocationId(); 
+       }
+
        ServiceMetricDataType dataType_1 = ServiceMetricDataType.ApNode;
        ServiceMetricDataType dataType_2 = ServiceMetricDataType.Client;
        ServiceMetricDataType dataType_3 = ServiceMetricDataType.ApSsid;
-       
+
+       Set<Long> emptyLocations = new HashSet<>();
+       Set<Long> oneLocation = new HashSet<>();
+       oneLocation.add(locationIds[0]);
+
+       Set<Long> twoLocations = new HashSet<>();
+       twoLocations.add(locationIds[0]);
+       twoLocations.add(locationIds[1]);
+
        Set<Long> emptyEquipment = new HashSet<>();
        Set<Long> oneEquipment = new HashSet<>();
        oneEquipment.add(equipmentIds_1[0]);
@@ -306,6 +319,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
            //first metric - apNode
            ServiceMetric serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);           
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(0);
            serviceMetric.setCreatedTimestamp(baseTimestamp - getNextEquipmentId());
@@ -318,6 +332,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
            //second metric - client
            serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);           
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(clientMacs.get(i).getAddressAsLong());
            serviceMetric.setCreatedTimestamp(baseTimestamp - getNextEquipmentId());
@@ -331,6 +346,7 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
            //third metric - neighbour
            serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);           
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(0);
            serviceMetric.setCreatedTimestamp(baseTimestamp - getNextEquipmentId());
@@ -378,10 +394,10 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        
        //Paginate over all equipment and all service_metrics_collection_config
        PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
-       PaginationResponse<ServiceMetric> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       PaginationResponse<ServiceMetric> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
-       PaginationResponse<ServiceMetric> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
-       PaginationResponse<ServiceMetric> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page3.getContext());
+       PaginationResponse<ServiceMetric> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       PaginationResponse<ServiceMetric> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       PaginationResponse<ServiceMetric> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
+       PaginationResponse<ServiceMetric> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -402,10 +418,10 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        
        //Paginate over all equipment and all statuses - with null parameters
        context = new PaginationContext<>(10);
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page1.getContext());
-       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page2.getContext());
-       page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page3.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+       page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -431,8 +447,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(3, page1.getItems().size());
@@ -454,9 +470,9 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(5);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
-       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
        
        //verify returned pages
        assertEquals(5, page1.getItems().size());
@@ -487,8 +503,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, oneDataType, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, oneDataType, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(1, page1.getItems().size());
@@ -510,8 +526,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, twoDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(2, page1.getItems().size());
@@ -533,8 +549,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, twoDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(4, page1.getItems().size());
@@ -560,8 +576,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(2, page1.getItems().size());
@@ -583,8 +599,8 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(1, page1.getItems().size());
@@ -598,6 +614,29 @@ public class ServiceMetricServiceRemoteTest extends BaseRemoteTest {
 		
 		assertEquals(oneEquipment, returnedEquipmentIds);
 		assertEquals(ServiceMetricDataType.Client, returnedDataTypes.iterator().next());
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over twoEquipment, two locations, two client macs and two data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(2, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(twoEquipment, returnedEquipmentIds);
+        assertEquals(ServiceMetricDataType.Client, returnedDataTypes.iterator().next());
        
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());

@@ -406,6 +406,15 @@ public class RoutingDAO {
         // startAfterItem is not used in Cassandra datastores, set it to null
         ret.getContext().setStartAfterItem(null);
 
+        //in cassandra we will rely only on nextPagingState to set the lastPage indicator
+        ret.getContext().setLastPage(false);
+
+        if(nextPagingState == null) {
+            //in cassandra, if there are no more pages available, the pagingState is returned as null by the driver
+            //this overrides all other heuristics related to guessing the indication of the last page
+            ret.getContext().setLastPage(true);
+        }
+
         return ret;		
 	}
 

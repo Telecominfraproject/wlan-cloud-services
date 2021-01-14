@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.status.models;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +52,7 @@ public class StatusDataType implements EnumWithId {
     /**
      * Equipment Administrative status
      */
-    EQUIPMENT_ADMIN = new StatusDataType(1, "EQUIPMENT_ADMIN") ,
+    EQUIPMENT_ADMIN = new StatusDataType(1, "EQUIPMENT_ADMIN", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)) ,
     /**
      * Network Administrative status
      */
@@ -62,7 +64,7 @@ public class StatusDataType implements EnumWithId {
     /**
      * Protocol status
      */
-    PROTOCOL = new StatusDataType(4, "PROTOCOL") ,
+    PROTOCOL = new StatusDataType(4, "PROTOCOL", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)) ,
     /**
      * Firmware upgrade status
      */
@@ -70,22 +72,22 @@ public class StatusDataType implements EnumWithId {
     /**
      * Peer status
      */
-    PEERINFO = new StatusDataType(6, "PEERINFO"),
+    PEERINFO = new StatusDataType(6, "PEERINFO", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
     /**
      * LAN status
      */
-    LANINFO = new StatusDataType(7, "LANINFO"),
+    LANINFO = new StatusDataType(7, "LANINFO", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
     /**
      * Neighbouring information status
      */
     NEIGHBOURINGINFO = new StatusDataType(8, "NEIGHBOURINGINFO"),
     
 // These are from EquipmentReportType
-    OS_PERFORMANCE = new StatusDataType(9, "OS_PERFORMANCE"),
+    OS_PERFORMANCE = new StatusDataType(9, "OS_PERFORMANCE", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
     NEIGHBOUR_SCAN = new StatusDataType(10, "NEIGHBOUR_SCAN"),
-    RADIO_UTILIZATION = new StatusDataType(11, "RADIO_UTILIZATION"),
-    ACTIVE_BSSIDS = new StatusDataType(12, "ACTIVE_BSSIDS"),
-    CLIENT_DETAILS = new StatusDataType(13, "CLIENT_DETAILS"),
+    RADIO_UTILIZATION = new StatusDataType(11, "RADIO_UTILIZATION", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
+    ACTIVE_BSSIDS = new StatusDataType(12, "ACTIVE_BSSIDS", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
+    CLIENT_DETAILS = new StatusDataType(13, "CLIENT_DETAILS", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
     
     CUSTOMER_DASHBOARD = new StatusDataType(14, "CUSTOMER_DASHBOARD"),
     
@@ -107,14 +109,23 @@ public class StatusDataType implements EnumWithId {
 
     private final int id;
     private final String name;
-    
+    private final Set<StatusTrait> traits = new HashSet<>();
+
     protected StatusDataType(int id, String name) {
+        this(id, name, null);
+    }
+
+    protected StatusDataType(int id, String name, Set<StatusTrait> traits) {
         synchronized(lock) {
             
             LOG.debug("Registering StatusDataType by {} : {}", this.getClass().getSimpleName(), name);
 
             this.id = id;
             this.name = name;
+            
+            if(traits!=null) {
+                this.traits.addAll(traits);
+            }
 
             ELEMENTS_BY_NAME.values().forEach(s -> {
                 if(s.getName().equals(name)) {
@@ -194,6 +205,20 @@ public class StatusDataType implements EnumWithId {
     @Override
     public String toString() {
         return name;
+    }
+
+    public boolean supportsTrait(StatusTrait incomingTrait) {
+        return incomingTrait==null || this.traits.contains(incomingTrait);
+    }
+    
+    public boolean supportsTraits(Collection<StatusTrait> incomingTraits) {
+        return incomingTraits==null || this.traits.containsAll(incomingTraits);
+    }
+    
+    public static Set<StatusDataType> getByTraits(Collection<StatusTrait> incomingTraits){
+        Set<StatusDataType> ret = new HashSet<>();
+        ELEMENTS.values().forEach(v -> { if(v.supportsTraits(incomingTraits)) {ret.add(v);} });
+        return ret;
     }
 
 }

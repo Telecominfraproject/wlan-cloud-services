@@ -213,17 +213,19 @@ public class StatusController {
 
     /**
      * Deletes Status record
+     * @param statusDataTypes 
      * 
      * @param statusId
      * @return deleted Status object
      */
     @RequestMapping(method=RequestMethod.DELETE)
-    public ListOfStatuses delete(@RequestParam int customerId, @RequestParam long equipmentId) {
-        LOG.debug("delete({},{})", customerId, equipmentId);
+    public ListOfStatuses delete(@RequestParam int customerId, @RequestParam long equipmentId, 
+            @RequestParam(required = false) Set<StatusDataType> statusDataTypes) {
+        LOG.debug("delete({},{}, {})", customerId, equipmentId, statusDataTypes);
         
-        List<Status> ret = statusDatastore.delete(customerId, equipmentId);
+        List<Status> ret = statusDatastore.delete(customerId, equipmentId, statusDataTypes);
 
-        LOG.debug("deleted statuses ({},{})", customerId, equipmentId);
+        LOG.debug("deleted statuses ({},{},{})", customerId, equipmentId,statusDataTypes);
 
         List<SystemEvent> events = new ArrayList<>();
         ret.forEach(s -> events.add(new StatusRemovedEvent(s)));

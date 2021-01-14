@@ -55,7 +55,7 @@ public abstract class BaseServiceMetricDatastoreTest {
 
         //create single
         testInterface.create(serviceMetric);        
-        PaginationResponse<ServiceMetric> resp = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        PaginationResponse<ServiceMetric> resp = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertEquals(1, resp.getItems().size());
         assertEquals(serviceMetric, resp.getItems().get(0)); 
             
@@ -76,7 +76,7 @@ public abstract class BaseServiceMetricDatastoreTest {
 
         //create bulk
         testInterface.create(metricsToCreate);
-        PaginationResponse<ServiceMetric> respBulk = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        PaginationResponse<ServiceMetric> respBulk = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertEquals(11, respBulk.getItems().size());
         metricsToCreate.forEach(m -> assertTrue(respBulk.getItems().contains(m)));
         assertTrue(respBulk.getItems().contains(serviceMetric));
@@ -84,7 +84,7 @@ public abstract class BaseServiceMetricDatastoreTest {
                 
         //delete
         testInterface.delete(serviceMetric.getCustomerId(), serviceMetric.getEquipmentId(), baseTimestamp + 1);
-        resp = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
+        resp = testInterface.getForCustomer(0, baseTimestamp, serviceMetric.getCustomerId(), null, Collections.singleton(serviceMetric.getEquipmentId()), null, null, null, null);
         assertTrue(resp.getItems().isEmpty());
         
     }
@@ -167,13 +167,13 @@ public abstract class BaseServiceMetricDatastoreTest {
         sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
         
         PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
-        PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, context);
-        PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page1.getContext());
-        PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page2.getContext());
-        PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page3.getContext());
-        PaginationResponse<ServiceMetric> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page4.getContext());
-        PaginationResponse<ServiceMetric> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page5.getContext());
-        PaginationResponse<ServiceMetric> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page6.getContext());
+        PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+        PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+        PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+        PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
+        PaginationResponse<ServiceMetric> page5 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page4.getContext());
+        PaginationResponse<ServiceMetric> page6 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page5.getContext());
+        PaginationResponse<ServiceMetric> page7 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page6.getContext());
         
         //verify returned pages
         assertEquals(10, page1.getItems().size());
@@ -207,7 +207,7 @@ public abstract class BaseServiceMetricDatastoreTest {
         assertEquals(expectedPage3Strings, actualPage3Strings);
        
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.emptyList(), context);
+        PaginationResponse<ServiceMetric> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
 
         List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -217,7 +217,7 @@ public abstract class BaseServiceMetricDatastoreTest {
         assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<ServiceMetric> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, context);
+        PaginationResponse<ServiceMetric> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
         List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -228,10 +228,10 @@ public abstract class BaseServiceMetricDatastoreTest {
 
         
         //test first page of the results with sort descending order by a equipmentId property 
-        PaginationResponse<ServiceMetric> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+        PaginationResponse<ServiceMetric> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
-        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
+        List<String> expectedPage1SingleSortDescStrings = getPagination_expectedPage1SingleSortDescStrings();
         List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
         page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientMetrics) ce.getDetails()).getClassificationName() ) );
         
@@ -242,6 +242,9 @@ public abstract class BaseServiceMetricDatastoreTest {
 
      }
     
+    protected List<String> getPagination_expectedPage1SingleSortDescStrings(){ 
+        return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
+    }
     
     @Test
     public void testPaginationWithFilters() {
@@ -254,6 +257,12 @@ public abstract class BaseServiceMetricDatastoreTest {
     	   equipmentIds_1[i] =  testSequence.incrementAndGet(); 
        }
 
+       long[] locationIds = new long[10];
+       for(int i=0; i<10; i++) {
+           locationIds[i] =  testSequence.incrementAndGet(); 
+       }
+
+
        List<MacAddress> clientMacs = new ArrayList<>();
        for(int i=0; i<10; i++) {
     	   clientMacs.add(new MacAddress(testSequence.incrementAndGet())); 
@@ -262,7 +271,15 @@ public abstract class BaseServiceMetricDatastoreTest {
        ServiceMetricDataType dataType_1 = ServiceMetricDataType.ApNode;
        ServiceMetricDataType dataType_2 = ServiceMetricDataType.Client;
        ServiceMetricDataType dataType_3 = ServiceMetricDataType.ApSsid;
-       
+
+       Set<Long> emptyLocations = new HashSet<>();
+       Set<Long> oneLocation = new HashSet<>();
+       oneLocation.add(locationIds[0]);
+
+       Set<Long> twoLocations = new HashSet<>();
+       twoLocations.add(locationIds[0]);
+       twoLocations.add(locationIds[1]);
+
        Set<Long> emptyEquipment = new HashSet<>();
        Set<Long> oneEquipment = new HashSet<>();
        oneEquipment.add(equipmentIds_1[0]);
@@ -300,6 +317,7 @@ public abstract class BaseServiceMetricDatastoreTest {
            //first metric - apNode
            ServiceMetric serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(0);
            serviceMetric.setCreatedTimestamp(baseTimestamp - testSequence.incrementAndGet());
@@ -312,6 +330,7 @@ public abstract class BaseServiceMetricDatastoreTest {
            //second metric - client
            serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(clientMacs.get(i).getAddressAsLong());
            serviceMetric.setCreatedTimestamp(baseTimestamp - testSequence.incrementAndGet());
@@ -325,6 +344,7 @@ public abstract class BaseServiceMetricDatastoreTest {
            //third metric - neighbour
            serviceMetric = new ServiceMetric();
            serviceMetric.setCustomerId(customerId_1);
+           serviceMetric.setLocationId(locationIds[i]);           
            serviceMetric.setEquipmentId(equipmentIds_1[i]);
            serviceMetric.setClientMac(0);
            serviceMetric.setCreatedTimestamp(baseTimestamp - testSequence.incrementAndGet());
@@ -360,9 +380,29 @@ public abstract class BaseServiceMetricDatastoreTest {
            apNameIdx++;
        }
 
-       //
-       //Now paginate over Metrics with various filters:
-       //
+        //
+        // Now paginate over Metrics with various filters
+        //
+        //   The following combinations of parameters are covered:
+        //
+        //       Locations, Equipment, Macs, DataTypes
+        //       0, 0, 0, 0 = ()
+        //       0, 0, 0, 1 = (1 dt)
+        //       0, 0, 1, 0 = (1 cm)
+        //       0, 0, 1, 1 = (1 cm, 1 dt)
+        //       0, 1, 0, 0 = (1 eq), (2 eq)
+        //       0, 1, 0, 1 = (1 eq, 1 dt), (1 eq, 2 dt), (2 eq, 2 dt)
+        //       0, 1, 1, 0 = (1 eq, 1 cm)
+        //       0, 1, 1, 1 = (2 eq, 2 cm, 2 dt), (1 eq, 1 cm, 1 dt)
+        //       1, 0, 0, 0 = (1 loc)
+        //       1, 0, 0, 1 = (1 loc, 1 dt)
+        //       1, 0, 1, 0 = (1 loc, 1 cm)
+        //       1, 0, 1, 1 = (1 loc, 1 cm, 1 dt)
+        //       1, 1, 0, 0 = (1 loc, 1 eq), (2 loc, 2 eq)
+        //       1, 1, 0, 1 = (2 loc, 1 eq, 1 dt), (2 loc, 1 eq, 2 dt), (2 loc, 2 eq, 2 dt)
+        //       1, 1, 1, 0 = (1 loc, 1 eq, 1 cm)
+        //       1, 1, 1, 1 = (2 loc, 2 eq, 2 cm, 2 dt), (2 loc, 2 eq, 2 cm, 1 dt)
+
        
        List<ColumnAndSort> sortBy = new ArrayList<>();
        sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
@@ -370,12 +410,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        long fromTime = 0;
        long toTime = baseTimestamp;
        
-       //Paginate over all equipment and all metrics
+       //Paginate over all metrics for customer
        PaginationContext<ServiceMetric> context = new PaginationContext<>(10);
-       PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
-       PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
-       PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page3.getContext());
+       PaginationResponse<ServiceMetric> page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyLocations, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       PaginationResponse<ServiceMetric> page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyLocations, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       PaginationResponse<ServiceMetric> page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyLocations, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
+       PaginationResponse<ServiceMetric> page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, emptyLocations, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -394,12 +434,12 @@ public abstract class BaseServiceMetricDatastoreTest {
 
        assertTrue(page4.getContext().isLastPage());
        
-       //Paginate over all equipment and all statuses - with null parameters
+       //Paginate over all metrics for customer - with null parameters
        context = new PaginationContext<>(10);
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page1.getContext());
-       page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page2.getContext());
-       page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, sortBy, page3.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+       page4 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -421,12 +461,106 @@ public abstract class BaseServiceMetricDatastoreTest {
        Set<Long> returnedEquipmentIds = new HashSet<>();
        Set<ServiceMetricDataType> returnedDataTypes = new HashSet<>();
        
-       //Paginate over oneEquipment, all client macs and all statuses
+       //
+       // =====================================================================
+       //
+       //
+       // Try various searches with locationIds = null
+       //
+       
+       //Paginate over all equipment, all client macs and one data type
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, oneDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(equipmentIds_1.length, returnedEquipmentIds.size());
+        assertEquals(oneDataType, returnedDataTypes);
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over all equipment, one client mac and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneMac, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneMac, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over all equipment, one client mac and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneMac, Set.of(dataType_2), sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneMac, Set.of(dataType_2), sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over one equipment, one client mac and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       
+       //Paginate over oneEquipment, all client macs and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(3, page1.getItems().size());
@@ -444,13 +578,13 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
        
-       //Paginate over twoEquipment, all client macs and all statuses
+       //Paginate over twoEquipment, all client macs and all data types
        context = new PaginationContext<>(5);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
-       page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
        
        //verify returned pages
        assertEquals(5, page1.getItems().size());
@@ -477,12 +611,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page2.getContext().isLastPage());
        assertTrue(page3.getContext().isLastPage());
 
-       //Paginate over oneEquipment, all client macs and oneStatus
+       //Paginate over oneEquipment, all client macs and one data type
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, oneDataType, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, oneDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(1, page1.getItems().size());
@@ -500,12 +634,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
        
-       //Paginate over oneEquipment, all client macs and twoStatuses
+       //Paginate over oneEquipment, all client macs and two data types
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, twoDataTypes, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(2, page1.getItems().size());
@@ -523,12 +657,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
        
-       //Paginate over twoEquipment, all client macs and twoStatuses
+       //Paginate over twoEquipment, all client macs and two data types
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, twoDataTypes, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(4, page1.getItems().size());
@@ -550,12 +684,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        //Test pagination with different combinations of client macs
        //
        
-       //Paginate over twoEquipment, two client macs and twoStatuses
+       //Paginate over twoEquipment, two client macs and two data types
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(2, page1.getItems().size());
@@ -573,12 +707,12 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
 
-       //Paginate over oneEquipment, one client macs and oneStatus
+       //Paginate over oneEquipment, one client macs and one data type
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, context);
-       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, page1.getContext());
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(1, page1.getItems().size());
@@ -595,6 +729,301 @@ public abstract class BaseServiceMetricDatastoreTest {
        
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
+       
+       //
+       // =====================================================================
+       //
+       //
+       // Try various searches with locationIds != null
+       //
+
+       //Paginate over one location, all equipment, all client macs and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(3, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(threeDataTypes, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over one location, all equipment, all client macs and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, emptyMacs, oneDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(oneDataType, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over one location, all equipment, one client mac and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, oneMac, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, oneMac, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over one location, all equipment, one client mac and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, oneMac, Set.of(dataType_2), sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, emptyEquipment, oneMac, Set.of(dataType_2), sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over one location, one equipment, one client mac and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, oneMac, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, oneMac, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
+       //Paginate over oneEquipment, one location, all client macs and all data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(3, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(threeDataTypes, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
+       //Paginate over twoEquipment, two locations, all client macs and all data types
+       context = new PaginationContext<>(5);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, emptyMacs, emptyDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, emptyMacs, emptyDataTypes, sortBy, page2.getContext());
+       
+       //verify returned pages
+       assertEquals(5, page1.getItems().size());
+       assertEquals(1, page2.getItems().size());
+       assertEquals(0, page3.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+
+        page2.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+
+        assertEquals(twoEquipment, returnedEquipmentIds);
+        assertEquals(threeDataTypes, returnedDataTypes);
+
+       
+       assertFalse(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       assertTrue(page3.getContext().isLastPage());
+
+       //Paginate over oneEquipment, two locations, all client macs and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, oneEquipment, emptyMacs, oneDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, oneEquipment, emptyMacs, oneDataType, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(oneDataType, returnedDataTypes);
+
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
+       //Paginate over oneEquipment, two locations, all client macs and two data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, oneEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, oneEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(2, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(twoDataTypes, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
+       //Paginate over twoEquipment, two locations, all client macs and two data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, emptyMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, emptyMacs, twoDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(4, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(twoEquipment, returnedEquipmentIds);
+        assertEquals(twoDataTypes, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //
+       //Test pagination with different combinations of client macs
+       //
+       
+       //Paginate over twoEquipment, two locations, two client macs and two data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(2, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(twoEquipment, returnedEquipmentIds);
+        assertEquals(ServiceMetricDataType.Client, returnedDataTypes.iterator().next());
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over oneEquipment, one location, one client macs and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, oneLocation, oneEquipment, oneMac, Collections.singleton(ServiceMetricDataType.Client), sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(1, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneEquipment, returnedEquipmentIds);
+        assertEquals(ServiceMetricDataType.Client, returnedDataTypes.iterator().next());
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
+       //
+       // =====================================================================
+       //
 
        Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
        Arrays.stream(equipmentIds_1).forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));

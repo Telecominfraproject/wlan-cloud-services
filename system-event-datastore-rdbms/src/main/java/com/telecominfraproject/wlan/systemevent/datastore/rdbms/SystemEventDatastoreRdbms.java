@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -43,15 +44,17 @@ public class SystemEventDatastoreRdbms implements SystemEventDatastore {
 
 	@Override
 	public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
-			Set<Long> equipmentIds, Set<String> dataTypes, List<ColumnAndSort> sortBy,
+	        Set<Long> locationIds,
+            Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, 	        
+			Set<String> dataTypes, List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context) {
     	
     	if(context == null) {
     		context = new PaginationContext<>();
     	}
 
-    	return systemEventDAO.getForCustomer( fromTime, toTime, customerId,
-    			equipmentIds, dataTypes, sortBy,
+    	return systemEventDAO.getForCustomer( fromTime, toTime, customerId, locationIds, 
+    			equipmentIds, clientMacAdresses, dataTypes, sortBy,
     			context);
     }
 }

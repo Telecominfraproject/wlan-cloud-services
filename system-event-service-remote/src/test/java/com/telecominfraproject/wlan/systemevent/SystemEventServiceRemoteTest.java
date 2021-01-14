@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -58,7 +59,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
         
         //create single
         remoteInterface.create(systemEventRecord);        
-        PaginationResponse<SystemEventRecord> resp = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null);
+        PaginationResponse<SystemEventRecord> resp = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), null, Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null, null);
         assertEquals(1, resp.getItems().size());
         assertEquals(systemEventRecord, resp.getItems().get(0)); 
             
@@ -76,7 +77,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 
         //create bulk
         remoteInterface.create(metricsToCreate);
-        PaginationResponse<SystemEventRecord> respBulk = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null);
+        PaginationResponse<SystemEventRecord> respBulk = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), null, Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null, null);
         assertEquals(11, respBulk.getItems().size());
         metricsToCreate.forEach(m -> assertTrue(respBulk.getItems().contains(m)));
         assertTrue(respBulk.getItems().contains(systemEventRecord));
@@ -84,7 +85,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
                 
         //delete
         remoteInterface.delete(systemEventRecord.getCustomerId(), systemEventRecord.getEquipmentId(), baseTimestamp + 1);
-        resp = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null);
+        resp = remoteInterface.getForCustomer(0, baseTimestamp, systemEventRecord.getCustomerId(), null, Collections.singleton(systemEventRecord.getEquipmentId()), null, null, null, null);
         assertTrue(resp.getItems().isEmpty());
         
     }
@@ -159,13 +160,13 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
         sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
         
         PaginationContext<SystemEventRecord> context = new PaginationContext<>(10);
-        PaginationResponse<SystemEventRecord> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, context);
-        PaginationResponse<SystemEventRecord> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page1.getContext());
-        PaginationResponse<SystemEventRecord> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page2.getContext());
-        PaginationResponse<SystemEventRecord> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page3.getContext());
-        PaginationResponse<SystemEventRecord> page5 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page4.getContext());
-        PaginationResponse<SystemEventRecord> page6 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page5.getContext());
-        PaginationResponse<SystemEventRecord> page7 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page6.getContext());
+        PaginationResponse<SystemEventRecord> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+        PaginationResponse<SystemEventRecord> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+        PaginationResponse<SystemEventRecord> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+        PaginationResponse<SystemEventRecord> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
+        PaginationResponse<SystemEventRecord> page5 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page4.getContext());
+        PaginationResponse<SystemEventRecord> page6 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page5.getContext());
+        PaginationResponse<SystemEventRecord> page7 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page6.getContext());
         
         //verify returned pages
         assertEquals(10, page1.getItems().size());
@@ -199,7 +200,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
         assertEquals(expectedPage3Strings, actualPage3Strings);
        
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<SystemEventRecord> page1EmptySort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, Collections.emptyList(), context);
+        PaginationResponse<SystemEventRecord> page1EmptySort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
 
         List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -209,7 +210,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
         assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
-        PaginationResponse<SystemEventRecord> page1NullSort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, context);
+        PaginationResponse<SystemEventRecord> page1NullSort = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
         List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -220,7 +221,7 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 
         
         //test first page of the results with sort descending order by a equipmentId property 
-        PaginationResponse<SystemEventRecord> page1SingleSortDesc = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+        PaginationResponse<SystemEventRecord> page1SingleSortDesc = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
 
         List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
@@ -238,15 +239,33 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        int customerId_1 = getNextCustomerId();
        int customerId_2 = getNextCustomerId();
        
+       long[] locationIds = new long[10];
+       for(int i=0; i<10; i++) {
+           locationIds[i] =  getNextLocationId(); 
+       }
+
        long[] equipmentIds_1 = new long[10];
        for(int i=0; i<10; i++) {
     	   equipmentIds_1[i] =  getNextEquipmentId(); 
+       }
+
+       List<MacAddress> clientMacs = new ArrayList<>();
+       for(int i=0; i<10; i++) {
+           clientMacs.add(new MacAddress(getNextEquipmentId())); 
        }
 
        String dataType_1 = "TestSystemEvent";
        String dataType_2 = "UnserializableSystemEvent";
        String dataType_3 = "AnotherTestSystemEvent";
        
+       Set<Long> emptyLocations = new HashSet<>();
+       Set<Long> oneLocation = new HashSet<>();
+       oneLocation.add(locationIds[0]);
+
+       Set<Long> twoLocations = new HashSet<>();
+       twoLocations.add(locationIds[0]);
+       twoLocations.add(locationIds[1]);
+
        Set<Long> emptyEquipment = new HashSet<>();
        Set<Long> oneEquipment = new HashSet<>();
        oneEquipment.add(equipmentIds_1[0]);
@@ -254,6 +273,14 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        Set<Long> twoEquipment = new HashSet<>();
        twoEquipment.add(equipmentIds_1[0]);
        twoEquipment.add(equipmentIds_1[1]);
+
+       Set<MacAddress> emptyMacs = new HashSet<>();
+       Set<MacAddress> oneMac = new HashSet<>();
+       oneMac.add(clientMacs.get(0));
+
+       Set<MacAddress> twoMacs = new HashSet<>();
+       twoMacs.add(clientMacs.get(0));
+       twoMacs.add(clientMacs.get(1));
 
        Set<String> emptyDataTypes = new HashSet<>();
        Set<String> oneDataType = new HashSet<>();
@@ -280,6 +307,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 	    			"qr_"+apNameIdx);
 	
 	    	SystemEventRecord systemEventRecord = new SystemEventRecord(tse);
+	    	systemEventRecord.setLocationId(locationIds[i]);
+	        systemEventRecord.setClientMac(0);
 
            remoteInterface.create(systemEventRecord);
 
@@ -291,6 +320,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 	    			"qr_"+apNameIdx);
 	
 	    	systemEventRecord = new SystemEventRecord(use);
+            systemEventRecord.setLocationId(locationIds[i]);
+            systemEventRecord.setClientMac(clientMacs.get(i).getAddressAsLong());
 
            remoteInterface.create(systemEventRecord);
 
@@ -302,6 +333,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 	    			"qr_"+apNameIdx);
 	
 	    	systemEventRecord = new SystemEventRecord(atse);
+            systemEventRecord.setLocationId(locationIds[i]);
+            systemEventRecord.setClientMac(0);
 
            remoteInterface.create(systemEventRecord);
 
@@ -336,10 +369,10 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        
        //Paginate over all equipment and all service_metrics_collection_config
        PaginationContext<SystemEventRecord> context = new PaginationContext<>(10);
-       PaginationResponse<SystemEventRecord> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, context);
-       PaginationResponse<SystemEventRecord> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, page1.getContext());
-       PaginationResponse<SystemEventRecord> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, page2.getContext());
-       PaginationResponse<SystemEventRecord> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, emptyEquipment, emptyDataTypes, sortBy, page3.getContext());
+       PaginationResponse<SystemEventRecord> page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, null, emptyDataTypes, sortBy, context);
+       PaginationResponse<SystemEventRecord> page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, null, emptyDataTypes, sortBy, page1.getContext());
+       PaginationResponse<SystemEventRecord> page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, null, emptyDataTypes, sortBy, page2.getContext());
+       PaginationResponse<SystemEventRecord> page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, null, emptyDataTypes, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -360,10 +393,10 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        
        //Paginate over all equipment and all statuses - with null parameters
        context = new PaginationContext<>(10);
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page1.getContext());
-       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page2.getContext());
-       page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, sortBy, page3.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page1.getContext());
+       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page2.getContext());
+       page4 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, sortBy, page3.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -389,8 +422,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, emptyDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, emptyDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, emptyDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(3, page1.getItems().size());
@@ -412,9 +445,9 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(5);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyDataTypes, sortBy, page1.getContext());
-       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, emptyDataTypes, sortBy, page2.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, null, emptyDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, null, emptyDataTypes, sortBy, page1.getContext());
+       page3 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, null, emptyDataTypes, sortBy, page2.getContext());
        
        //verify returned pages
        assertEquals(5, page1.getItems().size());
@@ -445,8 +478,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneDataType, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, oneDataType, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, oneDataType, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, oneDataType, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(1, page1.getItems().size());
@@ -468,8 +501,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, twoDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, oneEquipment, twoDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, oneEquipment, null, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(2, page1.getItems().size());
@@ -491,8 +524,8 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
        context = new PaginationContext<>(10);
        returnedEquipmentIds.clear();
        returnedDataTypes.clear();
-       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoDataTypes, sortBy, context);
-       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoEquipment, twoDataTypes, sortBy, page1.getContext());
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, null, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, null, twoEquipment, null, twoDataTypes, sortBy, page1.getContext());
        
        //verify returned pages
        assertEquals(4, page1.getItems().size());
@@ -506,6 +539,29 @@ public class SystemEventServiceRemoteTest extends BaseRemoteTest {
 		
 		assertEquals(twoEquipment, returnedEquipmentIds);
 		assertEquals(twoDataTypes, returnedDataTypes);
+       
+       assertTrue(page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+
+       //Paginate over twoEquipment, two locations, two client macs and two data types
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, context);
+       page2 = remoteInterface.getForCustomer(fromTime, toTime, customerId_1, twoLocations, twoEquipment, twoMacs, twoDataTypes, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(2, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedEquipmentIds.add(e.getEquipmentId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(twoEquipment, returnedEquipmentIds);
+        assertEquals(Set.of(dataType_2), returnedDataTypes);
        
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());

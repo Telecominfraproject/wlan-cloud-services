@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
@@ -46,13 +47,13 @@ public class SystemEventServiceLocal implements SystemEventServiceInterface {
 
 	@Override
 	public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
-			Set<Long> equipmentIds, Set<String> dataTypes, List<ColumnAndSort> sortBy,
+	        Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<String> dataTypes, List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context) {
 		
         LOG.debug("calling serviceMetricController.getForCustomer {} {} {} ", fromTime, toTime, customerId);
 
         return systemEventController.getForCustomer(fromTime, toTime, customerId,
-        		equipmentIds, dataTypes, sortBy, context);
+                locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
 	}
 
     

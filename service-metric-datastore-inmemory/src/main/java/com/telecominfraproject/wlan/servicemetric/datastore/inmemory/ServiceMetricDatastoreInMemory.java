@@ -37,6 +37,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
     
     private static class ServiceMetricKey{
         final int customerId;
+        final long locationId;
         final long equipmentId;
         final long clientMac;
         final ServiceMetricDataType dataType;
@@ -44,6 +45,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         
 		public ServiceMetricKey(ServiceMetric serviceMetric) {
 			this.customerId = serviceMetric.getCustomerId();
+            this.locationId = serviceMetric.getLocationId();
 			this.equipmentId = serviceMetric.getEquipmentId();
 			this.clientMac = serviceMetric.getClientMac();
 			this.dataType = serviceMetric.getDataType();
@@ -52,7 +54,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(clientMac, createdTimestamp, customerId, dataType, equipmentId);
+			return Objects.hash(clientMac, createdTimestamp, customerId, dataType, equipmentId, locationId);
 		}
 
 		@Override
@@ -65,7 +67,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
 			}
 			ServiceMetricKey other = (ServiceMetricKey) obj;
 			return clientMac == other.clientMac && createdTimestamp == other.createdTimestamp
-					&& customerId == other.customerId && dataType == other.dataType && equipmentId == other.equipmentId;
+					&& customerId == other.customerId && dataType == other.dataType && equipmentId == other.equipmentId && locationId == other.locationId;
 		}    
         
     }
@@ -128,7 +130,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
 
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
-    		Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 
     	if(context == null) {
@@ -149,6 +151,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         for (ServiceMetric mdl : idToServiceMetricMap.values()) {
 
             if (mdl.getCustomerId() == customerId &&
+                    (locationIds==null || locationIds.isEmpty() || locationIds.contains(mdl.getLocationId())) &&
             		(equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
             		(clientMacAdresses==null || clientMacAdresses.isEmpty() || clientMacAdresses.contains(mdl.getClientMacAddress())) &&
             		(dataTypes==null || dataTypes.isEmpty() || dataTypes.contains(mdl.getDataType())) &&
@@ -172,6 +175,9 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
                         switch (column.getColumnName()) {
                         case "createdTimestamp":
                             cmp = Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp());
+                            break;
+                        case "locationId":
+                            cmp = Long.compare(o1.getLocationId(), o2.getLocationId());
                             break;
                         case "equipmentId":
                             cmp = Long.compare(o1.getEquipmentId(), o2.getEquipmentId());
@@ -233,6 +239,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         	ServiceMetric oldStartAfterItem = ret.getContext().getStartAfterItem();
         	
         	newStartAfterItem.setCustomerId(oldStartAfterItem.getCustomerId());
+        	newStartAfterItem.setLocationId(oldStartAfterItem.getLocationId());
         	newStartAfterItem.setEquipmentId(oldStartAfterItem.getEquipmentId());
         	newStartAfterItem.setClientMac(oldStartAfterItem.getClientMac());
         	newStartAfterItem.setDataType(oldStartAfterItem.getDataType());

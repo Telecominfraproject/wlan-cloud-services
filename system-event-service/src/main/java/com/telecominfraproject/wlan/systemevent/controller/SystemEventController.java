@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -106,7 +107,9 @@ public class SystemEventController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<SystemEventRecord> getForCustomer(@RequestParam long fromTime, @RequestParam long toTime, 
     		@RequestParam int customerId,
-    		@RequestParam(required = false) Set<Long> equipmentIds, 
+            @RequestParam(required = false) Set<Long> locationIds, 
+            @RequestParam(required = false) Set<Long> equipmentIds, 
+            @RequestParam(required = false) Set<MacAddress> clientMacAdresses, 
     		@RequestParam(required = false) Set<String> dataTypes,
     		@RequestParam(required = false) List<ColumnAndSort> sortBy, 
     		@RequestParam(required = false) PaginationContext<SystemEventRecord> paginationContext) {    
@@ -115,27 +118,25 @@ public class SystemEventController {
     		paginationContext = new PaginationContext<>();
     	}
     	
-        LOG.debug("Looking up SystemEventRecords for customer {} equipment {} from {} to {} with last returned page number {}", 
-                customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up SystemEventRecords for customer {} location {} equipment {} clientMac {} from {} to {} with last returned page number {}", 
+                customerId, locationIds, equipmentIds, clientMacAdresses, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<SystemEventRecord> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
-            LOG.debug("No more pages available when looking up SystemEventRecords for customer {} equipment {} from {} to {} with last returned page number {}", 
-                    customerId, equipmentIds, fromTime, toTime, paginationContext.getLastReturnedPageNumber());
+            LOG.debug("No more pages available when looking up SystemEventRecords");
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<SystemEventRecord> onePage = this.systemEventDatastore
                 .getForCustomer(fromTime, toTime, customerId,
-                		equipmentIds, dataTypes, sortBy, paginationContext);
+                		locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} SystemEventRecords for customer {} equipment {} from {} to {} ", onePage.getItems().size(), 
-                customerId, equipmentIds, fromTime, toTime);
+        LOG.debug("Retrieved {} SystemEventRecords", onePage.getItems().size());
 
         return ret;
     }
