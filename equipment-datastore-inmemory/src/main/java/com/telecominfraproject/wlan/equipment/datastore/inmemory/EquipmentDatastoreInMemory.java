@@ -365,6 +365,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
             // no more pages available according to the context
             return ret;
         }
+        
+        if (criteria == null || criteria.isEmpty()) {
+        	criteria = null;
+        }
 
         List<Equipment> items = new LinkedList<>();
 
