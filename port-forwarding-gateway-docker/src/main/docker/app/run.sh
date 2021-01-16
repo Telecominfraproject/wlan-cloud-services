@@ -43,8 +43,7 @@ HOST_PROPS+=" -Dtip.wlan.locationServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.manufacturerServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.equipmentServiceBaseUrl=$PROV_URL"
 HOST_PROPS+=" -Dtip.wlan.profileServiceBaseUrl=$PROV_URL"
-# RRM URL
-HOST_PROPS+=" -Dcmap.radioResourceManagementBaseUrl=$RRM_URL"
+
 
 JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:- } "
 
