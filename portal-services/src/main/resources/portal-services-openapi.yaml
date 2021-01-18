@@ -9151,7 +9151,7 @@ components:
         relayIp:
           description: string representing InetAddress
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
           type: integer
@@ -9255,7 +9255,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -9280,7 +9280,7 @@ components:
       properties:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
-        macAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
           type: integer
@@ -9340,7 +9340,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         reasonCode:
           $ref: '#/components/schemas/WlanReasonCode'
@@ -9359,7 +9359,7 @@ components:
           items:
             type: string
             format: byte             
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         userId:
           type: string 
@@ -9378,7 +9378,7 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         lastRecvTime:
           type: integer
@@ -9398,7 +9398,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -9430,7 +9430,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -9465,7 +9465,7 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'          
         firstDataRcvdTs:
           type: integer
@@ -9481,7 +9481,7 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         ipAddr:
           type: array
@@ -9521,7 +9521,7 @@ components:
         associationId:
           type: integer
           format: int64
-        macAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         radioType:
           $ref: '#/components/schemas/RadioType'

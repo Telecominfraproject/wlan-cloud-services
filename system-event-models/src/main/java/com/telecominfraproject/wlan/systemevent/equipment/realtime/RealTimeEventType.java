@@ -49,7 +49,7 @@ public class RealTimeEventType implements EnumWithId {
     private final int id;
     private final String name;
 
-    protected RealTimeEventType(int id, String name) {
+    public RealTimeEventType(int id, String name) {
         synchronized (lock) {
             this.id = id;
             this.name = name;

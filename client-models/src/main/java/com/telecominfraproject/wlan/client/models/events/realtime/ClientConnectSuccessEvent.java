@@ -6,13 +6,14 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientConnectSuccessEvent extends RealTimeEvent {
+public class ClientConnectSuccessEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = -6082134146801575193L;
-    private MacAddress macAddress;
+    private MacAddress clientMacAddress;
     private long sessionId;
     private RadioType radioType;
     private boolean isReassociation;
@@ -50,18 +51,11 @@ public class ClientConnectSuccessEvent extends RealTimeEvent {
     }
 
     /**
-     * @return the macAddress
+     * @param clientMacAddress
+     *            the clientMacAddress to set
      */
-    public MacAddress getMacAddress() {
-        return macAddress;
-    }
-
-    /**
-     * @param macAddress
-     *            the macAddress to set
-     */
-    public void setMacAddress(MacAddress macAddress) {
-        this.macAddress = macAddress;
+    public void setClientMacAddress(MacAddress macAddress) {
+        this.clientMacAddress = macAddress;
     }
 
     /**
@@ -363,6 +357,11 @@ public class ClientConnectSuccessEvent extends RealTimeEvent {
     public void setHostName(String hostName) {
         this.hostName = hostName;
     }
+    
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
+    }
 
     @Override
     public boolean hasUnsupportedValue() {
@@ -387,7 +386,7 @@ public class ClientConnectSuccessEvent extends RealTimeEvent {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Objects.hash(assocRSSI, assocTs, authTs, cltId, eapolTs, fbtUsed, firstDataRxTs,
-                firstDataTxTs, hostName, ipAcquisitionTs, ipAddr, isReassociation, macAddress, portEnabledTs, radioType,
+                firstDataTxTs, hostName, ipAcquisitionTs, ipAddr, isReassociation, clientMacAddress, portEnabledTs, radioType,
                 securityType, sessionId, ssid, using11k, using11r, using11v);
         return result;
     }
@@ -406,7 +405,7 @@ public class ClientConnectSuccessEvent extends RealTimeEvent {
                 && firstDataRxTs == other.firstDataRxTs && firstDataTxTs == other.firstDataTxTs
                 && Objects.equals(hostName, other.hostName) && ipAcquisitionTs == other.ipAcquisitionTs
                 && Objects.equals(ipAddr, other.ipAddr) && isReassociation == other.isReassociation
-                && Objects.equals(macAddress, other.macAddress) && portEnabledTs == other.portEnabledTs
+                && Objects.equals(clientMacAddress, other.clientMacAddress) && portEnabledTs == other.portEnabledTs
                 && radioType == other.radioType && securityType == other.securityType && sessionId == other.sessionId
                 && Objects.equals(ssid, other.ssid) && using11k == other.using11k && using11r == other.using11r
                 && using11v == other.using11v;

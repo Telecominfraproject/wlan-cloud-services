@@ -7,15 +7,16 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.client.models.events.utils.WlanReasonCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientFailureEvent extends RealTimeEvent {
+public class ClientFailureEvent extends RealTimeEvent implements HasClientMac {
     private static final long serialVersionUID = -16021752050335131L;
 
     private long sessionId;
     private String ssid;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private WlanReasonCode reasonCode;
     private String reasonString;
 
@@ -23,17 +24,18 @@ public class ClientFailureEvent extends RealTimeEvent {
         super(RealTimeEventType.STA_Client_Failure, timestamp);
     }
 
-    protected ClientFailureEvent() {
+    public ClientFailureEvent() {
         // serialization
-        this(0L);
+        
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public long getSessionId() {
@@ -78,7 +80,7 @@ public class ClientFailureEvent extends RealTimeEvent {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (hasUnsupportedValue(deviceMacAddress)) {
+        if (hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;
@@ -88,7 +90,7 @@ public class ClientFailureEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(deviceMacAddress, reasonCode, reasonString, sessionId, ssid);
+        result = prime * result + Objects.hash(clientMacAddress, reasonCode, reasonString, sessionId, ssid);
         return result;
     }
 
@@ -101,7 +103,7 @@ public class ClientFailureEvent extends RealTimeEvent {
         if (getClass() != obj.getClass())
             return false;
         ClientFailureEvent other = (ClientFailureEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && Objects.equals(reasonCode, other.reasonCode)
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && Objects.equals(reasonCode, other.reasonCode)
                 && Objects.equals(reasonString, other.reasonString) && sessionId == other.sessionId
                 && Objects.equals(ssid, other.ssid);
     }

@@ -11,7 +11,7 @@ public class RealTimeSipCallStopEvent extends RealTimeSipCallEventWithStats {
     private Integer callDuration;
     private SipCallStopReason reason;
 
-    protected RealTimeSipCallStopEvent() {
+    public RealTimeSipCallStopEvent() {
         this(0L);
     }
 
