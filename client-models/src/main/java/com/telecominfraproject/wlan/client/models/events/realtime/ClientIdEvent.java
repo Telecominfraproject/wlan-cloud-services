@@ -3,20 +3,21 @@ package com.telecominfraproject.wlan.client.models.events.realtime;
 import java.util.Arrays;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientIdEvent extends RealTimeEvent {
+public class ClientIdEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 298223061973506469L;
     private long sessionId;
     private byte[] macAddressBytes;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private String userId;
 
-    protected ClientIdEvent() {
+    public ClientIdEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientIdEvent(Long timestamp) {
@@ -38,14 +39,15 @@ public class ClientIdEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
         // For backward compatibility
-        this.macAddressBytes = deviceMacAddress == null ? null : deviceMacAddress.getAddress();
+        this.macAddressBytes = clientMacAddress == null ? null : clientMacAddress.getAddress();
     }
 
     /**
@@ -75,7 +77,7 @@ public class ClientIdEvent extends RealTimeEvent {
         result = prime * result + Arrays.hashCode(macAddressBytes);
         result = prime * result + (int) (sessionId ^ (sessionId >>> 32));
         result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        result = prime * result + ((deviceMacAddress == null) ? 0 : deviceMacAddress.hashCode());
+        result = prime * result + ((clientMacAddress == null) ? 0 : clientMacAddress.hashCode());
         return result;
     }
 
@@ -108,10 +110,10 @@ public class ClientIdEvent extends RealTimeEvent {
                 return false;
         } else if (!userId.equals(other.userId))
             return false;
-        if (deviceMacAddress == null) {
-            if (other.deviceMacAddress != null)
+        if (clientMacAddress == null) {
+            if (other.clientMacAddress != null)
                 return false;
-        } else if (!deviceMacAddress.equals(other.deviceMacAddress))
+        } else if (!clientMacAddress.equals(other.clientMacAddress))
             return false;
 
         return true;

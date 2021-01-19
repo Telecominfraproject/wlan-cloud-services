@@ -8,10 +8,11 @@ import com.telecominfraproject.wlan.client.models.events.utils.WlanReasonCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientDisconnectEvent extends RealTimeEvent {
+public class ClientDisconnectEvent extends RealTimeEvent implements HasClientMac {
 
     public static enum DisconnectFrameType {
         Deauth, Disassoc,
@@ -46,7 +47,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     private static final long serialVersionUID = -7674230178565760938L;
     private long sessionId;
     private byte[] macAddressBytes;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private long lastRecvTime;
     private long lastSentTime;
     private DisconnectFrameType frameType;
@@ -57,9 +58,9 @@ public class ClientDisconnectEvent extends RealTimeEvent {
     private String ssid;
     private RadioType radioType;
 
-    protected ClientDisconnectEvent() {
+    public ClientDisconnectEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientDisconnectEvent(Long timestamp) {
@@ -70,8 +71,9 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         super(eventType, timestamp);
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
     public DisconnectFrameType getFrameType() {
@@ -114,8 +116,8 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         return ssid;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public void setFrameType(DisconnectFrameType frameType) {
@@ -165,7 +167,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         }
 
         if (DisconnectFrameType.isUnsupported(frameType) || DisconnectInitiator.isUnsupported(initiator)
-                || hasUnsupportedValue(deviceMacAddress) || RadioType.isUnsupported(radioType)) {
+                || hasUnsupportedValue(clientMacAddress) || RadioType.isUnsupported(radioType)) {
             return true;
         }
         return false;
@@ -181,7 +183,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Arrays.hashCode(macAddressBytes);
-        result = prime * result + Objects.hash(deviceMacAddress, frameType, initiator, internalReasonCode, lastRecvTime,
+        result = prime * result + Objects.hash(clientMacAddress, frameType, initiator, internalReasonCode, lastRecvTime,
                 lastSentTime, radioType, reasonCode, rssi, sessionId, ssid);
         return result;
     }
@@ -195,7 +197,7 @@ public class ClientDisconnectEvent extends RealTimeEvent {
         if (getClass() != obj.getClass())
             return false;
         ClientDisconnectEvent other = (ClientDisconnectEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && frameType == other.frameType
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && frameType == other.frameType
                 && initiator == other.initiator && internalReasonCode == other.internalReasonCode
                 && lastRecvTime == other.lastRecvTime && lastSentTime == other.lastSentTime
                 && Arrays.equals(macAddressBytes, other.macAddressBytes) && radioType == other.radioType

@@ -5,15 +5,16 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.client.models.events.utils.WlanStatusCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientAssocEvent extends RealTimeEvent {
+public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
     private static final long serialVersionUID = 7015822981315570338L;
 
     private long sessionId;
     private String ssid;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private RadioType radioType;
     private boolean isReassociation;
     private WlanStatusCode status;
@@ -23,18 +24,18 @@ public class ClientAssocEvent extends RealTimeEvent {
     private boolean using11r;
     private boolean using11v;
 
-    protected ClientAssocEvent() {
+    public ClientAssocEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientAssocEvent(int customerId, long equipmentId, long timestamp, long sessionId, String ssid,
-            MacAddress deviceMacAddress, RadioType radioType, boolean isReassociation, WlanStatusCode status,
+            MacAddress clientMacAddress, RadioType radioType, boolean isReassociation, WlanStatusCode status,
             Integer internalSC, Integer rssi) {
         super(RealTimeEventType.STA_Client_Assoc, customerId, equipmentId, timestamp);
         this.sessionId = sessionId;
         this.ssid = ssid;
-        setDeviceMacAddress(deviceMacAddress);
+        setClientMacAddress(clientMacAddress);
         this.radioType = radioType;
         this.isReassociation = isReassociation;
         this.status = status;
@@ -76,19 +77,17 @@ public class ClientAssocEvent extends RealTimeEvent {
         this.ssid = ssid;
     }
 
-    /**
-     * @return the deviceMacAddress
-     */
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
     /**
-     * @param deviceMacAddress
-     *            the deviceMacAddress to set
+     * @param clientMacAddress
+     *            the clientMacAddress to set
      */
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     /**
@@ -220,7 +219,7 @@ public class ClientAssocEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(deviceMacAddress, internalSC, isReassociation, radioType, rssi,
+        result = prime * result + Objects.hash(clientMacAddress, internalSC, isReassociation, radioType, rssi,
                 sessionId, ssid, status, using11k, using11r, using11v);
         return result;
     }
@@ -234,7 +233,7 @@ public class ClientAssocEvent extends RealTimeEvent {
         if (getClass() != obj.getClass())
             return false;
         ClientAssocEvent other = (ClientAssocEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && internalSC == other.internalSC
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && internalSC == other.internalSC
                 && isReassociation == other.isReassociation && radioType == other.radioType && rssi == other.rssi
                 && sessionId == other.sessionId && Objects.equals(ssid, other.ssid)
                 && Objects.equals(status, other.status) && using11k == other.using11k && using11r == other.using11r

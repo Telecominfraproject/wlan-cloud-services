@@ -7,9 +7,10 @@ import java.net.InetAddress;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
-public abstract class BaseDhcpEvent extends SystemEvent {
+public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac {
 
     private static final long serialVersionUID = 606411494287591881L;
     private int xId;
@@ -17,28 +18,29 @@ public abstract class BaseDhcpEvent extends SystemEvent {
     private InetAddress dhcpServerIp;
     private InetAddress clientIp;
     private InetAddress relayIp;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private long sessionId; // association sessionid
     private int customerId;
     private long equipmentId;
 
-    protected BaseDhcpEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId) {
+    public BaseDhcpEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId) {
         super(eventTimestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.sessionId = sessionId;
     }
 
-    protected BaseDhcpEvent() {
+    public BaseDhcpEvent() {
         super();
     }
-
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public void setCustomerId(int customerId) {
@@ -121,7 +123,7 @@ public abstract class BaseDhcpEvent extends SystemEvent {
             return true;
         }
 
-        if (hasUnsupportedValue(deviceMacAddress)) {
+        if (hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;
@@ -131,7 +133,7 @@ public abstract class BaseDhcpEvent extends SystemEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(clientIp, customerId, deviceMacAddress, dhcpServerIp, equipmentId,
+        result = prime * result + Objects.hash(clientIp, customerId, clientMacAddress, dhcpServerIp, equipmentId,
                 relayIp, sessionId, vlanId, xId);
         return result;
     }
@@ -146,7 +148,7 @@ public abstract class BaseDhcpEvent extends SystemEvent {
             return false;
         BaseDhcpEvent other = (BaseDhcpEvent) obj;
         return Objects.equals(clientIp, other.clientIp) && customerId == other.customerId
-                && Objects.equals(deviceMacAddress, other.deviceMacAddress)
+                && Objects.equals(clientMacAddress, other.clientMacAddress)
                 && Objects.equals(dhcpServerIp, other.dhcpServerIp) && equipmentId == other.equipmentId
                 && Objects.equals(relayIp, other.relayIp) && sessionId == other.sessionId && vlanId == other.vlanId
                 && xId == other.xId;

@@ -4,20 +4,21 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientIpAddressEvent extends RealTimeEvent {
+public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = -5332534925768685589L;
 
     private long sessionId;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private byte[] ipAddr;
 
-    protected ClientIpAddressEvent() {
+    public ClientIpAddressEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientIpAddressEvent(Long timestamp) {
@@ -36,12 +37,12 @@ public class ClientIpAddressEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public byte[] getIpAddr() {
@@ -57,7 +58,7 @@ public class ClientIpAddressEvent extends RealTimeEvent {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Arrays.hashCode(this.ipAddr);
-        result = prime * result + Objects.hash(deviceMacAddress, sessionId);
+        result = prime * result + Objects.hash(clientMacAddress, sessionId);
         return result;
     }
 
@@ -73,7 +74,7 @@ public class ClientIpAddressEvent extends RealTimeEvent {
             return false;
         }
         ClientIpAddressEvent other = (ClientIpAddressEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && Arrays.equals(ipAddr, other.ipAddr)
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && Arrays.equals(ipAddr, other.ipAddr)
                 && this.sessionId == other.sessionId;
     }
 
@@ -88,7 +89,7 @@ public class ClientIpAddressEvent extends RealTimeEvent {
             return true;
         }
 
-        if (hasUnsupportedValue(deviceMacAddress)) {
+        if (hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;

@@ -5,22 +5,23 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.client.models.events.utils.WlanStatusCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientAuthEvent extends RealTimeEvent {
+public class ClientAuthEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 1221389696911864515L;
 
     private long sessionId;
     private String ssid;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private WlanStatusCode authStatus;
     private RadioType radioType;
 
-    protected ClientAuthEvent() {
+    public ClientAuthEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientAuthEvent(Long timestamp) {
@@ -39,12 +40,13 @@ public class ClientAuthEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public String getSsid() {
@@ -80,7 +82,7 @@ public class ClientAuthEvent extends RealTimeEvent {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (RadioType.isUnsupported(radioType) || hasUnsupportedValue(deviceMacAddress)) {
+        if (RadioType.isUnsupported(radioType) || hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;
@@ -90,7 +92,7 @@ public class ClientAuthEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(authStatus, deviceMacAddress, radioType, sessionId, ssid);
+        result = prime * result + Objects.hash(authStatus, clientMacAddress, radioType, sessionId, ssid);
         return result;
     }
 
@@ -103,7 +105,7 @@ public class ClientAuthEvent extends RealTimeEvent {
         if (getClass() != obj.getClass())
             return false;
         ClientAuthEvent other = (ClientAuthEvent) obj;
-        return Objects.equals(authStatus, other.authStatus) && Objects.equals(deviceMacAddress, other.deviceMacAddress)
+        return Objects.equals(authStatus, other.authStatus) && Objects.equals(clientMacAddress, other.clientMacAddress)
                 && radioType == other.radioType && sessionId == other.sessionId && Objects.equals(ssid, other.ssid);
     }
 

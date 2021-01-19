@@ -588,7 +588,6 @@ components:
           format: int64
         payload:
           $ref: '#/components/schemas/Status'
-          
     BaseDhcpEvent:
       properties:
         allOf:
@@ -608,7 +607,7 @@ components:
         relayIp:
           description: string representing InetAddress
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
           type: integer
@@ -648,7 +647,7 @@ components:
         gatewayIp:
           description: string representing InetAddress
           type: string
-
+                       
     DhcpDeclineEvent:
       properties:
         allOf:
@@ -687,7 +686,7 @@ components:
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'   
         hostName:
-          type: string
+          type: string 
               
     RealTimeEvent:
       properties:
@@ -712,7 +711,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -737,7 +736,7 @@ components:
       properties:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
-        macAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
           type: integer
@@ -797,12 +796,12 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         reasonCode:
           $ref: '#/components/schemas/WlanReasonCode'
         reasonString:
-          type: string         
+          type: string    
 
     ClientIdEvent:
       properties:
@@ -816,7 +815,7 @@ components:
           items:
             type: string
             format: byte             
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         userId:
           type: string 
@@ -835,7 +834,7 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         lastRecvTime:
           type: integer
@@ -855,15 +854,15 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
         isReassociation:
           type: boolean
         authStatus:
-          $ref: '#/components/schemas/WlanStatusCode'          
-    
+          $ref: '#/components/schemas/WlanStatusCode'       
+
     DisconnectFrameType:
       type: string
       enum:
@@ -887,7 +886,7 @@ components:
           format: int64
         ssid:
           type: string
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -922,7 +921,7 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'          
         firstDataRcvdTs:
           type: integer
@@ -930,7 +929,7 @@ components:
         firstDataSentTs:
           type: integer
           format: int64
-
+          
     ClientIpAddressEvent :
       properties:
         allOf:
@@ -938,14 +937,14 @@ components:
         sessionId:
           type: integer
           format: int64
-        deviceMacAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         ipAddr:
           type: array
           items:
             type: string
             format: byte    
-
+          
     ChannelHopReason:
       type: string
       enum:
@@ -966,8 +965,8 @@ components:
         reasonCode:
           $ref: '#/components/schemas/ChannelHopReason'
         radioType:
-          $ref: '#/components/schemas/RadioType'
-
+          $ref: '#/components/schemas/RadioType'   
+          
     RealTimeSipCallEventWithStats:
       properties:
         allOf:
@@ -978,7 +977,7 @@ components:
         associationId:
           type: integer
           format: int64
-        macAddress:
+        clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         radioType:
           $ref: '#/components/schemas/RadioType'
@@ -1009,8 +1008,8 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
         reportReason:
-          $ref: '#/components/schemas/SIPCallReportReason'       
-
+          $ref: '#/components/schemas/SIPCallReportReason'
+        
     RealTimeSipCallStartEvent:
       properties:
         allOf:
@@ -1036,7 +1035,7 @@ components:
           type: string
         deviceInfo:
           type: string
-          
+
     SipCallStopReason:
       type: string
       enum:
@@ -1073,7 +1072,7 @@ components:
           type: string    
         type:
           $ref: '#/components/schemas/StreamingVideoType'
-    
+
     RealTimeStreamingStartSessionEvent:
       properties:
         allOf:
@@ -1091,7 +1090,7 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/StreamingVideoType'
-          
+ 
     RealTimeStreamingStopEvent:
       properties:
         allOf:
@@ -1115,7 +1114,7 @@ components:
         durationInSecs:
           type: integer
           format: int32
-
+          
     RtpFlowDirection:
       type: string
       enum:
@@ -1195,7 +1194,7 @@ components:
         lastModifiedTimestamp:
           type: integer
           format: int64
-
+          
     UnserializableSystemEvent:
       description: This event is used in situations when the cloud cannot parse the event that was previously stored in the DB, used to cover upgrade scenarios.
       properties:

@@ -5,10 +5,11 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientTimeoutEvent extends RealTimeEvent {
+public class ClientTimeoutEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = -3555658720107793679L;
 
@@ -26,14 +27,14 @@ public class ClientTimeoutEvent extends RealTimeEvent {
     }
 
     private long sessionId;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private long lastRecvTime;
     private long lastSentTime;
     private ClientTimeoutReason timeoutReason;
 
-    protected ClientTimeoutEvent() {
+    public ClientTimeoutEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientTimeoutEvent(Long timestamp) {
@@ -52,12 +53,13 @@ public class ClientTimeoutEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public long getLastRecvTime() {
@@ -88,7 +90,7 @@ public class ClientTimeoutEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(deviceMacAddress, lastRecvTime, lastSentTime, sessionId, timeoutReason);
+        result = prime * result + Objects.hash(clientMacAddress, lastRecvTime, lastSentTime, sessionId, timeoutReason);
         return result;
     }
 
@@ -104,7 +106,7 @@ public class ClientTimeoutEvent extends RealTimeEvent {
             return false;
         }
         ClientTimeoutEvent other = (ClientTimeoutEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && this.lastRecvTime == other.lastRecvTime
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && this.lastRecvTime == other.lastRecvTime
                 && this.lastSentTime == other.lastSentTime && this.sessionId == other.sessionId
                 && this.timeoutReason == other.timeoutReason;
     }
@@ -120,7 +122,7 @@ public class ClientTimeoutEvent extends RealTimeEvent {
             return true;
         }
 
-        if (ClientTimeoutReason.isUnsupported(timeoutReason) || hasUnsupportedValue(deviceMacAddress)) {
+        if (ClientTimeoutReason.isUnsupported(timeoutReason) || hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;

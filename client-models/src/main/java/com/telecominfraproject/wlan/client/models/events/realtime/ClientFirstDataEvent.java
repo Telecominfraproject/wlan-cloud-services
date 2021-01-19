@@ -3,20 +3,21 @@ package com.telecominfraproject.wlan.client.models.events.realtime;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEventType;
 
-public class ClientFirstDataEvent extends RealTimeEvent {
+public class ClientFirstDataEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 298223061973506469L;
     private long sessionId;
-    private MacAddress deviceMacAddress;
+    private MacAddress clientMacAddress;
     private long firstDataRcvdTs;
     private long firstDataSentTs;
 
-    protected ClientFirstDataEvent() {
+    public ClientFirstDataEvent() {
         // serialization
-        this(0L);
+        
     }
 
     public ClientFirstDataEvent(Long timestamp) {
@@ -35,12 +36,13 @@ public class ClientFirstDataEvent extends RealTimeEvent {
         this.sessionId = sessionId;
     }
 
-    public MacAddress getDeviceMacAddress() {
-        return deviceMacAddress;
+    @Override
+    public MacAddress getClientMacAddress() {
+        return clientMacAddress;
     }
 
-    public void setDeviceMacAddress(MacAddress deviceMacAddress) {
-        this.deviceMacAddress = deviceMacAddress;
+    public void setClientMacAddress(MacAddress clientMacAddress) {
+        this.clientMacAddress = clientMacAddress;
     }
 
     public long getFirstDataRcvdTs() {
@@ -63,7 +65,7 @@ public class ClientFirstDataEvent extends RealTimeEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(deviceMacAddress, firstDataRcvdTs, firstDataSentTs, sessionId);
+        result = prime * result + Objects.hash(clientMacAddress, firstDataRcvdTs, firstDataSentTs, sessionId);
         return result;
     }
 
@@ -79,7 +81,7 @@ public class ClientFirstDataEvent extends RealTimeEvent {
             return false;
         }
         ClientFirstDataEvent other = (ClientFirstDataEvent) obj;
-        return Objects.equals(deviceMacAddress, other.deviceMacAddress) && this.firstDataRcvdTs == other.firstDataRcvdTs
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && this.firstDataRcvdTs == other.firstDataRcvdTs
                 && this.firstDataSentTs == other.firstDataSentTs && this.sessionId == other.sessionId;
     }
 
@@ -94,7 +96,7 @@ public class ClientFirstDataEvent extends RealTimeEvent {
             return true;
         }
 
-        if (hasUnsupportedValue(deviceMacAddress)) {
+        if (hasUnsupportedValue(clientMacAddress)) {
             return true;
         }
         return false;

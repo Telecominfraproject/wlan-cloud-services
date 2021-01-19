@@ -29,14 +29,14 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
 
     private Long sipCallId;
     private Long associationId;
-    private MacAddress macAddress;
+    private MacAddress clientMacAddress;
     private List<RtpFlowStats> statuses;
     private int channel;
     private RadioType radioType;
     private List<String> codecs;
     private String providerDomain;
 
-    protected RealTimeSipCallEventWithStats(RealTimeEventType eventType, int customerId, long equipmentId,
+    public RealTimeSipCallEventWithStats(RealTimeEventType eventType, int customerId, long equipmentId,
             Long timestamp) {
         super(eventType, customerId, equipmentId, timestamp);
     }
@@ -59,11 +59,11 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
 
     @Override
     public MacAddress getClientMacAddress() {
-        return macAddress;
+        return clientMacAddress;
     }
 
     public void setClientMacAddress(MacAddress clientMacAddress) {
-        macAddress = clientMacAddress;
+        this.clientMacAddress = clientMacAddress;
     }
 
     public List<RtpFlowStats> getStatuses() {
@@ -119,7 +119,7 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
         final int prime = 31;
         int result = super.hashCode();
         result = (prime * result) +
-                Objects.hash(associationId, macAddress, sipCallId, statuses, channel, radioType, codecs, providerDomain);
+                Objects.hash(associationId, clientMacAddress, sipCallId, statuses, channel, radioType, codecs, providerDomain);
         return result;
     }
 
@@ -135,7 +135,7 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
             return false;
         }
         RealTimeSipCallEventWithStats other = (RealTimeSipCallEventWithStats) obj;
-        return Objects.equals(associationId, other.associationId) && Objects.equals(macAddress, other.macAddress)
+        return Objects.equals(associationId, other.associationId) && Objects.equals(clientMacAddress, other.clientMacAddress)
                 && Objects.equals(sipCallId, other.sipCallId) && Objects.equals(statuses, other.statuses)
                 && Objects.equals(channel, other.channel) && Objects.equals(radioType, other.radioType)
                 && Objects.equals(codecs, other.codecs) && Objects.equals(providerDomain, other.providerDomain);
@@ -159,7 +159,7 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
             return true;
         }
 
-        if (hasUnsupportedValue(macAddress) || hasUnsupportedValue(statuses)) {
+        if (hasUnsupportedValue(clientMacAddress) || hasUnsupportedValue(statuses)) {
             return true;
         }
         return false;
