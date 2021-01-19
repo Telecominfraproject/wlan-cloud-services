@@ -1,6 +1,9 @@
 package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -65,6 +68,18 @@ public class ApPerformance extends BaseJsonModel {
      * Data received by AP from cloud
      */
     private Long cloudRxBytes;
+    
+    /**
+     *  Top CPU consuming processes.
+     *  CPU usage in percent.
+     */
+    private List<PerProcessUtilization> psCpuUtil;
+    
+    /**
+     *  Most memory consuming processes.
+     *  Memory usage in kB.
+     */
+    private List<PerProcessUtilization> psMemUtil;
 
     @Override
     public ApPerformance clone() {
@@ -72,78 +87,44 @@ public class ApPerformance extends BaseJsonModel {
         if(this.cpuUtilized!=null){
             ret.cpuUtilized = this.cpuUtilized.clone();
         }
-        
+        if (this.psCpuUtil!=null) {
+            List<PerProcessUtilization> newPsCpuUtil = new ArrayList<>();
+            psCpuUtil.stream().forEach(p -> newPsCpuUtil.add(p.clone()));
+            ret.setPsCpuUtil(newPsCpuUtil);
+        }
+        if (this.psMemUtil!=null) {
+            List<PerProcessUtilization> newPsMemUtil = new ArrayList<>();
+            psMemUtil.stream().forEach(p -> newPsMemUtil.add(p.clone()));
+            ret.setPsCpuUtil(newPsMemUtil); 
+        }
         return ret;
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(cpuUtilized);
+        result = prime * result + Objects.hash(camiCrashed, cloudRxBytes, cloudTxBytes, cpuTemperature, ethLinkState,
+                freeMemory, lowMemoryReboot, psCpuUtil, psMemUtil, upTime);
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (!(obj instanceof ApPerformance)) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         ApPerformance other = (ApPerformance) obj;
-        if (camiCrashed == null) {
-            if (other.camiCrashed != null) {
-                return false;
-            }
-        } else if (!camiCrashed.equals(other.camiCrashed)) {
-            return false;
-        }
-        if (cloudRxBytes == null) {
-            if (other.cloudRxBytes != null) {
-                return false;
-            }
-        } else if (!cloudRxBytes.equals(other.cloudRxBytes)) {
-            return false;
-        }
-        if (cloudTxBytes == null) {
-            if (other.cloudTxBytes != null) {
-                return false;
-            }
-        } else if (!cloudTxBytes.equals(other.cloudTxBytes)) {
-            return false;
-        }
-        if (cpuTemperature == null) {
-            if (other.cpuTemperature != null) {
-                return false;
-            }
-        } else if (!cpuTemperature.equals(other.cpuTemperature)) {
-            return false;
-        }
-        if (!Arrays.equals(cpuUtilized, other.cpuUtilized)) {
-            return false;
-        }
-        if (ethLinkState != other.ethLinkState) {
-            return false;
-        }
-        if (freeMemory == null) {
-            if (other.freeMemory != null) {
-                return false;
-            }
-        } else if (!freeMemory.equals(other.freeMemory)) {
-            return false;
-        }
-        if (lowMemoryReboot == null) {
-            if (other.lowMemoryReboot != null) {
-                return false;
-            }
-        } else if (!lowMemoryReboot.equals(other.lowMemoryReboot)) {
-            return false;
-        }
-        if (upTime == null) {
-            if (other.upTime != null) {
-                return false;
-            }
-        } else if (!upTime.equals(other.upTime)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(camiCrashed, other.camiCrashed) && Objects.equals(cloudRxBytes, other.cloudRxBytes)
+                && Objects.equals(cloudTxBytes, other.cloudTxBytes)
+                && Objects.equals(cpuTemperature, other.cpuTemperature) && Arrays.equals(cpuUtilized, other.cpuUtilized)
+                && ethLinkState == other.ethLinkState && Objects.equals(freeMemory, other.freeMemory)
+                && Objects.equals(lowMemoryReboot, other.lowMemoryReboot) && Objects.equals(psCpuUtil, other.psCpuUtil)
+                && Objects.equals(psMemUtil, other.psMemUtil) && Objects.equals(upTime, other.upTime);
     }
 
     @JsonIgnore
@@ -203,22 +184,15 @@ public class ApPerformance extends BaseJsonModel {
         return upTime;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((camiCrashed == null) ? 0 : camiCrashed.hashCode());
-        result = prime * result + ((cloudRxBytes == null) ? 0 : cloudRxBytes.hashCode());
-        result = prime * result + ((cloudTxBytes == null) ? 0 : cloudTxBytes.hashCode());
-        result = prime * result + ((cpuTemperature == null) ? 0 : cpuTemperature.hashCode());
-        result = prime * result + Arrays.hashCode(cpuUtilized);
-        result = prime * result + ((ethLinkState == null) ? 0 : ethLinkState.hashCode());
-        result = prime * result + ((freeMemory == null) ? 0 : freeMemory.hashCode());
-        result = prime * result + ((lowMemoryReboot == null) ? 0 : lowMemoryReboot.hashCode());
-        result = prime * result + ((upTime == null) ? 0 : upTime.hashCode());
-        return result;
+    public List<PerProcessUtilization> getPsCpuUtil() {
+        return psCpuUtil;
     }
 
+    public List<PerProcessUtilization> getPsMemUtil() {
+        return psMemUtil;
+    }
+
+  
     @Override
     public boolean hasUnsupportedValue() {
         return (super.hasUnsupportedValue() || EthernetLinkState.isUnsupported(this.ethLinkState));
@@ -270,6 +244,14 @@ public class ApPerformance extends BaseJsonModel {
 
     public void setUpTime(Long upTime) {
         this.upTime = upTime;
+    }
+
+    public void setPsCpuUtil(List<PerProcessUtilization> psCpuUtil) {
+        this.psCpuUtil = psCpuUtil;
+    }
+
+    public void setPsMemUtil(List<PerProcessUtilization> psMemUtil) {
+        this.psMemUtil = psMemUtil;
     }
     
 }

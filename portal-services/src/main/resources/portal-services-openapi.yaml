@@ -6636,7 +6636,20 @@ components:
           description: string representing InetAddress
           type: string
 
-
+    PerProcessUtilization:
+      properties:
+        pid:
+          description: process id
+          type: integer
+          format: int32
+        cmd:
+          description: process name
+          type: string
+        util:
+          description: utilization, either as a percentage (i.e. for CPU) or in kB (for memory)
+          type: integer
+          format: int32
+ 
     ApPerformance:
       properties:
         freeMemory:
@@ -6674,6 +6687,14 @@ components:
           description: Data received by AP from cloud
           type: integer
           format: int64
+        psCpuUtil:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerProcessUtilization'
+        psMemUtil:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerProcessUtilization'
           
     EthernetLinkState:
       type: string

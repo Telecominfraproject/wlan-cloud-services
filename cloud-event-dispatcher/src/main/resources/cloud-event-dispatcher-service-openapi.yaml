@@ -102,6 +102,30 @@ components:
       - EquipmentRemovedEvent
       - StatusChangedEvent
       - StatusRemovedEvent
+      - DhcpAckEvent
+      - DhcpNakEvent
+      - DhcpDeclineEvent
+      - DhcpDiscoverEvent
+      - DhcpInformEvent
+      - DhcpOfferEvent       
+      - DhcpRequestEvent
+      - ClientAssocEvent
+      - ClientConnectSuccessEvent
+      - ClientFailureEvent
+      - ClientIdEvent
+      - ClientTimeoutEvent
+      - ClientAuthEvent
+      - ClientDisconnectEvent
+      - ClientFirstDataEvent
+      - ClientIpAddressEvent
+      - RealTimeChannelHopEvent
+      - RealTimeSipCallEventWithStats
+      - RealTimeSipCallReportEvent
+      - RealTimeSipCallStartEvent
+      - RealTimeSipCallStopEvent
+      - RealTimeStreamingStartEvent
+      - RealTimeStreamingStartSessionEvent
+      - RealTimeStreamingStopEvent            
       - UnserializableSystemEvent
  
     SystemEventRecord:
@@ -157,6 +181,30 @@ components:
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
         - $ref: '#/components/schemas/StatusChangedEvent'
         - $ref: '#/components/schemas/StatusRemovedEvent'
+        - $ref: '#/components/schemas/DhcpAckEvent'
+        - $ref: '#/components/schemas/DhcpNakEvent'
+        - $ref: '#/components/schemas/DhcpDeclineEvent'
+        - $ref: '#/components/schemas/DhcpDiscoverEvent'
+        - $ref: '#/components/schemas/DhcpInformEvent'
+        - $ref: '#/components/schemas/DhcpOfferEvent'       
+        - $ref: '#/components/schemas/DhcpRequestEvent'
+        - $ref: '#/components/schemas/ClientAssocEvent'
+        - $ref: '#/components/schemas/ClientConnectSuccessEvent'
+        - $ref: '#/components/schemas/ClientFailureEvent'
+        - $ref: '#/components/schemas/ClientIdEvent'
+        - $ref: '#/components/schemas/ClientTimeoutEvent'
+        - $ref: '#/components/schemas/ClientAuthEvent'
+        - $ref: '#/components/schemas/ClientDisconnectEvent'
+        - $ref: '#/components/schemas/ClientFirstDataEvent'
+        - $ref: '#/components/schemas/ClientIpAddressEvent'
+        - $ref: '#/components/schemas/RealtimeChannelHopEvent'
+        - $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
+        - $ref: '#/components/schemas/RealTimeSipCallReportEvent'
+        - $ref: '#/components/schemas/RealTimeSipCallStartEvent'
+        - $ref: '#/components/schemas/RealTimeSipCallStopEvent'
+        - $ref: '#/components/schemas/RealTimeStreamingStartEvent'
+        - $ref: '#/components/schemas/RealTimeStreamingStartSessionEvent'
+        - $ref: '#/components/schemas/RealTimeStreamingStopEvent'                
         - $ref: '#/components/schemas/UnserializableSystemEvent'
       discriminator:
         propertyName: model_type
@@ -532,6 +580,614 @@ components:
         payload:
           $ref: '#/components/schemas/Status'
  
+    BaseDhcpEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/SystemEvent'
+        xId:
+          type: integer
+          format: int32
+        vlanId:
+          type: integer
+          format: int32
+        dhcpServerIp:
+          description: string representing InetAddress
+          type: string
+        clientIp:
+          description: string representing InetAddress
+          type: string
+        relayIp:
+          description: string representing InetAddress
+          type: string
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        sessionId:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+          
+    DhcpAckEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'
+        subnetMask:
+          description: string representing InetAddress
+          type: string  
+        primaryDns:
+          description: string representing InetAddress
+          type: string 
+        secondaryDns:
+          description: string representing InetAddress
+          type: string
+        leaseTime:
+          type: integer
+          format: int32
+        renewalTime:
+          type: integer
+          format: int32
+        rebindingTime:
+          type: integer
+          format: int32
+        timeOffset:
+          type: integer
+          format: int32
+        gatewayIp:
+          description: string representing InetAddress
+          type: string
+                       
+    DhcpDeclineEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'   
+
+    DhcpDiscoverEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'
+        hostName:
+          type: string
+             
+    DhcpInformEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'   
+    
+    DhcpNakEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent' 
+        fromInternal:
+          type: boolean
+          default: false
+    
+    DhcpOfferEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'   
+        fromInternal:
+          type: boolean
+          default: false
+    
+    DhcpRequestEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/BaseDhcpEvent'   
+        hostName:
+          type: string 
+              
+    RealTimeEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/SystemEvent'
+        eventTimestamp:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+          
+    ClientAssocEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        ssid:
+          type: string
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        isReassociation:
+          type: boolean
+        status:
+          $ref: '#/components/schemas/WlanStatusCode'
+        rssi:
+          type: integer
+          format: int32
+        internalSC:
+          type: integer
+          format: int32
+        using11k:
+          type: boolean
+        using11r:
+          type: boolean
+        using11v:
+          type: boolean
+
+    ClientConnectSuccessEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        sessionId:
+          type: integer
+          format: int64
+        radioType:
+          $ref: '#/components/schemas/RadioType'        
+        isReassociation:
+          type: boolean
+        ssid:
+          type: string
+        securityType:
+          $ref: '#/components/schemas/SecurityType'
+        fbtUsed:
+          type: boolean
+        ipAddr:
+          description: string representing InetAddress
+          type: string
+        cltId:
+          type: string 
+        authTs:
+          type: integer
+          format: int64
+        assocTs:
+          type: integer
+          format: int64
+        eapolTs:
+          type: integer
+          format: int64
+        portEnabledTs:
+          type: integer
+          format: int64
+        firstDataRxTs:
+          type: integer
+          format: int64
+        firstDataTxTs:
+          type: integer
+          format: int64
+        using11k:
+          type: boolean
+        using11r:
+          type: boolean
+        using11v:
+          type: boolean
+        ipAcquisitionTs:
+          type: integer
+          format: int64
+        assocRssi:
+          type: integer
+          format: int32
+
+    ClientFailureEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        ssid:
+          type: string
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        reasonCode:
+          $ref: '#/components/schemas/WlanReasonCode'
+        reasonString:
+          type: string    
+
+    ClientIdEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        macAddressBytes:
+          type: array
+          items:
+            type: string
+            format: byte             
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        userId:
+          type: string 
+
+    ClientTimeoutReason:
+      type: string
+      enum:
+        - IdleTooLong
+        - FailedProbe
+        - UNSUPPORTED
+
+    ClientTimeoutEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        lastRecvTime:
+          type: integer
+          format: int64          
+        lastSentTime:
+          type: integer
+          format: int64
+        timeoutReason:
+          $ref: '#/components/schemas/ClientTimeoutReason'
+
+    ClientAuthEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        ssid:
+          type: string
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        isReassociation:
+          type: boolean
+        authStatus:
+          $ref: '#/components/schemas/WlanStatusCode'       
+
+    DisconnectFrameType:
+      type: string
+      enum:
+        - Deauth
+        - Disassoc
+        - UNSUPPORTED
+        
+    DisconnectInitiator:
+      type: string
+      enum:
+        - AccessPoint
+        - Client
+        - UNSUPPORTED
+        
+    ClientDisconnectEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        ssid:
+          type: string
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        macAddressBytes:
+          type: array
+          items:
+            type: string
+            format: byte    
+        reasonCode:
+          $ref: '#/components/schemas/WlanReasonCode'
+        internalReasonCode:
+          type: integer
+          format: int32 
+        rssi:
+          type: integer
+          format: int32                       
+        lastRecvTime:
+          type: integer
+          format: int64
+        lastSentTime:
+          type: integer
+          format: int64
+        frameType:
+          $ref: '#/components/schemas/DisconnectFrameType'
+        initiator:
+          $ref: '#/components/schemas/DisconnectInitiator'
+
+    ClientFirstDataEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sessionId:
+          type: integer
+          format: int64
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'          
+        firstDataRcvdTs:
+          type: integer
+          format: int64
+        firstDataSentTs:
+          type: integer
+          format: int64
+          
+    ClientIpAddressEvent :
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'   
+        sessionId:
+          type: integer
+          format: int64
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'  
+        ipAddr:
+          type: array
+          items:
+            type: string
+            format: byte    
+          
+    ChannelHopReason:
+      type: string
+      enum:
+        - RadarDetected
+        - HighInterference
+        - UNSUPPORTED
+        
+    RealtimeChannelHopEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        oldChannel:
+          type: integer
+          format: int32
+        newChannel:
+          type: integer
+          format: int32
+        reasonCode:
+          $ref: '#/components/schemas/ChannelHopReason'
+        radioType:
+          $ref: '#/components/schemas/RadioType'   
+          
+    RealTimeSipCallEventWithStats:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sipCallId:
+          type: integer
+          format: int64
+        associationId:
+          type: integer
+          format: int64
+        clientMacAddress:
+          $ref: '#/components/schemas/MacAddress'  
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/RtpFlowStats'
+        channel:
+          type: integer
+          format: int32
+        codecs:
+          type: array
+          items:
+            type: string
+        providerDomain:
+          type: string
+
+    SIPCallReportReason:
+      type: string
+      enum:
+        - ROAMED_FROM
+        - ROAMED_TO
+        - GOT_PUBLISH
+        - UNSUPPORTED
+        
+    RealTimeSipCallReportEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
+        reportReason:
+          $ref: '#/components/schemas/SIPCallReportReason'
+        
+    RealTimeSipCallStartEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        sipCallId:
+          type: integer
+          format: int64
+        associationId:
+          type: integer
+          format: int64
+        macAddress:
+          $ref: '#/components/schemas/MacAddress'  
+        radioType:
+          $ref: '#/components/schemas/RadioType'
+        channel:
+          type: integer
+          format: int32
+        codecs:
+          type: array
+          items:
+            type: string
+        providerDomain:
+          type: string
+        deviceInfo:
+          type: string
+
+    SipCallStopReason:
+      type: string
+      enum:
+        - BYE_OK
+        - DROPPED
+        - UNSUPPORTED      
+
+    RealTimeSipCallStopEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        callDuration:
+          type: integer
+          format: int32
+        reason:
+          $ref: '#/components/schemas/SipCallStopReason'
+
+    RealTimeStreamingStartEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        videoSessionId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        clientMac:
+          $ref: '#/components/schemas/MacAddress'
+        serverIp:
+          description: string representing InetAddress
+          type: string
+        serverDnsName:
+          type: string    
+        type:
+          $ref: '#/components/schemas/StreamingVideoType'
+
+    RealTimeStreamingStartSessionEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        videoSessionId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        clientMac:
+          $ref: '#/components/schemas/MacAddress'
+        serverIp:
+          description: string representing InetAddress
+          type: string
+        type:
+          $ref: '#/components/schemas/StreamingVideoType'
+ 
+    RealTimeStreamingStopEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        videoSessionId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        clientMac:
+          $ref: '#/components/schemas/MacAddress'
+        serverIp:
+          description: string representing InetAddress
+          type: string
+        totalBytes:
+          type: integer
+          format: int64    
+        type:
+          $ref: '#/components/schemas/StreamingVideoType'
+        durationInSecs:
+          type: integer
+          format: int32
+          
+    RtpFlowDirection:
+      type: string
+      enum:
+        - UPSTREAM
+        - DOWNSTREAM
+            
+    RtpFlowStats:
+      properties:
+        direction:
+          $ref: '#/components/schemas/RtpFlowDirection'
+        flowType:
+          $ref: '#/components/schemas/RtpFlowType'
+        latency:
+          type: integer
+          format: int32
+        jitter:
+          type: integer
+          format: int32
+        packetLossConsecutive:
+          type: integer
+          format: int32
+        code:
+          type: integer
+          format: int32
+        mosMultipliedBy100:
+          type: integer
+          format: int32
+        blockCodecs:
+          type: array
+          items:
+            type: string
+            format: byte        
+
+    RtpFlowType:
+      type: string
+      enum:
+        - VOICE
+        - VIDEO
+        - UNSUPPORTED
+    
+    SipCallReportReason:
+      type: string
+      enum:
+        - ROAMED_FROM
+        - ROAMED_TO
+        - GOT_PUBLISH
+        - UNSUPPORTED                      
+    
+    StreamingVideoType:
+      type: string
+      enum:
+        - UNKNOWN
+        - NETFLIX
+        - YOUTUBE
+        - PLEX
+        - UNSUPPORTED
+        
+    StreamingVideoServerRecord:
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        equipmentId:
+          type: integer
+          format: int64
+        ipAddr:
+          type: string
+        type:
+          description: string representing InetAddress       
+          $ref: '#/components/schemas/StreamingVideoType'
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          type: integer
+          format: int64
+ 
+ 
     UnserializableSystemEvent:
       description: This event is used in situations when the cloud cannot parse the event that was previously stored in the DB, used to cover upgrade scenarios.
       properties:
@@ -550,6 +1206,178 @@ components:
 #
 # Objects related to Clients
 #
+
+    WlanReasonCode:
+      type: string
+      enum:
+        - WLAN_REASON_UNSPECIFIED
+        - WLAN_REASON_PREV_AUTH_NOT_VALID
+        - WLAN_REASON_DEAUTH_LEAVING
+        - WLAN_REASON_DISASSOC_DUE_TO_INACTIVITY
+        - WLAN_REASON_DISASSOC_AP_BUSY
+        - WLAN_REASON_CLASS2_FRAME_FROM_NONAUTH_STA
+        - WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA
+        - WLAN_REASON_DISASSOC_STA_HAS_LEFT
+        - WLAN_REASON_STA_REQ_ASSOC_WITHOUT_AUTH
+        - WLAN_REASON_PWR_CAPABILITY_NOT_VALID
+        - WLAN_REASON_SUPPORTED_CHANNEL_NOT_VALID
+        - WLAN_REASON_BSS_TRANSITION_DISASSOC
+        - WLAN_REASON_INVALID_IE
+        - WLAN_REASON_MICHAEL_MIC_FAILURE
+        - WLAN_REASON_4WAY_HANDSHAKE_TIMEOUT
+        - WLAN_REASON_GROUP_KEY_UPDATE_TIMEOUT
+        - WLAN_REASON_IE_IN_4WAY_DIFFERS
+        - WLAN_REASON_GROUP_CIPHER_NOT_VALID
+        - WLAN_REASON_PAIRWISE_CIPHER_NOT_VALID
+        - WLAN_REASON_AKMP_NOT_VALID
+        - WLAN_REASON_UNSUPPORTED_RSN_IE_VERSION
+        - WLAN_REASON_INVALID_RSN_IE_CAPAB
+        - WLAN_REASON_IEEE_802_1X_AUTH_FAILED
+        - WLAN_REASON_CIPHER_SUITE_REJECTED
+        - WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE
+        - WLAN_REASON_TDLS_TEARDOWN_UNSPECIFIED
+        - WLAN_REASON_SSP_REQUESTED_DISASSOC
+        - WLAN_REASON_NO_SSP_ROAMING_AGREEMENT
+        - WLAN_REASON_BAD_CIPHER_OR_AKM
+        - WLAN_REASON_NOT_AUTHORIZED_THIS_LOCATION
+        - WLAN_REASON_SERVICE_CHANGE_PRECLUDES_TS
+        - WLAN_REASON_UNSPECIFIED_QOS_REASON
+        - WLAN_REASON_NOT_ENOUGH_BANDWIDTH
+        - WLAN_REASON_DISASSOC_LOW_ACK
+        - WLAN_REASON_EXCEEDED_TXOP
+        - WLAN_REASON_STA_LEAVING
+        - WLAN_REASON_END_TS_BA_DLS
+        - WLAN_REASON_UNKNOWN_TS_BA
+        - WLAN_REASON_TIMEOUT
+        - WLAN_REASON_PEERKEY_MISMATCH
+        - WLAN_REASON_AUTHORIZED_ACCESS_LIMIT_REACHED
+        - WLAN_REASON_EXTERNAL_SERVICE_REQUIREMENTS
+        - WLAN_REASON_INVALID_FT_ACTION_FRAME_COUNT
+        - WLAN_REASON_INVALID_PMKID
+        - WLAN_REASON_INVALID_MDE
+        - WLAN_REASON_INVALID_FTE
+        - WLAN_REASON_MESH_PEERING_CANCELLED
+        - WLAN_REASON_MESH_MAX_PEERS
+        - WLAN_REASON_MESH_CONFIG_POLICY_VIOLATION
+        - WLAN_REASON_MESH_CLOSE_RCVD
+        - WLAN_REASON_MESH_MAX_RETRIES
+        - WLAN_REASON_MESH_CONFIRM_TIMEOUT
+        - WLAN_REASON_MESH_INVALID_GTK
+        - WLAN_REASON_MESH_INCONSISTENT_PARAMS
+        - WLAN_REASON_MESH_INVALID_SECURITY_CAP
+        - WLAN_REASON_MESH_PATH_ERROR_NO_PROXY_INFO
+        - WLAN_REASON_MESH_PATH_ERROR_NO_FORWARDING_INFO
+        - WLAN_REASON_MESH_PATH_ERROR_DEST_UNREACHABLE
+        - WLAN_REASON_MAC_ADDRESS_ALREADY_EXISTS_IN_MBSS
+        - WLAN_REASON_MESH_CHANNEL_SWITCH_REGULATORY_REQ
+        - WLAN_REASON_MESH_CHANNEL_SWITCH_UNSPECIFIED
+        - UNSUPPORTED
+    
+    WlanStatusCode:
+      type: string
+      enum:
+        - WLAN_STATUS_SUCCESS
+        - WLAN_STATUS_UNSPECIFIED_FAILURE
+        - WLAN_STATUS_TDLS_WAKEUP_ALTERNATE
+        - WLAN_STATUS_TDLS_WAKEUP_REJECT
+        - WLAN_STATUS_SECURITY_DISABLED
+        - WLAN_STATUS_UNACCEPTABLE_LIFETIME
+        - WLAN_STATUS_NOT_IN_SAME_BSS
+        - WLAN_STATUS_CAPS_UNSUPPORTED
+        - WLAN_STATUS_REASSOC_NO_ASSOC
+        - WLAN_STATUS_ASSOC_DENIED_UNSPEC
+        - WLAN_STATUS_NOT_SUPPORTED_AUTH_ALG
+        - WLAN_STATUS_UNKNOWN_AUTH_TRANSACTION
+        - WLAN_STATUS_CHALLENGE_FAIL
+        - WLAN_STATUS_AUTH_TIMEOUT
+        - WLAN_STATUS_AP_UNABLE_TO_HANDLE_NEW_STA
+        - WLAN_STATUS_ASSOC_DENIED_RATES
+        - WLAN_STATUS_ASSOC_DENIED_NOSHORT
+        - WLAN_STATUS_SPEC_MGMT_REQUIRED
+        - WLAN_STATUS_PWR_CAPABILITY_NOT_VALID
+        - WLAN_STATUS_SUPPORTED_CHANNEL_NOT_VALID
+        - WLAN_STATUS_ASSOC_DENIED_NO_SHORT_SLOT_TIME
+        - WLAN_STATUS_ASSOC_DENIED_NO_HT
+        - WLAN_STATUS_R0KH_UNREACHABLE
+        - WLAN_STATUS_ASSOC_DENIED_NO_PCO
+        - WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY
+        - WLAN_STATUS_ROBUST_MGMT_FRAME_POLICY_VIOLATION
+        - WLAN_STATUS_UNSPECIFIED_QOS_FAILURE
+        - WLAN_STATUS_DENIED_INSUFFICIENT_BANDWIDTH
+        - WLAN_STATUS_DENIED_POOR_CHANNEL_CONDITIONS
+        - WLAN_STATUS_DENIED_QOS_NOT_SUPPORTED
+        - WLAN_STATUS_REQUEST_DECLINED
+        - WLAN_STATUS_INVALID_PARAMETERS
+        - WLAN_STATUS_REJECTED_WITH_SUGGESTED_CHANGES
+        - WLAN_STATUS_INVALID_IE
+        - WLAN_STATUS_GROUP_CIPHER_NOT_VALID
+        - WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID
+        - WLAN_STATUS_AKMP_NOT_VALID
+        - WLAN_STATUS_UNSUPPORTED_RSN_IE_VERSION
+        - WLAN_STATUS_INVALID_RSN_IE_CAPAB
+        - WLAN_STATUS_CIPHER_REJECTED_PER_POLICY
+        - WLAN_STATUS_TS_NOT_CREATED
+        - WLAN_STATUS_DIRECT_LINK_NOT_ALLOWED
+        - WLAN_STATUS_DEST_STA_NOT_PRESENT
+        - WLAN_STATUS_DEST_STA_NOT_QOS_STA
+        - WLAN_STATUS_ASSOC_DENIED_LISTEN_INT_TOO_LARGE
+        - WLAN_STATUS_INVALID_FT_ACTION_FRAME_COUNT
+        - WLAN_STATUS_INVALID_PMKID
+        - WLAN_STATUS_INVALID_MDIE
+        - WLAN_STATUS_INVALID_FTIE
+        - WLAN_STATUS_REQUESTED_TCLAS_NOT_SUPPORTED
+        - WLAN_STATUS_INSUFFICIENT_TCLAS_PROCESSING_RESOURCES
+        - WLAN_STATUS_TRY_ANOTHER_BSS
+        - WLAN_STATUS_GAS_ADV_PROTO_NOT_SUPPORTED
+        - WLAN_STATUS_NO_OUTSTANDING_GAS_REQ
+        - WLAN_STATUS_GAS_RESP_NOT_RECEIVED
+        - WLAN_STATUS_STA_TIMED_OUT_WAITING_FOR_GAS_RESP
+        - WLAN_STATUS_GAS_RESP_LARGER_THAN_LIMIT
+        - WLAN_STATUS_REQ_REFUSED_HOME
+        - WLAN_STATUS_ADV_SRV_UNREACHABLE
+        - WLAN_STATUS_REQ_REFUSED_SSPN
+        - WLAN_STATUS_REQ_REFUSED_UNAUTH_ACCESS
+        - WLAN_STATUS_INVALID_RSNIE
+        - WLAN_STATUS_U_APSD_COEX_NOT_SUPPORTED
+        - WLAN_STATUS_U_APSD_COEX_MODE_NOT_SUPPORTED
+        - WLAN_STATUS_BAD_INTERVAL_WITH_U_APSD_COEX
+        - WLAN_STATUS_ANTI_CLOGGING_TOKEN_REQ
+        - WLAN_STATUS_FINITE_CYCLIC_GROUP_NOT_SUPPORTED
+        - WLAN_STATUS_CANNOT_FIND_ALT_TBTT
+        - WLAN_STATUS_TRANSMISSION_FAILURE
+        - WLAN_STATUS_REQ_TCLAS_NOT_SUPPORTED
+        - WLAN_STATUS_TCLAS_RESOURCES_EXCHAUSTED
+        - WLAN_STATUS_REJECTED_WITH_SUGGESTED_BSS_TRANSITION
+        - WLAN_STATUS_REJECT_WITH_SCHEDULE
+        - WLAN_STATUS_REJECT_NO_WAKEUP_SPECIFIED
+        - WLAN_STATUS_SUCCESS_POWER_SAVE_MODE
+        - WLAN_STATUS_PENDING_ADMITTING_FST_SESSION
+        - WLAN_STATUS_PERFORMING_FST_NOW
+        - WLAN_STATUS_PENDING_GAP_IN_BA_WINDOW
+        - WLAN_STATUS_REJECT_U_PID_SETTING
+        - WLAN_STATUS_REFUSED_EXTERNAL_REASON
+        - WLAN_STATUS_REFUSED_AP_OUT_OF_MEMORY
+        - WLAN_STATUS_REJECTED_EMERGENCY_SERVICE_NOT_SUPPORTED
+        - WLAN_STATUS_QUERY_RESP_OUTSTANDING
+        - WLAN_STATUS_REJECT_DSE_BAND
+        - WLAN_STATUS_TCLAS_PROCESSING_TERMINATED
+        - WLAN_STATUS_TS_SCHEDULE_CONFLICT
+        - WLAN_STATUS_DENIED_WITH_SUGGESTED_BAND_AND_CHANNEL
+        - WLAN_STATUS_MCCAOP_RESERVATION_CONFLICT
+        - WLAN_STATUS_MAF_LIMIT_EXCEEDED
+        - WLAN_STATUS_MCCA_TRACK_LIMIT_EXCEEDED
+        - WLAN_STATUS_DENIED_DUE_TO_SPECTRUM_MANAGEMENT
+        - WLAN_STATUS_ASSOC_DENIED_NO_VHT
+        - WLAN_STATUS_ENABLEMENT_DENIED
+        - WLAN_STATUS_RESTRICTION_FROM_AUTHORIZED_GDB
+        - WLAN_STATUS_AUTHORIZATION_DEENABLED
+        - WLAN_STATUS_FILS_AUTHENTICATION_FAILURE
+        - WLAN_STATUS_UNKNOWN_AUTHENTICATION_SERVER
+        - WLAN_STATUS_UNKNOWN_PASSWORD_IDENTIFIER
+        - WLAN_STATUS_SAE_HASH_TO_ELEMENT
+        - WLAN_STATUS_SAE_PK                  
+        - UNSUPPORTED
+
  
     Client:
       type: object
@@ -5664,6 +6492,19 @@ components:
           description: string representing InetAddress
           type: string
  
+    PerProcessUtilization:
+      properties:
+        pid:
+          description: process id
+          type: integer
+          format: int32
+        cmd:
+          description: process name
+          type: string
+        util:
+          description: utilization, either as a percentage (i.e. for CPU) or in kB (for memory)
+          type: integer
+          format: int32
  
     ApPerformance:
       properties:
@@ -5702,6 +6543,14 @@ components:
           description: Data received by AP from cloud
           type: integer
           format: int64
+        psCpuUtil:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerProcessUtilization'
+        psMemUtil:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerProcessUtilization'
           
     EthernetLinkState:
       type: string
