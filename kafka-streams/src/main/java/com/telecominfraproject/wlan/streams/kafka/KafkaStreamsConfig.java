@@ -46,7 +46,7 @@ public class KafkaStreamsConfig {
                 @Override
                 public void publish(ServiceMetric record) {
                 	LOG.trace("publishing metric {}", record);
-                	String recordKey = record.getCustomerId() + "_" + record.getEquipmentId() + "_" + record.getClientMac() + "_" + record.getDataType(); 
+                	String recordKey = record.getCustomerId() + "_" + record.getLocationId() + "_" + record.getEquipmentId() + "_" + record.getClientMac() + "_" + record.getDataType(); 
                 	producer.send(new ProducerRecord<String, byte[]>(wlanServiceMetricsTopic, recordKey, record.toZippedBytes()));
                 }
                 
@@ -70,7 +70,7 @@ public class KafkaStreamsConfig {
                 @Override
                 public void publish(SystemEventRecord record) {
                 	LOG.trace("publishing system event {}", record);
-                	String recordKey = record.getCustomerId() + "_" + record.getEquipmentId() + "_" + record.getDataType(); 
+                	String recordKey = record.getCustomerId() + "_" + record.getLocationId() + "_" + record.getEquipmentId() + "_" + record.getDataType(); 
                 	producer.send(new ProducerRecord<String, byte[]>(systemEventsTopic, recordKey, record.toZippedBytes()));                	
                 }
                 
