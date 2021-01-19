@@ -28,7 +28,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private RadioType radioType;
 	private Integer channelNumber; // The channel that was picked through the cloud's automatic assigment
 	private Integer manualChannelNumber; // The channel that was manually entered
-	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the
+	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the primary channel (either manual or auto)
 	private List<Integer> allowedChannels = new LinkedList<>();
 	private SourceSelectionValue rxCellSizeDb;
 	private SourceSelectionValue probeResponseThresholdDb;
