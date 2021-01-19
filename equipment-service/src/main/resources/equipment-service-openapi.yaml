@@ -899,14 +899,14 @@ paths:
       - name: equipmentType
         in: query
         description: equipment type
-        required: true
+        required: false
         schema:
           items:
             $ref: '#/components/schemas/EquipmentType'
       - name: locationIds
         in: query
         description: Set of Location IDs
-        required: true
+        required: false
         content:
           text/plain:
             schema:
@@ -914,51 +914,6 @@ paths:
               items:
                 type: integer
                 format: int64
-      - name: sortBy
-        in: query
-        description: sort options
-        required: true
-        schema:
-          type: array
-          items:
-            $ref: '#/components/schemas/SortColumnsEquipment'
-      - name: paginationContext
-        in: query
-        description: pagination context
-        required: true
-        content:
-          application/json:
-            schema:
-                $ref: '#/components/schemas/PaginationContextEquipment'
-            examples:
-              initialPginationContext:
-                value:
-                  model_type: PaginationContext
-                  maxItemsPerPage: 10
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginationResponseEquipment'
-        500:
-          $ref: '#/components/responses/GenericApiError'
-          
-  /api/equipment/searchByMacAndName:
-     get:
-      tags:
-      - Equipment Data
-      summary: Get equipments by criteria matching on name or baseMacAddress
-      operationId: searchByMacAndName
-      parameters:
-      - name: customerId
-        in: query
-        description: customer id
-        required: true
-        schema:
-          type: integer
-          format: int32
       - name: criteria
         in: query
         description: search criteria

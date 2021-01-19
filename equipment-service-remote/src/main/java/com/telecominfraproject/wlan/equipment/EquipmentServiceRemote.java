@@ -182,9 +182,9 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
 
 	@Override
 	public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-			Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+			Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {} )", customerId, equipmentType, locationIds,
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {} )", customerId, equipmentType, locationIds, criteria,
                 sortBy, context);
 
         String locationIdsStr = null;
@@ -199,30 +199,12 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
 
         ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomerWithFilter?customerId={customerId}&equipmentType={equipmentType}&locationIds={locationIdsStr}&sortBy={sortBy}&paginationContext={context}",
+                        + "/forCustomerWithFilter?customerId={customerId}&equipmentType={equipmentType}&locationIds={locationIdsStr}&criteria={criteria}&sortBy={sortBy}&paginationContext={context}",
                 HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentType,
-                locationIdsStr, sortBy, context);
+                locationIdsStr, criteria, sortBy, context);
 
         PaginationResponse<Equipment> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
-
-        return ret;
-	}
-	
-	@Override
-	public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
-			List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
-		
-        LOG.debug("calling searchByMacAndName( {}, {}, {}, {} )", customerId, criteria,
-                sortBy, context);
-
-        ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
-                getBaseUrl()
-                        + "/searchByMacAndName?customerId={customerId}&criteria={criteria}&sortBy={sortBy}&paginationContext={context}",
-                HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, criteria, sortBy, context);
-
-        PaginationResponse<Equipment> ret = responseEntity.getBody();
-        LOG.debug("completed searchByMacAndName {} ", ret.getItems().size());
 
         return ret;
 	}

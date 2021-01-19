@@ -73,24 +73,13 @@ public class EquipmentDatastoreRdbms implements EquipmentDatastore {
     
     @Override
     public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-    		Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+    		Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
     	
     	if(context == null) {
     		context = new PaginationContext<>();
     	}
 
-    	return equipmentDAO.getForCustomer( customerId, equipmentType, locationIds, sortBy, context);
-    }
-    
-    @Override
-    public PaginationResponse<Equipment> searchByMacAndName(int customerId, String criteria,
-    		List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
-    	
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
-
-    	return equipmentDAO.searchByMacAndName( customerId, criteria, sortBy, context);
+    	return equipmentDAO.getForCustomer( customerId, equipmentType, locationIds, criteria, sortBy, context);
     }
     
     @Override
