@@ -95,7 +95,7 @@ public class ApPerformance extends BaseJsonModel {
         if (this.psMemUtil!=null) {
             List<PerProcessUtilization> newPsMemUtil = new ArrayList<>();
             psMemUtil.stream().forEach(p -> newPsMemUtil.add(p.clone()));
-            ret.setPsCpuUtil(newPsMemUtil); 
+            ret.setPsMemUtil(newPsMemUtil); 
         }
         return ret;
     }
