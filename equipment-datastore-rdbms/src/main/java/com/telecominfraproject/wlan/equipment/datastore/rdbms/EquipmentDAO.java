@@ -174,9 +174,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         ;
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
-
-    private static final String SQL_GET_BY_CUSTOMER_ID_AND_EQUIPMENT_TYPE = "select " + ALL_COLUMNS + " from "
-            + TABLE_NAME + " " + " where customerId = ? and equipmentType = ? ";
+    
+    private static final String SQL_APPEND_EQUALS_EQUIPMENT_TYPE = "and equipmentType = ? ";
     
     private static final String SQL_APPEND_LIKE_MAC_OR_NAME = 
     		" and (name like ? or baseMacAddress like ?) ";
@@ -548,12 +547,18 @@ public class EquipmentDAO extends BaseJdbcDao {
         LOG.debug("Looking up equipment {} for customer {} locations {} criteria {} last returned page number {}", equipmentType,
                 customerId, locationIds, criteria, context.getLastReturnedPageNumber());
 
-        String query = SQL_GET_BY_CUSTOMER_ID_AND_EQUIPMENT_TYPE;
+        String query = SQL_GET_BY_CUSTOMER_ID;
 
         // add filters for the query
         ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
-        queryArgs.add(equipmentType.getId());
+        
+        
+        if (equipmentType != null) { 
+        	query += SQL_APPEND_EQUALS_EQUIPMENT_TYPE;
+        	
+        	queryArgs.add(equipmentType.getId());
+        }
 
         if (locationIds != null && !locationIds.isEmpty()) {
             queryArgs.addAll(locationIds);

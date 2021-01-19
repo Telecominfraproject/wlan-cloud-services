@@ -369,6 +369,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
         if (criteria == null || criteria.isEmpty()) {
         	criteria = null;
         }
+        
+        if (equipmentType == null || equipmentType == EquipmentType.UNSUPPORTED) {
+        	equipmentType = null;
+        }
 
         List<Equipment> items = new LinkedList<>();
 
@@ -379,7 +383,7 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
                 continue;
             }
 
-            if (equipmentType != null && ce.getEquipmentType() != equipmentType) {
+            if (!(equipmentType == null || ce.getEquipmentType() == equipmentType)) {
                 continue;
             }
 
