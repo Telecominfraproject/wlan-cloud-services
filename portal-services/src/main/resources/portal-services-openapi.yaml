@@ -2284,7 +2284,10 @@ components:
           $ref: '#/components/schemas/StatsReportFormat'
 
     ChannelUtilizationSurveyType:
-      description:  On channel Measurements are on the home channel and can be done frequently and periodically without user impact. Off channel measurements are on the listed foreign channels​periodically chosen using round robin fashion (“1,6,11” -> t0=1, t1=6, t2=11, t3=1) to minimize user impact. Full measurements are done on all allowed channels at once, this is very intrusive.
+      description: |
+        - On channel Measurements are on the home channel and can be done frequently and periodically without user impact. 
+        - Off channel measurements are on the listed foreign channels, periodically chosen using round robin fashion (“1,6,11” -> t0=1, t1=6, t2=11, t3=1) to minimize user impact. 
+        - Full measurements are done on all allowed channels at once, this is very intrusive.      
       type: string
       enum:
         - ON_CHANNEL
