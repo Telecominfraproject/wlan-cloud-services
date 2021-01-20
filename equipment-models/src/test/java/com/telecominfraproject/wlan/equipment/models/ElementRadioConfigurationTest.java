@@ -18,24 +18,6 @@ public class ElementRadioConfigurationTest
     * Adding this test as a flag for anyone who changes that assumption.
     * 
     */
-   public void neverANullBannedList() 
-   {
-      for(RadioType type : RadioType.validValues())
-      {
-         ElementRadioConfiguration config = ElementRadioConfiguration.createWithDefaults(type);
-         assertNotNull(config.getBannedChannels());
-      }
-   }
-   
-   @Test
-   /**
-    * Code was written that assumes a fresh instance of a 
-    * ElementRadioConfiguration will always have an instantiated
-    * list of banned channels.
-    * 
-    * Adding this test as a flag for anyone who changes that assumption.
-    * 
-    */
    public void neverANullAllowedList() 
    {
       for(RadioType type : RadioType.validValues())
