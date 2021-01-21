@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session (
     details blob,
     
     PRIMARY KEY ((customerId, macAddress), equipmentId)
-) WITH comment='Wireless client sessions used by TIP WLAN CloudSDK. Records automatically expire after 90 days'
-    AND default_time_to_live = 7776000;
+) WITH comment='Wireless client sessions used by TIP WLAN CloudSDK. Records automatically expire after 30 days'
+    AND default_time_to_live = 2592000;
 
 CREATE INDEX IF NOT EXISTS idx_client_session_customerId ON tip_wlan_keyspace.client_session (customerId);
 
@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_equipment (
     macAddress bigint ,
     
     PRIMARY KEY ((customerId, equipmentId), macAddress)
-) WITH comment='Index Table to look up wireless client sessions by equipmentId used by TIP WLAN CloudSDK. Records automatically expire after 90 days'
-    AND default_time_to_live = 7776000;
+) WITH comment='Index Table to look up wireless client sessions by equipmentId used by TIP WLAN CloudSDK. Records automatically expire after 30 days'
+    AND default_time_to_live = 2592000;
 
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_location (
     customerId int,
@@ -62,6 +62,6 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_location (
     macAddress bigint ,
     
     PRIMARY KEY ((locationId), equipmentId, macAddress)
-) WITH comment='Index Table to look up wireless client sessions by location and equipment used by TIP WLAN CloudSDK. Records automatically expire after 90 days'
-    AND default_time_to_live = 7776000;
+) WITH comment='Index Table to look up wireless client sessions by location and equipment used by TIP WLAN CloudSDK. Records automatically expire after 30 days'
+    AND default_time_to_live = 2592000;
 
