@@ -48,7 +48,6 @@ import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.core.model.role.PortalUserRole;
 import com.telecominfraproject.wlan.core.model.scheduler.EmptySchedule;
-import com.telecominfraproject.wlan.core.model.service.bonjour.BonjourService;
 import com.telecominfraproject.wlan.customer.models.Customer;
 import com.telecominfraproject.wlan.customer.models.CustomerDetails;
 import com.telecominfraproject.wlan.customer.models.EquipmentAutoProvisioningSettings;
@@ -72,13 +71,12 @@ import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
-import com.telecominfraproject.wlan.profile.bonjour.models.BonjourGatewayProfile;
-import com.telecominfraproject.wlan.profile.bonjour.models.BonjourServiceSet;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
+import com.telecominfraproject.wlan.profile.event.models.ApEventRateConfigurationDetails;
 import com.telecominfraproject.wlan.profile.metrics.ServiceMetricsCollectionConfigProfile;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
@@ -99,7 +97,6 @@ import com.telecominfraproject.wlan.profile.passpoint.models.provider.PasspointO
 import com.telecominfraproject.wlan.profile.passpoint.models.venue.PasspointVenueProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
-import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
 import com.telecominfraproject.wlan.profile.rf.models.RfConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.SecureMode;
@@ -266,29 +263,37 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         location_2 = locationServiceInterface.create(location_2);
 
+   
         Profile profileRadius = new Profile();
         profileRadius.setCustomerId(customer.getId());
         profileRadius.setProfileType(ProfileType.radius);
         profileRadius.setName("Radius-Profile");
 
         RadiusProfile radiusDetails = new RadiusProfile();
-        RadiusServiceRegion radiusServiceRegion = new RadiusServiceRegion();
-        RadiusServer radiusServer = new RadiusServer();
-        radiusServer.setAuthPort(1812);
+        RadiusServer primaryRadiusServer = new RadiusServer();
+        primaryRadiusServer.setAuthPort(1812);
         try {
-            radiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
+            primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(e);
         }
-        radiusServer.setSecret("testing123");
-        radiusServiceRegion.addRadiusServer("Radius-Profile", radiusServer);
-        radiusServiceRegion.setRegionName("Ottawa");
-        radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
+        primaryRadiusServer.setSecret("testing123");
+        radiusDetails.setPrimaryRadiusServer(primaryRadiusServer);
+
+        RadiusServer secondaryRadiusServer = new RadiusServer();
+        secondaryRadiusServer.setAuthPort(1812);
+        try {
+            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(e);
+        }
+        secondaryRadiusServer.setSecret("testing123");
+        radiusDetails.setSecondaryRadiusServer(secondaryRadiusServer);
+
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-       
-
+        
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
         profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
@@ -355,6 +360,13 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
 
+        Profile apEventRates = new Profile();
+        apEventRates.setCustomerId(customer.getId());
+        apEventRates.setName("ApEventRateProfile-default");
+        apEventRates.setDetails(ApEventRateConfigurationDetails.createWithDefaults());
+
+        apEventRates = profileServiceInterface.create(apEventRates);
+
         Profile profileAp_3_radios = new Profile();
         profileAp_3_radios.setCustomerId(customer.getId());
         profileAp_3_radios.setName("ApProfile-3-radios");
@@ -368,23 +380,21 @@ public class AllInOneStartListener implements ApplicationRunner {
         radioProfileMap_3_radios.put(RadioType.is5GHzU,
                 RadioProfileConfiguration.createWithDefaults(RadioType.is5GHzU));
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
-        
+
         try {
             Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", "wan",
                     InetAddress.getByName("10.0.0.129"), InetAddress.getByName("192.168.1.101"),
                     MacAddress.valueOf("64:4b:f0:20:57:ff"), Set.of(Integer.valueOf(100))));
             ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setGreTunnelConfigurations(greTunnels);
-            
+
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    
-        
-        
-        
+
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
+        profileAp_3_radios.getChildProfileIds().add(apEventRates.getId());
         profileAp_3_radios = profileServiceInterface.create(profileAp_3_radios);
 
         // TipWlan-cloud-hotspot-access
@@ -400,7 +410,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileAp_2_radios.getChildProfileIds().add(profileSsid_2_radios.getId());
         profileAp_2_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_2_radios = profileServiceInterface.create(profileAp_2_radios);
-
 
         // configure equipment auto-provisioning for the customer
         CustomerDetails details = new CustomerDetails();
@@ -451,7 +460,7 @@ public class AllInOneStartListener implements ApplicationRunner {
             // based on this
 
             equipment.setProfileId(profileAp_3_radios.getId());
-           
+
             equipment.setInventoryId("ap-" + i);
             equipment.setName("AP " + i);
             equipment.setBaseMacAddress(new MacAddress(
@@ -486,7 +495,6 @@ public class AllInOneStartListener implements ApplicationRunner {
             createAlarmsForEquipment(equipment);
 
             createClientSessions(equipment, ssidConfig_3_radios);
-                
 
             createServiceMetrics(equipment);
 
@@ -590,22 +598,20 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileSsidOsu.getChildProfileIds().add(hotspot20IdProviderProfile2.getId());
         profileSsidOsu = profileServiceInterface.update(profileSsidOsu);
 
-        passpointHotspotConfig = createPasspointHotspotConfig(customer.getId(), hotspot20IdProviderProfile2.getId(), hotspot20IdProviderProfile.getId(), passpointOperatorProfile.getId(),
-                passpointVenueProfile.getId(), profileSsidPsk.getId(), profileSsidOsu.getId());
-        
+        passpointHotspotConfig = createPasspointHotspotConfig(customer.getId(), hotspot20IdProviderProfile2.getId(),
+                hotspot20IdProviderProfile.getId(), passpointOperatorProfile.getId(), passpointVenueProfile.getId(),
+                profileSsidPsk.getId(), profileSsidOsu.getId());
+
         profileSsidPsk.getChildProfileIds().add(passpointHotspotConfig.getId());
         profileSsidPsk = profileServiceInterface.update(profileSsidPsk);
 
-        
         return createPasspointApProfile(customer.getId(), profileSsidPsk.getId(), profileSsidOsu.getId());
-
-        
-        
 
     }
 
-    protected Profile createPasspointHotspotConfig(int customerId, Long hotspot20IdProviderProfile2Id, Long hotspot20IdProviderProfileId,  Long passpointOperatorProfileId,
-            Long passpointVenueProfileId,Long profileSsidPskId, Long profileSsidOpenId ) {
+    protected Profile createPasspointHotspotConfig(int customerId, Long hotspot20IdProviderProfile2Id,
+            Long hotspot20IdProviderProfileId, Long passpointOperatorProfileId, Long passpointVenueProfileId,
+            Long profileSsidPskId, Long profileSsidOpenId) {
         Profile passpointHotspotConfig = new Profile();
         passpointHotspotConfig.setCustomerId(customerId);
         passpointHotspotConfig.setName("TipWlan-Passpoint-Config");
@@ -622,12 +628,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         providerIds.add(hotspot20IdProviderProfile2Id);
         ((PasspointProfile) passpointHotspotConfig.getDetails()).setPasspointOsuProviderProfileIds(providerIds);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-        .setPasspointOperatorProfileId(passpointOperatorProfileId);
-        ((PasspointProfile) passpointHotspotConfig.getDetails())
-        .setPasspointVenueProfileId(passpointVenueProfileId);
+                .setPasspointOperatorProfileId(passpointOperatorProfileId);
+        ((PasspointProfile) passpointHotspotConfig.getDetails()).setPasspointVenueProfileId(passpointVenueProfileId);
         ((PasspointProfile) passpointHotspotConfig.getDetails()).setOsuSsidProfileId(profileSsidOpenId);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-        .setAssociatedAccessSsidProfileIds(List.of(profileSsidPskId));
+                .setAssociatedAccessSsidProfileIds(List.of(profileSsidPskId));
 
         return profileServiceInterface.create(passpointHotspotConfig);
     }
@@ -681,9 +686,10 @@ public class AllInOneStartListener implements ApplicationRunner {
         passpointOperatorProfile.setName("TipWlan-Passpoint-Operator");
         passpointOperatorProfile.setProfileType(ProfileType.passpoint_operator);
         passpointOperatorProfile.setDetails(PasspointOperatorProfile.createWithDefaults());
-        ((PasspointOperatorProfile)passpointOperatorProfile.getDetails()).setDomainNameList(Set.of("rogers.com","telus.com","bell.ca"));      
+        ((PasspointOperatorProfile) passpointOperatorProfile.getDetails())
+                .setDomainNameList(Set.of("rogers.com", "telus.com", "bell.ca"));
         passpointOperatorProfile = profileServiceInterface.create(passpointOperatorProfile);
-        
+
         return passpointOperatorProfile;
     }
 

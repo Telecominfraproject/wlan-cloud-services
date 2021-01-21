@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.profile.ssid.models;
 
-import java.net.InetAddress;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +25,7 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
  */
 public class SsidConfiguration extends ProfileDetails implements PushableConfiguration<SsidConfiguration> {
 
-    private static final long serialVersionUID = 980346612233615236L;
+    private static final long serialVersionUID = -6375665507927422135L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SsidConfiguration.class);
 
@@ -50,10 +49,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private Integer keyRefresh = DEFAULT_KEY_REFRESH;
 
     private Boolean noLocalSubnets;
-    private String radiusServiceName;
-    private String radiusAccountingServiceName;
-    private Integer radiusAcountingServiceInterval;
-    
+    private long radiusServiceId;
+    private long radiusAccountingServiceId;
+    private int radiusAcountingServiceInterval;
+
     private Long captivePortalId;
 
     private Integer bandwidthLimitDown;
@@ -70,7 +69,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private WepConfiguration wepConfig;
 
     private NetworkForwardMode forwardMode;
-    
+
     private RadiusNasConfiguration radiusNasConfiguration;
 
     /**
@@ -114,6 +113,9 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setClientBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT);
         setBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
+        setRadiusAccountingServiceId(0L);
+        setRadiusServiceId(0L);
+        setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
@@ -313,45 +315,42 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     @Override
     public boolean needsToBeUpdatedOnDevice(SsidConfiguration obj) {
-        return !Objects.equals(this,obj);
+        return !Objects.equals(this, obj);
     }
 
-    public String getRadiusServiceName() {
-        return radiusServiceName;
+    public long getRadiusServiceId() {
+        return radiusServiceId;
     }
 
-    public void setRadiusServiceName(String radiusServiceName) {
-        this.radiusServiceName = radiusServiceName;
+    public void setRadiusServiceId(long radiusServiceName) {
+        this.radiusServiceId = radiusServiceName;
     }
 
-    public String getRadiusAccountingServiceName() {
-        return radiusAccountingServiceName;
+    public long getRadiusAccountingServiceId() {
+        return radiusAccountingServiceId;
     }
 
-    public void setRadiusAccountingServiceName(String radiusAccountingServiceName) {
-        this.radiusAccountingServiceName = radiusAccountingServiceName;
+    public void setRadiusAccountingServiceId(long radiusAccountingServiceName) {
+        this.radiusAccountingServiceId = radiusAccountingServiceName;
     }
 
     public Integer getRadiusAcountingServiceInterval() {
         return radiusAcountingServiceInterval;
     }
 
-    public void setRadiusAcountingServiceInterval(Integer radiusAcountingServiceInterval) {
-        if (radiusAcountingServiceInterval != null) {
-            if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
-                LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
-                        RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
-                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
-            } else if (radiusAcountingServiceInterval < RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN) {
-                LOG.info("Unable to set radius accounting service interval to less than {}. Using min value of {}.",
-                        RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
-                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
-            } else {
-                this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
-            }
+    public void setRadiusAcountingServiceInterval(int radiusAcountingServiceInterval) {
+        if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
+            LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
+            this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
+        } else if (radiusAcountingServiceInterval < RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN) {
+            LOG.info("Unable to set radius accounting service interval to less than {}. Using min value of {}.",
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
+            this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
         } else {
-            this.radiusAcountingServiceInterval = radiusAcountingServiceInterval;
+            this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
         }
+
     }
 
     /**
@@ -362,7 +361,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     /**
-     * @param radiusClientConfiguration the radiusClientConfiguration to set
+     * @param radiusClientConfiguration
+     *            the radiusClientConfiguration to set
      */
     public void setRadiusClientConfiguration(RadiusNasConfiguration radiusClientConfiguration) {
         this.radiusNasConfiguration = radiusClientConfiguration;
@@ -370,12 +370,12 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public static enum SecureMode {
 
-        open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(7L),
-        wpaEAP(8L), wpa2EAP(9L), wpa2OnlyEAP(10L), wpa3OnlySAE(11L), wpa3MixedSAE(12L), wpa3OnlyEAP(13L),wpa3MixedEAP(14L),
+        open(0L), wpaPSK(1L), wpa2PSK(2L), wpaRadius(3L), wpa2Radius(4L), wpa2OnlyPSK(5L), wpa2OnlyRadius(6L), wep(
+                7L), wpaEAP(8L), wpa2EAP(
+                        9L), wpa2OnlyEAP(10L), wpa3OnlySAE(11L), wpa3MixedSAE(12L), wpa3OnlyEAP(13L), wpa3MixedEAP(14L),
 
         UNSUPPORTED(-1L);
 
-        
         private final long id;
         private static final Map<Long, SecureMode> ELEMENTS = new HashMap<>();
 
@@ -413,7 +413,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         public static boolean isWPA2_Enterprise_or_Personal(SecureMode mode) {
             return mode == wpa2OnlyPSK || mode == wpa2OnlyRadius;
         }
-        
+
         public static boolean isWPA3_Enterprise_or_Personal(SecureMode mode) {
             return mode == wpa3OnlySAE || mode == wpa3OnlyEAP;
         }
@@ -509,7 +509,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
             }
         }
     }
-    
+
     @Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
@@ -517,7 +517,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         if (this.wepConfig != null) {
             returnValue.setWepConfig(this.getWepConfig().clone());
         }
-        
+
         if (this.radioBasedConfigs != null) {
             returnValue.setRadioBasedConfigs(new HashMap<>(this.getRadioBasedConfigs()));
         }
@@ -529,8 +529,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     public int hashCode() {
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
-                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceName,
-                radiusAcountingServiceInterval, radiusNasConfiguration, radiusServiceName, secureMode, ssid,
+                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceId,
+                radiusAcountingServiceInterval, radiusNasConfiguration, radiusServiceId, secureMode, ssid,
                 ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
     }
 
@@ -554,17 +554,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
                 && Objects.equals(noLocalSubnets, other.noLocalSubnets)
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
-                && Objects.equals(radiusAccountingServiceName, other.radiusAccountingServiceName)
-                && Objects.equals(radiusAcountingServiceInterval, other.radiusAcountingServiceInterval)
+                && radiusAccountingServiceId == other.radiusAccountingServiceId
+                && radiusAcountingServiceInterval == other.radiusAcountingServiceInterval
                 && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
-                && Objects.equals(radiusServiceName, other.radiusServiceName) && secureMode == other.secureMode
+                && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
                 && Objects.equals(wepConfig, other.wepConfig);
-    }
+    }  
 
-   
-
-  
     
 }

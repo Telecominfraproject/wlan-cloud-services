@@ -1850,27 +1850,34 @@ components:
             type: string
             enum:
             - RadiusProfile
-          subnetConfiguration:
-            $ref: '#/components/schemas/RadiusSubnetConfigurationMap'
-          serviceRegionMap:
-            $ref: '#/components/schemas/RadiusServiceRegionMap'
-            
-    RadiusSubnetConfigurationMap:
-      description: Map of subnet configurations. Key is the subnet name, value is the actual configuration.
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/RadiusSubnetConfiguration'
+          primaryRadiusServer:
+            description: the primary radius server
+            $ref: '#/components/schemas/RadiusServer'
+          secondaryRadiusServer:
+            description: the secondary radius server, currently the AP supports only 1 radius server and 1 radius accounting server, so this is not provisioned on the AP
+            $ref: '#/components/schemas/RadiusServer'
+          radiusSubnetConfiguration:
+            description: Radius Subnet and Proxy, currently not used, do not add to UI at this point, is ignored.
+            $ref: '#/components/schemas/RadiusSubnetConfiguration'
+      example:
+        primaryRadiusServer:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.1
+          secret: testing123
+          authPort: 1812
+          timeout: null
+        secondaryRadiusServer:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.2
+          secret: testing123
+          authPort: 1812
+          timeout: null
+        radiusSubnetConfiguration:
+          # currently not used, ignored if present
 
-    RadiusServiceRegionMap:
-      description: Map of Radius Service Regions, keyed by Region Name
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/RadiusServiceRegion'
-    
     RadiusSubnetConfiguration:
+      description: configuration for RadiusSubnet, currently not used.
       properties:
-        serviceRegionName:
-          type: string
         subnetName:
           type: string
         proxyConfig:
@@ -1885,8 +1892,22 @@ components:
         subnetCidrPrefix:
           type: integer
           format: int32
-          
+      example:
+          model_type: RadiusSubnetConfiguration
+          subnetAddress: 10.10.1.0
+          subnetCidrPrefix: 8
+          subnetName: 10.10.1.0/8
+          proxyConfig:
+            model_type: RadiusProxyConfiguration
+            floatingIpAddress: 10.10.1.2
+            floatingIfCidrPrefix: 24
+            floatingIfGwAddress: null
+            floatingIfVlan: 10
+            sharedSecret: Test Secret
+          probeInterval: null
+                               
     RadiusProxyConfiguration:
+      description: Proxy Configuration for the RadiusSubnet, currently not used.
       properties:
         floatingIpAddress:
           description: Proxy server floating IP address
@@ -1905,24 +1926,13 @@ components:
         sharedSecret:
           description: Shared secret used to communicate with the proxy server
           type: string
-        
-    
-    RadiusServiceRegion:
-      description: Region with the same set of Radius Service Configurations
-      properties:
-        regionName:
-          description: Named server mapping
-          type: string
-          default: Default
-        serverMap:
-          $ref: '#/components/schemas/RadiusServerMap'
-        
-    RadiusServerMap:
-      type: object
-      additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/RadiusServer'
+      example:
+        model_type: RadiusProxyConfiguration
+        floatingIpAddress: 10.10.1.2
+        floatingIfCidrPrefix: 24
+        floatingIfGwAddress: null
+        floatingIfVlan: 10
+        sharedSecret: Test Secret      
           
     RadiusServer:
       properties:
@@ -1936,6 +1946,12 @@ components:
         timeout:
           type: integer
           format: int32
+      example:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.1
+          secret: testing123
+          authPort: 1812
+          timeout: null
         
     RfConfiguration:
       description: Properties for the RF ConfigurationProfile
@@ -2052,10 +2068,12 @@ components:
             default: 0
           noLocalSubnets:
             type: boolean
-          radiusServiceName:
-            type: string
-          radiusAccountingServiceName:
-            type: string
+          radiusServiceId:
+            type: integer
+            format: int64
+          radiusAccountingServiceId:
+            type: integer
+            format: int64
           radiusAcountingServiceInterval:
             description: If this is set (i.e. non-null), RadiusAccountingService is configured, and SsidSecureMode is configured as Enterprise/Radius, ap will send interim accounting updates every N seconds
             type: integer

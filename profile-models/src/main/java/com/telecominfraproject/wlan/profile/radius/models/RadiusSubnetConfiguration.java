@@ -1,7 +1,5 @@
 package com.telecominfraproject.wlan.profile.radius.models;
 
-import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
-
 /**
  * Configuration for Radius for a given management subnet.
  * 
@@ -12,11 +10,6 @@ public class RadiusSubnetConfiguration extends BaseRadiusSubnetConfiguration {
 
     private static final long serialVersionUID = -6480957006396528964L;
 
-    /**
-     * RADIUS service region. Required.
-     */
-    private String serviceRegionName;
-
     public RadiusSubnetConfiguration() {
 
     }
@@ -26,53 +19,6 @@ public class RadiusSubnetConfiguration extends BaseRadiusSubnetConfiguration {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (!(obj instanceof RadiusSubnetConfiguration)) {
-            return false;
-        }
-        RadiusSubnetConfiguration other = (RadiusSubnetConfiguration) obj;
-        if (getServiceRegionName() == null) {
-            if (other.getServiceRegionName() != null) {
-                return false;
-            }
-        } else if (!getServiceRegionName().equals(other.getServiceRegionName())) {
-            return false;
-        }
-        return true;
-    }
-
-    public String getServiceRegionName() {
-        return serviceRegionName;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((getServiceRegionName() == null) ? 0 : getServiceRegionName().hashCode());
-        return result;
-    }
-
-    public void setServiceRegion(String regionName) {
-        this.serviceRegionName = regionName;
-    }
 
     /**
      * Validate the required value is set. Throws ConfigurationException if it's
@@ -81,9 +27,6 @@ public class RadiusSubnetConfiguration extends BaseRadiusSubnetConfiguration {
     @Override
     public void validateConfig() {
         super.validateConfig();
-        if ((null == this.getServiceRegionName()) || (this.getServiceRegionName().isEmpty())) {
-            throw new ConfigurationException("missing service region name");
-        }
     }
 
     /**
@@ -106,4 +49,25 @@ public class RadiusSubnetConfiguration extends BaseRadiusSubnetConfiguration {
         sb.append(']');
         return sb.toString();
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return true;
+    }
+    
+    
+    
+    
+    
 }

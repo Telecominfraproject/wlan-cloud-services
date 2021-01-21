@@ -2799,7 +2799,7 @@ components:
       - STANDALONE
       - MESH_PORTAL
       - MESH_POINT
- 
+
     RadiusProfile:
       description: Properties for the RADIUS profile.
       allOf:
@@ -2810,27 +2810,34 @@ components:
             type: string
             enum:
             - RadiusProfile
-          subnetConfiguration:
-            $ref: '#/components/schemas/RadiusSubnetConfigurationMap'
-          serviceRegionMap:
-            $ref: '#/components/schemas/RadiusServiceRegionMap'
-            
-    RadiusSubnetConfigurationMap:
-      description: Map of subnet configurations. Key is the subnet name, value is the actual configuration.
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/RadiusSubnetConfiguration'
- 
-    RadiusServiceRegionMap:
-      description: Map of Radius Service Regions, keyed by Region Name
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/RadiusServiceRegion'
-    
+          primaryRadiusServer:
+            description: the primary radius server
+            $ref: '#/components/schemas/RadiusServer'
+          secondaryRadiusServer:
+            description: the secondary radius server, currently the AP supports only 1 radius server and 1 radius accounting server, so this is not provisioned on the AP
+            $ref: '#/components/schemas/RadiusServer'
+          radiusSubnetConfiguration:
+            description: Radius Subnet and Proxy, currently not used, do not add to UI at this point, is ignored.
+            $ref: '#/components/schemas/RadiusSubnetConfiguration'
+      example:
+        primaryRadiusServer:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.1
+          secret: testing123
+          authPort: 1812
+          timeout: null
+        secondaryRadiusServer:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.2
+          secret: testing123
+          authPort: 1812
+          timeout: null
+        radiusSubnetConfiguration:
+          # currently not used, ignored if present
+
     RadiusSubnetConfiguration:
+      description: configuration for RadiusSubnet, currently not used.
       properties:
-        serviceRegionName:
-          type: string
         subnetName:
           type: string
         proxyConfig:
@@ -2845,8 +2852,22 @@ components:
         subnetCidrPrefix:
           type: integer
           format: int32
-          
+      example:
+          model_type: RadiusSubnetConfiguration
+          subnetAddress: 10.10.1.0
+          subnetCidrPrefix: 8
+          subnetName: 10.10.1.0/8
+          proxyConfig:
+            model_type: RadiusProxyConfiguration
+            floatingIpAddress: 10.10.1.2
+            floatingIfCidrPrefix: 24
+            floatingIfGwAddress: null
+            floatingIfVlan: 10
+            sharedSecret: Test Secret
+          probeInterval: null
+                               
     RadiusProxyConfiguration:
+      description: Proxy Configuration for the RadiusSubnet, currently not used.
       properties:
         floatingIpAddress:
           description: Proxy server floating IP address
@@ -2865,24 +2886,13 @@ components:
         sharedSecret:
           description: Shared secret used to communicate with the proxy server
           type: string
-        
-    
-    RadiusServiceRegion:
-      description: Region with the same set of Radius Service Configurations
-      properties:
-        regionName:
-          description: Named server mapping
-          type: string
-          default: Default
-        serverMap:
-          $ref: '#/components/schemas/RadiusServerMap'
-        
-    RadiusServerMap:
-      type: object
-      additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/RadiusServer'
+      example:
+        model_type: RadiusProxyConfiguration
+        floatingIpAddress: 10.10.1.2
+        floatingIfCidrPrefix: 24
+        floatingIfGwAddress: null
+        floatingIfVlan: 10
+        sharedSecret: Test Secret      
           
     RadiusServer:
       properties:
@@ -2896,8 +2906,19 @@ components:
         timeout:
           type: integer
           format: int32
+      example:
+          model_type: RadiusServer
+          ipAddress: 192.168.0.1
+          secret: testing123
+          authPort: 1812
+          timeout: null
         
-    
+    RadiusServerMap:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/RadiusServer'
  
     SsidConfiguration:
       description: Properties for the SSID Configuration profile.
@@ -2932,8 +2953,20 @@ components:
             default: 0
           noLocalSubnets:
             type: boolean
-          radiusServiceName:
-            type: string
+          radiusServiceId:
+            type: integer
+            format: int64
+          radiusAccountingServiceId:
+            type: integer
+            format: int64
+          radiusAcountingServiceInterval:
+            description: If this is set (i.e. non-null), RadiusAccountingService is configured, and SsidSecureMode is configured as Enterprise/Radius, ap will send interim accounting updates every N seconds
+            type: integer
+            format: int32
+            minimum: 60
+            maximum: 600
+          radiusNasConfiguration:
+            $ref: '#/components/schemas/RadiusNasConfiguration'            
           captivePortalId:
             description: id of a CaptivePortalConfiguration profile, must be also added to the children of this profile
             type: integer
@@ -3029,6 +3062,33 @@ components:
       enum:
       - wep64
       - wep128
+      
+    RadiusNasConfiguration:
+      properties:
+        nasClientId: 
+          description: String identifying the NAS (AP) – Default shall be set to the AP BASE MAC Address for the WAN Interface
+          type: string
+          enum:
+          - DEFAULT
+          - USER_DEFINED
+          default: DEFAULT
+        nasClientIp:
+          description:  NAS-IP AVP - Default it shall be the WAN IP address of the AP when AP communicates with RADIUS server directly.
+          type: string
+          enum:
+          - USER_DEFINED
+          - WAN_IP
+          - PROXY_IP
+          default: WAN_IP
+        userDefinedNasId:
+          description: user entered string if the nasClientId is 'USER_DEFINED'. This should not be enabled and will not be passed to the AP unless the nasClientId is USER_DEFINED.
+          type: string
+        userDefinedNasIp:
+          description: user entered IP address if the nasClientIp is 'USER_DEFINED'.  This should not be enabled and will not be passed to the AP unless the nasClientIp is USER_DEFINED.
+          type: string
+        operatorId:
+          description: Carries the operator namespace identifier and the operator name.  The operator name is combined with the namespace identifier to uniquely identify the owner of an access network.  The value of the Operator-Name is a non-NULL terminated text. This is not to be confused with the Passpoint Operator Domain
+          type: string
       
 #
 # Equipment Routing Models

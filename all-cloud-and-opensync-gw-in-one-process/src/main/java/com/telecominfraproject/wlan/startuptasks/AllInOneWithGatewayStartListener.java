@@ -69,7 +69,6 @@ import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguratio
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusServer;
-import com.telecominfraproject.wlan.profile.radius.models.RadiusServiceRegion;
 import com.telecominfraproject.wlan.profile.rf.models.RfConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration;
 import com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.SecureMode;
@@ -229,18 +228,26 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		profileRadius.setName("Radius-Profile");
 
 		RadiusProfile radiusDetails = new RadiusProfile();
-		RadiusServiceRegion radiusServiceRegion = new RadiusServiceRegion();
-		RadiusServer radiusServer = new RadiusServer();
-		radiusServer.setAuthPort(1812);
+		RadiusServer primaryRadiusServer = new RadiusServer();
+		primaryRadiusServer.setAuthPort(1812);
 		try {
-			radiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
+		    primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
 		} catch (UnknownHostException e) {
 			throw new IllegalArgumentException(e);
 		}
-		radiusServer.setSecret("testing123");
-		radiusServiceRegion.addRadiusServer("Radius-Profile", radiusServer);
-		radiusServiceRegion.setRegionName("Ottawa");
-		radiusDetails.addRadiusServiceRegion(radiusServiceRegion);
+		primaryRadiusServer.setSecret("testing123");
+        radiusDetails.setPrimaryRadiusServer(primaryRadiusServer);
+        
+        RadiusServer secondaryRadiusServer = new RadiusServer();
+        secondaryRadiusServer.setAuthPort(1812);
+        try {
+            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(e);
+        }
+        secondaryRadiusServer.setSecret("testing123");
+        radiusDetails.setSecondaryRadiusServer(secondaryRadiusServer);
+        
 		profileRadius.setDetails(radiusDetails);
 		profileRadius = profileServiceInterface.create(profileRadius);
 
@@ -290,7 +297,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		ssidConfigEAP.setSecureMode(SecureMode.wpaEAP);
 		ssidConfigEAP.setKeyStr("testing123");
 		profileSsidEAP.setDetails(ssidConfigEAP);
-		ssidConfigEAP.setRadiusServiceName(profileRadius.getName());
+		ssidConfigEAP.setRadiusServiceId(profileRadius.getId());
 		Set<Long> childIds = new HashSet<Long>();
 		childIds.add(profileRadius.getId());
 		profileSsidEAP.setChildProfileIds(childIds);

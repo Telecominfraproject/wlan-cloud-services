@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,21 +23,26 @@ public class RadiusProfileTests {
     @Before
     public void setup() throws Exception {
         radiusProfile = new RadiusProfile();
-
-        RadiusServiceRegion serverMap = new RadiusServiceRegion();
-        serverMap.setRegionName("Ottawa");
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 1; j < 3; ++j) {
-                RadiusServer radiusServer = new RadiusServer();
-                radiusServer.setAuthPort(1812);
-                radiusServer.setIpAddress(
-                        InetAddress.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) i, (byte) j }));
-                radiusServer.setSecret("Secret" + i + j);
-                radiusServer.setTimeout(i + j);
-                serverMap.addRadiusServer("radius" + i, radiusServer);
-            }
+        RadiusServer primaryRadiusServer = new RadiusServer();
+        primaryRadiusServer.setAuthPort(1812);
+        try {
+            primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(e);
         }
-        radiusProfile.addRadiusServiceRegion(serverMap);
+        primaryRadiusServer.setSecret("testing123");
+        radiusProfile.setPrimaryRadiusServer(primaryRadiusServer);
+        
+        RadiusServer secondaryRadiusServer = new RadiusServer();
+        secondaryRadiusServer.setAuthPort(1812);
+        try {
+            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(e);
+        }
+        secondaryRadiusServer.setSecret("testing123");
+        radiusProfile.setSecondaryRadiusServer(secondaryRadiusServer);
+        
 
         RadiusSubnetConfiguration subnetConfig = new RadiusSubnetConfiguration();
         subnetConfig.setSubnetAddress(InetAddress.getByAddress(new byte[] { 10, 10, 1, 0 }));
@@ -51,9 +57,7 @@ public class RadiusProfileTests {
         proxyConfig.setFloatingIfCidrPrefix(24);
         subnetConfig.setProxyConfig(proxyConfig);
 
-        subnetConfig.setServiceRegion(serverMap.getRegionName());
-
-        radiusProfile.addSubnetConfiguration(subnetConfig);
+        radiusProfile.setRadiusSubnetConfiguration(subnetConfig);
     }
 
     @Test
