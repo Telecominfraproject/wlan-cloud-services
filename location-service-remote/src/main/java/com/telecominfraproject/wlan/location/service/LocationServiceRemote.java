@@ -195,4 +195,19 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
                 (null == result) ? 0 : result.size());
         return result;
     }
+    
+    @Override
+    public List<Location> getAllAncestors(long locationId) {
+        LOG.debug("getAllAncestors({})", locationId);
+
+        ResponseEntity<List<Location>> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/allAncestors?locationId={locationId}", HttpMethod.GET,
+                null, Location_LIST_CLASS_TOKEN, locationId);
+
+        List<Location> result = responseEntity.getBody();
+
+        LOG.debug("getAllAncestors({}) returned {} entries", locationId,
+                (null == result) ? 0 : result.size());
+        return result;
+    }
 }

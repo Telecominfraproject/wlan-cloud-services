@@ -30,6 +30,12 @@ public interface LocationDatastore {
     Location getTopLevelLocation(long locationId);
     
     /**
+     * Recursively return all the parents of the specified location id.
+     * ie: Grandpa -> Homer -> Bart. If you specify Bart, you'll receive both Homer and Grandpa.
+     */
+    List<Location> getAllAncestors(long locationId);
+    
+    /**
      * Retrieves a list of Location records that which have their Id in the provided set.
      * 
      * @param locationIdSet
