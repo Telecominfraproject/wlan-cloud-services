@@ -227,26 +227,7 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		profileRadius.setProfileType(ProfileType.radius);
 		profileRadius.setName("Radius-Profile");
 
-		RadiusProfile radiusDetails = new RadiusProfile();
-		RadiusServer primaryRadiusServer = new RadiusServer();
-		primaryRadiusServer.setAuthPort(1812);
-		try {
-		    primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
-		} catch (UnknownHostException e) {
-			throw new IllegalArgumentException(e);
-		}
-		primaryRadiusServer.setSecret("testing123");
-        radiusDetails.setPrimaryRadiusServer(primaryRadiusServer);
-        
-        RadiusServer secondaryRadiusServer = new RadiusServer();
-        secondaryRadiusServer.setAuthPort(1812);
-        try {
-            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(e);
-        }
-        secondaryRadiusServer.setSecret("testing123");
-        radiusDetails.setSecondaryRadiusServer(secondaryRadiusServer);
+		RadiusProfile radiusDetails = RadiusProfile.createWithDefaults();
         
 		profileRadius.setDetails(radiusDetails);
 		profileRadius = profileServiceInterface.create(profileRadius);

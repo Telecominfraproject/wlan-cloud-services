@@ -50,7 +50,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     private Boolean noLocalSubnets;
     private long radiusServiceId;
-    private long radiusAccountingServiceId;
     private int radiusAcountingServiceInterval;
 
     private Long captivePortalId;
@@ -113,7 +112,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setClientBandwidthLimitDown(BANDWIDTH_LIMIT_NO_LIMIT);
         setBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
-        setRadiusAccountingServiceId(0L);
         setRadiusServiceId(0L);
         setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
         setForwardMode(forwardMode);
@@ -326,14 +324,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.radiusServiceId = radiusServiceName;
     }
 
-    public long getRadiusAccountingServiceId() {
-        return radiusAccountingServiceId;
-    }
-
-    public void setRadiusAccountingServiceId(long radiusAccountingServiceName) {
-        this.radiusAccountingServiceId = radiusAccountingServiceName;
-    }
-
     public Integer getRadiusAcountingServiceInterval() {
         return radiusAcountingServiceInterval;
     }
@@ -529,7 +519,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     public int hashCode() {
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
-                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAccountingServiceId,
+                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, 
                 radiusAcountingServiceInterval, radiusNasConfiguration, radiusServiceId, secureMode, ssid,
                 ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
     }
@@ -554,7 +544,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
                 && Objects.equals(noLocalSubnets, other.noLocalSubnets)
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
-                && radiusAccountingServiceId == other.radiusAccountingServiceId
                 && radiusAcountingServiceInterval == other.radiusAcountingServiceInterval
                 && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
                 && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode

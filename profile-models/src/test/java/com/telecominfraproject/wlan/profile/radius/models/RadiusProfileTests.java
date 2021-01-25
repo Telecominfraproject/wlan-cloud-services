@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.profile.radius.models;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -23,41 +22,30 @@ public class RadiusProfileTests {
     @Before
     public void setup() throws Exception {
         radiusProfile = new RadiusProfile();
-        RadiusServer primaryRadiusServer = new RadiusServer();
-        primaryRadiusServer.setAuthPort(1812);
+        RadiusServer primaryRadiusAuthServer = new RadiusServer();
+        primaryRadiusAuthServer.setPort(1812);
         try {
-            primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
+            primaryRadiusAuthServer.setIpAddress(InetAddress.getByName("127.0.0.1"));
+            primaryRadiusAuthServer.setPort(RadiusProfile.DEFAULT_RADIUS_AUTH_PORT);
+            primaryRadiusAuthServer.setSecret("secret");
+            primaryRadiusAuthServer.setTimeout(RadiusProfile.DEFAULT_RADIUS_TIMEOUT);
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(e);
         }
-        primaryRadiusServer.setSecret("testing123");
-        radiusProfile.setPrimaryRadiusServer(primaryRadiusServer);
-        
-        RadiusServer secondaryRadiusServer = new RadiusServer();
-        secondaryRadiusServer.setAuthPort(1812);
+        radiusProfile.setPrimaryRadiusAuthServer(primaryRadiusAuthServer);
+
+        RadiusServer primaryRadiusAccountingServer = new RadiusServer();
+        primaryRadiusAccountingServer.setPort(1812);
         try {
-            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
+            primaryRadiusAccountingServer.setIpAddress(InetAddress.getByName("127.0.0.1"));
+            primaryRadiusAccountingServer.setPort(RadiusProfile.DEFAULT_RADIUS_ACCOUNTING_PORT);
+            primaryRadiusAccountingServer.setSecret("secret");
+            primaryRadiusAccountingServer.setTimeout(RadiusProfile.DEFAULT_RADIUS_TIMEOUT);
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(e);
         }
-        secondaryRadiusServer.setSecret("testing123");
-        radiusProfile.setSecondaryRadiusServer(secondaryRadiusServer);
-        
+        radiusProfile.setPrimaryRadiusAccountingServer(primaryRadiusAccountingServer);
 
-        RadiusSubnetConfiguration subnetConfig = new RadiusSubnetConfiguration();
-        subnetConfig.setSubnetAddress(InetAddress.getByAddress(new byte[] { 10, 10, 1, 0 }));
-        subnetConfig.setSubnetCidrPrefix(8);
-        subnetConfig.setSubnetName(
-                subnetConfig.getSubnetAddress().getHostAddress() + "/" + subnetConfig.getSubnetCidrPrefix());
-
-        RadiusProxyConfiguration proxyConfig = new RadiusProxyConfiguration();
-        proxyConfig.setFloatingIpAddress(InetAddress.getByAddress(new byte[] { 10, 10, 1, 2 }));
-        proxyConfig.setFloatingIfVlan(10);
-        proxyConfig.setSharedSecret("Test Secret");
-        proxyConfig.setFloatingIfCidrPrefix(24);
-        subnetConfig.setProxyConfig(proxyConfig);
-
-        radiusProfile.setRadiusSubnetConfiguration(subnetConfig);
     }
 
     @Test
@@ -100,30 +88,4 @@ public class RadiusProfileTests {
         rs.validateConfig();
     }
 
-    @Test
-    public void testSubnetOperation() throws Exception {
-        InetAddress ip = InetAddress.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 254, 1 });
-        InetAddress subnet1 = InetAddress.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 254, 1 });
-
-        for (int i = 1; i <= 32; ++i) {
-            assertTrue(RadiusProfile.isIpInSubnet(ip, subnet1, i));
-        }
-        assertTrue(RadiusProfile.isIpInSubnet(InetAddress.getByAddress(new byte[] {(byte) 192,(byte) 168,(byte) 254,2}), subnet1, 30));
-        assertFalse(RadiusProfile.isIpInSubnet(InetAddress.getByAddress(new byte[] {(byte) 192,(byte) 168,(byte) 254,5}), subnet1, 30));
-    }
-    
-    @Test
-    public void subnetConfigTest() throws Exception {
-        BaseSubnetConfiguration a = new BaseSubnetConfiguration();
-        a.setSubnetAddress(InetAddress.getByName("172.16.255.1"));
-        a.setSubnetCidrPrefix(24);
-        BaseSubnetConfiguration b = a.clone();
-        b.setSubnetCidrPrefix(23);
-        assertTrue("overlap " + a + " and " + b, a.overlapSubnet(b));
-        BaseSubnetConfiguration c = a.clone();
-        c.setSubnetAddress(InetAddress.getByName("172.16.254.1"));
-        assertFalse("not overlap " + a + " and " + c, a.overlapSubnet(c));
-        c.setSubnetCidrPrefix(23);
-        assertTrue("overlap " + a + " and " + c, a.overlapSubnet(c));
-    }
 }

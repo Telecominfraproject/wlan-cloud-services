@@ -269,26 +269,19 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRadius.setProfileType(ProfileType.radius);
         profileRadius.setName("Radius-Profile");
 
-        RadiusProfile radiusDetails = new RadiusProfile();
-        RadiusServer primaryRadiusServer = new RadiusServer();
-        primaryRadiusServer.setAuthPort(1812);
-        try {
-            primaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.1"));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(e);
-        }
-        primaryRadiusServer.setSecret("testing123");
-        radiusDetails.setPrimaryRadiusServer(primaryRadiusServer);
+        RadiusProfile radiusDetails = RadiusProfile.createWithDefaults();
 
-        RadiusServer secondaryRadiusServer = new RadiusServer();
-        secondaryRadiusServer.setAuthPort(1812);
+        RadiusServer primaryRadiusAccountingServer = new RadiusServer();
+        primaryRadiusAccountingServer.setPort(RadiusProfile.DEFAULT_RADIUS_ACCOUNTING_PORT);
         try {
-            secondaryRadiusServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
+            primaryRadiusAccountingServer.setIpAddress(InetAddress.getByName("192.168.0.2"));
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(e);
         }
-        secondaryRadiusServer.setSecret("testing123");
-        radiusDetails.setSecondaryRadiusServer(secondaryRadiusServer);
+        primaryRadiusAccountingServer.setSecret(RadiusProfile.DEFAULT_RADIUS_SECRET);
+        primaryRadiusAccountingServer.setTimeout(RadiusProfile.DEFAULT_RADIUS_TIMEOUT);
+        
+        radiusDetails.setPrimaryRadiusAccountingServer(primaryRadiusAccountingServer);
 
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);

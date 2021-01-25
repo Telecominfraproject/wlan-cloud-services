@@ -568,89 +568,26 @@ components:
             type: string
             enum:
             - RadiusProfile
-          primaryRadiusServer:
-            description: the primary radius server
+          primaryRadiusAuthServer:
+            description: the primary radius auth server
+            required: true
             $ref: '#/components/schemas/RadiusServer'
-          secondaryRadiusServer:
-            description: the secondary radius server, currently the AP supports only 1 radius server and 1 radius accounting server, so this is not provisioned on the AP
+          secondaryRadiusAuthServer:
+            description: the secondary radius auth server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
             $ref: '#/components/schemas/RadiusServer'
-          radiusSubnetConfiguration:
-            description: Radius Subnet and Proxy, currently not used, do not add to UI at this point, is ignored.
-            $ref: '#/components/schemas/RadiusSubnetConfiguration'
+          primaryRadiusAccountingServer:
+            description: the primary radius accounting server
+            $ref: '#/components/schemas/RadiusServer'
+          secondaryRadiusAccountingServer:
+            description: the secondary radius accounting server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
+            $ref: '#/components/schemas/RadiusServer'            
       example:
-        primaryRadiusServer:
+        primaryRadiusAuthServer:
           model_type: RadiusServer
-          ipAddress: 192.168.0.1
-          secret: testing123
-          authPort: 1812
-          timeout: null
-        secondaryRadiusServer:
-          model_type: RadiusServer
-          ipAddress: 192.168.0.2
-          secret: testing123
-          authPort: 1812
-          timeout: null
-        radiusSubnetConfiguration:
-          # currently not used, ignored if present
-
-    RadiusSubnetConfiguration:
-      description: configuration for RadiusSubnet, currently not used.
-      properties:
-        subnetName:
-          type: string
-        proxyConfig:
-          $ref: '#/components/schemas/RadiusProxyConfiguration'
-        probeInterval:
-          description: Synthentic client probing internval (seconds). Use 0 or null for disable.
-          type: integer
-          format: int32
-        subnetAddress:
-          description: Subnet IpAddress
-          type: string
-        subnetCidrPrefix:
-          type: integer
-          format: int32
-      example:
-          model_type: RadiusSubnetConfiguration
-          subnetAddress: 10.10.1.0
-          subnetCidrPrefix: 8
-          subnetName: 10.10.1.0/8
-          proxyConfig:
-            model_type: RadiusProxyConfiguration
-            floatingIpAddress: 10.10.1.2
-            floatingIfCidrPrefix: 24
-            floatingIfGwAddress: null
-            floatingIfVlan: 10
-            sharedSecret: Test Secret
-          probeInterval: null
-                               
-    RadiusProxyConfiguration:
-      description: Proxy Configuration for the RadiusSubnet, currently not used.
-      properties:
-        floatingIpAddress:
-          description: Proxy server floating IP address
-          type: string
-        floatingIfCidrPrefix:
-          description: Optional subnet CIDR prefix for floating IP address. Required if different floating IP address is outside of the the management subnet.
-          type: integer
-          format: int32
-        floatingIfGwAddress:
-          description: Optional Gateway IP Address for the floating IP interface
-          type: string
-        floatingIfVlan:
-          description: Optional VLAN id for the floating IP interface
-          type: integer
-          format: int32
-        sharedSecret:
-          description: Shared secret used to communicate with the proxy server
-          type: string
-      example:
-        model_type: RadiusProxyConfiguration
-        floatingIpAddress: 10.10.1.2
-        floatingIfCidrPrefix: 24
-        floatingIfGwAddress: null
-        floatingIfVlan: 10
-        sharedSecret: Test Secret      
+          ipAddress: 127.0.0.1
+          secret: secret
+          port: 1812
+          timeout: 5
           
     RadiusServer:
       properties:
@@ -658,7 +595,7 @@ components:
           type: string
         secret:
           type: string
-        authPort:
+        port:
           type: integer
           format: int32
         timeout:
@@ -666,10 +603,10 @@ components:
           format: int32
       example:
           model_type: RadiusServer
-          ipAddress: 192.168.0.1
-          secret: testing123
-          authPort: 1812
-          timeout: null
+          ipAddress: 127.0.0.1
+          secret: secret
+          port: 1812
+          timeout: 5
         
     MimoMode:
       type: string
@@ -913,9 +850,6 @@ components:
           noLocalSubnets:
             type: boolean
           radiusServiceId:
-            type: integer
-            format: int64
-          radiusAccountingServiceId:
             type: integer
             format: int64
           radiusAcountingServiceInterval:

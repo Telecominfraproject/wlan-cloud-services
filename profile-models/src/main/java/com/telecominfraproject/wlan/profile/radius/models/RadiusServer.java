@@ -15,7 +15,7 @@ public class RadiusServer extends BaseJsonModel {
 
     private InetAddress ipAddress;
     private String secret;
-    private Integer authPort;
+    private Integer port;
     private Integer timeout;
 
     public InetAddress getIpAddress() {
@@ -34,12 +34,12 @@ public class RadiusServer extends BaseJsonModel {
         this.secret = secret;
     }
 
-    public Integer getAuthPort() {
-        return authPort;
+    public Integer getPort() {
+        return port;
     }
 
-    public void setAuthPort(Integer authPort) {
-        this.authPort = authPort;
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     public Integer getTimeout() {
@@ -74,7 +74,7 @@ public class RadiusServer extends BaseJsonModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(authPort, ipAddress, secret, timeout);
+        return Objects.hash(port, ipAddress, secret, timeout);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class RadiusServer extends BaseJsonModel {
         if (getClass() != obj.getClass())
             return false;
         RadiusServer other = (RadiusServer) obj;
-        return Objects.equals(authPort, other.authPort) && Objects.equals(ipAddress, other.ipAddress)
+        return Objects.equals(port, other.port) && Objects.equals(ipAddress, other.ipAddress)
                 && Objects.equals(secret, other.secret) && Objects.equals(timeout, other.timeout);
     }
     
