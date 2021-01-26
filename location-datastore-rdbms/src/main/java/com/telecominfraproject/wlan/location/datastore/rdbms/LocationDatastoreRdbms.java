@@ -57,7 +57,12 @@ public class LocationDatastoreRdbms implements LocationDatastore {
 	public Location getTopLevelLocation(long locationId) {
 		return locationDAO.getTopLevelLocation(locationId);
 	}
-
+	
+    @Override
+    public List<Location> getAllAncestors(long locationId) {
+        return locationDAO.getAllAncestors(locationId);
+    }
+	
     @Override
     public List<Location> get(Set<Long> locationIdSet) {
     	return locationDAO.get(locationIdSet);

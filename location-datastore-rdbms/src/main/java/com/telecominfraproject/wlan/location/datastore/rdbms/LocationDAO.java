@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -153,6 +155,13 @@ public class LocationDAO extends BaseJdbcDao {
             + " SELECT " + ALL_COLUMNS_WITH_PREFIX
             + " FROM "+TABLE_NAME+" s" + " JOIN recursetree rt ON rt.parentid = s.id)"
             + " SELECT * FROM recursetree where parentid is null";
+    
+    private static final String SQL_GET_ALL_ANCESTORS = "WITH RECURSIVE recursetree("+ALL_COLUMNS+") AS ("
+            + " SELECT "+ALL_COLUMNS+" FROM "+TABLE_NAME+" WHERE id = ?"
+            + " UNION "
+            + " SELECT " + ALL_COLUMNS_WITH_PREFIX
+            + " FROM "+TABLE_NAME+" s" + " JOIN recursetree rt ON rt.parentid = s.id)"
+            + " SELECT * FROM recursetree";
 
     private static final String SQL_GET_ALL_TOP_LEVEL = "select " + ALL_COLUMNS + " from " + TABLE_NAME + " "
             + " where parentid is null";
@@ -356,6 +365,15 @@ public class LocationDAO extends BaseJdbcDao {
         }
 
         return ret;
+    }
+    
+    public List<Location> getAllAncestors(long locationId) {
+        LOG.debug("Looking up all ancestor Locations for child {}", locationId);
+        
+        List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_ANCESTORS,
+                locationRowMapper, locationId);
+        
+        return ret.stream().filter(l-> l.getId() != locationId).collect(Collectors.toList());
     }
 
     public List<Location> get(Set<Long> locationIdSet) {

@@ -132,7 +132,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
     }
 
     @Test
-    public void testChildrenCase()
+    public void testChildrenAndAncestors()
     {
        /* Grand parent */
        Location grandpa = testInterface.create(generateLocation(0));
@@ -156,6 +156,22 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
        assertTrue(children.contains(bart));
        assertTrue(children.contains(bartJr));
        assertTrue(children.contains(lisa));
+       
+       List<Location> ancestors = testInterface.getAllAncestors(bartJr.getId());
+       assertNotNull(ancestors);
+       assertEquals(3, ancestors.size());
+
+       assertTrue(ancestors.contains(bart));
+       assertTrue(ancestors.contains(homer));
+       assertTrue(ancestors.contains(grandpa));
+       
+       List<Location> ancestorsgrandpa = testInterface.getAllAncestors(grandpa.getId());
+       assertNotNull(ancestorsgrandpa);
+       assertEquals(0, ancestorsgrandpa.size());
+       
+       List<Location> ancestorForNonExistedId = testInterface.getAllAncestors(100);
+       assertNotNull(ancestorForNonExistedId);
+       assertEquals(0, ancestorForNonExistedId.size());
     }
 
     @Test

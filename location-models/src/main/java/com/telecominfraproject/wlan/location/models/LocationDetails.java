@@ -60,6 +60,9 @@ public class LocationDetails extends BaseJsonModel {
     }
 
     public String getTimezone() {
+    	if (dailyActivityDetails == null) {
+    		return null;
+    	}
     	for(DayOfTheWeek day: DayOfTheWeek.values()) {
     		if((dailyActivityDetails.get(day) != null) && (dailyActivityDetails.get(day).getTimezone() != null)) {
     			return dailyActivityDetails.get(day).getTimezone();

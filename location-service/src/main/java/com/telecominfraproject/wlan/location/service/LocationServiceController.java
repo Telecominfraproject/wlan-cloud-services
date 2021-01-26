@@ -182,6 +182,21 @@ public class LocationServiceController {
         }
     }
     
+    @RequestMapping(value = "/allAncestors", method = RequestMethod.GET)
+    public ListOfLocations getAllAncestors(@RequestParam long locationId) {
+        LOG.debug("getAllAncestors({})", locationId);
+        try {
+            List<Location> result = locationDatastore.getAllAncestors(locationId);
+            LOG.debug("getAllAncestors({}) return {} entries", locationId, result.size());
+            ListOfLocations ret = new ListOfLocations();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+            LOG.error("getAllAncestors({}) exception ", locationId, exp);
+            throw exp;
+        }
+    }
+    
     @RequestMapping(value = "/inSet", method = RequestMethod.GET)
     public ListOfLocations getAllInSet(@RequestParam Set<Long> locationIdSet) {
         LOG.debug("getAllInSet({})", locationIdSet);
