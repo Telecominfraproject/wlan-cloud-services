@@ -1140,10 +1140,6 @@ components:
           description: Backup channel (this is never set by the customer - it's deduced from the primary channel (either manual or auto)
           type: integer
           format: int32
-        bannedChannels:
-          type: array
-          items:
-            $ref: '#/components/schemas/BannedChannel'
         allowedChannels:
           description: "allowedChannels (Not set by the customer: provided by AP on connection based on regulatory limits by country)"
           type: array
