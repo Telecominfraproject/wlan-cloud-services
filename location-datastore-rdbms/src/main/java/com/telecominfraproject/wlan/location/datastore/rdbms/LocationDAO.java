@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -369,21 +370,10 @@ public class LocationDAO extends BaseJdbcDao {
     public List<Location> getAllAncestors(long locationId) {
         LOG.debug("Looking up all ancestor Locations for child {}", locationId);
         
-        Location location;
-        try {
-            location = this.jdbcTemplate.queryForObject(SQL_GET_BY_ID,
-                    locationRowMapper, locationId);
-
-        } catch (EmptyResultDataAccessException e) {
-            return Lists.newArrayList();
-        }
-        
         List<Location> ret = this.jdbcTemplate.query(SQL_GET_ALL_ANCESTORS,
                 locationRowMapper, locationId);
         
-        ret.remove(location);
-
-        return ret;
+        return ret.stream().filter(l-> l.getId() != locationId).collect(Collectors.toList());
     }
 
     public List<Location> get(Set<Long> locationIdSet) {
