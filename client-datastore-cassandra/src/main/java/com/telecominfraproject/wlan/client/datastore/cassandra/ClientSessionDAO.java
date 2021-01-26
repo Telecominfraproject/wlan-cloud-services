@@ -134,6 +134,14 @@ public class ClientSessionDAO {
 
     private static final String CQL_INSERT_INTO_BY_LOCATION_TABLE = "insert into client_session_by_location(customerId, locationId, equipmentId, macAddress) values ( ?, ?, ?, ?) ";
     private static final String CQL_DELETE_FROM_BY_LOCATION_TABLE = "delete from client_session_by_location where locationId = ? and equipmentId = ? and macAddress = ? ";
+    
+    private static final String CQL_APPEND_SEARCH_MAC_STRING = " and macAddressString like ? ";
+    
+    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC_STRING = 
+    		"insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
+
+    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC_STRING = 
+    		"delete from client_session_by_mac_string where customerId = ? and equipmentId = ? and macAddressString = ?";
 
     
     private static final RowMapper<ClientSession> clientSessionRowMapper = new ClientSessionRowMapper();
@@ -151,6 +159,9 @@ public class ClientSessionDAO {
 	private PreparedStatement preparedStmt_deleteByEquipment;
 	private PreparedStatement preparedStmt_createByLocation;
 	private PreparedStatement preparedStmt_deleteByLocation;
+    private PreparedStatement preparedStmt_createMacString;
+    private PreparedStatement preparedStmt_deleteMacString;
+
 
 	@PostConstruct
 	private void postConstruct(){
@@ -166,6 +177,8 @@ public class ClientSessionDAO {
         	preparedStmt_deleteByEquipment = cqlSession.prepare(CQL_DELETE_FROM_BY_EQUIPMENT_TABLE);
         	preparedStmt_createByLocation = cqlSession.prepare(CQL_INSERT_INTO_BY_LOCATION_TABLE);
         	preparedStmt_deleteByLocation = cqlSession.prepare(CQL_DELETE_FROM_BY_LOCATION_TABLE);
+            preparedStmt_createMacString = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC_STRING);
+            preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC_STRING);
         	
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
@@ -203,6 +216,15 @@ public class ClientSessionDAO {
 				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
+		
+		// update client_by_mac_string table
+		cqlSession.execute(preparedStmt_createMacString.bind(
+				clientSession.getCustomerId(),
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong(),
+				clientSession.getMacAddress().getAddressAsString()
+				));
 
         LOG.debug("Stored Client session {}", clientSession);
         
@@ -297,6 +319,12 @@ public class ClientSessionDAO {
 				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
+		
+		// update client_by_mac_string table
+		cqlSession.execute(preparedStmt_deleteMacString.bind(
+				clientSession.getCustomerId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsString()));
 
 
         return clientSession;
@@ -336,9 +364,9 @@ public class ClientSessionDAO {
         return results;
     }
 
-    private static enum FilterOptions{ customer_only, customer_and_equipment, customer_and_location}
+    private static enum FilterOptions{ customer_only, customer_and_equipment, customer_and_location, customer_and_macAddress}
 
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy,
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, String macSubstring, List<ColumnAndSort> sortBy,
 			PaginationContext<ClientSession> context) {
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
@@ -393,7 +421,7 @@ public class ClientSessionDAO {
             }
 
             StringBuilder strb = new StringBuilder(100);
-            strb.append(" locationId in (");
+            strb.append(" and locationId in (");
             for (int i = 0; i < locationIds.size(); i++) {
                 strb.append("?");
                 if (i < locationIds.size() - 1) {
@@ -403,9 +431,28 @@ public class ClientSessionDAO {
             strb.append(") ");
 
             query = strb.toString() + query;
-            query_head = "select macAddress from client_session_by_location where ";
+            query_head = "select macAddress from client_session_by_location where customerId = ? ";
             
             filterOptions = FilterOptions.customer_and_location;
+        }
+        
+        // Add macSubstring filter
+        if (macSubstring != null) {
+        	// Rebuilding query args
+        	queryArgs.clear();
+        	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        	
+        	if (locationIds != null && !locationIds.isEmpty()) {
+        		queryArgs.addAll(locationIds);
+        	}
+        	if (equipmentIds != null && !equipmentIds.isEmpty()) {
+        		queryArgs.addAll(equipmentIds);
+        	}
+        	
+        	query = CQL_APPEND_SEARCH_MAC_STRING + query;
+        	query_head = "select macAddress from client_session_by_mac_string where customerId = ? ";
+        	
+        	filterOptions = FilterOptions.customer_and_macAddress;
         }
 
         // add sorting options for the query
@@ -450,6 +497,7 @@ public class ClientSessionDAO {
 			break;		
 		case customer_and_equipment:
 		case customer_and_location:
+		case customer_and_macAddress:
 			//the query was against client_session_by_equipment or client_session_by_location table
 			//find all the macAddresses for the page, then retrieve records for them from client_session table
 			Set<MacAddress> macAddrSet = new HashSet<>();
@@ -464,10 +512,12 @@ public class ClientSessionDAO {
 			pageSessions.forEach(cs -> {
 			    //apply locationId and equipmentId filtering in here
                 if ((locationIds == null || locationIds.isEmpty() || locationIds.contains(cs.getLocationId()))
-                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId())) ) 
+                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId()))
+                        && (macSubstring == null || cs.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
+                		) 
                 {
 	                    pageItems.add(cs);
-	             }
+	            }
 			});
 
 			break;

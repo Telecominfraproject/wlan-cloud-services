@@ -836,13 +836,13 @@ public abstract class BaseClientDatastoreTest {
        sortBy.addAll(Arrays.asList(new ColumnAndSort("macAddress")));
        
        PaginationContext<ClientSession> context = new PaginationContext<>(10);
-       PaginationResponse<ClientSession> page1 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, context);
-       PaginationResponse<ClientSession> page2 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page1.getContext());
-       PaginationResponse<ClientSession> page3 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page2.getContext());
-       PaginationResponse<ClientSession> page4 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page3.getContext());
-       PaginationResponse<ClientSession> page5 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page4.getContext());
-       PaginationResponse<ClientSession> page6 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page5.getContext());
-       PaginationResponse<ClientSession> page7 = testInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page6.getContext());
+       PaginationResponse<ClientSession> page1 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, context);
+       PaginationResponse<ClientSession> page2 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page1.getContext());
+       PaginationResponse<ClientSession> page3 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page2.getContext());
+       PaginationResponse<ClientSession> page4 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page3.getContext());
+       PaginationResponse<ClientSession> page5 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page4.getContext());
+       PaginationResponse<ClientSession> page6 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page5.getContext());
+       PaginationResponse<ClientSession> page7 = testInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -891,7 +891,7 @@ public abstract class BaseClientDatastoreTest {
 
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<ClientSession> page1EmptySort = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page1EmptySort = testInterface.getSessionsForCustomer(customerId_1, null, null, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
@@ -901,7 +901,7 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<ClientSession> page1NullSort = testInterface.getSessionsForCustomer(customerId_1, null, null, null, context);
+       PaginationResponse<ClientSession> page1NullSort = testInterface.getSessionsForCustomer(customerId_1, null, null, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = getClientSessionPagination_expectedPage1EmptySortStrings();
@@ -912,7 +912,7 @@ public abstract class BaseClientDatastoreTest {
 
        
        //test first page of the results with sort descending order by a macAddress property 
-       PaginationResponse<ClientSession> page1SingleSortDesc = testInterface.getSessionsForCustomer(customerId_1, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
+       PaginationResponse<ClientSession> page1SingleSortDesc = testInterface.getSessionsForCustomer(customerId_1, null, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = getClientSessionPagination_expectedPage1SingleSortDescStrings();
@@ -922,8 +922,8 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
        //test the results for equipment_1 only
-       PaginationResponse<ClientSession> page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, Collections.emptyList(), page1Eq_1.getContext());
+       PaginationResponse<ClientSession> page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());
@@ -937,8 +937,8 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(expectedPage1Eq_1Strings, actualPage1Eq_1Strings);
 
        //test the results for equipment_2 only
-       PaginationResponse<ClientSession> page1Eq_2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, Collections.emptyList(), page1Eq_2.getContext());
+       PaginationResponse<ClientSession> page1Eq_2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, null, Collections.emptyList(), page1Eq_2.getContext());
 
        assertEquals(10, page1Eq_2.getItems().size());
        assertEquals(0, page2Eq_2.getItems().size());
@@ -953,9 +953,9 @@ public abstract class BaseClientDatastoreTest {
 
         
        //test the results for equipment_1 or  equipment_2 only
-       PaginationResponse<ClientSession> page1Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), page1Eq_1or2.getContext());
-       PaginationResponse<ClientSession> page3Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), page2Eq_1or2.getContext());
+       PaginationResponse<ClientSession> page1Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), page1Eq_1or2.getContext());
+       PaginationResponse<ClientSession> page3Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), page2Eq_1or2.getContext());
 
        assertEquals(10, page1Eq_1or2.getItems().size());
        assertEquals(10, page2Eq_1or2.getItems().size());
@@ -981,8 +981,8 @@ public abstract class BaseClientDatastoreTest {
        //
        
        //test the results for location_1 only
-       page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), Collections.emptyList(), context);
-       page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), Collections.emptyList(), page1Eq_1.getContext());
+       page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), null, Collections.emptyList(), context);
+       page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());
@@ -996,8 +996,8 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(expectedPage1Eq_1Strings, actualPage1Loc_1Strings);
 
        //test the results for location_2 only
-       page1Eq_2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), Collections.emptyList(), context);
-       page2Eq_2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), Collections.emptyList(), page1Eq_2.getContext());
+       page1Eq_2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), null, Collections.emptyList(), page1Eq_2.getContext());
 
        assertEquals(10, page1Eq_2.getItems().size());
        assertEquals(0, page2Eq_2.getItems().size());
@@ -1012,9 +1012,9 @@ public abstract class BaseClientDatastoreTest {
 
         
        //test the results for location_1 or  location_2 only
-       page1Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), context);
-       page2Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page1Eq_1or2.getContext());
-       page3Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page2Eq_1or2.getContext());
+       page1Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page1Eq_1or2.getContext());
+       page3Eq_1or2 = testInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page2Eq_1or2.getContext());
 
        assertEquals(10, page1Eq_1or2.getItems().size());
        assertEquals(10, page2Eq_1or2.getItems().size());
@@ -1036,8 +1036,8 @@ public abstract class BaseClientDatastoreTest {
        assertEquals(expectedPage2Eq_1or2Strings, actualPage2Loc_1or2Strings);       
 
        //test the results for ( location_1 or  location_2 ) and equipment_1only
-       page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), context);
-       page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page1Eq_1.getContext());
+       page1Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_1 = testInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());

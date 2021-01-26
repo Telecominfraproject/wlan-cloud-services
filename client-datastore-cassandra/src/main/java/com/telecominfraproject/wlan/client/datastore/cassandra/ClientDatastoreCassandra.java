@@ -94,13 +94,13 @@ public class ClientDatastoreCassandra implements ClientDatastore {
 
 	@Override
 	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds,
-			List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+			String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 
 		if(context == null) {
     		context = new PaginationContext<>();
     	}
 		
-		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, locationIds, sortBy, context);
+		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, locationIds, macSubstring, sortBy, context);
 	}
     
     

@@ -65,3 +65,16 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_location (
 ) WITH comment='Index Table to look up wireless client sessions by location and equipment used by TIP WLAN CloudSDK. Records automatically expire after 90 days'
     AND default_time_to_live = 7776000;
 
+CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_mac_string (
+    customerId int,
+    locationId bigint,
+    equipmentId bigint,    
+    macAddress bigint,
+    macAddressString text,    
+    
+    PRIMARY KEY (customerId, macAddressString)
+) WITH comment='Index Table to look up wireless client sessions by macAddressString, location, and equipment by TIP WLAN CloudSDK. Records automatically expire after 90 days'
+    AND default_time_to_live = 7776000;
+
+CREATE CUSTOM INDEX IF NOT EXISTS idx_client_session_macAddressString ON tip_wlan_keyspace.client_session_by_mac_string (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
+

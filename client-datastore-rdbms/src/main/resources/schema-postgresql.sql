@@ -28,6 +28,7 @@ create table if not exists client_blocklist (
 create table if not exists client_session (
     -- postgresql     
     macAddress bigint ,
+    macAddressString varchar(100) ,
 
     customerId int,
     equipmentId bigint,
@@ -41,4 +42,6 @@ create table if not exists client_session (
 
 create index if not exists idx_clientSession_customerId on client_session (customerId);
 create index if not exists idx_clientSession_locationId on client_session (customerId, locationId);
+create index if not exists idx_clientSession_customerId_macAddressString on client_session (customerId, macAddressString);
+
 
