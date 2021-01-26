@@ -671,6 +671,32 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
+  /api/location/allAncestors:
+    get:
+      tags:
+      - Location Data
+      summary: Recursively return all the Ancestors of the specified location id
+      operationId: getAllAncestors
+      parameters:
+      - name: locationId
+        in: query
+        description: Location ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        500: 
+          $ref: '#/components/responses/GenericApiError'        
+          
   /api/location/inSet:
     get:
       tags:
