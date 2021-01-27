@@ -98,7 +98,7 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
     private ManagedFileInfo externalPolicyFile;
     private BackgroundPosition backgroundPosition;
     private BackgroundRepeat backgroundRepeat;
-    private String radiusServiceName;
+    private long radiusServiceId;
     private SessionExpiryType expiryType;
     
     private List<TimedAccessUserRecord> userList = new ArrayList<>();
@@ -117,7 +117,6 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
        setSuccessPageMarkdownText(DEFAULT_SUCCESS_TEXT);
        setBackgroundPosition(BackgroundPosition.left_top);
        setBackgroundRepeat(BackgroundRepeat.no_repeat);
-       setRadiusServiceName(null);
        setRadiusAuthMethod(RadiusAuthenticationMethod.CHAP);
        setExpiryType(SessionExpiryType.time_limited);
     }
@@ -266,12 +265,12 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
         this.usernamePasswordFile = usernamePasswordFile;
     }
     
-    public String getRadiusServiceName() {
-        return radiusServiceName;
+    public long getRadiusServiceId() {
+        return radiusServiceId;
     }
 
-    public void setRadiusServiceName(String radiusServiceName) {
-        this.radiusServiceName = radiusServiceName;
+    public void setRadiusServiceId(long radiusServiceId) {
+        this.radiusServiceId = radiusServiceId;
     }
 
     public RadiusAuthenticationMethod getRadiusAuthMethod() {
@@ -306,50 +305,43 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
 		this.macAllowList = macAllowList;
 	}
 
+	@Override
+    public int hashCode() {
+        return Objects.hash(authenticationType, backgroundFile, backgroundPosition, backgroundRepeat, browserTitle,
+                expiryType, externalCaptivePortalURL, externalPolicyFile, headerContent, logoFile, macAllowList,
+                maxUsersWithSameCredentials, name, radiusAuthMethod, radiusServiceId, redirectURL,
+                sessionTimeoutInMinutes, successPageMarkdownText, userAcceptancePolicy, userList, usernamePasswordFile,
+                walledGardenAllowlist);
+    }
+
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(authenticationType, backgroundFile, backgroundPosition, backgroundRepeat,
-				browserTitle, expiryType, externalCaptivePortalURL, externalPolicyFile, headerContent, logoFile,
-				macAllowList, maxUsersWithSameCredentials, name, radiusAuthMethod, radiusServiceName, redirectURL,
-				sessionTimeoutInMinutes, successPageMarkdownText, userAcceptancePolicy, userList, usernamePasswordFile,
-				walledGardenAllowlist);
-		return result;
-	}
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CaptivePortalConfiguration other = (CaptivePortalConfiguration) obj;
+        return authenticationType == other.authenticationType && Objects.equals(backgroundFile, other.backgroundFile)
+                && backgroundPosition == other.backgroundPosition && backgroundRepeat == other.backgroundRepeat
+                && Objects.equals(browserTitle, other.browserTitle) && expiryType == other.expiryType
+                && Objects.equals(externalCaptivePortalURL, other.externalCaptivePortalURL)
+                && Objects.equals(externalPolicyFile, other.externalPolicyFile)
+                && Objects.equals(headerContent, other.headerContent) && Objects.equals(logoFile, other.logoFile)
+                && Objects.equals(macAllowList, other.macAllowList)
+                && maxUsersWithSameCredentials == other.maxUsersWithSameCredentials && Objects.equals(name, other.name)
+                && radiusAuthMethod == other.radiusAuthMethod && radiusServiceId == other.radiusServiceId
+                && Objects.equals(redirectURL, other.redirectURL)
+                && sessionTimeoutInMinutes == other.sessionTimeoutInMinutes
+                && Objects.equals(successPageMarkdownText, other.successPageMarkdownText)
+                && Objects.equals(userAcceptancePolicy, other.userAcceptancePolicy)
+                && Objects.equals(userList, other.userList)
+                && Objects.equals(usernamePasswordFile, other.usernamePasswordFile)
+                && Objects.equals(walledGardenAllowlist, other.walledGardenAllowlist);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
-		}
-		if (!(obj instanceof CaptivePortalConfiguration)) {
-			return false;
-		}
-		CaptivePortalConfiguration other = (CaptivePortalConfiguration) obj;
-		return authenticationType == other.authenticationType && Objects.equals(backgroundFile, other.backgroundFile)
-				&& backgroundPosition == other.backgroundPosition && backgroundRepeat == other.backgroundRepeat
-				&& Objects.equals(browserTitle, other.browserTitle) && expiryType == other.expiryType
-				&& Objects.equals(externalCaptivePortalURL, other.externalCaptivePortalURL)
-				&& Objects.equals(externalPolicyFile, other.externalPolicyFile)
-				&& Objects.equals(headerContent, other.headerContent) && Objects.equals(logoFile, other.logoFile)
-				&& Objects.equals(macAllowList, other.macAllowList)
-				&& maxUsersWithSameCredentials == other.maxUsersWithSameCredentials && Objects.equals(name, other.name)
-				&& radiusAuthMethod == other.radiusAuthMethod
-				&& Objects.equals(radiusServiceName, other.radiusServiceName)
-				&& Objects.equals(redirectURL, other.redirectURL)
-				&& sessionTimeoutInMinutes == other.sessionTimeoutInMinutes
-				&& Objects.equals(successPageMarkdownText, other.successPageMarkdownText)
-				&& Objects.equals(userAcceptancePolicy, other.userAcceptancePolicy)
-				&& Objects.equals(userList, other.userList)
-				&& Objects.equals(usernamePasswordFile, other.usernamePasswordFile)
-				&& Objects.equals(walledGardenAllowlist, other.walledGardenAllowlist);
-	}
-
-	@Override
+    @Override
     public CaptivePortalConfiguration clone() {
         CaptivePortalConfiguration ret = (CaptivePortalConfiguration)super.clone();
         
@@ -363,12 +355,18 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
         }
         
         if(userList!=null) {
+            List<TimedAccessUserRecord> retUserList = new ArrayList<>();
+            userList.stream().forEach(c -> retUserList.add(c.clone()));
         	ret.setUserList(new ArrayList<>(userList));
         }
 
         if(macAllowList!=null) {
         	ret.setMacAllowList(new ArrayList<>(macAllowList));
         }
+        
+        if (logoFile != null) ret.logoFile = logoFile.clone();
+        if (backgroundFile != null) ret.backgroundFile = backgroundFile.clone();
+        if (externalPolicyFile != null) ret.externalPolicyFile = externalPolicyFile.clone();
 
         return ret;
     }
@@ -528,6 +526,6 @@ public class CaptivePortalConfiguration extends ProfileDetails implements Pushab
 
     @Override
     public boolean needsToBeUpdatedOnDevice(CaptivePortalConfiguration previousVersion) {
-        return !equals(previousVersion);
+        return !Objects.equals(this, previousVersion);
     }    
 }

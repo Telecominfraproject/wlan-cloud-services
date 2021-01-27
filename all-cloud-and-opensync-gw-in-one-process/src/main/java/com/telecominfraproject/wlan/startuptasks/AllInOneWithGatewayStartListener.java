@@ -46,6 +46,7 @@ import com.telecominfraproject.wlan.customer.service.CustomerServiceInterface;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.NetworkForwardMode;
 import com.telecominfraproject.wlan.firmware.FirmwareServiceInterface;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
@@ -65,6 +66,9 @@ import com.telecominfraproject.wlan.profile.metrics.ServiceMetricsCollectionConf
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileContainer;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.profile.models.common.FileCategory;
+import com.telecominfraproject.wlan.profile.models.common.FileType;
+import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 import com.telecominfraproject.wlan.profile.network.models.ApNetworkConfiguration;
 import com.telecominfraproject.wlan.profile.network.models.RadioProfileConfiguration;
 import com.telecominfraproject.wlan.profile.radius.models.RadiusProfile;
@@ -321,20 +325,48 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		profileRf.setDetails(rfConfig);
 		profileRf = profileServiceInterface.create(profileRf);
 
-		//Captive portal profile
-		Profile profileCaptivePortal = new Profile();
-		profileCaptivePortal.setCustomerId(customer.getId());
-		profileCaptivePortal.setName("Captive-portal");
-		CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
-		captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
-		captivePortalConfig.setBrowserTitle("Access the network as Guest");
-		captivePortalConfig.setExpiryType(SessionExpiryType.unlimited);
-		captivePortalConfig.setMaxUsersWithSameCredentials(42);
-		captivePortalConfig.setName(profileCaptivePortal.getName());
-		captivePortalConfig.setSuccessPageMarkdownText("Welcome to the network");
-		captivePortalConfig.setUserAcceptancePolicy("Use this network at your own risk. No warranty of any kind.");
-		profileCaptivePortal.setDetails(captivePortalConfig);
-		profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
+		// Captive portal profile
+        Profile profileCaptivePortal = new Profile();
+        profileCaptivePortal.setCustomerId(customer.getId());
+        profileCaptivePortal.setName("Captive-portal");
+        profileCaptivePortal.setProfileType(ProfileType.captive_portal);
+
+        CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
+        captivePortalConfig.setRedirectURL("https://www.google.com");
+        captivePortalConfig.setSessionTimeoutInMinutes(10);
+        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
+        ManagedFileInfo backgroundFile = new ManagedFileInfo();
+        backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
+        backgroundFile.setFileType(FileType.PNG);
+        backgroundFile.setApExportUrl("tip-logo.png");
+        ManagedFileInfo logoFile = new ManagedFileInfo();
+        logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
+        logoFile.setFileType(FileType.PNG);
+        logoFile.setApExportUrl("tip-logo-mobile.png");
+        captivePortalConfig.setBackgroundFile(backgroundFile);
+        captivePortalConfig.setLogoFile(logoFile);
+       
+        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
+        captivePortalConfig.setBrowserTitle(profileCaptivePortal.getName());
+        profileCaptivePortal.setDetails(captivePortalConfig);
+        profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
+
+        Profile profileSsid_captive = new Profile();
+        profileSsid_captive.setCustomerId(customer.getId());
+        profileSsid_captive.setName("TipWlan-captive");
+        SsidConfiguration ssidConfig_captive = SsidConfiguration.createWithDefaults();
+        Set<RadioType> appliedRadios_3_radios_captive = new HashSet<RadioType>();
+        appliedRadios_3_radios_captive.add(RadioType.is2dot4GHz);
+        ssidConfig_captive.setAppliedRadios(appliedRadios_3_radios_captive);
+        ssidConfig_captive.setSsid("TipWlan-captive");
+        ssidConfig_captive.setSecureMode(SecureMode.wpa2PSK);
+        ssidConfig_captive.setRadiusAcountingServiceInterval(60);
+        ssidConfig_captive.setCaptivePortalId(profileCaptivePortal.getId());
+        ssidConfig_captive.setKeyStr(DEFAULT_KEYSTRING);
+        ssidConfig_captive.setForwardMode(NetworkForwardMode.NAT);
+        profileSsid_captive.setDetails(ssidConfig_captive);
+        profileSsid_captive.getChildProfileIds().add(profileCaptivePortal.getId());
+        profileSsid_captive = profileServiceInterface.create(profileSsid_captive);
 		
 		Profile profileAp_3_radios = new Profile();
 		profileAp_3_radios.setCustomerId(customer.getId());

@@ -2498,8 +2498,9 @@ components:
             $ref: '#/components/schemas/BackgroundPosition'
           backgroundRepeat:
             $ref: '#/components/schemas/BackgroundRepeat'
-          radiusServiceName:
-            type: string
+          radiusServiceId:
+            type: integer
+            format: int64
           expiryType:
             $ref: '#/components/schemas/SessionExpiryType'
           userList:

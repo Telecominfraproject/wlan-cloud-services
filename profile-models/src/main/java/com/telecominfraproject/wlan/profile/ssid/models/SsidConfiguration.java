@@ -320,8 +320,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return radiusServiceId;
     }
 
-    public void setRadiusServiceId(long radiusServiceName) {
-        this.radiusServiceId = radiusServiceName;
+    public void setRadiusServiceId(long radiusServiceId) {
+        this.radiusServiceId = radiusServiceId;
     }
 
     public Integer getRadiusAcountingServiceInterval() {
