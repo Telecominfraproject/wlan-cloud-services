@@ -338,11 +338,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         ManagedFileInfo backgroundFile = new ManagedFileInfo();
         backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
         backgroundFile.setFileType(FileType.PNG);
-        backgroundFile.setApExportUrl("tip-logo.png");
+        backgroundFile.setApExportUrl("/filestore/tip-logo");
         ManagedFileInfo logoFile = new ManagedFileInfo();
         logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
         logoFile.setFileType(FileType.PNG);
-        logoFile.setApExportUrl("tip-logo-mobile.png");
+        logoFile.setApExportUrl("/filestore/tip-logo-mobile");
         captivePortalConfig.setBackgroundFile(backgroundFile);
         captivePortalConfig.setLogoFile(logoFile);
        
