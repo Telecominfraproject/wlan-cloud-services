@@ -25,9 +25,14 @@ public interface LocationServiceInterface {
 
 
     /**
-     * @return the top-level location for a specified  location
+     * @return the top-level location for a specified location
      */
     Location getTopLevelLocation(long locationId);
+    
+    /**
+     * @return all the ancestor location for a specified location
+     */
+    List<Location> getAllAncestors(long locationId);
     
     /**
      * Retrieves a list of Location records that which have their Id in the provided set.

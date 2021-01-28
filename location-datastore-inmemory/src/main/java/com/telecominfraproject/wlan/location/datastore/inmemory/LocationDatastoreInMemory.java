@@ -165,6 +165,14 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
     	return descendents;
     }
     
+    @Override
+    public List<Location> getAllAncestors(long locationParentId) {
+        List<Location> ancestors = new ArrayList<>();
+        getAllAncestors(locationParentId, ancestors);
+        
+        return ancestors;
+    }
+    
     private void getAllDescendants(long locationParentId, List<Location> collectedChildren) {
 
     	idToLocationMap.values().forEach(loc -> {
@@ -174,6 +182,15 @@ public class LocationDatastoreInMemory extends BaseInMemoryDatastore implements 
 			}
 		});
 
+    }
+    
+    private void getAllAncestors(long locationId, List<Location> collectedParent) {
+        Location location = idToLocationMap.get(locationId);
+
+        if (location != null && location.getParentId() != 0) {
+            collectedParent.add(idToLocationMap.get(location.getParentId()).clone());
+            getAllAncestors(location.getParentId(), collectedParent);
+        }
     }
     
     @Override

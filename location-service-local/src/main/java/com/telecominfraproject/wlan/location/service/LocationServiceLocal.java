@@ -54,6 +54,11 @@ public class LocationServiceLocal implements LocationServiceInterface {
 	public Location getTopLevelLocation(long locationId) {
 		return locationServiceController.getTopLevelLocation(locationId);
 	}
+	
+	@Override
+    public List<Location> getAllAncestors(long locationParentId) {
+        return locationServiceController.getAllAncestors(locationParentId);
+    }
 
     @Override
     public List<Location> get(Set<Long> locationIdSet) {

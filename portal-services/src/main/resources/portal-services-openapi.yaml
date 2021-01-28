@@ -1140,10 +1140,6 @@ components:
           description: Backup channel (this is never set by the customer - it's deduced from the primary channel (either manual or auto)
           type: integer
           format: int32
-        bannedChannels:
-          type: array
-          items:
-            $ref: '#/components/schemas/BannedChannel'
         allowedChannels:
           description: "allowedChannels (Not set by the customer: provided by AP on connection based on regulatory limits by country)"
           type: array
@@ -1358,7 +1354,7 @@ components:
         - passpoint_osu_id_provider
 
     Profile:
-      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 1 Metrics Profile and 1 RADIUS Service Profile via its childProfileIds property, and . Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs) and 0-N Id Provider Profiles, (Open authentication SSIDs), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds property. Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
+      description: Each AccessPoint refers to at most one profile of type equipment_ap. Each ApNetworkConfiguration (equipment_ap) profile refers to 0-N SSID profiles, 0-1 Metrics Profile. Each SSID profile refers to 0-N Passpoint Profiles (for authenticated SSIDs), 0-1 Radius Profiles for RadiusService, and RadiusAccountingService (both as child profile Id, and attributes in profile details), and at most 1 Captive Portal Profile and 1 Bonjour Gateway Profile via its childProfileIds property. Each Captive Portal Profile refers to at most 1 RADIUS Service Profile via its childProfileIds and radiusServiceId property. Each Passpoint Profile refers to 0-N Id Provider Profiles, 1 Operator Profile, and 1 Venue Profile, via its childProfileIds property.
       type: object
       properties:
         id:
@@ -1487,10 +1483,11 @@ components:
           sessionTimeoutInMinutes:
             type: integer
             format: int32
-          logoFile:
-            $ref: '#/components/schemas/ManagedFileInfo'
-          backgroundFile:
-            $ref: '#/components/schemas/ManagedFileInfo'
+          allOf:
+            logoFile:
+              $ref: '#/components/schemas/ManagedFileInfo'
+            backgroundFile:
+              $ref: '#/components/schemas/ManagedFileInfo'
           walledGardenAllowlist:
             type: array
             items:
@@ -1510,8 +1507,9 @@ components:
             $ref: '#/components/schemas/BackgroundPosition'
           backgroundRepeat:
             $ref: '#/components/schemas/BackgroundRepeat'
-          radiusServiceName:
-            type: string
+          radiusServiceId:
+            type: integer
+            format: int64
           expiryType:
             $ref: '#/components/schemas/SessionExpiryType'
           userList:

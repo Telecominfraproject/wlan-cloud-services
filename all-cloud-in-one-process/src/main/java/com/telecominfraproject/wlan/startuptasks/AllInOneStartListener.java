@@ -71,8 +71,11 @@ import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
+import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundPosition;
+import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundRepeat;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
+import com.telecominfraproject.wlan.profile.captiveportal.models.RadiusAuthenticationMethod;
 import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
@@ -263,7 +266,6 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         location_2 = locationServiceInterface.create(location_2);
 
-   
         Profile profileRadius = new Profile();
         profileRadius.setCustomerId(customer.getId());
         profileRadius.setProfileType(ProfileType.radius);
@@ -280,13 +282,12 @@ public class AllInOneStartListener implements ApplicationRunner {
         }
         primaryRadiusAccountingServer.setSecret(RadiusProfile.DEFAULT_RADIUS_SECRET);
         primaryRadiusAccountingServer.setTimeout(RadiusProfile.DEFAULT_RADIUS_TIMEOUT);
-        
+
         radiusDetails.setPrimaryRadiusAccountingServer(primaryRadiusAccountingServer);
 
         profileRadius.setDetails(radiusDetails);
         profileRadius = profileServiceInterface.create(profileRadius);
 
-        
         Profile profileSsid_3_radios = new Profile();
         profileSsid_3_radios.setCustomerId(customer.getId());
         profileSsid_3_radios.setName("TipWlan-cloud-3-radios");
@@ -331,27 +332,41 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileCaptivePortal.setProfileType(ProfileType.captive_portal);
 
         CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
+        captivePortalConfig.setRedirectURL("https://www.google.com");
+        captivePortalConfig.setSessionTimeoutInMinutes(10);
         captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
-        captivePortalConfig.setBrowserTitle("Access the network as Guest");
-        captivePortalConfig.setExpiryType(SessionExpiryType.unlimited);
-        captivePortalConfig.setMaxUsersWithSameCredentials(42);
-        captivePortalConfig.setName(profileCaptivePortal.getName());
-        captivePortalConfig.setSuccessPageMarkdownText("Welcome to the network");
-        captivePortalConfig.setUserAcceptancePolicy("Use this network at your own risk. No warranty of any kind.");
-
-        List<TimedAccessUserRecord> userList = new ArrayList<>();
-        constructCaptivePortalUserList(userList);
-        captivePortalConfig.setUserList(userList);
-
-        ManagedFileInfo info = new ManagedFileInfo();
-        info.setAltSlot(true);
-        info.setApExportUrl("userList");
-        info.setFileCategory(FileCategory.UsernamePasswordList);
-        info.setFileType(FileType.TEXT);
-        captivePortalConfig.setUsernamePasswordFile(info);
+        ManagedFileInfo backgroundFile = new ManagedFileInfo();
+        backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
+        backgroundFile.setFileType(FileType.PNG);
+        backgroundFile.setApExportUrl("tip-logo.png");
+        ManagedFileInfo logoFile = new ManagedFileInfo();
+        logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
+        logoFile.setFileType(FileType.PNG);
+        logoFile.setApExportUrl("tip-logo-mobile.png");
+        captivePortalConfig.setBackgroundFile(backgroundFile);
+        captivePortalConfig.setLogoFile(logoFile);
+       
+        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
+        captivePortalConfig.setBrowserTitle(profileCaptivePortal.getName());
         profileCaptivePortal.setDetails(captivePortalConfig);
-
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
+
+        Profile profileSsid_captive = new Profile();
+        profileSsid_captive.setCustomerId(customer.getId());
+        profileSsid_captive.setName("TipWlan-captive");
+        SsidConfiguration ssidConfig_captive = SsidConfiguration.createWithDefaults();
+        Set<RadioType> appliedRadios_3_radios_captive = new HashSet<RadioType>();
+        appliedRadios_3_radios_captive.add(RadioType.is2dot4GHz);
+        ssidConfig_captive.setAppliedRadios(appliedRadios_3_radios_captive);
+        ssidConfig_captive.setSsid("TipWlan-captive");
+        ssidConfig_captive.setSecureMode(SecureMode.wpa2PSK);
+        ssidConfig_captive.setRadiusAcountingServiceInterval(60);
+        ssidConfig_captive.setCaptivePortalId(profileCaptivePortal.getId());
+        ssidConfig_captive.setKeyStr(DEFAULT_KEYSTRING);
+        ssidConfig_captive.setForwardMode(NetworkForwardMode.NAT);
+        profileSsid_captive.setDetails(ssidConfig_captive);
+        profileSsid_captive.getChildProfileIds().add(profileCaptivePortal.getId());
+        profileSsid_captive = profileServiceInterface.create(profileSsid_captive);
 
         Profile apEventRates = new Profile();
         apEventRates.setCustomerId(customer.getId());
@@ -384,7 +399,6 @@ public class AllInOneStartListener implements ApplicationRunner {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         profileAp_3_radios.getChildProfileIds().add(profileSsid_3_radios.getId());
         profileAp_3_radios.getChildProfileIds().add(profileRf.getId());
         profileAp_3_radios.getChildProfileIds().add(apEventRates.getId());
@@ -487,7 +501,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
             createAlarmsForEquipment(equipment);
 
-            createClientSessions(equipment, ssidConfig_3_radios);
+            createClientSessions(equipment, ssidConfig_captive);
 
             createServiceMetrics(equipment);
 
@@ -860,7 +874,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         TimedAccessUserRecord userRecord2 = new TimedAccessUserRecord();
         userRecord2.setActivationTime(System.currentTimeMillis());
         userRecord2.setExpirationTime(System.currentTimeMillis() + 1000 * 60 * 60); // 1
-                                                                                    // hr
+        // hr
         userRecord2.setPassword("testing123");
         userRecord2.setUsername("customer");
         TimedAccessUserDetails userDetails2 = new TimedAccessUserDetails();
