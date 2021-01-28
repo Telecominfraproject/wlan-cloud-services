@@ -1,8 +1,6 @@
 package com.telecominfraproject.wlan.equipment.models;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,8 +28,6 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	private Integer manualChannelNumber; // The channel that was manually entered
 	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the primary channel (either manual or auto)
 	
-	private List<Integer> allowedChannels = new LinkedList<>();
-
 	private SourceSelectionValue rxCellSizeDb;
 	private SourceSelectionValue probeResponseThresholdDb;
 	private SourceSelectionValue clientDisconnectThresholdDb;
@@ -95,31 +91,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return (ElementRadioConfiguration) super.clone();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof ElementRadioConfiguration)) {
-			return false;
-		}
-		ElementRadioConfiguration other = (ElementRadioConfiguration) obj;
-		return Objects.equals(allowedChannelsPowerLevels, other.allowedChannelsPowerLevels)
-				&& Objects.equals(backupChannelNumber, other.backupChannelNumber)
-				&& Objects.equals(allowedChannels, other.allowedChannels)
-				&& this.bestAPSteerType == other.bestAPSteerType
-				&& Objects.equals(channelNumber, other.channelNumber)
-				&& Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
-				&& Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
-				&& Objects.equals(eirpTxPower, other.eirpTxPower)
-				&& Objects.equals(getManualChannelNumber(), other.getManualChannelNumber())
-				&& Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
-				&& Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
-				&& this.radioType == other.radioType && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
-	}
+	
 
 	public Integer getActiveChannel(boolean autoChannelSelection) {
 		return (autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
@@ -129,9 +101,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		return backupChannelNumber;
 	}
 
-	public List<Integer> getAllowedChannels() {
-		return allowedChannels;
-	}
+	
 	
 	public Integer getChannelNumber() {
 		return channelNumber;
@@ -164,24 +134,11 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	public SourceSelectionValue getRxCellSizeDb() {
 		return rxCellSizeDb;
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(allowedChannelsPowerLevels, 
-				backupChannelNumber, allowedChannels,
-				bestAPSteerType, channelNumber, clientDisconnectThresholdDb,
-				deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
-				perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
-	}
-
+	
 	public void setBackupChannelNumber(Integer channelNumber) {
 		this.backupChannelNumber = channelNumber;
 	}
-
-	public void setAllowedChannels(List<Integer> allowedChannels) {
-		this.allowedChannels = allowedChannels;
-	}
-	
+		
 	public void setChannelNumber(Integer channelNumber) {
 		this.channelNumber = channelNumber;
 	}
@@ -253,4 +210,41 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 		}
 		return false;
 	}
+
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(allowedChannelsPowerLevels, 
+                backupChannelNumber, 
+                bestAPSteerType, channelNumber, clientDisconnectThresholdDb,
+                deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
+                perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ElementRadioConfiguration)) {
+            return false;
+        }
+        ElementRadioConfiguration other = (ElementRadioConfiguration) obj;
+        return Objects.equals(allowedChannelsPowerLevels, other.allowedChannelsPowerLevels)
+                && Objects.equals(backupChannelNumber, other.backupChannelNumber)
+                && this.bestAPSteerType == other.bestAPSteerType
+                && Objects.equals(channelNumber, other.channelNumber)
+                && Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
+                && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
+                && Objects.equals(eirpTxPower, other.eirpTxPower)
+                && Objects.equals(getManualChannelNumber(), other.getManualChannelNumber())
+                && Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
+                && Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
+                && this.radioType == other.radioType && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
+    }
+	
+	
 }
