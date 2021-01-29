@@ -2,9 +2,10 @@ package com.telecominfraproject.wlan.systemevent.equipment.realtime;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasLocationId;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
-public abstract class RealTimeEvent extends SystemEvent {
+public abstract class RealTimeEvent extends SystemEvent implements HasLocationId {
 
     private static final long serialVersionUID = -406572942058780057L;
 
@@ -15,15 +16,19 @@ public abstract class RealTimeEvent extends SystemEvent {
 
     private long equipmentId;
 
+    private long locationId;
+
     private int customerId;
+    
 
     public RealTimeEvent() {
 
     }
 
-    public RealTimeEvent(RealTimeEventType eventType, int customerId, long equipmentId, Long timestamp) {
+    public RealTimeEvent(RealTimeEventType eventType, int customerId, long locationId, long equipmentId, Long timestamp) {
         super(timestamp);
         this.customerId = customerId;
+        this.locationId = locationId;
         this.equipmentId = equipmentId;
         this.eventType = eventType;
     }
@@ -55,6 +60,16 @@ public abstract class RealTimeEvent extends SystemEvent {
         this.equipmentId = equipmentId;
     }
 
+    
+    @Override
+    public long getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(long locationId) {
+        this.locationId = locationId;
+    }
+
     @Override
     public RealTimeEvent clone() {
         return (RealTimeEvent) super.clone();
@@ -75,7 +90,7 @@ public abstract class RealTimeEvent extends SystemEvent {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(customerId, equipmentId, eventType);
+        result = prime * result + Objects.hash(customerId, locationId, equipmentId, eventType);
         return result;
     }
 
@@ -88,7 +103,7 @@ public abstract class RealTimeEvent extends SystemEvent {
         if (getClass() != obj.getClass())
             return false;
         RealTimeEvent other = (RealTimeEvent) obj;
-        return customerId == other.customerId && equipmentId == other.equipmentId
+        return customerId == other.customerId && locationId == other.locationId && equipmentId == other.equipmentId
                 && Objects.equals(eventType, other.eventType);
     }
 

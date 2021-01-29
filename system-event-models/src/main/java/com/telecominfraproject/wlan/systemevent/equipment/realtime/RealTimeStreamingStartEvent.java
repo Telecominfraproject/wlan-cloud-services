@@ -28,8 +28,8 @@ public class RealTimeStreamingStartEvent extends RealTimeEvent
         super(RealTimeEventType.VideoStreamStart, eventTimestamp);
     }
 
-    public RealTimeStreamingStartEvent(int customerId, long equipmentId, long eventTimestamp) {
-        super(RealTimeEventType.VideoStreamStart, customerId, equipmentId, eventTimestamp);
+    public RealTimeStreamingStartEvent(int customerId, long locationId, long equipmentId, long eventTimestamp) {
+        super(RealTimeEventType.VideoStreamStart, customerId, locationId, equipmentId, eventTimestamp);
     }
 
     public String getServerDnsName() {

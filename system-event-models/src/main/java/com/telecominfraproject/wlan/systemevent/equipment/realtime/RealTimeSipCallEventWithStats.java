@@ -36,9 +36,9 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     private List<String> codecs;
     private String providerDomain;
 
-    public RealTimeSipCallEventWithStats(RealTimeEventType eventType, int customerId, long equipmentId,
+    public RealTimeSipCallEventWithStats(RealTimeEventType eventType, int customerId, long locationId, long equipmentId,
             Long timestamp) {
-        super(eventType, customerId, equipmentId, timestamp);
+        super(eventType, customerId, locationId, equipmentId, timestamp);
     }
 
     public Long getSipCallId() {

@@ -16,11 +16,11 @@ public class RealTimeSipCallStopEvent extends RealTimeSipCallEventWithStats {
     }
 
     public RealTimeSipCallStopEvent(long timestamp) {
-        this(0, 0, timestamp);
+        this(0, 0, 0, timestamp);
     }
 
-    public RealTimeSipCallStopEvent(int customerId, long equipmentId, Long timestamp) {
-        super(RealTimeEventType.SipCallStop, customerId, equipmentId, timestamp);
+    public RealTimeSipCallStopEvent(int customerId, long locationId, long equipmentId, Long timestamp) {
+        super(RealTimeEventType.SipCallStop, customerId, locationId, equipmentId, timestamp);
     }
 
     public Integer getCallDuration() {

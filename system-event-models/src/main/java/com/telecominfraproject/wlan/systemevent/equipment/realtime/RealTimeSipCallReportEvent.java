@@ -12,11 +12,11 @@ public class RealTimeSipCallReportEvent extends RealTimeSipCallEventWithStats {
     private SIPCallReportReason reportReason;
 
     public RealTimeSipCallReportEvent(Long timestamp) {
-        this(0, 0L, timestamp);
+        this(0, 0L, 0L, timestamp);
     }
 
-    public RealTimeSipCallReportEvent(int customerId, long equipmentId, Long timestamp) {
-        super(RealTimeEventType.SipCallReport, customerId, equipmentId, timestamp);
+    public RealTimeSipCallReportEvent(int customerId, long locationId, long equipmentId, Long timestamp) {
+        super(RealTimeEventType.SipCallReport, customerId, locationId, equipmentId, timestamp);
     }
 
     @Override

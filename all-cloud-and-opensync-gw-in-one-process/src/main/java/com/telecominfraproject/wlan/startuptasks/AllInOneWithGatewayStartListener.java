@@ -668,7 +668,9 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 		apNodeMetrics.setApPerformance(apPerformance);
 
 		smr.setCreatedTimestamp(System.currentTimeMillis());
-		apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
+        smr.setLocationId(equipment.getLocationId());
+
+        apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
 		apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
 		apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
 

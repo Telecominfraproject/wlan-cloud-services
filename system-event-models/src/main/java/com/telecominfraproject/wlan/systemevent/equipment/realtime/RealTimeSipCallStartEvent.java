@@ -26,12 +26,12 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     private int channel;
     private RadioType radioType;
 
-    public RealTimeSipCallStartEvent(int customerId, long equipmentId, Long timestamp) {
-        super(RealTimeEventType.SipCallStart, customerId, equipmentId, timestamp);
+    public RealTimeSipCallStartEvent(int customerId, long locationId, long equipmentId, Long timestamp) {
+        super(RealTimeEventType.SipCallStart, customerId, locationId, equipmentId, timestamp);
     }
 
     public RealTimeSipCallStartEvent(long timestamp) {
-        super(RealTimeEventType.SipCallStart, 0, 0, timestamp);
+        super(RealTimeEventType.SipCallStart, 0, 0, 0, timestamp);
     }
 
     @Override

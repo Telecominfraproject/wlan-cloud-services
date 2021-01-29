@@ -32,6 +32,7 @@ import com.telecominfraproject.wlan.status.models.StatusDetails;
 import com.telecominfraproject.wlan.systemevent.equipment.debug.EquipmentDebugSessionStartedEvent;
 import com.telecominfraproject.wlan.systemevent.equipment.debug.EquipmentDebugSessionStoppedEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
  * Port Forwarder Controller
@@ -92,7 +93,10 @@ public class PortForwarderController {
         //create system event to record that debug session has been started on the equipment
         SystemEvent systemEvent = new EquipmentDebugSessionStartedEvent(equipment.getCustomerId(), equipment.getId(),
                 status.getLastModifiedTimestamp(), getCurrentlyAuthenticatedUser(), portForwarderGatewayPort, port);
-        cloudEventDispatcherInterface.publishEvent(systemEvent);
+        
+        SystemEventRecord eventRecord =  new SystemEventRecord(systemEvent);
+        eventRecord.setLocationId(equipment.getLocationId());
+        cloudEventDispatcherInterface.publishEvent(eventRecord);
         
         LOG.info("createSession({}, {}) returns {}", inventoryId, port, result);
         
@@ -138,7 +142,11 @@ public class PortForwarderController {
         //create system event to record that debug session has been stopped on the equipment
         SystemEvent systemEvent = new EquipmentDebugSessionStoppedEvent(equipment.getCustomerId(), equipment.getId(),
                 status.getLastModifiedTimestamp(), getCurrentlyAuthenticatedUser(), portForwarderGatewayPort, port);
-        cloudEventDispatcherInterface.publishEvent(systemEvent);
+        
+        SystemEventRecord eventRecord =  new SystemEventRecord(systemEvent);
+        eventRecord.setLocationId(equipment.getLocationId());
+        cloudEventDispatcherInterface.publishEvent(eventRecord);
+
 
     }
 
