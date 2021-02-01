@@ -27,15 +27,15 @@ public class RealTimeChannelHopEvent extends RealTimeEvent implements HasCustome
         return new RealTimeChannelHopEvent();
     }
     
-    public RealTimeChannelHopEvent(RealTimeEventType eventType, int customerId, long equipmentId, RadioType radioType,
+    public RealTimeChannelHopEvent(RealTimeEventType eventType, int customerId, long locationId, long equipmentId, RadioType radioType,
             Long timestamp) {
-        super(RealTimeEventType.Channel_Hop, customerId, equipmentId, timestamp);
+        super(RealTimeEventType.Channel_Hop, customerId, locationId, equipmentId, timestamp);
         this.radioType = radioType;
     }
 
-    public RealTimeChannelHopEvent(RealTimeEventType eventType, int customerId, long equipmentId, RadioType radioType,
+    public RealTimeChannelHopEvent(RealTimeEventType eventType, int customerId, long locationId, long equipmentId, RadioType radioType,
             int newChannel, int oldChannel, ChannelHopReason reasonCode, Long timestamp) {
-        this(eventType, customerId, equipmentId, radioType, timestamp);
+        this(eventType, customerId, locationId, equipmentId, radioType, timestamp);
         this.newChannel = newChannel;
         this.oldChannel = oldChannel;
         this.reasonCode = reasonCode;

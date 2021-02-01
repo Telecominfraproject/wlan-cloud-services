@@ -27,8 +27,8 @@ public class RealTimeStreamingStartSessionEvent extends RealTimeEvent
         super(RealTimeEventType.VideoStreamDebugStart, eventTimestamp);
     }
 
-    public RealTimeStreamingStartSessionEvent(int customerId, long equipmentId, long eventTimestamp) {
-        super(RealTimeEventType.VideoStreamDebugStart, customerId, equipmentId, eventTimestamp);
+    public RealTimeStreamingStartSessionEvent(int customerId, long locationId, long equipmentId, long eventTimestamp) {
+        super(RealTimeEventType.VideoStreamDebugStart, customerId, locationId, equipmentId, eventTimestamp);
     }
 
     public Long getVideoSessionId() {

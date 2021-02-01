@@ -29,8 +29,8 @@ public class RealTimeStreamingStopEvent extends RealTimeEvent
         super(RealTimeEventType.VideoStreamStop, eventTimestamp);
     }
 
-    public RealTimeStreamingStopEvent(int customerId, long equipmentId, long eventTimestamp) {
-        super(RealTimeEventType.VideoStreamStop, customerId, equipmentId, eventTimestamp);
+    public RealTimeStreamingStopEvent(int customerId, long locationId, long equipmentId, long eventTimestamp) {
+        super(RealTimeEventType.VideoStreamStop, customerId, locationId, equipmentId, eventTimestamp);
     }
 
     public Long getVideoSessionId() {

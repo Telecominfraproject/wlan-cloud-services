@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.google.common.collect.Lists;
 import com.telecominfraproject.wlan.core.model.equipment.DeploymentType;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -35,6 +34,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -597,11 +597,17 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         equipment.setEquipmentType(EquipmentType.AP);
         equipment.setDetails(ApElementConfiguration.createWithDefaults());
 
-        ElementRadioConfiguration element2dot4RadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
-        element2dot4RadioConfig.setAllowedChannels(Lists.newArrayList(1, 6, 11));
-
-//        System.out.println("================================");
-//        System.out.println(equipment);
+        ElementRadioConfiguration element2dot4RadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);       
+        element2dot4RadioConfig.setAllowedChannelsPowerLevels(new HashSet<>());
+        
+        for (int i = 1; i <= 11; i++) {
+            ChannelPowerLevel cpl = new ChannelPowerLevel();
+            cpl.setChannelNumber(i);
+            cpl.setChannelWidth(20);
+            cpl.setDfs(false);
+            cpl.setPowerLevel(30);
+            element2dot4RadioConfig.getAllowedChannelsPowerLevels().add(cpl);
+        }
 
         Equipment ret = remoteInterface.create(equipment);
         assertNotNull(ret);
@@ -623,7 +629,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 1);
 
         //Update failure
-        ret2Element2dot4RadioConfig.setChannelNumber(7);
+        ret2Element2dot4RadioConfig.setChannelNumber(12);
         remoteInterface.update(retUpdate);
     }
 

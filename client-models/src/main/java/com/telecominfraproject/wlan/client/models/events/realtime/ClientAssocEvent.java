@@ -29,10 +29,10 @@ public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
         
     }
 
-    public ClientAssocEvent(int customerId, long equipmentId, long timestamp, long sessionId, String ssid,
+    public ClientAssocEvent(int customerId, long locationId, long equipmentId, long timestamp, long sessionId, String ssid,
             MacAddress clientMacAddress, RadioType radioType, boolean isReassociation, WlanStatusCode status,
             Integer internalSC, Integer rssi) {
-        super(RealTimeEventType.STA_Client_Assoc, customerId, equipmentId, timestamp);
+        super(RealTimeEventType.STA_Client_Assoc, customerId, locationId, equipmentId, timestamp);
         this.sessionId = sessionId;
         this.ssid = ssid;
         setClientMacAddress(clientMacAddress);

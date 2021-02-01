@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,9 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
-import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
-
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -40,6 +40,7 @@ import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrm
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
+import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
 /**
@@ -270,8 +271,8 @@ public class EquipmentController {
 
 					ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
 					int channel = elementRadioConfig.getChannelNumber();
-					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannels();
-					// todo remove empty check when AP returns allowedChannels
+					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
+					
 					if (allowedChannels != null && !allowedChannels.isEmpty() && !allowedChannels.contains(channel)) {
 						LOG.error(
 								"Failed to update Equipment. The channelNumber {} is not allowed, the allowed channels is {}",

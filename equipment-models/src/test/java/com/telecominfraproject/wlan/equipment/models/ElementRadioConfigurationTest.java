@@ -23,7 +23,7 @@ public class ElementRadioConfigurationTest
       for(RadioType type : RadioType.validValues())
       {
          ElementRadioConfiguration config = ElementRadioConfiguration.createWithDefaults(type);
-         assertNotNull(config.getAllowedChannels());
+         assertNotNull(config.getAllowedChannelsPowerLevels());
       }
    }
    

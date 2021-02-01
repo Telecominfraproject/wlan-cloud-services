@@ -338,11 +338,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         ManagedFileInfo backgroundFile = new ManagedFileInfo();
         backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
         backgroundFile.setFileType(FileType.PNG);
-        backgroundFile.setApExportUrl("tip-logo.png");
+        backgroundFile.setApExportUrl("/filestore/tip-logo");
         ManagedFileInfo logoFile = new ManagedFileInfo();
         logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
         logoFile.setFileType(FileType.PNG);
-        logoFile.setApExportUrl("tip-logo-mobile.png");
+        logoFile.setApExportUrl("/filestore/tip-logo-mobile");
         captivePortalConfig.setBackgroundFile(backgroundFile);
         captivePortalConfig.setLogoFile(logoFile);
        
@@ -1142,6 +1142,8 @@ public class AllInOneStartListener implements ApplicationRunner {
             apNodeMetrics.setApPerformance(apPerformance);
 
             smr.setCreatedTimestamp(System.currentTimeMillis() - mCnt * 60000);
+            smr.setLocationId(equipment.getLocationId());
+
             apNodeMetrics.setChannelUtilization(RadioType.is2dot4GHz, getRandomInt(30, 70));
             apNodeMetrics.setChannelUtilization(RadioType.is5GHzL, getRandomInt(30, 70));
             apNodeMetrics.setChannelUtilization(RadioType.is5GHzU, getRandomInt(30, 70));
@@ -1233,6 +1235,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
+                smrClient.setLocationId(equipment.getLocationId());
 
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is2dot4GHz);
@@ -1259,6 +1262,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
+                smrClient.setLocationId(equipment.getLocationId());                
 
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzL);
@@ -1285,7 +1289,8 @@ public class AllInOneStartListener implements ApplicationRunner {
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
-
+                smrClient.setLocationId(equipment.getLocationId());
+                
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzU);
 

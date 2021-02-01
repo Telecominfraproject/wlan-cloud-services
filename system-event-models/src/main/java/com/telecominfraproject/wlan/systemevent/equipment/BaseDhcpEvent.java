@@ -8,9 +8,10 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasLocationId;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
-public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac {
+public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac, HasLocationId {
 
     private static final long serialVersionUID = 606411494287591881L;
     private int xId;
@@ -22,10 +23,12 @@ public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac 
     private long sessionId; // association sessionid
     private int customerId;
     private long equipmentId;
+    private long locationId;
 
-    public BaseDhcpEvent(int customerId, long equipmentId, long eventTimestamp, long sessionId) {
+    public BaseDhcpEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, long sessionId) {
         super(eventTimestamp);
         this.customerId = customerId;
+        this.locationId = locationId;
         this.equipmentId = equipmentId;
         this.sessionId = sessionId;
     }
@@ -59,6 +62,15 @@ public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac 
     @Override
     public long getEquipmentId() {
         return equipmentId;
+    }
+
+    @Override
+    public long getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(long locationId) {
+        this.locationId = locationId;
     }
 
     public int getxId() {
@@ -133,22 +145,26 @@ public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac 
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(clientIp, customerId, clientMacAddress, dhcpServerIp, equipmentId,
+        result = prime * result + Objects.hash(clientIp, customerId, clientMacAddress, dhcpServerIp, equipmentId, locationId,
                 relayIp, sessionId, vlanId, xId);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
+        
         BaseDhcpEvent other = (BaseDhcpEvent) obj;
         return Objects.equals(clientIp, other.clientIp) && customerId == other.customerId
-                && Objects.equals(clientMacAddress, other.clientMacAddress)
+                && Objects.equals(clientMacAddress, other.clientMacAddress) && locationId == other.locationId
                 && Objects.equals(dhcpServerIp, other.dhcpServerIp) && equipmentId == other.equipmentId
                 && Objects.equals(relayIp, other.relayIp) && sessionId == other.sessionId && vlanId == other.vlanId
                 && xId == other.xId;

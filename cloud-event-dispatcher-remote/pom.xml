@@ -47,6 +47,21 @@
       </dependency>
 
       <dependency>
+        <artifactId>equipment-service-local</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>equipment-datastore-inmemory</artifactId>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <version>${tip-wlan-cloud.release.version}</version>
+          <scope>test</scope>
+      </dependency>
+
+
+      <dependency>
         <artifactId>base-stream-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
