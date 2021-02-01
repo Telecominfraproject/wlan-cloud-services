@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.server.cassandra.CassandraUtils;
 import com.telecominfraproject.wlan.core.server.cassandra.RowMapper;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 
@@ -134,14 +135,12 @@ public class ClientSessionDAO {
 
     private static final String CQL_INSERT_INTO_BY_LOCATION_TABLE = "insert into client_session_by_location(customerId, locationId, equipmentId, macAddress) values ( ?, ?, ?, ?) ";
     private static final String CQL_DELETE_FROM_BY_LOCATION_TABLE = "delete from client_session_by_location where locationId = ? and equipmentId = ? and macAddress = ? ";
+        
+    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC = "insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
+    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC = "delete from client_session_by_mac where locationId = ? and equipmentId = ? and macAddress = ?";
     
-    private static final String CQL_APPEND_SEARCH_MAC_STRING = " and macAddressString like ? ";
-    
-    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC_STRING = 
-    		"insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
-
-    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC_STRING = 
-    		"delete from client_session_by_mac_string where customerId = ? and equipmentId = ? and macAddressString = ?";
+    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC_AND_EQUIPMENT = "insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
+    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC_AND_EQUIPMENT = "delete from client_session_by_mac_and_equipment where locationId = ? and equipmentId = ? and macAddress = ?";
 
     
     private static final RowMapper<ClientSession> clientSessionRowMapper = new ClientSessionRowMapper();
@@ -159,8 +158,10 @@ public class ClientSessionDAO {
 	private PreparedStatement preparedStmt_deleteByEquipment;
 	private PreparedStatement preparedStmt_createByLocation;
 	private PreparedStatement preparedStmt_deleteByLocation;
-    private PreparedStatement preparedStmt_createMacString;
-    private PreparedStatement preparedStmt_deleteMacString;
+    private PreparedStatement preparedStmt_createByMac;
+    private PreparedStatement preparedStmt_deleteByMac;
+    private PreparedStatement preparedStmt_createByMacAndEquipment;
+    private PreparedStatement preparedStmt_deleteByMacAndEquipment;
 
 
 	@PostConstruct
@@ -177,8 +178,10 @@ public class ClientSessionDAO {
         	preparedStmt_deleteByEquipment = cqlSession.prepare(CQL_DELETE_FROM_BY_EQUIPMENT_TABLE);
         	preparedStmt_createByLocation = cqlSession.prepare(CQL_INSERT_INTO_BY_LOCATION_TABLE);
         	preparedStmt_deleteByLocation = cqlSession.prepare(CQL_DELETE_FROM_BY_LOCATION_TABLE);
-            preparedStmt_createMacString = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC_STRING);
-            preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC_STRING);
+        	preparedStmt_createByMac = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC);
+        	preparedStmt_deleteByMac = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC);
+        	preparedStmt_createByMacAndEquipment = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC_AND_EQUIPMENT);
+        	preparedStmt_deleteByMacAndEquipment = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC_AND_EQUIPMENT);
         	
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
@@ -217,8 +220,15 @@ public class ClientSessionDAO {
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
 		
-		// update client_by_mac_string table
-		cqlSession.execute(preparedStmt_createMacString.bind(
+		cqlSession.execute(preparedStmt_createByMac.bind(
+				clientSession.getCustomerId(),
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong(),
+				clientSession.getMacAddress().getAddressAsString()
+				));
+		
+		cqlSession.execute(preparedStmt_createByMacAndEquipment.bind(
 				clientSession.getCustomerId(),
 				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
@@ -320,11 +330,15 @@ public class ClientSessionDAO {
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
 		
-		// update client_by_mac_string table
-		cqlSession.execute(preparedStmt_deleteMacString.bind(
-				clientSession.getCustomerId(),
+		cqlSession.execute(preparedStmt_deleteByMac.bind(
+				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
-				clientSession.getMacAddress().getAddressAsString()));
+				clientSession.getMacAddress().getAddressAsLong()));
+		
+		cqlSession.execute(preparedStmt_deleteByMacAndEquipment.bind(
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong()));
 
 
         return clientSession;
@@ -395,17 +409,7 @@ public class ClientSessionDAO {
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query += strb.toString();
+            query += "and equipmentId in " + CassandraUtils.getBindPlaceholders(equipmentIds);
             query_head = "select macAddress from client_session_by_equipment where customerId = ? ";
             
             filterOptions = FilterOptions.customer_and_equipment;
@@ -420,37 +424,28 @@ public class ClientSessionDAO {
                 queryArgs.addAll(equipmentIds);
             }
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append(" and locationId in (");
-            for (int i = 0; i < locationIds.size(); i++) {
-                strb.append("?");
-                if (i < locationIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query = strb.toString() + query;
-            query_head = "select macAddress from client_session_by_location where customerId = ? ";
+            query = " locationId in " + CassandraUtils.getBindPlaceholders(locationIds) + query;
+            query_head = "select macAddress from client_session_by_location where ";
             
             filterOptions = FilterOptions.customer_and_location;
         }
         
-        // Add macSubstring filter
+        //add macSubstring filters
         if (macSubstring != null) {
-        	// Rebuilding query args
         	queryArgs.clear();
         	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        	query_head = "select macAddress from client_session_by_mac where ";
         	
         	if (locationIds != null && !locationIds.isEmpty()) {
         		queryArgs.addAll(locationIds);
+        		query = "and " + query;
         	}
         	if (equipmentIds != null && !equipmentIds.isEmpty()) {
         		queryArgs.addAll(equipmentIds);
+            	query_head = "select macAddress from client_session_by_mac_and_equipment where ";
         	}
         	
-        	query = CQL_APPEND_SEARCH_MAC_STRING + query;
-        	query_head = "select macAddress from client_session_by_mac_string where customerId = ? ";
+        	query = "macAddressString like ? " + query + " allow filtering";
         	
         	filterOptions = FilterOptions.customer_and_macAddress;
         }

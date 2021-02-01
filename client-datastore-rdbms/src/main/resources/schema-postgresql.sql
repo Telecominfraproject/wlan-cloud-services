@@ -14,7 +14,7 @@ create table if not exists client (
 
 create index if not exists idx_client_customerId on client (customerId);
 create index if not exists idx_client_customerId_macAddressString on client (customerId, macAddressString);
-
+alter table client add column if not exists macAddressString varchar(100);
 
 create table if not exists client_blocklist (
     -- postgresql     

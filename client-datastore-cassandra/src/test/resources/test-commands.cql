@@ -130,29 +130,37 @@ select customerId, locationId, equipmentId, macAddress from client_session_by_lo
 -- delete from it when client record is deleted
 -- no update
 
-insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 1, 1, 'a1:ff:ff:ff:af:fa');
-insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 2, 2, 'b1:ff:ff:ff:bf:fb');
-insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 1, 3, 'c1:ff:ff:ff:cf:fc');
-insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 2, 3, 'c1:ff:ff:ff:cf:fc');
-insert into client_session_by_mac_string (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 3, 2, 3, 'c1:ff:ff:ff:cf:fc');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 1, 1, 'A1:1');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 2, 2, 'A1:2');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 1, 3, 'A1:3');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 2, 3, 'B1:3');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 3, 2, 3, 'B1:3');
 
-select * from client_by_mac_string where customerId = 1 and macAddressString like '%cf%';
-select * from client_by_mac_string where customerId = 1 and macAddressString like '%cf%' and locationId in (2);
-select * from client_by_mac_string where customerId = 1 and macAddressString like '%cf%' and equipmentId in (2);
-select * from client_by_mac_string where customerId = 1 and locationId in (1,2);
-select * from client_by_mac_string where customerId = 1 and macAddressString like '%fa%' and locationId in (2);
-select * from client_by_mac_string where customerId = 1 and macAddressString like '%fa%' and locationId in (1);
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 1, 1, 'A1:1');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 2, 2, 'A1:2');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 1, 3, 'A1:3');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 2, 3, 'B1:3');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 3, 2, 3, 'B1:3');
 
-delete from client_by_mac_string where customerId = 1 and macAddressString = 'c1:ff:ff:ff:cf:fc';
+select macAddress from client_session_by_mac where macAddressString like '%A1%';
+select macAddress from client_session_by_mac where macAddressString like '%A1%' and locationId in (2);
+select macAddress from client_session_by_mac where macAddressString like '%A1%' and locationId in (1,2);
+
+select macAddress from client_session_by_mac_and_equipment where macAddressString like '%A1%' and equipmentId in (2);
+select macAddress from client_session_by_mac_and_equipment where macAddressString like '%A1%' and equipmentId in (1,3);
+
+delete from client_session_by_mac where locationId = 1 and equipmentId = 1 and macAddressString = 'A1:1';
+delete from client_session_by_mac_and_equipment where locationId = 1 and equipmentId = 1 and macAddressString = 'A1:1';
 
 
 -------------------------------------------------------------------------------- 
 -- Commands to clean up after the test 
 -------------------------------------------------------------------------------- 
 
- TRUNCATE TABLE client_session_by_location ;
- TRUNCATE TABLE client_session_by_equipment ;
- TRUNCATE TABLE client_session_by_mac_string;
+ TRUNCATE TABLE client_session_by_location;
+ TRUNCATE TABLE client_session_by_equipment;
+ TRUNCATE TABLE client_session_by_mac;
+ TRUNCATE TABLE client_session_by_mac_and_equipment;
  TRUNCATE TABLE client_session;
  TRUNCATE TABLE client_by_mac_string;
  TRUNCATE TABLE client;
