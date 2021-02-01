@@ -11774,6 +11774,7 @@ paths:
       - name: equipmentIds
         in: query
         description: set of equipment ids. Empty or null means retrieve all equipment for the customer.
+        required: false
         content:
           text/plain:
             schema:
@@ -11784,6 +11785,7 @@ paths:
       - name: locationIds
         in: query
         description: set of location ids. Empty or null means retrieve for all locations for the customer.
+        required: false
         content:
           text/plain:
             schema:
@@ -11791,9 +11793,16 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: macSubstring
+        in: query
+        description: MacAddress search criteria
+        required: false
+        schema:
+          type: string
       - name: sortBy
         in: query
         description: sort options
+        required: false
         schema:
           type: array
           items:
@@ -11801,7 +11810,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
