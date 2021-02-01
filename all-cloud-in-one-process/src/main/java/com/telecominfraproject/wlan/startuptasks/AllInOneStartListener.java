@@ -390,9 +390,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
 
         try {
-            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", "wan",
-                    InetAddress.getByName("10.0.0.129"), InetAddress.getByName("192.168.1.101"),
-                    MacAddress.valueOf("64:4b:f0:20:57:ff"), Set.of(Integer.valueOf(100))));
+            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", InetAddress.getByName("192.168.1.101"),
+                    Set.of(Integer.valueOf(100))));
             ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setGreTunnelConfigurations(greTunnels);
 
         } catch (UnknownHostException e) {

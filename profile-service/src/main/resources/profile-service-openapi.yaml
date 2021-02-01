@@ -429,14 +429,8 @@ components:
       properties:
         greTunnelName:
           type: string
-        greParentIfName:
-          type: string
-        greLocalInetAddr:
-          type: string
         greRemoteInetAddr:
           type: string
-        greRemoteMacAddr:
-          $ref: '#/components/schemas/MacAddress'
         vlanIdsInGreTunnel:
           type: array
           items: 
@@ -444,13 +438,7 @@ components:
             format: int32   
       example:
         greTunnelName: gre1
-        greParentIfName: wan
-        greLocalInetAddr: 10.0.0.129
         greRemoteInetAddr: 192.168.1.101
-        greRemoteMacAddr:
-          model_type: MacAddress
-          address: ZEvwIFf/
-          addressAsString: 64:4b:f0:20:57:ff
         vlanIdsInGreTunnel:
         - 100
 
