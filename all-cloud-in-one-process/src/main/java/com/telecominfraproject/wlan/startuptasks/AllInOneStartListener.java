@@ -70,6 +70,7 @@ import com.telecominfraproject.wlan.location.models.LocationType;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
+import com.telecominfraproject.wlan.portforwardinggateway.PortForwarderGatewayInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundPosition;
 import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundRepeat;
@@ -169,6 +170,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     @Autowired
     private FirmwareServiceInterface firmwareInterface;
+    
+    @Autowired
+    private PortForwarderGatewayInterface portForwarderGatewayInterface;
 
     @Value("${tip.wlan.numEquipmentToCreateOnStartup:0}")
     private int numEquipmentToCreateOnStartup;

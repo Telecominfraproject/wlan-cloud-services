@@ -353,7 +353,12 @@
         <groupId>com.telecominfraproject.wlan</groupId>
         <version>${tip-wlan-cloud.release.version}</version>
       </dependency>
-      
+
+      <dependency>
+        <groupId>com.telecominfraproject.wlan</groupId>
+        <artifactId>port-forwarding-gateway-local</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
     </dependencies>
     
 	<build>
