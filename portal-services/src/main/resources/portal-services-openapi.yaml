@@ -2056,7 +2056,7 @@ components:
         is5GHzL:
           $ref: '#/components/schemas/RadioBasedSsidConfiguration'
         is2dot4GHz:
-          $ref: '#/components/schemas/RadioBasedSsidConfiguration'
+          $ref: '#/components/schemas/RadioBasedSsidConfiguration2g'
       
     RadioBasedSsidConfiguration:
       properties:
@@ -2066,6 +2066,15 @@ components:
           type: boolean
         enable80211v:
           type: boolean
+          
+    RadioBasedSsidConfiguration2g:
+      description: Extension of RadioBasedSsidConfiguration with added 2g attribute for enable80211b
+      allOf:
+      - $ref: '#/components/schemas/RadioBasedSsidConfiguration'
+      - type: object
+      properties:
+        enable80211b:
+          type: boolean          
           
     WepConfiguration:
       properties:
