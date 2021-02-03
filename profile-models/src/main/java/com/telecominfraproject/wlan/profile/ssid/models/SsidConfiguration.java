@@ -437,12 +437,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         Map<RadioType, RadioBasedSsidConfiguration> returnValue = new EnumMap<>(RadioType.class);
 
         for (RadioType radioType : RadioType.validValues()) {
-            if (radioType.equals(RadioType.is2dot4GHz)) {
-                returnValue.put(radioType, RadioBasedSsidConfiguration2g.generateDefault());
-
-            } else {
-                returnValue.put(radioType, RadioBasedSsidConfiguration.generateDefault(radioType));
-            }
+            returnValue.put(radioType, RadioBasedSsidConfiguration.generateDefault(radioType));
         }
 
         return returnValue;
