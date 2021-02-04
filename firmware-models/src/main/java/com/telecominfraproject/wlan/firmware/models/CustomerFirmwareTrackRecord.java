@@ -3,12 +3,13 @@ package com.telecominfraproject.wlan.firmware.models;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
 /**
  * @author ekeddy
  *
  */
-public class CustomerFirmwareTrackRecord extends BaseJsonModel {
+public class CustomerFirmwareTrackRecord extends BaseJsonModel implements HasCustomerId {
     private static final long serialVersionUID = 6049369594675825448L;
 
     private int customerId;

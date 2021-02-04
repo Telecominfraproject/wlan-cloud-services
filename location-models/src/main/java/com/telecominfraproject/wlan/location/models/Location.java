@@ -5,13 +5,14 @@ import java.util.Objects;
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 
 /**
  * @author dtop
  *
  */
-public class Location extends BaseJsonModel implements PushableConfiguration<Location> {
+public class Location extends BaseJsonModel implements PushableConfiguration<Location>, HasCustomerId {
 
 	private static final long serialVersionUID = 7891602187654246292L;
 

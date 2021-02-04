@@ -1,13 +1,15 @@
 package com.telecominfraproject.wlan.customer.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
 
 /**
  * @author dtoptygin
  *
  */
-public class Customer extends BaseJsonModel{
+public class Customer extends BaseJsonModel implements HasCustomerId {
     private static final long serialVersionUID = 3061657893135029599L;
 
     private int id;
@@ -115,5 +117,10 @@ public class Customer extends BaseJsonModel{
 	public void setDetails(CustomerDetails details) {
 		this.details = details;
 	}
-    
+
+	@Override
+	@JsonIgnore
+	public int getCustomerId() {
+	    return id;
+	}
 }

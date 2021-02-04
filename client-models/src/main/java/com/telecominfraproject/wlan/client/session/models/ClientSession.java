@@ -4,8 +4,9 @@ import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
-public class ClientSession extends BaseJsonModel {
+public class ClientSession extends BaseJsonModel implements HasCustomerId {
 
     private static final long serialVersionUID = -7714023056859882994L;
 
