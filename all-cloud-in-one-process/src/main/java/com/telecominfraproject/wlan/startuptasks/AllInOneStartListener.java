@@ -70,6 +70,7 @@ import com.telecominfraproject.wlan.location.models.LocationType;
 import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
+import com.telecominfraproject.wlan.portforwardinggateway.PortForwarderGatewayInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundPosition;
 import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundRepeat;
@@ -169,6 +170,9 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     @Autowired
     private FirmwareServiceInterface firmwareInterface;
+    
+    @Autowired
+    private PortForwarderGatewayInterface portForwarderGatewayInterface;
 
     @Value("${tip.wlan.numEquipmentToCreateOnStartup:0}")
     private int numEquipmentToCreateOnStartup;
@@ -390,9 +394,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
 
         try {
-            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", "wan",
-                    InetAddress.getByName("10.0.0.129"), InetAddress.getByName("192.168.1.101"),
-                    MacAddress.valueOf("64:4b:f0:20:57:ff"), Set.of(Integer.valueOf(100))));
+            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", InetAddress.getByName("192.168.1.101"),
+                    Set.of(Integer.valueOf(100))));
             ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setGreTunnelConfigurations(greTunnels);
 
         } catch (UnknownHostException e) {

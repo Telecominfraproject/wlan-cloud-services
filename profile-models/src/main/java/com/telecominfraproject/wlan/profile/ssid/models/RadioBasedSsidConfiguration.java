@@ -22,7 +22,7 @@ public class RadioBasedSsidConfiguration extends BaseJsonModel
      */
     private Boolean enable80211v;
 
-    private RadioBasedSsidConfiguration() {
+    RadioBasedSsidConfiguration() {
         // all null
     }
 
