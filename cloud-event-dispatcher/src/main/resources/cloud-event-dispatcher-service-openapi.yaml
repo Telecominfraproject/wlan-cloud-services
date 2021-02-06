@@ -2677,7 +2677,15 @@ components:
             type: integer
             format: int32
           ntpServer:
-            $ref: '#/components/schemas/AutoOrManualString'
+            allOf:
+            - $ref: '#/components/schemas/AutoOrManualString'
+            - type: object
+            properties:
+              auto:
+                type: boolean
+              value:
+                type: string
+                default: "pool.ntp.org"
           syslogRelay:
             $ref: '#/components/schemas/SyslogRelay'
           rtlsSettings:
