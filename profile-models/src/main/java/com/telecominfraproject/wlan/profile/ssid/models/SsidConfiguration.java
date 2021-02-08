@@ -44,6 +44,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private StateSetting ssidAdminState;
     private SecureMode secureMode;
     private Integer vlanId = DEFAULT_VLAN;
+    private DynamicVlanMode dynamicVlan = DynamicVlanMode.disabled;
     private String keyStr;
     private StateSetting broadcastSsid = DEFAULT_BROADCAST_SSID;
     private Integer keyRefresh = DEFAULT_KEY_REFRESH;
@@ -487,6 +488,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     public void setVideoTrafficOnly(Boolean videoTrafficOnly) {
         this.videoTrafficOnly = videoTrafficOnly;
+    }
+
+    public DynamicVlanMode getDynamicVlan() {
+        return dynamicVlan;
+    }
+
+    public void setDynamicVlan(DynamicVlanMode dynamicVlan) {
+        this.dynamicVlan = dynamicVlan;
     }
 
     public void disableAllRadioConfigSettings() {
