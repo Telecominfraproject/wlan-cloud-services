@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
 import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
@@ -41,6 +42,8 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 	private int totalProvisionedEquipment;
 	private Map<String, AtomicInteger> equipmentCountPerOui = new ConcurrentHashMap<>();
 	
+	private Map<StatusCode, AtomicInteger> alarmsCountBySeverity = Collections.synchronizedMap(new EnumMap<>(StatusCode.class));
+	
 
 	@Override
 	public StatusDataType getStatusDataType() {
@@ -59,6 +62,7 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		
 		event.getAssociatedClientsCountPerRadio().forEach((rt, count) -> incrementAssociatedClientsCountPerRadio(rt, count.get()) );
 		event.getClientCountPerOui().forEach((oui, count) -> incrementClientCountPerOui(oui, count.get()) );
+		event.getAlarmsCountBySeverity().forEach((severity, count) -> incrementAlarmsCountBySeverity(severity, count.get()));
 		
 	}
 	
@@ -97,6 +101,20 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 			counter = equipmentCountPerOui.putIfAbsent(oui, counter);
 			if(counter == null) {
 				counter = equipmentCountPerOui.get(oui);
+			}
+		}
+		
+		counter.addAndGet(value);
+	}
+	
+	public void incrementAlarmsCountBySeverity(String severity, int value) {
+		StatusCode statusCode = StatusCode.getByName(severity);
+		AtomicInteger counter = alarmsCountBySeverity.get(statusCode);
+		if(counter == null) {
+			counter = new AtomicInteger();
+			counter = alarmsCountBySeverity.putIfAbsent(statusCode, counter);
+			if(counter == null) {
+				counter = alarmsCountBySeverity.get(statusCode);
 			}
 		}
 		
@@ -183,6 +201,14 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		this.equipmentCountPerOui = equipmentCountPerOui;
 	}
 	
+	public Map<StatusCode, AtomicInteger> getAlarmsCountBySeverity() {
+		return alarmsCountBySeverity;
+	}
+
+	public void setAlarmsCountBySeverity(Map<StatusCode, AtomicInteger> alarmsCountBySeverity) {
+		this.alarmsCountBySeverity = alarmsCountBySeverity;
+	}
+	
 	@Override
 	public CustomerPortalDashboardStatus clone() {
 		CustomerPortalDashboardStatus ret = (CustomerPortalDashboardStatus) super.clone();
@@ -200,6 +226,11 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		if(associatedClientsCountPerRadio != null) {
 			ret.associatedClientsCountPerRadio = Collections.synchronizedMap(new EnumMap<>(RadioType.class));
 			associatedClientsCountPerRadio.forEach((k, v) -> ret.associatedClientsCountPerRadio.put(k, new AtomicInteger(v.get())));
+		}
+		
+		if(alarmsCountBySeverity != null) {
+			ret.alarmsCountBySeverity = Collections.synchronizedMap(new EnumMap<>(StatusCode.class));
+			alarmsCountBySeverity.forEach((k, v) -> ret.alarmsCountBySeverity.put(k, new AtomicInteger(v.get())));
 		}
 		
 		return ret;

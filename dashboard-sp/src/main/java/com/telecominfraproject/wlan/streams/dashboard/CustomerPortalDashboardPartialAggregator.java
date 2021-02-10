@@ -1,7 +1,9 @@
 package com.telecominfraproject.wlan.streams.dashboard;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,6 +17,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
@@ -88,6 +93,9 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 
 	    private ConcurrentHashMap<Integer, CustomerPortalDashboardPartialContext> contextPerCustomerIdMap = new ConcurrentHashMap<>();
 	    
+	    @Autowired
+	    private AlarmServiceInterface alarmServiceInterface;
+	    
 
 	    @Override
 	    protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -150,6 +158,11 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			}
 			
 			context.addClientMacs(model);
+			
+			AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(customerId, Collections.singleton(equipmentId), Collections.emptySet());
+			for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
+				partialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity().name(), entry.getValue().get());
+			}
 			
 			AtomicLong txBytes = new AtomicLong();
 			model.getTxBytesPerRadio().values().forEach(v -> txBytes.addAndGet(v));			

@@ -43,6 +43,8 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 	private AtomicLong trafficBytesUpstream = new AtomicLong();
 	
 	private Map<String, AtomicInteger> clientCountPerOui = new ConcurrentHashMap<>();
+	
+	private Map<String, AtomicInteger> alarmsCountBySeverity = new ConcurrentHashMap<>();
 
 	public long getTimeBucketId() {
 		return timeBucketId;
@@ -107,6 +109,14 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 	public void setClientCountPerOui(Map<String, AtomicInteger> clientCountPerOui) {
 		this.clientCountPerOui = clientCountPerOui;
 	}
+	
+	public Map<String, AtomicInteger> getAlarmsCountBySeverity() {
+		return alarmsCountBySeverity;
+	}
+
+	public void setAlarmsCountBySeverity(Map<String, AtomicInteger> alarmsCountBySeverity) {
+		this.alarmsCountBySeverity = alarmsCountBySeverity;
+	}
 
 	/// Utility methods
 	
@@ -136,6 +146,19 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		counter.addAndGet(value);
 	}
 	
+	public void incrementAlarmsCountBySeverity(String severity, int value) {
+		AtomicInteger counter = alarmsCountBySeverity.get(severity);
+		if(counter == null) {
+			counter = new AtomicInteger();
+			counter = alarmsCountBySeverity.putIfAbsent(severity, counter);
+			if(counter == null) {
+				counter = alarmsCountBySeverity.get(severity);
+			}
+		}
+		
+		counter.addAndGet(value);
+	}
+	
 	public int getCustomerId() {
 		return customerId;
 	}
@@ -156,6 +179,11 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		if(clientCountPerOui!=null) {
 			ret.clientCountPerOui = new ConcurrentHashMap<>();
 			clientCountPerOui.forEach((k,v) -> ret.clientCountPerOui.put(k, new AtomicInteger(v.get())));			
+		}
+		
+		if(alarmsCountBySeverity!=null) {
+			ret.alarmsCountBySeverity = new ConcurrentHashMap<>();
+			alarmsCountBySeverity.forEach((k,v) -> ret.alarmsCountBySeverity.put(k, new AtomicInteger(v.get())));			
 		}
 		
 		return ret;		
