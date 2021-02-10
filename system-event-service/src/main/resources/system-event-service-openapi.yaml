@@ -4320,7 +4320,18 @@ components:
         clientDisconnectThresholdDb:
           $ref: '#/components/schemas/AutoOrManualValue'
         eirpTxPower:
-          $ref: '#/components/schemas/AutoOrManualValue'
+          allOf:
+          - $ref: '#/components/schemas/AutoOrManualValue'
+          - type: object
+          properties:
+            auto:
+              type: boolean
+            value:
+              type: integer
+              format: int32
+              minimum: 1
+              maximum: 32
+              default: 18              
         bestApEnabled:
           type: boolean
         neighbouringListApConfig:
