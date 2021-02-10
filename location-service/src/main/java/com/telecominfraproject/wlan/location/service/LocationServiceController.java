@@ -100,7 +100,7 @@ public class LocationServiceController {
         Location ret = locationDatastore.update(location);
         
         if (existingLocation != null && existingLocation.getDetails() != null && ret != null && ret.getDetails() != null &&
-        		existingLocation.getDetails().getCountryCode() != ret.getDetails().getCountryCode()) {
+        		!existingLocation.getDetails().getCountryCode().equals(ret.getDetails().getCountryCode())) {
         	LocationChangedApImpactingEvent apImpactingEvent = new LocationChangedApImpactingEvent(ret);
             publishEvent(apImpactingEvent);
         }
