@@ -25,6 +25,7 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
+import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
@@ -72,7 +73,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 			    			ser.getDetails() instanceof ProfileAddedEvent ||
 			    			ser.getDetails() instanceof ProfileChangedEvent ||
 			    			ser.getDetails() instanceof ProfileRemovedEvent ||
-			    			ser.getDetails() instanceof LocationChangedEvent		    			
+			    			ser.getDetails() instanceof LocationChangedApImpactingEvent
 			    		);
 		    } else {
 		    	ret = false;
@@ -105,8 +106,8 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	case "ProfileRemovedEvent":
 	    		process((ProfileRemovedEvent) se);
 	    		break;
-	    	case "LocationChangedEvent":
-	    		process((LocationChangedEvent) se);
+	    	case "LocationChangedApImpactingEvent":
+	    		process((LocationChangedApImpactingEvent) se);
 	    		break;	    	
 	    	default:
 	    		process(mdl);
@@ -174,8 +175,8 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 			LOG.debug("Finished processing profile {}", profile.getId());
 		}
 		
-		private void process(LocationChangedEvent model) {
-			LOG.debug("Processing LocationChangedEvent {}", model.getPayload().getId());
+		private void process(LocationChangedApImpactingEvent model) {
+			LOG.debug("Processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
 			
 			Set<Long> locationIds = new HashSet<>(Arrays.asList(model.getPayload().getId()));
 			
@@ -199,7 +200,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 				LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
 			}		
 			
-			LOG.debug("Finished processing LocationChangedEvent {}", model.getPayload().getId());
+			LOG.debug("Finished processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
 
 		}
 
