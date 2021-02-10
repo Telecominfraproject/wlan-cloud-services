@@ -159,11 +159,6 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			
 			context.addClientMacs(model);
 			
-			AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(customerId, Collections.singleton(equipmentId), Collections.emptySet());
-			for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
-				partialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity().name(), entry.getValue().get());
-			}
-			
 			AtomicLong txBytes = new AtomicLong();
 			model.getTxBytesPerRadio().values().forEach(v -> txBytes.addAndGet(v));			
 			partialEvent.getTrafficBytesDownstream().addAndGet(txBytes.get());
@@ -204,6 +199,11 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
 			        				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
 			        				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
+			        				
+			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), context.getEquipmentIds(), Collections.emptySet());
+			        				for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
+			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity().name(), entry.getValue().get());
+			        				}
 			        				
 			        				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
 			        				
