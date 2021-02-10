@@ -251,7 +251,7 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 				                		alarm.setEquipmentId(context.getEquipmentId());
 				                		alarm.setAlarmCode(alarmCode);
 				                		alarm.setOriginatorType(OriginatorType.AP);
-				                		alarm.setSeverity(StatusCode.requiresAttention);
+				                		alarm.setSeverity(alarmCode.getSeverity());
 				                		alarm.setScopeType(AlarmScopeType.EQUIPMENT);
 				                		alarm.setScopeId("" + context.getEquipmentId());
 				                		AlarmDetails alarmDetails = new AlarmDetails();
