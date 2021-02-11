@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
-import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
+import com.telecominfraproject.wlan.status.dashboard.models.events.CustomerPortalDashboardPartialEvent;
 
 public class CustomerPortalDashboardPartialContext {
 	
