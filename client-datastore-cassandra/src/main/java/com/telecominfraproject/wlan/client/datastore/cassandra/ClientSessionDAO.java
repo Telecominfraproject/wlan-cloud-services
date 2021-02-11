@@ -433,8 +433,9 @@ public class ClientSessionDAO {
         //add macSubstring filters
         if (macSubstring != null) {
         	queryArgs.clear();
+        	queryArgs.add(customerId);
         	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
-        	query_head = "select macAddress from client_session_by_mac where ";
+        	query_head = "select macAddress from client_session_by_mac where customerId = ? ";
         	
         	if (locationIds != null && !locationIds.isEmpty()) {
         		queryArgs.addAll(locationIds);
@@ -442,10 +443,10 @@ public class ClientSessionDAO {
         	}
         	if (equipmentIds != null && !equipmentIds.isEmpty()) {
         		queryArgs.addAll(equipmentIds);
-            	query_head = "select macAddress from client_session_by_mac_and_equipment where ";
+            	query_head = "select macAddress from client_session_by_mac_and_equipment where customerId = ? ";
         	}
         	
-        	query = "macAddressString like ? " + query + " allow filtering";
+        	query = " and macAddressString like ? " + query + " allow filtering";
         	
         	filterOptions = FilterOptions.customer_and_macAddress;
         }
