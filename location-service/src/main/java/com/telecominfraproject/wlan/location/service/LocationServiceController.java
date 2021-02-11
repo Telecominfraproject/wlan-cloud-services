@@ -99,14 +99,14 @@ public class LocationServiceController {
 
         Location ret = locationDatastore.update(location);
         
-        if (existingLocation != null && existingLocation.getDetails() != null && ret != null && ret.getDetails() != null &&
-        		!existingLocation.getDetails().getCountryCode().equals(ret.getDetails().getCountryCode())) {
-        	LocationChangedApImpactingEvent apImpactingEvent = new LocationChangedApImpactingEvent(ret);
-            publishEvent(apImpactingEvent);
-        }
+        List<SystemEvent> events = new ArrayList<>();
         
-        LocationChangedEvent event = new LocationChangedEvent(ret);
-        publishEvent(event);
+        if (ret.needsToBeUpdatedOnDevice(existingLocation)) {
+        	events.add(new LocationChangedApImpactingEvent(ret));
+        }
+        events.add(new LocationChangedEvent(ret));
+        
+        publishEvents(events);
 
         return ret;
     }
@@ -264,6 +264,14 @@ public class LocationServiceController {
             cloudEventDispatcher.publishEvent(event);
         } catch (Exception e) {
             LOG.error("Failed to publish event : {}", event, e);
+        }
+    }
+    
+    private void publishEvents(List<SystemEvent> events) {
+        try {
+            cloudEventDispatcher.publishEventsBulk(events);
+        } catch (Exception e) {
+            LOG.error("Failed to publish events : {}", events, e);
         }
     }
 
