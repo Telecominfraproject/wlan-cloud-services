@@ -25,9 +25,9 @@ import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
+import com.telecominfraproject.wlan.status.dashboard.models.events.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
-import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
@@ -202,7 +202,7 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        				
 			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), context.getEquipmentIds(), Collections.emptySet());
 			        				for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
-			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity().name(), entry.getValue().get());
+			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity(), entry.getValue().get());
 			        				}
 			        				
 			        				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));

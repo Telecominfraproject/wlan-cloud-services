@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.status.dashboard.models.events.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
-import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 
 public class CustomerPortalDashboardStatus extends StatusDetails {
 
@@ -107,14 +107,13 @@ public class CustomerPortalDashboardStatus extends StatusDetails {
 		counter.addAndGet(value);
 	}
 	
-	public void incrementAlarmsCountBySeverity(String severity, int value) {
-		StatusCode statusCode = StatusCode.getByName(severity);
-		AtomicInteger counter = alarmsCountBySeverity.get(statusCode);
+	public void incrementAlarmsCountBySeverity(StatusCode severity, int value) {
+		AtomicInteger counter = alarmsCountBySeverity.get(severity);
 		if(counter == null) {
 			counter = new AtomicInteger();
-			counter = alarmsCountBySeverity.putIfAbsent(statusCode, counter);
+			counter = alarmsCountBySeverity.putIfAbsent(severity, counter);
 			if(counter == null) {
-				counter = alarmsCountBySeverity.get(statusCode);
+				counter = alarmsCountBySeverity.get(severity);
 			}
 		}
 		

@@ -1,4 +1,4 @@
-package com.telecominfraproject.wlan.systemevent.aggregation.models;
+package com.telecominfraproject.wlan.status.dashboard.models.events;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 /**
@@ -44,7 +45,7 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 	
 	private Map<String, AtomicInteger> clientCountPerOui = new ConcurrentHashMap<>();
 	
-	private Map<String, AtomicInteger> alarmsCountBySeverity = new ConcurrentHashMap<>();
+	private Map<StatusCode, AtomicInteger> alarmsCountBySeverity = new ConcurrentHashMap<>();
 
 	public long getTimeBucketId() {
 		return timeBucketId;
@@ -110,11 +111,11 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		this.clientCountPerOui = clientCountPerOui;
 	}
 	
-	public Map<String, AtomicInteger> getAlarmsCountBySeverity() {
+	public Map<StatusCode, AtomicInteger> getAlarmsCountBySeverity() {
 		return alarmsCountBySeverity;
 	}
 
-	public void setAlarmsCountBySeverity(Map<String, AtomicInteger> alarmsCountBySeverity) {
+	public void setAlarmsCountBySeverity(Map<StatusCode, AtomicInteger> alarmsCountBySeverity) {
 		this.alarmsCountBySeverity = alarmsCountBySeverity;
 	}
 
@@ -146,7 +147,7 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		counter.addAndGet(value);
 	}
 	
-	public void incrementAlarmsCountBySeverity(String severity, int value) {
+	public void incrementAlarmsCountBySeverity(StatusCode severity, int value) {
 		AtomicInteger counter = alarmsCountBySeverity.get(severity);
 		if(counter == null) {
 			counter = new AtomicInteger();
