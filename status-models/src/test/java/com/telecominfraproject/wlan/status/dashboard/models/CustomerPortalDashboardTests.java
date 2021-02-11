@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 
 public class CustomerPortalDashboardTests {
@@ -22,10 +23,12 @@ public class CustomerPortalDashboardTests {
 		evtPartial.incrementAssociatedClientsCountPerRadio(RadioType.is5GHzU, 3);
 		evtPartial.incrementClientCountPerOui("000000", 8);
 		evtPartial.incrementClientCountPerOui("0F0F0F", 22);
+		evtPartial.incrementAlarmsCountBySeverity(StatusCode.requiresAttention.name(), 10);
 		
 		CustomerPortalDashboardStatus status = new CustomerPortalDashboardStatus();
 		status.applyPartialEvent(evtPartial);
 		status.incrementEquipmentCountPerOui("2F2F2F", 14);
+		status.incrementAlarmsCountBySeverity(StatusCode.requiresAttention.name(), 10);
 		
 		String statusStr = status.toString();
 		
@@ -43,6 +46,7 @@ public class CustomerPortalDashboardTests {
 		evt.incrementAssociatedClientsCountPerRadio(RadioType.is5GHzU, 3);
 		evt.incrementClientCountPerOui("000000", 8);
 		evt.incrementClientCountPerOui("0F0F0F", 22);
+		evt.incrementAlarmsCountBySeverity(StatusCode.requiresAttention.name(), 10);
 		
 		String evtStr = evt.toString();
 		
