@@ -26,7 +26,6 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequ
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
-import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
