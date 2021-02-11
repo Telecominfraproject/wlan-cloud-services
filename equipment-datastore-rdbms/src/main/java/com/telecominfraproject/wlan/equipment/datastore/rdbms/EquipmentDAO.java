@@ -178,7 +178,7 @@ public class EquipmentDAO extends BaseJdbcDao {
     private static final String SQL_APPEND_EQUALS_EQUIPMENT_TYPE = "and equipmentType = ? ";
     
     private static final String SQL_APPEND_LIKE_MAC_OR_NAME = 
-    		" and (name like ? or baseMacAddress like ?) ";
+    		" and (LOWER(name) like ? or LOWER(baseMacAddress) like ?) ";
 
     private static final String SQL_GET_EQUIPMENTIDS_BY_LOCATIONIDS = "select locationId, id from "
             + TABLE_NAME + " " + " where locationId ";
