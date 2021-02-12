@@ -9806,7 +9806,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
         reportReason:
-          $ref: '#/components/schemas/SipCallReportReason'
+          $ref: '#/components/schemas/SIPCallReportReason'
         
     RealTimeSipCallStartEvent:
       required:
@@ -9973,7 +9973,7 @@ components:
         - VIDEO
         - UNSUPPORTED
     
-    SipCallReportReason:
+    SIPCallReportReason:
       type: string
       enum:
         - ROAMED_FROM
