@@ -2999,6 +2999,8 @@ components:
           $ref: '#/components/schemas/IntegerValueMap'
         equipmentCountPerOui:
           $ref: '#/components/schemas/IntegerValueMap'
+        alarmsCountBySeverity:
+          $ref: '#/components/schemas/IntegerPerStatusCodeMap'
 
       
     ActiveBSSIDs:
@@ -3063,6 +3065,17 @@ components:
         is2dot4GHz:
           type: integer
           format: int32
+          
+    IntegerPerStatusCodeMap:
+      properties:
+        normal:
+          type: string
+        requiresAttention:
+          type: string
+        error:
+          type: string
+        disabled:
+          type: string
     
     LongPerRadioTypeMap:
       properties:
