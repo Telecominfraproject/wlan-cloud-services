@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -782,6 +783,26 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         // Clean up after test
         createdSet.forEach( c-> remoteInterface.delete(c));
         
+    }
+    
+    @Test
+    public void testRrmBulkUpdateFailOnDetailsType() {
+        
+        //Create test Equipment
+        Equipment equipment = new Equipment();
+
+        equipment.setName("test_rrmBulkUpdate_fail");
+        equipment.setCustomerId(getNextCustomerId());
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setDetails(new EquipmentDetails());
+        Equipment ce = remoteInterface.create(equipment);
+        
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+        	EquipmentRrmBulkUpdateItem bulkItem = new EquipmentRrmBulkUpdateItem(ce);
+        });
+        assertEquals(ex.getMessage(), "Cannot build EquipmentRrmBulkUpdateItem from supplied equipment: ApElementConfig type error");
+
+        remoteInterface.delete(ce.getId());
     }
        
     private void assertEqualEquipments(
