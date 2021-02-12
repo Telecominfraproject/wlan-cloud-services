@@ -385,7 +385,18 @@ components:
         clientDisconnectThresholdDb:
           $ref: '#/components/schemas/SourceSelectionValue'
         eirpTxPower:
-          $ref: '#/components/schemas/SourceSelectionValue'
+          allOf:
+          - $ref: '#/components/schemas/SourceSelectionValue'
+          - type: object
+          properties:
+            source:
+              $ref: '#/components/schemas/SourceType'
+            value:
+              type: integer
+              format: int32
+              minimum: 1
+              maximum: 32
+              default: 18 
         perimeterDetectionEnabled:
           type: boolean
         bestAPSteerType:  

@@ -76,6 +76,14 @@ WHERE
  NOT EXISTS (
     SELECT parentProfileId, childProfileId from profile_map where parentProfileId = 6 and childProfileId = 10
  );
+ 
+     -- adding relationship between equipment-ap and rf profile
+INSERT INTO profile_map (customerId, parentProfileId, childProfileId)
+SELECT 2, 6, 4
+WHERE
+ NOT EXISTS (
+    SELECT parentProfileId, childProfileId from profile_map where parentProfileId = 6 and childProfileId = 4
+ );
 
 -- Create Firmware Version related entities
 --INSERT INTO firmware_version (id, equipmentType, modelId, versionName, commitTag, description, filename, validationMethod, validationCode, releaseDate, createdTimestamp, lastModifiedTimestamp)

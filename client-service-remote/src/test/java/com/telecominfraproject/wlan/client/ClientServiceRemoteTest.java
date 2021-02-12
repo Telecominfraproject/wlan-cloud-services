@@ -115,6 +115,13 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
         	//expected it
         }
 
+        Client clientWIthPlus = client.clone();
+        clientWIthPlus.setMacAddress(new MacAddress("00:22:7c:42:4f:8d"));
+        clientWIthPlus = remoteInterface.create(clientWIthPlus);
+        
+        retrieved =  remoteInterface.getOrNull(clientWIthPlus.getCustomerId(), clientWIthPlus.getMacAddress());
+        assertNotNull(retrieved);
+        
     }
     
     @Test

@@ -22,324 +22,332 @@ import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
 public class RfElementConfiguration extends BaseJsonModel {
 
-	private static final long serialVersionUID = 1071268246965238451L;
-    
+    private static final long serialVersionUID = 1071268246965238451L;
+
     private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
     static {
-    	Map<RadioType, Integer> map = new HashMap<>();
-    	map.put(RadioType.is2dot4GHz, -65);
-    	map.put(RadioType.is5GHz, -65);
-    	map.put(RadioType.is5GHzL, -65);
-    	map.put(RadioType.is5GHzU, -65);
-    	MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
+        Map<RadioType, Integer> map = new HashMap<>();
+        map.put(RadioType.is2dot4GHz, -65);
+        map.put(RadioType.is5GHz, -65);
+        map.put(RadioType.is5GHzL, -65);
+        map.put(RadioType.is5GHzU, -65);
+        MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
     }
-	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
-	public final static int DEFAULT_EIRP_TX_POWER = 18;
-	public final static int DEFAULT_BEACON_INTERVAL = 100;
-	
-	private RadioType radioType;
-	private RadioMode radioMode;
+    public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
+    public final static int DEFAULT_EIRP_TX_POWER = 18;
+    public final static int MIN_EIRP_TX_POWER = 1;
+    public final static int MAX_EIRP_TX_POWER = 32;
+    public final static int DEFAULT_BEACON_INTERVAL = 100;
+
+    private RadioType radioType;
+    private RadioMode radioMode;
     private String rf;
-	private Integer beaconInterval; // keep this in sync with fields in RadioCfg (in protobuf)
+    private Integer beaconInterval; // keep this in sync with fields in RadioCfg
+                                    // (in protobuf)
     private StateSetting forceScanDuringVoice;
     private Integer rtsCtsThreshold;
     private ChannelBandwidth channelBandwidth;
     private MimoMode mimoMode;
     private Integer maxNumClients;
     private boolean autoChannelSelection;
-  	private ActiveScanSettings activeScanSettings;
-  	private NeighbouringAPListConfiguration neighbouringListApConfig;
-	private Integer minAutoCellSize;
-	private Boolean perimeterDetectionEnabled;
-	private ChannelHopSettings channelHopSettings;
-	private Boolean bestApEnabled;
-	
-	private MulticastRate multicastRate;
-  	private ManagementRate managementRate;
-  	private Integer rxCellSizeDb;
-	private Integer probeResponseThresholdDb;
-	private Integer clientDisconnectThresholdDb;
-	private Integer eirpTxPower;
-	private RadioBestApSettings bestApSettings;
-    
+    private ActiveScanSettings activeScanSettings;
+    private NeighbouringAPListConfiguration neighbouringListApConfig;
+    private Integer minAutoCellSize;
+    private Boolean perimeterDetectionEnabled;
+    private ChannelHopSettings channelHopSettings;
+    private Boolean bestApEnabled;
+
+    private MulticastRate multicastRate;
+    private ManagementRate managementRate;
+    private Integer rxCellSizeDb;
+    private Integer probeResponseThresholdDb;
+    private Integer clientDisconnectThresholdDb;
+    private Integer eirpTxPower;
+    private RadioBestApSettings bestApSettings;
+
     private RfElementConfiguration() {
-    	long timestamp = System.currentTimeMillis();
-    	setRf("DefaultRf-" + timestamp);
-    	setBeaconInterval(DEFAULT_BEACON_INTERVAL);
-    	setForceScanDuringVoice(StateSetting.disabled);
-    	setRtsCtsThreshold(65535);
-    	setMimoMode(MimoMode.twoByTwo);
-    	setMaxNumClients(100);
-    	setMulticastRate(MulticastRate.auto);
-    	setAutoChannelSelection(false);
-    	setActiveScanSettings(ActiveScanSettings.createWithDefaults());
-    	setManagementRate(ManagementRate.auto);
-    	setRxCellSizeDb(DEFAULT_RX_CELL_SIZE_DB);
-    	setProbeResponseThresholdDb(-90);
-    	setClientDisconnectThresholdDb(-90);
-    	setEirpTxPower(DEFAULT_EIRP_TX_POWER);
-    	setBestApEnabled(null);
-    	setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
-    	setPerimeterDetectionEnabled(true);
-    	setChannelHopSettings(ChannelHopSettings.createWithDefaults());
+        long timestamp = System.currentTimeMillis();
+        setRf("DefaultRf-" + timestamp);
+        setBeaconInterval(DEFAULT_BEACON_INTERVAL);
+        setForceScanDuringVoice(StateSetting.disabled);
+        setRtsCtsThreshold(65535);
+        setMimoMode(MimoMode.twoByTwo);
+        setMaxNumClients(100);
+        setMulticastRate(MulticastRate.auto);
+        setAutoChannelSelection(false);
+        setActiveScanSettings(ActiveScanSettings.createWithDefaults());
+        setManagementRate(ManagementRate.auto);
+        setRxCellSizeDb(DEFAULT_RX_CELL_SIZE_DB);
+        setProbeResponseThresholdDb(-90);
+        setClientDisconnectThresholdDb(-90);
+        setEirpTxPower(DEFAULT_EIRP_TX_POWER);
+        setBestApEnabled(null);
+        setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
+        setPerimeterDetectionEnabled(true);
+        setChannelHopSettings(ChannelHopSettings.createWithDefaults());
     }
-    
+
     public static RfElementConfiguration createWithDefaults(RadioType radioType) {
-        RfElementConfiguration ret = new RfElementConfiguration();  
+        RfElementConfiguration ret = new RfElementConfiguration();
         ret.setRadioType(radioType);
         ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
         ret.setMinAutoCellSize(MIN_CELL_SIZE_MAP.get(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
-    		ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
-    		ret.setRadioMode(RadioMode.modeAC);
+            ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
+            ret.setRadioMode(RadioMode.modeAC);
         } else {
-        	ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
-        	ret.setRadioMode(RadioMode.modeN);
+            ret.setChannelBandwidth(ChannelBandwidth.is20MHz);
+            ret.setRadioMode(RadioMode.modeN);
         }
-    	return ret;
+        return ret;
     }
-    
+
     public static RfElementConfiguration createWithDefaults(RadioType radioType, ApModel apModel) {
-		RfElementConfiguration ret = createWithDefaults(radioType);
-		if (apModel == ApModel.OUTDOOR) {
-			// TODO: This logic is carried over from ApElementConfig during RF profile implementation. Is it still necessary?
-	    	// NAAS-8919 change mimo for outdoor to 3x3
-			ret.setMimoMode(MimoMode.threeByThree);
-		}
-    	return ret;
+        RfElementConfiguration ret = createWithDefaults(radioType);
+        if (apModel == ApModel.OUTDOOR) {
+            // TODO: This logic is carried over from ApElementConfig during RF
+            // profile implementation. Is it still necessary?
+            // NAAS-8919 change mimo for outdoor to 3x3
+            ret.setMimoMode(MimoMode.threeByThree);
+        }
+        return ret;
     }
-    
+
     public RadioType getRadioType() {
-    	return radioType;
+        return radioType;
     }
-    
+
     public void setRadioType(RadioType radioType) {
-    	this.radioType = radioType;
+        this.radioType = radioType;
     }
-    
+
     public RadioMode getRadioMode() {
-    	return radioMode;
+        return radioMode;
     }
-    
+
     public void setRadioMode(RadioMode radioMode) {
-    	this.radioMode = radioMode;
+        this.radioMode = radioMode;
     }
-    
+
     public String getRf() {
-		return rf;
-	}
+        return rf;
+    }
 
-	public void setRf(String rf) {
-		this.rf = rf;
-	}
+    public void setRf(String rf) {
+        this.rf = rf;
+    }
 
-	public Integer getBeaconInterval() {
-		return beaconInterval;
-	}
+    public Integer getBeaconInterval() {
+        return beaconInterval;
+    }
 
-	public void setBeaconInterval(Integer beaconInterval) {
-		this.beaconInterval = beaconInterval;
-	}
+    public void setBeaconInterval(Integer beaconInterval) {
+        this.beaconInterval = beaconInterval;
+    }
 
-	public StateSetting getForceScanDuringVoice() {
-		return forceScanDuringVoice;
-	}
+    public StateSetting getForceScanDuringVoice() {
+        return forceScanDuringVoice;
+    }
 
-	public void setForceScanDuringVoice(StateSetting forceScanDuringVoice) {
-		this.forceScanDuringVoice = forceScanDuringVoice;
-	}
+    public void setForceScanDuringVoice(StateSetting forceScanDuringVoice) {
+        this.forceScanDuringVoice = forceScanDuringVoice;
+    }
 
-	public Integer getRtsCtsThreshold() {
-		return rtsCtsThreshold;
-	}
+    public Integer getRtsCtsThreshold() {
+        return rtsCtsThreshold;
+    }
 
-	public void setRtsCtsThreshold(Integer rtsCtsThreshold) {
-		this.rtsCtsThreshold = rtsCtsThreshold;
-	}
+    public void setRtsCtsThreshold(Integer rtsCtsThreshold) {
+        this.rtsCtsThreshold = rtsCtsThreshold;
+    }
 
-	public ChannelBandwidth getChannelBandwidth() {
-		return channelBandwidth;
-	}
+    public ChannelBandwidth getChannelBandwidth() {
+        return channelBandwidth;
+    }
 
-	public void setChannelBandwidth(ChannelBandwidth channelBandwidth) {
-		this.channelBandwidth = channelBandwidth;
-	}
+    public void setChannelBandwidth(ChannelBandwidth channelBandwidth) {
+        this.channelBandwidth = channelBandwidth;
+    }
 
-	public MimoMode getMimoMode() {
-		return mimoMode;
-	}
+    public MimoMode getMimoMode() {
+        return mimoMode;
+    }
 
-	public void setMimoMode(MimoMode mimoMode) {
-		this.mimoMode = mimoMode;
-	}
+    public void setMimoMode(MimoMode mimoMode) {
+        this.mimoMode = mimoMode;
+    }
 
-	public Integer getMaxNumClients() {
-		return maxNumClients;
-	}
+    public Integer getMaxNumClients() {
+        return maxNumClients;
+    }
 
-	public void setMaxNumClients(Integer maxNumClients) {
-		this.maxNumClients = maxNumClients;
-	}
+    public void setMaxNumClients(Integer maxNumClients) {
+        this.maxNumClients = maxNumClients;
+    }
 
-	public MulticastRate getMulticastRate() {
-		return multicastRate;
-	}
+    public MulticastRate getMulticastRate() {
+        return multicastRate;
+    }
 
-	public void setMulticastRate(MulticastRate multicastRate) {
-		this.multicastRate = multicastRate;
-	}
+    public void setMulticastRate(MulticastRate multicastRate) {
+        this.multicastRate = multicastRate;
+    }
 
-	public boolean getAutoChannelSelection() {
-		return autoChannelSelection;
-	}
+    public boolean getAutoChannelSelection() {
+        return autoChannelSelection;
+    }
 
-	public void setAutoChannelSelection(boolean autoChannelSelection) {
-		this.autoChannelSelection = autoChannelSelection;
-	}
+    public void setAutoChannelSelection(boolean autoChannelSelection) {
+        this.autoChannelSelection = autoChannelSelection;
+    }
 
-	public ActiveScanSettings getActiveScanSettings() {
-		return activeScanSettings;
-	}
+    public ActiveScanSettings getActiveScanSettings() {
+        return activeScanSettings;
+    }
 
-	public void setActiveScanSettings(ActiveScanSettings activeScanSettings) {
-		this.activeScanSettings = activeScanSettings;
-	}
+    public void setActiveScanSettings(ActiveScanSettings activeScanSettings) {
+        this.activeScanSettings = activeScanSettings;
+    }
 
-	public ManagementRate getManagementRate() {
-		return managementRate;
-	}
+    public ManagementRate getManagementRate() {
+        return managementRate;
+    }
 
-	public void setManagementRate(ManagementRate managementRate) {
-		this.managementRate = managementRate;
-	}
+    public void setManagementRate(ManagementRate managementRate) {
+        this.managementRate = managementRate;
+    }
 
-	public Integer getRxCellSizeDb() {
-		return rxCellSizeDb;
-	}
+    public Integer getRxCellSizeDb() {
+        return rxCellSizeDb;
+    }
 
-	public void setRxCellSizeDb(Integer rxCellSizeDb) {
-		this.rxCellSizeDb = rxCellSizeDb;
-	}
+    public void setRxCellSizeDb(Integer rxCellSizeDb) {
+        this.rxCellSizeDb = rxCellSizeDb;
+    }
 
-	public Integer getProbeResponseThresholdDb() {
-		return probeResponseThresholdDb;
-	}
+    public Integer getProbeResponseThresholdDb() {
+        return probeResponseThresholdDb;
+    }
 
-	public void setProbeResponseThresholdDb(Integer probeResponseThresholdDb) {
-		this.probeResponseThresholdDb = probeResponseThresholdDb;
-	}
+    public void setProbeResponseThresholdDb(Integer probeResponseThresholdDb) {
+        this.probeResponseThresholdDb = probeResponseThresholdDb;
+    }
 
-	public Integer getClientDisconnectThresholdDb() {
-		return clientDisconnectThresholdDb;
-	}
+    public Integer getClientDisconnectThresholdDb() {
+        return clientDisconnectThresholdDb;
+    }
 
-	public void setClientDisconnectThresholdDb(Integer clientDisconnectThresholdDb) {
-		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
-	}
+    public void setClientDisconnectThresholdDb(Integer clientDisconnectThresholdDb) {
+        this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
+    }
 
-	public Integer getEirpTxPower() {
-		return eirpTxPower;
-	}
+    public Integer getEirpTxPower() {
+        return eirpTxPower;
+    }
 
-	public void setEirpTxPower(Integer eirpTxPower) {
-		this.eirpTxPower = eirpTxPower;
-	}
+    public void setEirpTxPower(Integer eirpTxPower) {
+        if (eirpTxPower > MAX_EIRP_TX_POWER) {
+            this.eirpTxPower = MAX_EIRP_TX_POWER;
+        } else if (eirpTxPower < MIN_EIRP_TX_POWER) {
+            this.eirpTxPower = MAX_EIRP_TX_POWER;
+        } else {
+            this.eirpTxPower = eirpTxPower;
+        }
+    }
 
-	public Boolean getBestApEnabled() {
-		return bestApEnabled;
-	}
+    public Boolean getBestApEnabled() {
+        return bestApEnabled;
+    }
 
-	public void setBestApEnabled(Boolean bestApEnabled) {
-		this.bestApEnabled = bestApEnabled;
-	}
+    public void setBestApEnabled(Boolean bestApEnabled) {
+        this.bestApEnabled = bestApEnabled;
+    }
 
-	public NeighbouringAPListConfiguration getNeighbouringListApConfig() {
-		return neighbouringListApConfig;
-	}
+    public NeighbouringAPListConfiguration getNeighbouringListApConfig() {
+        return neighbouringListApConfig;
+    }
 
-	public void setNeighbouringListApConfig(NeighbouringAPListConfiguration neighbouringListApConfig) {
-		this.neighbouringListApConfig = neighbouringListApConfig;
-	}
+    public void setNeighbouringListApConfig(NeighbouringAPListConfiguration neighbouringListApConfig) {
+        this.neighbouringListApConfig = neighbouringListApConfig;
+    }
 
-	public Integer getMinAutoCellSize() {
-		if (minAutoCellSize == null) {
-     		if (MIN_CELL_SIZE_MAP.containsKey(this.radioType)) {
-     			return MIN_CELL_SIZE_MAP.get(this.radioType);
-     		} else {
-     			return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
-     		}
- 		}
-		
-		return minAutoCellSize;
-	}
+    public Integer getMinAutoCellSize() {
+        if (minAutoCellSize == null) {
+            if (MIN_CELL_SIZE_MAP.containsKey(this.radioType)) {
+                return MIN_CELL_SIZE_MAP.get(this.radioType);
+            } else {
+                return MIN_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
+            }
+        }
 
-	public void setMinAutoCellSize(Integer minAutoCellSize) {
-		this.minAutoCellSize = minAutoCellSize;
-	}
+        return minAutoCellSize;
+    }
 
-	public Boolean getPerimeterDetectionEnabled() {
-		return perimeterDetectionEnabled;
-	}
+    public void setMinAutoCellSize(Integer minAutoCellSize) {
+        this.minAutoCellSize = minAutoCellSize;
+    }
 
-	public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
-		this.perimeterDetectionEnabled = perimeterDetectionEnabled;
-	}
+    public Boolean getPerimeterDetectionEnabled() {
+        return perimeterDetectionEnabled;
+    }
 
-	public ChannelHopSettings getChannelHopSettings() {
-		return channelHopSettings;
-	}
+    public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
+        this.perimeterDetectionEnabled = perimeterDetectionEnabled;
+    }
 
-	public void setChannelHopSettings(ChannelHopSettings channelHopSettings) {
-		this.channelHopSettings = channelHopSettings;
-	}
+    public ChannelHopSettings getChannelHopSettings() {
+        return channelHopSettings;
+    }
 
-	public RadioBestApSettings getBestApSettings() {
-		return bestApSettings;
-	}
+    public void setChannelHopSettings(ChannelHopSettings channelHopSettings) {
+        this.channelHopSettings = channelHopSettings;
+    }
 
-	public void setBestApSettings(RadioBestApSettings bestApSettings) {
-		this.bestApSettings = bestApSettings;
-	}
+    public RadioBestApSettings getBestApSettings() {
+        return bestApSettings;
+    }
 
-	@Override
+    public void setBestApSettings(RadioBestApSettings bestApSettings) {
+        this.bestApSettings = bestApSettings;
+    }
+
+    @Override
     public RfElementConfiguration clone() {
         return (RfElementConfiguration) super.clone();
     }
-	
-	@Override
-	public boolean hasUnsupportedValue() {
-		if (super.hasUnsupportedValue()) {
-			return true;
-		}
-		if (StateSetting.isUnsupported(forceScanDuringVoice) 
-				|| RadioMode.isUnsupported(radioMode)
-				|| RadioType.isUnsupported(radioType)
-				|| ChannelBandwidth.isUnsupported(channelBandwidth)
-				|| MimoMode.isUnsupported(mimoMode) 
-				|| MulticastRate.isUnsupported(multicastRate) 
-				|| ActiveScanSettings.hasUnsupportedValue(activeScanSettings) 
-				|| ManagementRate.isUnsupported(managementRate)
-				|| NeighbouringAPListConfiguration.hasUnsupportedValue(neighbouringListApConfig)
-				|| ChannelHopSettings.hasUnsupportedValue(channelHopSettings) 
-				|| RadioBestApSettings.hasUnsupportedValue(bestApSettings)
-				) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
+
+    @Override
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+        if (StateSetting.isUnsupported(forceScanDuringVoice) || RadioMode.isUnsupported(radioMode)
+                || RadioType.isUnsupported(radioType) || ChannelBandwidth.isUnsupported(channelBandwidth)
+                || MimoMode.isUnsupported(mimoMode) || MulticastRate.isUnsupported(multicastRate)
+                || ActiveScanSettings.hasUnsupportedValue(activeScanSettings)
+                || ManagementRate.isUnsupported(managementRate)
+                || NeighbouringAPListConfiguration.hasUnsupportedValue(neighbouringListApConfig)
+                || ChannelHopSettings.hasUnsupportedValue(channelHopSettings)
+                || RadioBestApSettings.hasUnsupportedValue(bestApSettings)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Ensures that there is no conflict in business logic due to misconfigured
      * values.
      */
     public void validate() {
         if (radioType == RadioType.is2dot4GHz) {
             if (radioMode == RadioMode.modeAC) {
-                throw new ConfigurationException("Radio Configuration not valid: 2.4GHz radio can't be set to AC radio mode.");
+                throw new ConfigurationException(
+                        "Radio Configuration not valid: 2.4GHz radio can't be set to AC radio mode.");
             }
         } else {
             if (radioMode == RadioMode.modeGN) {
-                throw new ConfigurationException("Radio Configuration not valid: 5GHz radio can't be set to GN radio mode.");
+                throw new ConfigurationException(
+                        "Radio Configuration not valid: 5GHz radio can't be set to GN radio mode.");
             }
         }
     }

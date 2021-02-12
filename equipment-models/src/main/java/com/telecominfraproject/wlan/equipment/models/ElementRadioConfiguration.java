@@ -58,7 +58,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 			returnValue.setBackupChannelNumber(44);  
 		} else if (radioType == RadioType.is5GHzU) {
 			returnValue.setChannelNumber(149);
-			returnValue.setBackupChannelNumber(154); 
+			returnValue.setBackupChannelNumber(157);
 		} else {
 			returnValue.setChannelNumber(6);
 			returnValue.setBackupChannelNumber(11);

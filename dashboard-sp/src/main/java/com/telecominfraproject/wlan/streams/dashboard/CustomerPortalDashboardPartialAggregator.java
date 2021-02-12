@@ -1,7 +1,9 @@
 package com.telecominfraproject.wlan.streams.dashboard;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,14 +17,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.AlarmCode;
+import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetric;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
+import com.telecominfraproject.wlan.status.dashboard.models.events.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.stream.StreamInterface;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
-import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
@@ -87,6 +92,9 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
         @Autowired @Qualifier("customerEventStreamInterface") private StreamInterface<SystemEventRecord> customerEventStream;
 
 	    private ConcurrentHashMap<Integer, CustomerPortalDashboardPartialContext> contextPerCustomerIdMap = new ConcurrentHashMap<>();
+	    
+	    @Autowired
+	    private AlarmServiceInterface alarmServiceInterface;
 	    
 
 	    @Override
@@ -191,6 +199,11 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
 			        				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
 			        				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
+			        				
+			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), context.getEquipmentIds(), Collections.emptySet());
+			        				for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
+			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity(), entry.getValue().get());
+			        				}
 			        				
 			        				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
 			        				

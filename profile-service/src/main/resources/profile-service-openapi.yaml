@@ -407,7 +407,15 @@ components:
             type: integer
             format: int32
           ntpServer:
-            $ref: '#/components/schemas/AutoOrManualString'
+            allOf:
+            - $ref: '#/components/schemas/AutoOrManualString'
+            - type: object
+            properties:
+              auto:
+                type: boolean
+              value:
+                type: string
+                default: "pool.ntp.org"
           syslogRelay:
             $ref: '#/components/schemas/SyslogRelay'
           rtlsSettings:
@@ -791,6 +799,9 @@ components:
         eirpTxPower:
           type: integer
           format: int32
+          minimum: 1
+          maximum: 32
+          default: 18
         bestApEnabled:
           type: boolean
         neighbouringListApConfig:
@@ -828,6 +839,8 @@ components:
           vlanId:
             type: integer
             format: int32
+          dynamicVlan:
+            $ref: '#/components/schemas/DynamicVlanMode'
           keyStr:
             type: string
           broadcastSsid:
@@ -879,6 +892,15 @@ components:
             $ref: '#/components/schemas/WepConfiguration'
           forwardMode:
             $ref: '#/components/schemas/NetworkForwardMode'
+
+    DynamicVlanMode:
+      description: Dynamic Vlan Setting for Bridge Mode Radius Authentication, can only be enabled for Bridged Mode Radius Authentication. Otherwise disabled. Qualified enabled option specifies that Radius Authentication is rejected if Dynamic Vlan is not given by the Radius.
+      type: string
+      enum:
+      - disabled
+      - enabled
+      - enabled_reject_if_no_radius_dynamic_vlan
+      default: disabled
             
     SsidSecureMode:
       type: string

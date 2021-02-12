@@ -393,7 +393,7 @@ public abstract class BaseEquipmentDatastoreTest {
        for(int i = 0; i< 50; i++){
            mdl = new Equipment();
            mdl.setCustomerId(customerId_2);
-           mdl.setName("cr_"+apNameIdx);
+           mdl.setName("Cr_"+apNameIdx);
            mdl.setProfileId(1);
            mdl.setLocationId(locationId_3);
            EquipmentType type = (i % 2 == 0) ? EquipmentType.AP : EquipmentType.SWITCH;
@@ -466,13 +466,13 @@ public abstract class BaseEquipmentDatastoreTest {
        
        // "A1" baseMacAddresses should return the same set as locationId_1
        Set<Long> emptyLocationIds = Collections.emptySet();
-       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, context);
-       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page1EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page2EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page3EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page4EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page5EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page6EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, context);
+       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page1EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page2EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page3EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page4EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page5EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBaseMac = testInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "a1", sortBy, page6EmptyLocationIdsSearchBaseMac.getContext());
        
        assertEquals(page1.getItems(), page1EmptyLocationIdsSearchBaseMac.getItems());
        assertEquals(page2.getItems(), page2EmptyLocationIdsSearchBaseMac.getItems());
@@ -509,13 +509,13 @@ public abstract class BaseEquipmentDatastoreTest {
        assertEquals(page7EmptyLocationIdsSearchB1.getItems(), page7EmptyLocationIdsSearchBr.getItems());
        
        // check that equipmentType == null gets any equipmentType using 3rd set of created equipment (mixed equipmentTypes)
-       PaginationResponse<Equipment> page1nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, context);
-       PaginationResponse<Equipment> page2nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page1nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page3nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page2nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page4nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page3nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page5nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page4nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page6nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page5nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page7nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page6nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page1nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, context);
+       PaginationResponse<Equipment> page2nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page1nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page3nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page2nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page4nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page3nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page5nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page4nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page6nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page5nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page7nullEquipmentType = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "CR", sortBy, page6nullEquipmentType.getContext());
 
        // verify
        assertEquals(10, page1nullEquipmentType.getItems().size());
@@ -532,6 +532,21 @@ public abstract class BaseEquipmentDatastoreTest {
        
        assertEquals(0, page6nullEquipmentType.getItems().size());
        assertEquals(0, page7nullEquipmentType.getItems().size());
+       
+       // Check case insensitivity. DB contains "Cr" name entries, then "CR" and "cr" should return the same results.
+       PaginationResponse<Equipment> page1nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, context);
+       PaginationResponse<Equipment> page2nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page1nullEquipmentTypeCaseInsensitive.getContext());
+       PaginationResponse<Equipment> page3nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page2nullEquipmentTypeCaseInsensitive.getContext());
+       PaginationResponse<Equipment> page4nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page3nullEquipmentTypeCaseInsensitive.getContext());
+       PaginationResponse<Equipment> page5nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page4nullEquipmentTypeCaseInsensitive.getContext());
+       PaginationResponse<Equipment> page6nullEquipmentTypeCaseInsensitive = testInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page5nullEquipmentTypeCaseInsensitive.getContext());
+
+       assertEquals(page1nullEquipmentType.getItems(), page1nullEquipmentTypeCaseInsensitive.getItems());
+       assertEquals(page2nullEquipmentType.getItems(), page2nullEquipmentTypeCaseInsensitive.getItems());
+       assertEquals(page3nullEquipmentType.getItems(), page3nullEquipmentTypeCaseInsensitive.getItems());
+       assertEquals(page4nullEquipmentType.getItems(), page4nullEquipmentTypeCaseInsensitive.getItems());
+       assertEquals(page5nullEquipmentType.getItems(), page5nullEquipmentTypeCaseInsensitive.getItems());
+       assertEquals(page6nullEquipmentType.getItems(), page6nullEquipmentTypeCaseInsensitive.getItems());
        
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
