@@ -3069,13 +3069,17 @@ components:
     IntegerPerStatusCodeMap:
       properties:
         normal:
-          type: string
+          type: integer
+          format: int32
         requiresAttention:
-          type: string
+          type: integer
+          format: int32
         error:
-          type: string
+          type: integer
+          format: int32
         disabled:
-          type: string
+          type: integer
+          format: int32
     
     LongPerRadioTypeMap:
       properties:
