@@ -1,12 +1,12 @@
 package com.telecominfraproject.wlan.startuptasks;
 
-import java.io.IOException;
+import java.io.BufferedWriter;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -72,12 +72,8 @@ import com.telecominfraproject.wlan.portaluser.PortalUserServiceInterface;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
 import com.telecominfraproject.wlan.portforwardinggateway.PortForwarderGatewayInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
-import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundPosition;
-import com.telecominfraproject.wlan.profile.captiveportal.models.BackgroundRepeat;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalAuthenticationType;
 import com.telecominfraproject.wlan.profile.captiveportal.models.CaptivePortalConfiguration;
-import com.telecominfraproject.wlan.profile.captiveportal.models.RadiusAuthenticationMethod;
-import com.telecominfraproject.wlan.profile.captiveportal.models.SessionExpiryType;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserDetails;
 import com.telecominfraproject.wlan.profile.captiveportal.user.models.TimedAccessUserRecord;
 import com.telecominfraproject.wlan.profile.event.models.ApEventRateConfigurationDetails;
@@ -170,7 +166,7 @@ public class AllInOneStartListener implements ApplicationRunner {
 
     @Autowired
     private FirmwareServiceInterface firmwareInterface;
-    
+
     @Autowired
     private PortForwarderGatewayInterface portForwarderGatewayInterface;
 
@@ -329,6 +325,11 @@ public class AllInOneStartListener implements ApplicationRunner {
         profileRf.setDetails(rfConfig);
         profileRf = profileServiceInterface.create(profileRf);
 
+        // create userlist file
+        Path path = constructCaptivePortalUserList();
+
+        LOG.debug("Path to userlist {}", path);
+
         // Captive portal profile
         Profile profileCaptivePortal = new Profile();
         profileCaptivePortal.setCustomerId(customer.getId());
@@ -338,19 +339,22 @@ public class AllInOneStartListener implements ApplicationRunner {
         CaptivePortalConfiguration captivePortalConfig = new CaptivePortalConfiguration();
         captivePortalConfig.setRedirectURL("https://www.google.com");
         captivePortalConfig.setSessionTimeoutInMinutes(10);
-        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
+        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.username);
         ManagedFileInfo backgroundFile = new ManagedFileInfo();
         backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
         backgroundFile.setFileType(FileType.PNG);
-        backgroundFile.setApExportUrl("/filestore/tip-logo");
+        backgroundFile.setApExportUrl("/filestore/tip-logo.png");
         ManagedFileInfo logoFile = new ManagedFileInfo();
         logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
         logoFile.setFileType(FileType.PNG);
-        logoFile.setApExportUrl("/filestore/tip-logo-mobile");
+        logoFile.setApExportUrl("/filestore/tip-logo-mobile.png");
+        ManagedFileInfo usernamePasswordFile = new ManagedFileInfo();
+        usernamePasswordFile.setFileCategory(FileCategory.UsernamePasswordList);
+        usernamePasswordFile.setFileType(FileType.TEXT);
+        usernamePasswordFile.setApExportUrl("/filestore/userlist.txt");
+        captivePortalConfig.setUsernamePasswordFile(usernamePasswordFile);
         captivePortalConfig.setBackgroundFile(backgroundFile);
         captivePortalConfig.setLogoFile(logoFile);
-       
-        captivePortalConfig.setAuthenticationType(CaptivePortalAuthenticationType.guest);
         captivePortalConfig.setBrowserTitle(profileCaptivePortal.getName());
         profileCaptivePortal.setDetails(captivePortalConfig);
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
@@ -363,10 +367,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         appliedRadios_3_radios_captive.add(RadioType.is2dot4GHz);
         ssidConfig_captive.setAppliedRadios(appliedRadios_3_radios_captive);
         ssidConfig_captive.setSsid("TipWlan-captive");
-        ssidConfig_captive.setSecureMode(SecureMode.wpa2PSK);
+        ssidConfig_captive.setSecureMode(SecureMode.open);
         ssidConfig_captive.setRadiusAcountingServiceInterval(60);
         ssidConfig_captive.setCaptivePortalId(profileCaptivePortal.getId());
-        ssidConfig_captive.setKeyStr(DEFAULT_KEYSTRING);
         ssidConfig_captive.setForwardMode(NetworkForwardMode.NAT);
         profileSsid_captive.setDetails(ssidConfig_captive);
         profileSsid_captive.getChildProfileIds().add(profileCaptivePortal.getId());
@@ -394,8 +397,8 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setRadioMap(radioProfileMap_3_radios);
 
         try {
-            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1", InetAddress.getByName("192.168.1.101"),
-                    Set.of(Integer.valueOf(100))));
+            Set<GreTunnelConfiguration> greTunnels = Set.of(new GreTunnelConfiguration("gre1",
+                    InetAddress.getByName("192.168.1.101"), Set.of(Integer.valueOf(100))));
             ((ApNetworkConfiguration) profileAp_3_radios.getDetails()).setGreTunnelConfigurations(greTunnels);
 
         } catch (UnknownHostException e) {
@@ -853,7 +856,9 @@ public class AllInOneStartListener implements ApplicationRunner {
         return hotspot20IdProviderProfile;
     }
 
-    protected void constructCaptivePortalUserList(List<TimedAccessUserRecord> userList) {
+    protected Path constructCaptivePortalUserList() {
+
+        List<TimedAccessUserRecord> userList = new ArrayList<>();
 
         TimedAccessUserRecord userRecord1 = new TimedAccessUserRecord();
         userRecord1.setActivationTime(System.currentTimeMillis());
@@ -931,34 +936,27 @@ public class AllInOneStartListener implements ApplicationRunner {
         userRecord4.setUserMacAddresses(userMacAddresses4);
         userList.add(userRecord4);
 
-        Path path = Paths.get("/tmp/tip-wlan-filestore/userList");
+        Path path = Paths.get("/tmp/tip-wlan-filestore/userlist.txt");
 
         try {
             Files.deleteIfExists(path);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        StringBuilder sb = new StringBuilder();
         for (TimedAccessUserRecord userRecord : userList) {
-
-            byte[] bytes = ("username=" + userRecord.getUsername() + ", password=" + userRecord.getPassword()
+            sb.append("username=" + userRecord.getUsername() + ", password=" + userRecord.getPassword()
                     + ", firstname=" + userRecord.getUserDetails().getFirstName() + ", lastname="
-                    + userRecord.getUserDetails().getLastName() + System.lineSeparator()).getBytes();
-            try {
-                Files.write(path, bytes, StandardOpenOption.APPEND);
-                System.out.println("Successfully written data to the file");
-            } catch (NoSuchFileException e) {
-                try {
-                    Files.write(path, bytes);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-
+                    + userRecord.getUserDetails().getLastName() + System.lineSeparator());
         }
-
+        try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
+            bw.write(sb.toString());
+            System.out.println("Successfully written data to the file");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return path;
     }
 
     private void createFirmwareObjects(Customer customer) {
@@ -1265,7 +1263,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 smrClient.setDetails(clientMetrics);
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
-                smrClient.setLocationId(equipment.getLocationId());                
+                smrClient.setLocationId(equipment.getLocationId());
 
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzL);
@@ -1293,7 +1291,7 @@ public class AllInOneStartListener implements ApplicationRunner {
                 smrClient.setCreatedTimestamp(smr.getCreatedTimestamp());
                 smrClient.setClientMac(clientMac.getAddressAsLong());
                 smrClient.setLocationId(equipment.getLocationId());
-                
+
                 clientMetrics.setPeriodLengthSec(60);
                 clientMetrics.setRadioType(RadioType.is5GHzU);
 
