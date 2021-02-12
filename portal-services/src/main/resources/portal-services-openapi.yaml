@@ -676,6 +676,8 @@ components:
 
     DaysOfWeekTimeRangeSchedule:
       type: object
+      required:
+        - model_type
       properties:
         timezone:
           type: string
@@ -687,6 +689,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DayOfWeek'
+        model_type:
+          type: string
     
     LocalTimeValue:
       type: object
@@ -709,6 +713,8 @@ components:
 
     DailyTimeRangeSchedule:
       type: object
+      required:
+        - model_type
       properties:
         timezone:
           type: string
@@ -716,6 +722,9 @@ components:
           $ref: '#/components/schemas/LocalTimeValue'
         timeEnd:
           $ref: '#/components/schemas/LocalTimeValue'
+        model_type:
+          type: string
+
       example:
         model_type: DailyTimeRangeSchedule
         timezone: "US/Eastern"
@@ -728,10 +737,15 @@ components:
 
     EmptySchedule:
       description: This schedule setting will never return any TimeWindows.
+      required:
+        - model_type
       type: object
       properties:
         timezone:
           type: string
+        model_type:
+          type: string
+
       example:
         model_type: EmptySchedule
         timezone: "US/Eastern"
@@ -909,7 +923,11 @@ components:
 
     ApElementConfiguration:
       type: object
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         elementConfigVersion:
           type: string
         equipmentType:
@@ -2965,6 +2983,8 @@ components:
         propertyName: model_type
     
     CustomerPortalDashboardStatus:
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3003,10 +3023,14 @@ components:
           $ref: '#/components/schemas/IntegerValueMap'
         equipmentCountPerOui:
           $ref: '#/components/schemas/IntegerValueMap'
+        alarmsCountBySeverity:
+          $ref: '#/components/schemas/IntegerPerStatusCodeMap'
 
       
     ActiveBSSIDs:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3041,6 +3065,8 @@ components:
 
     ClientConnectionDetails:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3067,6 +3093,21 @@ components:
         is2dot4GHz:
           type: integer
           format: int32
+          
+    IntegerPerStatusCodeMap:
+      properties:
+        normal:
+          type: integer
+          format: int32
+        requiresAttention:
+          type: integer
+          format: int32
+        error:
+          type: integer
+          format: int32
+        disabled:
+          type: integer
+          format: int32
     
     LongPerRadioTypeMap:
       properties:
@@ -3086,6 +3127,8 @@ components:
 
     EquipmentAdminStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3110,6 +3153,8 @@ components:
 
     EquipmentLANStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3148,6 +3193,8 @@ components:
 
     EquipmentNeighbouringStatusData:
       description: TODO - either describe the properties of this object or remove it.
+      required:
+        - model_type
       type: object
       properties:
         model_type:
@@ -3161,6 +3208,8 @@ components:
 
     EquipmentPeerStatusData:
       description: TODO - either describe the properties of this object or remove it.
+      required:
+        - model_type
       type: object
       properties:
         model_type:
@@ -3175,6 +3224,8 @@ components:
 
     EquipmentProtocolStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3252,6 +3303,8 @@ components:
 
     EquipmentScanDetails:
       description: TODO - document it or remove it
+      required:
+        - model_type
       type: object
       properties:
         model_type:
@@ -3267,6 +3320,8 @@ components:
 
     EquipmentUpgradeStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3333,6 +3388,8 @@ components:
 
     NetworkAdminStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3402,6 +3459,8 @@ components:
       
     NetworkAggregateStatusData:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3813,6 +3872,8 @@ components:
 
     OperatingSystemPerformance:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -3850,6 +3911,8 @@ components:
 
     RadioUtilizationReport:
       type: object
+      required:
+        - model_type
       properties:
         model_type:
           type: string
@@ -4644,7 +4707,11 @@ components:
         propertyName: model_type
 
     NeighbourScanReports:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         neighbourReports:
           type: array
           items:
@@ -4742,7 +4809,11 @@ components:
       - SGI# Short Guard Interval
 
     ClientMetrics:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         secondsSinceLastRecv:
           type: integer
           format: int32
@@ -6219,7 +6290,11 @@ components:
         
     
     ChannelInfoReports:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         channelInformationReportsPerRadio:
           $ref: '#/components/schemas/ListOfChannelInfoReportsPerRadioMap'
 
@@ -6261,7 +6336,11 @@ components:
         
 
     ApSsidMetrics:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         ssidStats:
           $ref: '#/components/schemas/ListOfSsidStatisticsPerRadioMap'
 
@@ -6529,7 +6608,11 @@ components:
       
     ApNodeMetrics:
       type: object
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         periodLengthSec:
           description: How many seconds the AP measured for the metric
           type: integer
@@ -8754,7 +8837,11 @@ components:
         propertyName: model_type
         
     GatewayAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8762,7 +8849,11 @@ components:
           $ref: '#/components/schemas/EquipmentGatewayRecord'
 
     GatewayChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8770,7 +8861,11 @@ components:
           $ref: '#/components/schemas/EquipmentGatewayRecord'
 
     GatewayRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8778,7 +8873,11 @@ components:
           $ref: '#/components/schemas/EquipmentGatewayRecord'
           
     RoutingAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8792,7 +8891,11 @@ components:
           $ref: '#/components/schemas/EquipmentRoutingRecord'
 
     RoutingChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8806,7 +8909,11 @@ components:
           $ref: '#/components/schemas/EquipmentRoutingRecord'
 
     RoutingRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8820,7 +8927,11 @@ components:
           $ref: '#/components/schemas/EquipmentRoutingRecord'
 
     ClientAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8831,7 +8942,11 @@ components:
           $ref: '#/components/schemas/Client'
 
     ClientChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8842,7 +8957,11 @@ components:
           $ref: '#/components/schemas/Client'
 
     ClientRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8853,7 +8972,11 @@ components:
           $ref: '#/components/schemas/Client'
 
     ClientSessionChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8867,7 +8990,11 @@ components:
           $ref: '#/components/schemas/ClientSession'
 
     ClientSessionRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8881,7 +9008,11 @@ components:
           $ref: '#/components/schemas/ClientSession'
 
     CustomerAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8892,7 +9023,11 @@ components:
           $ref: '#/components/schemas/Customer'
 
     CustomerChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8903,7 +9038,11 @@ components:
           $ref: '#/components/schemas/Customer'
 
     CustomerRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8914,7 +9053,11 @@ components:
           $ref: '#/components/schemas/Customer'
 
     LocationAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8925,7 +9068,11 @@ components:
           $ref: '#/components/schemas/Location'
 
     LocationChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8936,7 +9083,11 @@ components:
           $ref: '#/components/schemas/Location'
 
     LocationRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8947,7 +9098,11 @@ components:
           $ref: '#/components/schemas/Location'
 
     EquipmentAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8961,7 +9116,11 @@ components:
           $ref: '#/components/schemas/Equipment'
 
     EquipmentChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8975,7 +9134,11 @@ components:
           $ref: '#/components/schemas/Equipment'
 
     EquipmentRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -8989,7 +9152,11 @@ components:
           $ref: '#/components/schemas/Equipment'
 
     AlarmAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9003,7 +9170,11 @@ components:
           $ref: '#/components/schemas/Alarm'
 
     AlarmChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9017,7 +9188,11 @@ components:
           $ref: '#/components/schemas/Alarm'
 
     AlarmRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9031,7 +9206,11 @@ components:
           $ref: '#/components/schemas/Alarm'
 
     PortalUserAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9042,7 +9221,11 @@ components:
           $ref: '#/components/schemas/PortalUser'
 
     PortalUserChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9053,7 +9236,11 @@ components:
           $ref: '#/components/schemas/PortalUser'
 
     PortalUserRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9064,7 +9251,11 @@ components:
           $ref: '#/components/schemas/PortalUser'
 
     ProfileAddedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9075,7 +9266,11 @@ components:
           $ref: '#/components/schemas/Profile'
 
     ProfileChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9086,7 +9281,11 @@ components:
           $ref: '#/components/schemas/Profile'
 
     ProfileRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9097,7 +9296,11 @@ components:
           $ref: '#/components/schemas/Profile'
 
     StatusChangedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9111,7 +9314,11 @@ components:
           $ref: '#/components/schemas/Status'
 
     StatusRemovedEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64
@@ -9125,7 +9332,11 @@ components:
           $ref: '#/components/schemas/Status'
           
     BaseDhcpEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/SystemEvent'
         xId:
@@ -9156,7 +9367,11 @@ components:
           format: int64
           
     DhcpAckEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'
         subnetMask:
@@ -9185,24 +9400,40 @@ components:
           type: string
                        
     DhcpDeclineEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'   
 
     DhcpDiscoverEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'
         hostName:
           type: string
              
     DhcpInformEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'   
     
     DhcpNakEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent' 
         fromInternal:
@@ -9210,7 +9441,11 @@ components:
           default: false
     
     DhcpOfferEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'   
         fromInternal:
@@ -9218,14 +9453,22 @@ components:
           default: false
     
     DhcpRequestEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/BaseDhcpEvent'   
         hostName:
           type: string 
               
     RealTimeEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/SystemEvent'
         eventTimestamp:
@@ -9239,7 +9482,11 @@ components:
           format: int64
           
     ClientAssocEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9269,7 +9516,11 @@ components:
           type: boolean
 
     ClientConnectSuccessEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         clientMacAddress:
@@ -9324,7 +9575,11 @@ components:
           format: int32
 
     ClientFailureEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9340,7 +9595,11 @@ components:
           type: string    
 
     ClientIdEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9364,7 +9623,11 @@ components:
         - UNSUPPORTED
 
     ClientTimeoutEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9382,7 +9645,11 @@ components:
           $ref: '#/components/schemas/ClientTimeoutReason'
 
     ClientAuthEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9414,7 +9681,11 @@ components:
         - UNSUPPORTED
         
     ClientDisconnectEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9451,7 +9722,11 @@ components:
           $ref: '#/components/schemas/DisconnectInitiator'
 
     ClientFirstDataEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
@@ -9467,7 +9742,11 @@ components:
           format: int64
           
     ClientIpAddressEvent :
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'   
         sessionId:
@@ -9489,7 +9768,11 @@ components:
         - UNSUPPORTED
         
     RealtimeChannelHopEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         oldChannel:
@@ -9504,7 +9787,11 @@ components:
           $ref: '#/components/schemas/RadioType'   
           
     RealTimeSipCallEventWithStats:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sipCallId:
@@ -9531,23 +9818,23 @@ components:
         providerDomain:
           type: string
 
-    SIPCallReportReason:
-      type: string
-      enum:
-        - ROAMED_FROM
-        - ROAMED_TO
-        - GOT_PUBLISH
-        - UNSUPPORTED
-        
     RealTimeSipCallReportEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
         reportReason:
           $ref: '#/components/schemas/SIPCallReportReason'
         
     RealTimeSipCallStartEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sipCallId:
@@ -9580,7 +9867,11 @@ components:
         - UNSUPPORTED      
 
     RealTimeSipCallStopEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         callDuration:
@@ -9590,7 +9881,11 @@ components:
           $ref: '#/components/schemas/SipCallStopReason'
 
     RealTimeStreamingStartEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         videoSessionId:
@@ -9610,7 +9905,11 @@ components:
           $ref: '#/components/schemas/StreamingVideoType'
 
     RealTimeStreamingStartSessionEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         videoSessionId:
@@ -9628,7 +9927,11 @@ components:
           $ref: '#/components/schemas/StreamingVideoType'
  
     RealTimeStreamingStopEvent:
+      required:
+        - model_type
       properties:
+        model_type:
+          type: string
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         videoSessionId:
@@ -9691,7 +9994,7 @@ components:
         - VIDEO
         - UNSUPPORTED
     
-    SipCallReportReason:
+    SIPCallReportReason:
       type: string
       enum:
         - ROAMED_FROM
@@ -9732,8 +10035,12 @@ components:
           format: int64
 
     UnserializableSystemEvent:
+      required:
+        - model_type
       description: This event is used in situations when the cloud cannot parse the event that was previously stored in the DB, used to cover upgrade scenarios.
       properties:
+        model_type:
+          type: string
         eventTimestamp:
           type: integer
           format: int64

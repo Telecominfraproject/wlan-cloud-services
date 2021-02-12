@@ -24,6 +24,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationExcepti
 import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.events.LocationAddedEvent;
+import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
 import com.telecominfraproject.wlan.location.models.events.LocationRemovedEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
@@ -93,11 +94,19 @@ public class LocationServiceController {
             LOG.error("Failed to update location, request contains unsupported value: {}", location);
             throw new DsDataValidationException("Location contains unsupported value");
         }
+        
+        Location existingLocation = locationDatastore.get(location.getId());
 
         Location ret = locationDatastore.update(location);
         
-        LocationChangedEvent event = new LocationChangedEvent(ret);
-        publishEvent(event);
+        List<SystemEvent> events = new ArrayList<>();
+        
+        if (ret.needsToBeUpdatedOnDevice(existingLocation)) {
+        	events.add(new LocationChangedApImpactingEvent(ret));
+        }
+        events.add(new LocationChangedEvent(ret));
+        
+        publishEvents(events);
 
         return ret;
     }
@@ -255,6 +264,14 @@ public class LocationServiceController {
             cloudEventDispatcher.publishEvent(event);
         } catch (Exception e) {
             LOG.error("Failed to publish event : {}", event, e);
+        }
+    }
+    
+    private void publishEvents(List<SystemEvent> events) {
+        try {
+            cloudEventDispatcher.publishEventsBulk(events);
+        } catch (Exception e) {
+            LOG.error("Failed to publish events : {}", events, e);
         }
     }
 

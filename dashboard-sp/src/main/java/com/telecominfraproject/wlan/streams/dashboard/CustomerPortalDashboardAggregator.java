@@ -19,9 +19,9 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
+import com.telecominfraproject.wlan.status.dashboard.models.events.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.status.models.Status;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
-import com.telecominfraproject.wlan.systemevent.aggregation.models.CustomerPortalDashboardPartialEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
