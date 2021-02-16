@@ -52,7 +52,8 @@ public class EquipmentElementConfigurationTests
        ElementRadioConfiguration radioConfig = apElemConfig.getRadioMap().get(RadioType.is5GHzU);
        assertTrue(radioConfig.getActiveChannel(true) >= 149);
        assertTrue(radioConfig.getChannelNumber() >= 149);
-       assertTrue(radioConfig.getBackupChannelNumber() >= 149);
+       assertTrue(radioConfig.getBackupChannelNumber() >= 157);
+       assertTrue(radioConfig.getActiveBackupChannel(true) >= 157);
        
    }
    

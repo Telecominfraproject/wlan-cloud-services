@@ -1155,7 +1155,11 @@ components:
           type: integer
           format: int32
         backupChannelNumber:
-          description: Backup channel (this is never set by the customer - it's deduced from the primary channel (either manual or auto)
+          description: The backup channel that was picked through the cloud's assigment
+          type: integer
+          format: int32
+        manualBackupChannelNumber:
+          description: The backup channel that was manually entered
           type: integer
           format: int32
         rxCellSizeDb:
