@@ -284,12 +284,6 @@ components:
           type: string
         filePath:
           type: string
-        validationCode:
-          type: string
-        validationMethod:
-          type: string
-          enum:
-            - MD5_CHECKSUM
 
     CEGWStopDebugEngine:
       allOf:

@@ -5,8 +5,6 @@ package com.telecominfraproject.wlan.equipmentgateway.models;
 
 import java.util.Objects;
 
-import com.telecominfraproject.wlan.firmware.models.ValidationMethod;
-
 /**
  * @author ekeddy
  *
@@ -19,24 +17,17 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
     private static final long serialVersionUID = -6558620760271952936L;
     private String firmwareVersion;
     private String filePath;
-    private ValidationMethod validationMethod;
-    private String validationCode;
 
     /**
      * @param qrCode
      * @param equipmentId
      * @param filePath
      * @param firmwareVersion
-     * @param validationMethod2
-     * @param validationCode
      */
-    public CEGWFirmwareDownloadRequest(String qrCode, long equipmentId, String firmwareVersion, String filePath,
-           ValidationMethod validationMethod2, String validationCode) {
+    public CEGWFirmwareDownloadRequest(String qrCode, long equipmentId, String firmwareVersion, String filePath) {
         super(CEGWCommandType.FirmwareDownloadRequest, qrCode, equipmentId);
         this.setFirmwareVersion(firmwareVersion);
         this.setFilePath(filePath);
-        this.setValidationMethod(validationMethod2);
-        this.setValidationCode(validationCode);
     }
 
     /**
@@ -54,22 +45,6 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
         this.filePath = filePath;
     }
 
-    public ValidationMethod getValidationMethod() {
-        return validationMethod;
-    }
-
-    public void setValidationMethod(ValidationMethod validationMethod) {
-        this.validationMethod = validationMethod;
-    }
-
-    public String getValidationCode() {
-        return validationCode;
-    }
-
-    public void setValidationCode(String validationCode) {
-        this.validationCode = validationCode;
-    }
-
     public String getFirmwareVersion() {
         return firmwareVersion;
     }
@@ -84,9 +59,6 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
             return true;
         }
 
-        if (ValidationMethod.isUnsupported(validationMethod)) {
-            return true;
-        }
         return false;
     }
 
@@ -94,7 +66,7 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(filePath, firmwareVersion, validationCode, validationMethod);
+        result = prime * result + Objects.hash(filePath, firmwareVersion);
         return result;
     }
 
@@ -110,9 +82,7 @@ public class CEGWFirmwareDownloadRequest extends EquipmentCommand {
             return false;
         }
         CEGWFirmwareDownloadRequest other = (CEGWFirmwareDownloadRequest) obj;
-        return Objects.equals(filePath, other.filePath) && Objects.equals(firmwareVersion, other.firmwareVersion)
-                && Objects.equals(validationCode, other.validationCode)
-                && this.validationMethod == other.validationMethod;
+        return Objects.equals(filePath, other.filePath) && Objects.equals(firmwareVersion, other.firmwareVersion);
     }
 
 }

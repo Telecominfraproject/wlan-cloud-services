@@ -77,11 +77,6 @@ public class FirmwareController {
     public FirmwareVersion createFirmwareVersion(@RequestBody FirmwareVersion firmwareVersion) {
 
         LOG.debug("Creating FirmwareVersion {}", firmwareVersion);
-        if (firmwareVersion.getValidationMethod() != null
-                && (firmwareVersion.getValidationCode() == null || firmwareVersion.getValidationCode().isEmpty())) {
-            throw new DsDataValidationException(
-                    "A validation code was not provided for the validation method " + firmwareVersion);
-        }
 
         FirmwareVersion ret = firmwareDatastore.create(firmwareVersion);
 
