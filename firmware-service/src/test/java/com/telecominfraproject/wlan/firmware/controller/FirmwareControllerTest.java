@@ -79,6 +79,31 @@ public class FirmwareControllerTest {
         firmwareController.deleteFirmwareVersion(ret.getId());
         
     }
+    
+    @Test
+    public void testFirmwareCRUDWithNoValidationMethod() throws Exception {
+        
+        //Create new Firmware - success
+        FirmwareVersion firmware = new FirmwareVersion();
+        firmware.setEquipmentType(EquipmentType.AP);
+        firmware.setVersionName("FirmwareControllerTest-version");
+        firmware.setCommit("abc");
+        firmware.setDescription("this is the description");
+        firmware.setModelId("FirmwareControllerTest-model1");
+        firmware.setFilename("filename1");
+        firmware.setValidationMethod(null);
+        firmware.setReleaseDate(System.currentTimeMillis());
+
+        FirmwareVersion ret = firmwareController.createFirmwareVersion(firmware);
+        assertNotNull(ret);
+
+        ret = firmwareController.getFirmwareVersion(ret.getId());
+        assertFieldsEqual(firmware, ret);
+
+        //Delete - success
+        firmwareController.deleteFirmwareVersion(ret.getId());
+        
+    }
 
     private void assertFieldsEqual(FirmwareVersion expected, FirmwareVersion actual) {
         // add more fields from FirmwareVersion to check in here

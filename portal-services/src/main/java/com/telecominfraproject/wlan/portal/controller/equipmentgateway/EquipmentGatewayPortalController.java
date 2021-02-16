@@ -51,8 +51,7 @@ public class EquipmentGatewayPortalController  {
         FirmwareVersion fwVersion = firmwareServiceInterface.getFirmwareVersion(firmwareVersionId);
         
         CEGWFirmwareDownloadRequest fwDownloadRequest = new CEGWFirmwareDownloadRequest(equipment.getInventoryId(),
-                equipment.getId(), fwVersion.getVersionName(), fwVersion.getFilename(),
-                fwVersion.getValidationMethod(), fwVersion.getValidationCode());
+                equipment.getId(), fwVersion.getVersionName(), fwVersion.getFilename());
 
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(fwDownloadRequest);
         LOG.debug("FW Download Response {}", response);
