@@ -232,6 +232,9 @@ public class FirmwareVersion extends BaseJsonModel {
     }
 
     public void setValidationMethod(ValidationMethod validationMethod) {
+    	if (validationMethod == null) {
+    		validationMethod = ValidationMethod.NONE;
+    	}
         this.validationMethod = validationMethod;
     }
 
