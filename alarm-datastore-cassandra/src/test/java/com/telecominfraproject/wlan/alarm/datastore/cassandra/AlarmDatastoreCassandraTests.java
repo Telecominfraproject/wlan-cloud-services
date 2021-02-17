@@ -22,7 +22,7 @@ import com.telecominfraproject.wlan.core.server.cassandra.test.BaseCassandraTest
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = BaseCassandraTest.Config.class)
 @Import(value = { AlarmDatastoreCassandra.class, BaseCassandraTest.Config.class, BaseCassandraDataSource.class })
-@Ignore("Ignore Cassandra Tests until we can set up a cassandra cluster for the integration testing")
+//@Ignore("Ignore Cassandra Tests until we can set up a cassandra cluster for the integration testing")
 public class AlarmDatastoreCassandraTests extends BaseAlarmDatastoreTest {
 
     @Override

@@ -20,6 +20,19 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.alarm (
 -- this is needed to support retrieval of all alarms for a customer
 CREATE INDEX IF NOT EXISTS idx_alarm_customerId ON tip_wlan_keyspace.alarm (customerId);
 
+CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.alarm_by_acknowledged (
+    customerId int,
+    equipmentId bigint,
+    alarmCode int, 
+    createdTimestamp bigint,   
+    acknowledged boolean,
+    
+    PRIMARY KEY ((customerId, acknowledged), equipmentId, alarmCode, createdTimestamp)
+) WITH comment='Index Table to look up alarms by acknowledged used by TIP WLAN CloudSDK';
+
+# COPY tip_wlan_keyspace.alarm(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) TO 'alarmToAcknowledgedTable.csv';
+# COPY tip_wlan_keyspace.alarm_by_acknowledged(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) FROM 'alarmToAcknowledgedTable.csv';
+
 /*
 # Experiment with a separate alarm_counts table because raw alarms table generates warnings like these:
 # Query '[5 values] select equipmentId, alarmCode, count(1) from alarm where customerId = ? and equipmentId in (?,?,?,?)  group by equipmentId, alarmCode [customerid=2, equipmentid=4, equipmentid=6, equipmentid=8, equipmentid=10]' generated server side warning(s): Aggregation query used on multiple partition keys (IN restriction)

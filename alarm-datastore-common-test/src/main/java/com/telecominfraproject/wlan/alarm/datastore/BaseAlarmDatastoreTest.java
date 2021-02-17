@@ -223,6 +223,11 @@ public abstract class BaseAlarmDatastoreTest {
            	mdl.setCreatedTimestamp(mdl.getCreatedTimestamp() - 10000);
            	pastTimestamp = mdl.getCreatedTimestamp();
            }
+           if (i < 20) {
+        	   mdl.setAcknowledged(true);
+           } else {
+        	   mdl.setAcknowledged(false);
+           }
 
            apNameIdx++;
            testInterface.create(mdl);
@@ -246,13 +251,13 @@ public abstract class BaseAlarmDatastoreTest {
        
        //get active alarms for all equipment and all alarmCodes for the customer since the beginning of time
        PaginationContext<Alarm> context = new PaginationContext<>(10);
-       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, context);
-       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page1.getContext());
-       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page2.getContext());
-       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page3.getContext());
-       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page4.getContext());
-       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page5.getContext());
-       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page6.getContext());
+       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, context);
+       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page1.getContext());
+       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page2.getContext());
+       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page3.getContext());
+       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page4.getContext());
+       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page5.getContext());
+       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -285,9 +290,25 @@ public abstract class BaseAlarmDatastoreTest {
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
+       PaginationResponse<Alarm> page1Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page1Acknowledged.getContext());
+       PaginationResponse<Alarm> page3Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page2Acknowledged.getContext());
+       PaginationResponse<Alarm> page4Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page3Acknowledged.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1Acknowledged.getItems().size());
+       assertEquals(10, page2Acknowledged.getItems().size());
+       assertEquals(0, page3Acknowledged.getItems().size());
+       assertEquals(0, page4Acknowledged.getItems().size());
+       
+       page1Acknowledged.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2Acknowledged.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+
+       assertTrue(page3Acknowledged.getContext().isLastPage());
+       assertTrue(page4Acknowledged.getContext().isLastPage());
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.emptyList(), context);
+       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = getAlarmPagination_expectedPage1EmptySortStrings();
@@ -297,7 +318,7 @@ public abstract class BaseAlarmDatastoreTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, context);
+       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = expectedPage1EmptySortStrings;
@@ -308,7 +329,7 @@ public abstract class BaseAlarmDatastoreTest {
 
        
        //test first page of the results with sort descending order by a equipmentId property 
-       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = getAlarmPagination_expectedPage1SingleSortDescStrings();
@@ -320,13 +341,13 @@ public abstract class BaseAlarmDatastoreTest {
        //test with explicit list of equipmentIds and explicit list of AlarmCodes
        long createdAfterTs = pastTimestamp + 10;
        context = new PaginationContext<>(10);
-       page1 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, context);
-       page2 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page1.getContext());
-       page3 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page2.getContext());
-       page4 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page3.getContext());
-       page5 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page4.getContext());
-       page6 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page5.getContext());
-       page7 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page6.getContext());
+       page1 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, context);
+       page2 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page2.getContext());
+       page4 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page3.getContext());
+       page5 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page4.getContext());
+       page6 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page5.getContext());
+       page7 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -344,7 +365,7 @@ public abstract class BaseAlarmDatastoreTest {
        
        //test with explicit list of equipmentIds of one element and explicit list of AlarmCodes of one element
        context = new PaginationContext<>(10);
-       page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
+       page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, null, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
        testInterface.resetAlarmCounters();

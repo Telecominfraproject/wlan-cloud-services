@@ -12525,6 +12525,7 @@ paths:
       - name: alarmCodes
         in: query
         description: Set of alarm codes. Empty or null means retrieve all.
+        required: false
         content:
           text/plain:
             schema:
@@ -12539,9 +12540,16 @@ paths:
           type: integer
           format: int64
           default: -1
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       - name: sortBy
         in: query
         description: sort options
+        required: false
         schema:
           type: array
           items:
@@ -12549,7 +12557,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
