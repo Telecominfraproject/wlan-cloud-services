@@ -86,6 +86,15 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 			setManualChannelNumber(channelNumber);
 		}
 	}
+	
+	@JsonIgnore
+	public void alterActiveBackupChannel(Integer channelNumber, boolean autoChannelSelection) {
+		if (autoChannelSelection) {
+			setBackupChannelNumber(channelNumber);
+		} else {
+			setManualBackupChannelNumber(channelNumber);
+		}
+	}
 
 	@Override
 	public ElementRadioConfiguration clone() {
