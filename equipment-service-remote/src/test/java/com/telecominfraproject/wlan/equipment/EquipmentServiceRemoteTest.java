@@ -588,7 +588,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
     	
     }
     
-    @Test(expected = DsDataValidationException.class)
+    @Test
     public void testEquipmentUpdateChannelNumValidation() {
 
         //Create new Equipment - success
@@ -621,6 +621,9 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
         //Update success
         retElement2dot4RadioConfig.setChannelNumber(1);
+        retElement2dot4RadioConfig.setManualChannelNumber(2);
+        retElement2dot4RadioConfig.setBackupChannelNumber(3);
+        retElement2dot4RadioConfig.setManualBackupChannelNumber(4);
 
         Equipment updatedEquipment = remoteInterface.update(ret);
 
@@ -628,10 +631,45 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEqualEquipments(retUpdate, updatedEquipment);
         ElementRadioConfiguration ret2Element2dot4RadioConfig = ((ApElementConfiguration)retUpdate.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
         assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 1);
+        assertEquals(retElement2dot4RadioConfig.getManualChannelNumber().intValue(), 2);
+        assertEquals(retElement2dot4RadioConfig.getBackupChannelNumber().intValue(), 3);
+        assertEquals(retElement2dot4RadioConfig.getManualBackupChannelNumber().intValue(), 4);
 
         //Update failure
         ret2Element2dot4RadioConfig.setChannelNumber(12);
-        remoteInterface.update(retUpdate);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update channelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
+        
+        ret2Element2dot4RadioConfig.setChannelNumber(6);
+        ret2Element2dot4RadioConfig.setManualChannelNumber(13);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update manualChannelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
+        
+        ret2Element2dot4RadioConfig.setManualChannelNumber(7);
+        ret2Element2dot4RadioConfig.setBackupChannelNumber(14);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update backupChannelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
+        
+        ret2Element2dot4RadioConfig.setBackupChannelNumber(8);
+        ret2Element2dot4RadioConfig.setManualBackupChannelNumber(15);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update manualBackupChannelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
     }
 
     @Test
@@ -755,8 +793,11 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
         //verify initial settings
         for (Equipment c : equipmentList) {
-            assertEquals(50, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getValue().getMinLoadFactor().intValue());
-            assertEquals(6, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+            assertEquals(50, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().
+            		getValue().getMinLoadFactor().intValue());
+            assertEquals(6, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getManualChannelNumber().intValue());
+            assertEquals(11, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).
+            		getManualBackupChannelNumber().intValue());
         }
 
         //update all MinLoadFactor on 2.4Ghz radio to 42
@@ -765,7 +806,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 			EquipmentRrmBulkUpdateItem bulkItem = new EquipmentRrmBulkUpdateItem(eq);
 			bulkItem.setEquipmentId(eq.getId());
 			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setMinLoadFactor(42);
-			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setChannelNumber(11);
+			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setChannelNumber(1);
+			bulkItem.getPerRadioDetails().get(RadioType.is2dot4GHz).setBackupChannelNumber(10);
 			bulkRequest.getItems().add(bulkItem);
 		});
         
@@ -776,8 +818,14 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
         //verify updated settings
         for (Equipment c : equipmentList) {
-            assertEquals(42, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).getBestApSettings().getValue().getMinLoadFactor().intValue());
-            assertEquals(11, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());            
+            assertEquals(42, ((ApElementConfiguration)c.getDetails()).getAdvancedRadioMap().get(RadioType.is2dot4GHz).
+            		getBestApSettings().getValue().getMinLoadFactor().intValue());
+            assertEquals(1, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getManualChannelNumber().intValue());
+            assertEquals(10, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).
+            		getManualBackupChannelNumber().intValue());
+            //make sure channelNumber and backupChannelNumber are not changed (still with default values)
+            assertEquals(6, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+            assertEquals(11, ((ApElementConfiguration)c.getDetails()).getRadioMap().get(RadioType.is2dot4GHz).getBackupChannelNumber().intValue());
         }
 
         // Clean up after test

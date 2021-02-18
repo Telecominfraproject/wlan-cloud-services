@@ -67,7 +67,8 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 		details.getRadioMap().forEach((rt, radioCfg) -> {
 			RrmBulkUpdateApDetails itemApDetails = new RrmBulkUpdateApDetails();
 			perRadioDetails.put(rt, itemApDetails);
-			itemApDetails.setChannelNumber(radioCfg.getChannelNumber());
+			itemApDetails.setChannelNumber(radioCfg.getManualChannelNumber());
+			itemApDetails.setBackupChannelNumber(radioCfg.getManualBackupChannelNumber());
 			itemApDetails.setClientDisconnectThresholdDb(radioCfg.getClientDisconnectThresholdDb());
 			itemApDetails.setProbeResponseThresholdDb(radioCfg.getProbeResponseThresholdDb());
 			itemApDetails.setRxCellSizeDb(radioCfg.getRxCellSizeDb());
@@ -117,8 +118,14 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 				finalDetails.getRadioMap().put(rt, erc);
 			}
 			
-			if(erc.getChannelNumber()== null || erc.getChannelNumber().intValue() != updateDetails.getChannelNumber()) {
-				erc.setChannelNumber(updateDetails.getChannelNumber());
+			if(erc.getManualChannelNumber()== null || erc.getManualChannelNumber().intValue() != updateDetails.getChannelNumber()) {
+				erc.setManualChannelNumber(updateDetails.getChannelNumber());
+				modelChanged.set(true);
+			}
+			
+			if(erc.getManualBackupChannelNumber()== null ||
+					erc.getManualBackupChannelNumber().intValue() != updateDetails.getBackupChannelNumber()) {
+				erc.setManualBackupChannelNumber(updateDetails.getBackupChannelNumber());
 				modelChanged.set(true);
 			}
 			
