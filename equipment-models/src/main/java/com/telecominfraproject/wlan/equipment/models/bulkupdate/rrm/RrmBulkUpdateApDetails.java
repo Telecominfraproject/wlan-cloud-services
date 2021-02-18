@@ -9,12 +9,17 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  */
 public class RrmBulkUpdateApDetails extends BaseJsonModel {
 
-	private static final long serialVersionUID = 291599335843057919L;
+	private static final long serialVersionUID = -3802390238799127555L;
 
 	/**
-	 * mapped to equipment->details->radioMap->channelNumber
+	 * mapped to equipment->details->radioMap->manualChannelNumber)
 	 */
-	private int channelNumber; 
+	private int channelNumber;
+	
+	/**
+	 * mapped to equipment->details->radioMap->manualBackupChannelNumber
+	 */
+	private int backupChannelNumber;
 	
 	/**
 	 * mapped to equipment->details->radioMap->rxCellSizeDb->value
@@ -48,6 +53,12 @@ public class RrmBulkUpdateApDetails extends BaseJsonModel {
 	}
 	public void setChannelNumber(int channelNumber) {
 		this.channelNumber = channelNumber;
+	}
+	public int getBackupChannelNumber() {
+		return backupChannelNumber;
+	}
+	public void setBackupChannelNumber(int backupChannelNumber) {
+		this.backupChannelNumber = backupChannelNumber;
 	}
 	public SourceSelectionValue getRxCellSizeDb() {
 		return rxCellSizeDb;

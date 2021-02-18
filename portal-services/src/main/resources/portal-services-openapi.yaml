@@ -841,7 +841,11 @@ components:
     RrmBulkUpdateApDetails:
       properties:
         channelNumber:
-          # mapped to equipment->details->radioMap->channelNumber
+          # mapped to equipment->details->radioMap->manualChannelNumber
+          type: integer
+          format: int32
+        backupChannelNumber:
+          # mapped to equipment->details->radioMap->manualBackupChannelNumber
           type: integer
           format: int32
         rxCellSizeDb:

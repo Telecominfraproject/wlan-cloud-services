@@ -270,17 +270,28 @@ public class EquipmentController {
 				for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
 
 					ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
-					int channel = elementRadioConfig.getChannelNumber();
+					int channelNum = elementRadioConfig.getChannelNumber();
+					int manualChannelNum = elementRadioConfig.getManualChannelNumber();
+					int backupChannelNum = elementRadioConfig.getBackupChannelNumber();
+					int manualBackupChannelNum = elementRadioConfig.getManualBackupChannelNumber();
 					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
 					
-					if (allowedChannels != null && !allowedChannels.isEmpty() && !allowedChannels.contains(channel)) {
-						LOG.error(
-								"Failed to update Equipment. The channelNumber {} is not allowed, the allowed channels is {}",
-								channel, allowedChannels);
-						throw new DsDataValidationException("Equipment contains disallowed channel number.");
+					if (allowedChannels != null && !allowedChannels.isEmpty()) {
+						checkAllowedChannels(channelNum, "channelNumber", allowedChannels);
+						checkAllowedChannels(backupChannelNum, "backupChannelNumber", allowedChannels);
+						checkAllowedChannels(manualChannelNum, "manualChannelNumber", allowedChannels);
+						checkAllowedChannels(manualBackupChannelNum, "manualBackupChannelNumber", allowedChannels);
 					}
 				}
 			}
+		}
+	}
+	
+	private void checkAllowedChannels(int channelNum, String channelType, List<Integer> allowedChannels) {
+		if (!allowedChannels.contains(channelNum)) {
+			LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {}",
+					channelType, channelNum, allowedChannels);
+			throw new DsDataValidationException("Equipment contains disallowed " + channelType);
 		}
 	}
     
