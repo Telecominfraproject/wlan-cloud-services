@@ -103,6 +103,7 @@ components:
       type: string
       enum:
       - MD5_CHECKSUM
+      - NONE
     
     FirmwareTrackRecord:
       properties:

@@ -13,6 +13,7 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 public enum ValidationMethod {
 	
 	MD5_CHECKSUM(1),
+	NONE(2),
 	
 	UNSUPPORTED(-1);
 	

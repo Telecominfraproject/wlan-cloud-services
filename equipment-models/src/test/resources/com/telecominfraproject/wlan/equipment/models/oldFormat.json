@@ -20,8 +20,9 @@
 		"is5GHz": {
 			"radioType": "is5GHz",
 			"channelNumber": 52,
-			"manualChannelNumber": 36,
+			"manualChannelNumber": 52,
 			"backupChannelNumber": 36,
+			"manualBackupChannelNumber": 36,
 			"txPower": 95,
 			"bannedChannels": [
 				{
@@ -36,6 +37,7 @@
 			"channelNumber": 1,
 			"manualChannelNumber": 1,
 			"backupChannelNumber": 11,
+			"manualBackupChannelNumber": 11,
 			"txPower": 95,
 			"bannedChannels": [
 			],

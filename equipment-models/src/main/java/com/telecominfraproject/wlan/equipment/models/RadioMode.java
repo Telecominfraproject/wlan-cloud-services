@@ -11,7 +11,7 @@ public enum RadioMode {
     modeN(0),
     modeAC(1),
     modeGN(2),
-    modeX(3),
+    modeAX(3),
     modeA(4),
     modeB(5),
     modeG(6),

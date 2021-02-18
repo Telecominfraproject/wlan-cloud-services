@@ -24,9 +24,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 	public final static int DEFAULT_EIRP_TX_POWER = 18;
 
 	private RadioType radioType;
-	private Integer channelNumber; // The channel that was picked through the cloud's automatic assigment
+	private Integer channelNumber; // The channel that was picked through the cloud's automatic assignment
 	private Integer manualChannelNumber; // The channel that was manually entered
-	private Integer backupChannelNumber; // Backup channel (this is never set by the customer: it's deducted from the primary channel (either manual or auto)
+	private Integer backupChannelNumber; // The backup channel that was picked through the cloud's automatic assignment
+	private Integer manualBackupChannelNumber; // The backup channel that was manually entered
 	
 	private SourceSelectionValue rxCellSizeDb;
 	private SourceSelectionValue probeResponseThresholdDb;
@@ -85,23 +86,32 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 			setManualChannelNumber(channelNumber);
 		}
 	}
+	
+	@JsonIgnore
+	public void alterActiveBackupChannel(Integer channelNumber, boolean autoChannelSelection) {
+		if (autoChannelSelection) {
+			setBackupChannelNumber(channelNumber);
+		} else {
+			setManualBackupChannelNumber(channelNumber);
+		}
+	}
 
 	@Override
 	public ElementRadioConfiguration clone() {
 		return (ElementRadioConfiguration) super.clone();
 	}
 
-	
-
 	public Integer getActiveChannel(boolean autoChannelSelection) {
 		return (autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
+	}
+	
+	public Integer getActiveBackupChannel(boolean autoChannelSelection) {
+		return (autoChannelSelection) ? getBackupChannelNumber() : getManualBackupChannelNumber();
 	}
 
 	public Integer getBackupChannelNumber() {
 		return backupChannelNumber;
 	}
-
-	
 	
 	public Integer getChannelNumber() {
 		return channelNumber;
@@ -121,6 +131,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public Integer getManualChannelNumber() {
 		return (this.manualChannelNumber == null) ? this.channelNumber : this.manualChannelNumber;
+	}
+	
+	public Integer getManualBackupChannelNumber() {
+		return (this.manualBackupChannelNumber == null) ? this.backupChannelNumber : this.manualBackupChannelNumber;
 	}
 
 	public SourceSelectionValue getProbeResponseThresholdDb() {
@@ -157,6 +171,10 @@ public class ElementRadioConfiguration extends BaseJsonModel {
 
 	public void setManualChannelNumber(Integer channel) {
 		this.manualChannelNumber = channel;
+	}
+	
+	public void setManualBackupChannelNumber(Integer channel) {
+		this.manualBackupChannelNumber = channel;
 	}
 
 	public void setProbeResponseThresholdDb(SourceSelectionValue probeResponseThresholdDb) {
@@ -218,6 +236,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
                 backupChannelNumber, 
                 bestAPSteerType, channelNumber, clientDisconnectThresholdDb,
                 deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
+                getManualBackupChannelNumber(),
                 perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
     }
 
@@ -241,6 +260,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(eirpTxPower, other.eirpTxPower)
                 && Objects.equals(getManualChannelNumber(), other.getManualChannelNumber())
+                && Objects.equals(getManualBackupChannelNumber(), other.getManualBackupChannelNumber())
                 && Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)
                 && Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
                 && this.radioType == other.radioType && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);

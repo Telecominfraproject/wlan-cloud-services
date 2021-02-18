@@ -49,15 +49,19 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 	public EquipmentRrmBulkUpdateItem(Equipment equipment) {
 		if(equipment == null 
 				|| (equipment.getEquipmentType()!= EquipmentType.AP) 
-				||	!(equipment.getDetails()!=null && equipment.getDetails() instanceof ApElementConfiguration)
 				) {
 			LOG.error("Cannot build EquipmentRrmBulkUpdateItem from equipment {} ", equipment);
-			throw new IllegalArgumentException("Cannot build EquipmentRrmBulkUpdateItem from supplied equipment" );
+			throw new IllegalArgumentException("Cannot build EquipmentRrmBulkUpdateItem from supplied equipment");
 		}
-
-		ApElementConfiguration details = (ApElementConfiguration) equipment.getDetails();
-		if(equipment.getDetails()==null) {
+		
+		ApElementConfiguration details = null;
+		if (equipment.getDetails() == null) {
 			details = ApElementConfiguration.createWithDefaults();
+		} else if (equipment.getDetails() != null && equipment.getDetails() instanceof ApElementConfiguration) {
+			details = (ApElementConfiguration) equipment.getDetails();
+		} else {
+			LOG.error("Cannot build EquipmentRrmBulkUpdateItem from equipment details that is not ApElementConfiguration {} ", equipment);
+			throw new IllegalArgumentException("Cannot build EquipmentRrmBulkUpdateItem from supplied equipment: ApElementConfig type error");
 		}
 		
 		details.getRadioMap().forEach((rt, radioCfg) -> {
@@ -86,17 +90,21 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 	public boolean applyToEquipment(Equipment equipment) {
 		if(equipment == null 
 				|| (equipment.getEquipmentType()!= EquipmentType.AP) 
-				||	!(equipment.getDetails()!=null && equipment.getDetails() instanceof ApElementConfiguration) 
 				|| perRadioDetails==null || perRadioDetails.isEmpty()) {
 			return false;
 		}
 
 		AtomicBoolean modelChanged = new AtomicBoolean(false);
 
-		ApElementConfiguration details = (ApElementConfiguration) equipment.getDetails();
-		if(equipment.getDetails()==null) {
+		ApElementConfiguration details = null;
+		if (equipment.getDetails() == null) {
 			details = ApElementConfiguration.createWithDefaults();
 			equipment.setDetails(details);
+		} else if (equipment.getDetails() != null && equipment.getDetails() instanceof ApElementConfiguration) {
+			details = (ApElementConfiguration) equipment.getDetails();
+		} else {
+			LOG.error("Cannot apply equipment details that is not ApElementConfiguration {} ", equipment);
+			throw new IllegalArgumentException("Cannot apply equipment details that is not ApElementConfiguration");
 		}
 		
 		//needed for the lambda below to work
