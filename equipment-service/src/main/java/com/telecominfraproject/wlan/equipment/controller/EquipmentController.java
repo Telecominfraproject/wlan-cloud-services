@@ -304,12 +304,10 @@ public class EquipmentController {
 	}
 	
 	private void checkAllowedChannels(int channelNum, String channelType, List<Integer> allowedChannels) {
-		if (channelNum != -1) {
-			if (!allowedChannels.contains(channelNum)) {
-				LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {}",
-						channelType, channelNum, allowedChannels);
-				throw new DsDataValidationException("Equipment contains disallowed " + channelType);
-			}
+		if (channelNum != -1 && !allowedChannels.contains(channelNum)) {
+			LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {}",
+					channelType, channelNum, allowedChannels);
+			throw new DsDataValidationException("Equipment contains disallowed " + channelType);
 		}
 	}
     
