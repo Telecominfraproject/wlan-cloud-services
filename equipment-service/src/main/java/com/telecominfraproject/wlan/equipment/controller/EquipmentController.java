@@ -270,25 +270,10 @@ public class EquipmentController {
 				for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
 
 					ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
-					int channelNum = -1;
-					if (elementRadioConfig.getChannelNumber() != null) {
-					    channelNum = elementRadioConfig.getChannelNumber();
-					}
-					
-					int manualChannelNum = -1;
-					if (elementRadioConfig.getManualChannelNumber() != null) {
-					    manualChannelNum = elementRadioConfig.getManualChannelNumber();
-					}
-					
-					int backupChannelNum = -1;
-					if (elementRadioConfig.getBackupChannelNumber() != null) {
-					    backupChannelNum = elementRadioConfig.getBackupChannelNumber();
-					}
-					
-					int manualBackupChannelNum = -1;
-					if (elementRadioConfig.getManualBackupChannelNumber() != null) {
-					    manualBackupChannelNum = elementRadioConfig.getManualBackupChannelNumber();
-					}
+					Integer channelNum = elementRadioConfig.getChannelNumber();
+					Integer manualChannelNum = elementRadioConfig.getManualChannelNumber();
+					Integer backupChannelNum = elementRadioConfig.getBackupChannelNumber();
+					Integer manualBackupChannelNum = elementRadioConfig.getManualBackupChannelNumber();
 					
 					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
 					
@@ -303,8 +288,8 @@ public class EquipmentController {
 		}
 	}
 	
-	private void checkAllowedChannels(int channelNum, String channelType, List<Integer> allowedChannels) {
-		if (channelNum != -1 && !allowedChannels.contains(channelNum)) {
+	private void checkAllowedChannels(Integer channelNum, String channelType, List<Integer> allowedChannels) {
+		if (channelNum != null && !allowedChannels.contains(channelNum)) {
 			LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {}",
 					channelType, channelNum, allowedChannels);
 			throw new DsDataValidationException("Equipment contains disallowed " + channelType);
