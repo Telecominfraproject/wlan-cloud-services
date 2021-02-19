@@ -670,6 +670,10 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         } catch (DsDataValidationException e) {
         	// pass
         }
+        
+        //Tolerate null now
+        ret2Element2dot4RadioConfig.setManualBackupChannelNumber(null);
+        remoteInterface.update(retUpdate);
     }
 
     @Test
