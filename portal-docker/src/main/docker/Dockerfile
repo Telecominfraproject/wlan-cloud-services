@@ -7,7 +7,8 @@ RUN mkdir /app && mkdir /app/logs && mkdir /app/portal
 
 COPY maven/app.jar /app
 COPY app/run.sh /app
-COPY app/logback.xml /app/portal/logback.xml
+COPY app/portal/logback.xml /app/portal/log/logback.xml
+COPY app/portal/ssl.properties /app/portal/certs/ssl.properties
 COPY app/commit.properties /app
 
 RUN chmod +x /app/run.sh
