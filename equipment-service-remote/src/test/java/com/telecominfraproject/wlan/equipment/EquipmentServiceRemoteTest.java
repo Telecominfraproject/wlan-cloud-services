@@ -630,10 +630,10 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         Equipment retUpdate = remoteInterface.get(ret.getId());
         assertEqualEquipments(retUpdate, updatedEquipment);
         ElementRadioConfiguration ret2Element2dot4RadioConfig = ((ApElementConfiguration)retUpdate.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
-        assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 1);
-        assertEquals(retElement2dot4RadioConfig.getManualChannelNumber().intValue(), 2);
-        assertEquals(retElement2dot4RadioConfig.getBackupChannelNumber().intValue(), 3);
-        assertEquals(retElement2dot4RadioConfig.getManualBackupChannelNumber().intValue(), 4);
+        assertEquals(ret2Element2dot4RadioConfig.getChannelNumber().intValue(), 1);
+        assertEquals(ret2Element2dot4RadioConfig.getManualChannelNumber().intValue(), 2);
+        assertEquals(ret2Element2dot4RadioConfig.getBackupChannelNumber().intValue(), 3);
+        assertEquals(ret2Element2dot4RadioConfig.getManualBackupChannelNumber().intValue(), 4);
 
         //Update failure
         ret2Element2dot4RadioConfig.setChannelNumber(12);
@@ -673,6 +673,93 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         
         //Tolerate null now
         ret2Element2dot4RadioConfig.setManualBackupChannelNumber(null);
+        remoteInterface.update(retUpdate);
+    }
+    
+    @Test
+    // Test the correction on old out of range default backup channel number setting (154) on 5GU
+    public void testEquipmentUpdateWithCorrectionAndValidation() {
+
+        //Create new Equipment - success
+        Equipment equipment = new Equipment();
+        equipment.setName("testName-"+getNextEquipmentId());
+        equipment.setInventoryId("test-inv-"+getNextEquipmentId());
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setDetails(ApElementConfiguration.createWithDefaults());
+
+        ElementRadioConfiguration element5GHzURadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().
+        		get(RadioType.is5GHzU);
+        element5GHzURadioConfig.setAllowedChannelsPowerLevels(new HashSet<>());
+        
+        for (int i = 100; i <= 144; i=i+4) {
+            ChannelPowerLevel cpl = new ChannelPowerLevel();
+            cpl.setChannelNumber(i);
+            cpl.setChannelWidth(80);
+            cpl.setDfs(true);
+            cpl.setPowerLevel(18);
+            element5GHzURadioConfig.getAllowedChannelsPowerLevels().add(cpl);
+        }
+        
+        for (int i = 149; i <= 165; i=i+4) {
+            ChannelPowerLevel cpl = new ChannelPowerLevel();
+            cpl.setChannelNumber(i);
+            cpl.setChannelWidth(80);
+            cpl.setDfs(false);
+            cpl.setPowerLevel(18);
+            element5GHzURadioConfig.getAllowedChannelsPowerLevels().add(cpl);
+        }
+        
+        //mimc the old AP with invalid value
+        element5GHzURadioConfig.setBackupChannelNumber(154);
+
+        Equipment ret = remoteInterface.create(equipment);
+        assertNotNull(ret);
+
+        ret = remoteInterface.get(ret.getId());
+        assertEqualEquipments(equipment, ret);
+
+        ElementRadioConfiguration retElement5GHzURadioConfig = ((ApElementConfiguration)ret.getDetails()).getRadioMap().
+        		get(RadioType.is5GHzU);
+        assertEquals(retElement5GHzURadioConfig.getChannelNumber().intValue(), 149);
+        assertEquals(retElement5GHzURadioConfig.getManualChannelNumber().intValue(), 149);
+        assertEquals(retElement5GHzURadioConfig.getBackupChannelNumber().intValue(), 154);
+        assertEquals(retElement5GHzURadioConfig.getManualBackupChannelNumber().intValue(), 154);
+
+        //Update success
+        retElement5GHzURadioConfig.setChannelNumber(161);
+
+        Equipment updatedEquipment = remoteInterface.update(ret);
+
+        Equipment retUpdate = remoteInterface.get(ret.getId());
+        assertEqualEquipments(retUpdate, updatedEquipment);
+        ElementRadioConfiguration ret2Element5GHzURadioConfig = ((ApElementConfiguration)retUpdate.getDetails()).
+        		getRadioMap().get(RadioType.is5GHzU);
+        assertEquals(ret2Element5GHzURadioConfig.getChannelNumber().intValue(), 161);
+        assertEquals(ret2Element5GHzURadioConfig.getManualChannelNumber().intValue(), 149);
+        //Note it has been corrected from 154 to 157
+        assertEquals(ret2Element5GHzURadioConfig.getBackupChannelNumber().intValue(), 157);
+        assertEquals(ret2Element5GHzURadioConfig.getManualBackupChannelNumber().intValue(), 157);
+
+        //Update failure
+        ret2Element5GHzURadioConfig.setBackupChannelNumber(14);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update backupChannelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
+        
+        ret2Element5GHzURadioConfig.setBackupChannelNumber(161);
+        ret2Element5GHzURadioConfig.setManualBackupChannelNumber(160);
+        try {
+        	remoteInterface.update(retUpdate);
+        	fail("EquipmentService update manualBackupChannelNumber failed");
+        } catch (DsDataValidationException e) {
+        	// pass
+        }
+        
+        //Tolerate null now
+        ret2Element5GHzURadioConfig.setManualBackupChannelNumber(null);
         remoteInterface.update(retUpdate);
     }
 

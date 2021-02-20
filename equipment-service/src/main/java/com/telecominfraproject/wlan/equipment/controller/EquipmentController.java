@@ -275,17 +275,35 @@ public class EquipmentController {
 					Integer backupChannelNum = elementRadioConfig.getBackupChannelNumber();
 					Integer manualBackupChannelNum = elementRadioConfig.getManualBackupChannelNumber();
 					
-					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
+					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().
+							map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
 					
 					if (allowedChannels != null && !allowedChannels.isEmpty()) {
 						checkAllowedChannels(channelNum, "channelNumber", allowedChannels);
+						backupChannelNum = correctOldInvalidBackupChannel(radioType, backupChannelNum, elementRadioConfig, false);
 						checkAllowedChannels(backupChannelNum, "backupChannelNumber", allowedChannels);
+						
 						checkAllowedChannels(manualChannelNum, "manualChannelNumber", allowedChannels);
+						manualBackupChannelNum = correctOldInvalidBackupChannel(radioType, manualBackupChannelNum, elementRadioConfig, true);
 						checkAllowedChannels(manualBackupChannelNum, "manualBackupChannelNumber", allowedChannels);
 					}
 				}
 			}
 		}
+	}
+	
+	// Correct old out of range default backup channel number setting (154) on 5GU
+	private Integer correctOldInvalidBackupChannel(RadioType radioType, Integer channelNum,
+			ElementRadioConfiguration elementRadioConfig, boolean manual) {
+		if (radioType == RadioType.is5GHzU && channelNum != null && channelNum == 154) {
+			if (manual) {
+				elementRadioConfig.setManualBackupChannelNumber(157);
+			} else {
+				elementRadioConfig.setBackupChannelNumber(157);
+			}
+			return 157;
+		}
+		return channelNum;
 	}
 	
 	private void checkAllowedChannels(Integer channelNum, String channelType, List<Integer> allowedChannels) {
