@@ -16,19 +16,19 @@
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>base-datastore-inmemory</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         
          <dependency>
                  <groupId>com.telecominfraproject.wlan</groupId>
                  <artifactId>profile-datastore-interface</artifactId>
-                 <version>${tip-wlan-cloud.release.version}</version>
+                 <version>0.0.1-SNAPSHOT</version>
          </dependency>
                 
          <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>profile-datastore-common-test</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
