@@ -9,7 +9,6 @@ import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionSteering
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 
-
 /**
  * @author dtoptygin
  *
@@ -33,8 +32,10 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     private StateSetting legacyBSSRate;
 
     /**
-     * Indicating that only every nth beacon includes a TIM, where n is the period.
-     * Default value is 1. In low power mode, stations will only awake to listen for those beacons in order to then determine if they need stay awake for data frame receipt
+     * Indicating that only every nth beacon includes a TIM, where n is the
+     * period. Default value is 1. In low power mode, stations will only awake
+     * to listen for those beacons in order to then determine if they need stay
+     * awake for data frame receipt
      */
     private Integer dtimPeriod;
 
@@ -54,12 +55,12 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     public static RadioConfiguration createWithDefaults(RadioType type) {
         RadioConfiguration configuration = new RadioConfiguration();
         configuration.setRadioType(type);
-        configuration.setBestApSettings(SourceSelectionSteering.createManualInstance(
-        		RadioBestApSettings.createWithDefaults(type)));
-        
+        configuration.setBestApSettings(
+                SourceSelectionSteering.createManualInstance(RadioBestApSettings.createWithDefaults(type)));
+
         return configuration;
     }
-    
+
     /*
      * Use static creator please.
      */
@@ -70,32 +71,30 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         setStationIsolation(StateSetting.disabled);
         setUapsdState(StateSetting.enabled); // maps to "get radio wlan[0-1]
                                              // wme-apsd" on the AP
-        setMulticastRate(SourceSelectionMulticast.createProfileInstance(
-        		MulticastRate.auto));
-        setManagementRate(SourceSelectionManagement.createProfileInstance(
-        		ManagementRate.auto));
-        setBestApSettings(SourceSelectionSteering.createProfileInstance(
-        		RadioBestApSettings.createWithDefaults(RadioType.is5GHz)));
+        setMulticastRate(SourceSelectionMulticast.createProfileInstance(MulticastRate.auto));
+        setManagementRate(SourceSelectionManagement.createProfileInstance(ManagementRate.auto));
+        setBestApSettings(SourceSelectionSteering
+                .createProfileInstance(RadioBestApSettings.createWithDefaults(RadioType.is5GHz)));
         setDtimPeriod(DEFAULT_DTIM_PERIOD);
         setLegacyBSSRate(DEFAULT_LEGACY_BSS_RATE);
     }
 
     @Override
     public RadioConfiguration clone() {
-        RadioConfiguration ret  = (RadioConfiguration) super.clone();
-        
-        if(multicastRate!=null) {
-            ret.multicastRate = multicastRate.clone();            
+        RadioConfiguration ret = (RadioConfiguration) super.clone();
+
+        if (multicastRate != null) {
+            ret.multicastRate = multicastRate.clone();
         }
-        
-        if(managementRate!=null) {
+
+        if (managementRate != null) {
             ret.managementRate = managementRate.clone();
         }
-        
-        if(bestApSettings!=null) {
+
+        if (bestApSettings != null) {
             ret.bestApSettings = bestApSettings.clone();
         }
-        
+
         return ret;
     }
 
@@ -111,19 +110,16 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
             return false;
         }
         RadioConfiguration other = (RadioConfiguration) obj;
-        
-        return Objects.equals(dtimPeriod, other.dtimPeriod)
-        		&& Objects.equals(multicastRate, other.multicastRate)
+
+        return Objects.equals(dtimPeriod, other.dtimPeriod) && Objects.equals(multicastRate, other.multicastRate)
                 && Objects.equals(bestApSettings, other.bestApSettings)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(fragmentationThresholdBytes, other.fragmentationThresholdBytes)
-                && Objects.equals(managementRate, other.managementRate)
-                && this.legacyBSSRate == other.legacyBSSRate
-                && this.radioAdminState == other.radioAdminState
-                && this.radioType == other.radioType
+                && Objects.equals(managementRate, other.managementRate) && this.legacyBSSRate == other.legacyBSSRate
+                && this.radioAdminState == other.radioAdminState && this.radioType == other.radioType
                 && this.stationIsolation == other.stationIsolation && this.uapsdState == other.uapsdState;
     }
-    
+
     /**
      * @return the dtimPeriod
      */
@@ -138,19 +134,19 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     public Boolean getDeauthAttackDetection() {
         return deauthAttackDetection;
     }
-    
+
     public Integer getFragmentationThresholdBytes() {
         return fragmentationThresholdBytes;
     }
-    
+
     public StateSetting getLegacyBSSRate() {
         return legacyBSSRate;
     }
 
     public SourceSelectionMulticast getMulticastRate() {
-    	return multicastRate;
+        return multicastRate;
     }
-    
+
     public SourceSelectionManagement getManagementRate() {
         return managementRate;
     }
@@ -173,11 +169,9 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-        		dtimPeriod, bestApSettings, deauthAttackDetection, multicastRate,
-                fragmentationThresholdBytes, legacyBSSRate, managementRate, 
-                radioAdminState, radioType, stationIsolation, 
-                uapsdState);
+        return Objects.hash(dtimPeriod, bestApSettings, deauthAttackDetection, multicastRate,
+                fragmentationThresholdBytes, legacyBSSRate, managementRate, radioAdminState, radioType,
+                stationIsolation, uapsdState);
     }
 
     @Override
@@ -185,15 +179,12 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (RadioType.isUnsupported(radioType) 
-        		|| StateSetting.isUnsupported(radioAdminState)
-                || StateSetting.isUnsupported(uapsdState) 
-                || StateSetting.isUnsupported(stationIsolation)
+        if (RadioType.isUnsupported(radioType) || StateSetting.isUnsupported(radioAdminState)
+                || StateSetting.isUnsupported(uapsdState) || StateSetting.isUnsupported(stationIsolation)
                 || SourceSelectionMulticast.hasUnsupportedValue(multicastRate)
                 || SourceSelectionManagement.hasUnsupportedValue(managementRate)
                 || SourceSelectionSteering.hasUnsupportedValue(bestApSettings)
-                || StateSetting.isUnsupported(legacyBSSRate)
-                ) {
+                || StateSetting.isUnsupported(legacyBSSRate)) {
             return true;
         }
         if (hasUnsupportedValue(bestApSettings)) {
@@ -208,13 +199,18 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
      * require a push to the device?
      */
     public boolean needsToBeUpdatedOnDevice(RadioConfiguration previousVersion) {
-        return !equals(previousVersion);
+        return !(Objects.equals(dtimPeriod, previousVersion.dtimPeriod) && Objects.equals(multicastRate, previousVersion.multicastRate)
+                && Objects.equals(bestApSettings, previousVersion.bestApSettings)
+                && Objects.equals(deauthAttackDetection, previousVersion.deauthAttackDetection)
+                && Objects.equals(managementRate, previousVersion.managementRate) && this.legacyBSSRate == previousVersion.legacyBSSRate
+                && this.radioAdminState == previousVersion.radioAdminState && this.radioType == previousVersion.radioType
+                && this.stationIsolation == previousVersion.stationIsolation && this.uapsdState == previousVersion.uapsdState);
     }
 
     public void setDtimPeriod(Integer defaultDtimPeriod) {
-        this.dtimPeriod = defaultDtimPeriod;        
+        this.dtimPeriod = defaultDtimPeriod;
     }
-    
+
     public void setBestApSettings(SourceSelectionSteering bestApSettings) {
         this.bestApSettings = bestApSettings;
     }
@@ -226,13 +222,13 @@ public class RadioConfiguration extends BaseJsonModel implements PushableConfigu
     public void setFragmentationThresholdBytes(Integer fragmentationThresholdBytes) {
         this.fragmentationThresholdBytes = fragmentationThresholdBytes;
     }
-    
+
     public void setLegacyBSSRate(StateSetting legacyBSSRate) {
         this.legacyBSSRate = legacyBSSRate;
     }
-    
+
     public void setMulticastRate(SourceSelectionMulticast multicastRate) {
-    	this.multicastRate = multicastRate;
+        this.multicastRate = multicastRate;
     }
 
     public void setManagementRate(SourceSelectionManagement managementRate) {
