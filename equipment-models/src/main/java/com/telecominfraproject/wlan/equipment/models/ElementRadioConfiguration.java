@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionValue;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -13,222 +14,233 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  * @author dtoptygin
  *
  */
-public class ElementRadioConfiguration extends BaseJsonModel {
+public class ElementRadioConfiguration extends BaseJsonModel
+        implements PushableConfiguration<ElementRadioConfiguration> {
 
-	private static final long serialVersionUID = -2441701182136504073L;
+    private static final long serialVersionUID = -2441701182136504073L;
 
-	/*
-	 * These are weird since they are dependent on the radio type
-	 */
-	public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
-	public final static int DEFAULT_EIRP_TX_POWER = 18;
+    /*
+     * These are weird since they are dependent on the radio type
+     */
+    public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
+    public final static int DEFAULT_EIRP_TX_POWER = 18;
 
-	private RadioType radioType;
-	private Integer channelNumber; // The channel that was picked through the cloud's automatic assignment
-	private Integer manualChannelNumber; // The channel that was manually entered
-	private Integer backupChannelNumber; // The backup channel that was picked through the cloud's automatic assignment
-	private Integer manualBackupChannelNumber; // The backup channel that was manually entered
-	
-	private SourceSelectionValue rxCellSizeDb;
-	private SourceSelectionValue probeResponseThresholdDb;
-	private SourceSelectionValue clientDisconnectThresholdDb;
-	private SourceSelectionValue eirpTxPower;
-	private Boolean perimeterDetectionEnabled;
-	// Initialize here to cover backward compatibility.
-	private BestAPSteerType bestAPSteerType = BestAPSteerType.both;
+    private RadioType radioType;
+    private Integer channelNumber; // The channel that was picked through the
+                                   // cloud's automatic assignment
+    private Integer manualChannelNumber; // The channel that was manually
+                                         // entered
+    private Integer backupChannelNumber; // The backup channel that was picked
+                                         // through the cloud's automatic
+                                         // assignment
+    private Integer manualBackupChannelNumber; // The backup channel that was
+                                               // manually entered
 
-	private Boolean deauthAttackDetection;
-	private Set<ChannelPowerLevel> allowedChannelsPowerLevels = new HashSet<>();
+    private SourceSelectionValue rxCellSizeDb;
+    private SourceSelectionValue probeResponseThresholdDb;
+    private SourceSelectionValue clientDisconnectThresholdDb;
+    private SourceSelectionValue eirpTxPower;
+    private Boolean perimeterDetectionEnabled;
+    // Initialize here to cover backward compatibility.
+    private BestAPSteerType bestAPSteerType = BestAPSteerType.both;
 
-	/**
-	 * Static creator
-	 *
-	 * @param radioType
-	 * @return
-	 */
-	public static ElementRadioConfiguration createWithDefaults(RadioType radioType) {
-		ElementRadioConfiguration returnValue = new ElementRadioConfiguration();
+    private Boolean deauthAttackDetection;
+    private Set<ChannelPowerLevel> allowedChannelsPowerLevels = new HashSet<>();
 
-		returnValue.setRadioType(radioType);
+    /**
+     * Static creator
+     *
+     * @param radioType
+     * @return
+     */
+    public static ElementRadioConfiguration createWithDefaults(RadioType radioType) {
+        ElementRadioConfiguration returnValue = new ElementRadioConfiguration();
 
-		if (radioType == RadioType.is5GHz) {
-			returnValue.setChannelNumber(36);
-  			returnValue.setBackupChannelNumber(153);
-		} else if (radioType == RadioType.is5GHzL) {
-			returnValue.setChannelNumber(36);
-			returnValue.setBackupChannelNumber(44);  
-		} else if (radioType == RadioType.is5GHzU) {
-			returnValue.setChannelNumber(149);
-			returnValue.setBackupChannelNumber(157);
-		} else {
-			returnValue.setChannelNumber(6);
-			returnValue.setBackupChannelNumber(11);
-		}
+        returnValue.setRadioType(radioType);
 
-		return returnValue;
-	}
+        if (radioType == RadioType.is5GHz) {
+            returnValue.setChannelNumber(36);
+            returnValue.setBackupChannelNumber(153);
+        } else if (radioType == RadioType.is5GHzL) {
+            returnValue.setChannelNumber(36);
+            returnValue.setBackupChannelNumber(44);
+        } else if (radioType == RadioType.is5GHzU) {
+            returnValue.setChannelNumber(149);
+            returnValue.setBackupChannelNumber(157);
+        } else {
+            returnValue.setChannelNumber(6);
+            returnValue.setBackupChannelNumber(11);
+        }
 
-	private ElementRadioConfiguration() {
-		// Tx power default was discussed with Shaikh (set to 18)
-		setEirpTxPower(SourceSelectionValue.createProfileInstance(DEFAULT_EIRP_TX_POWER));
-		setRxCellSizeDb(SourceSelectionValue.createProfileInstance(DEFAULT_RX_CELL_SIZE_DB));
-		setProbeResponseThresholdDb(SourceSelectionValue.createProfileInstance(-90));
-		setClientDisconnectThresholdDb(SourceSelectionValue.createProfileInstance(-90));
-		setPerimeterDetectionEnabled(true);
-		setBestAPSteerType(BestAPSteerType.both);
-	}
+        return returnValue;
+    }
 
-	@JsonIgnore
-	public void alterActiveChannel(Integer channelNumber, boolean autoChannelSelection) {
-		if (autoChannelSelection) {
-			setChannelNumber(channelNumber);
-		} else {
-			setManualChannelNumber(channelNumber);
-		}
-	}
+    private ElementRadioConfiguration() {
+        // Tx power default was discussed with Shaikh (set to 18)
+        setEirpTxPower(SourceSelectionValue.createProfileInstance(DEFAULT_EIRP_TX_POWER));
+        setRxCellSizeDb(SourceSelectionValue.createProfileInstance(DEFAULT_RX_CELL_SIZE_DB));
+        setProbeResponseThresholdDb(SourceSelectionValue.createProfileInstance(-90));
+        setClientDisconnectThresholdDb(SourceSelectionValue.createProfileInstance(-90));
+        setPerimeterDetectionEnabled(true);
+        setBestAPSteerType(BestAPSteerType.both);
+    }
 
-	@Override
-	public ElementRadioConfiguration clone() {
-		return (ElementRadioConfiguration) super.clone();
-	}
+    @JsonIgnore
+    public void alterActiveChannel(Integer channelNumber, boolean autoChannelSelection) {
+        if (autoChannelSelection) {
+            setChannelNumber(channelNumber);
+        } else {
+            setManualChannelNumber(channelNumber);
+        }
+    }
 
-	public Integer getActiveChannel(boolean autoChannelSelection) {
-		return (autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
-	}
-	
-	public Integer getActiveBackupChannel(boolean autoChannelSelection) {
-		return (autoChannelSelection) ? getBackupChannelNumber() : getManualBackupChannelNumber();
-	}
+    @JsonIgnore
+    public void alterActiveBackupChannel(Integer channelNumber, boolean autoChannelSelection) {
+        if (autoChannelSelection) {
+            setBackupChannelNumber(channelNumber);
+        } else {
+            setManualBackupChannelNumber(channelNumber);
+        }
+    }
 
-	public Integer getBackupChannelNumber() {
-		return backupChannelNumber;
-	}
-	
-	public Integer getChannelNumber() {
-		return channelNumber;
-	}
+    @Override
+    public ElementRadioConfiguration clone() {
+        return (ElementRadioConfiguration) super.clone();
+    }
 
-	public SourceSelectionValue getClientDisconnectThresholdDb() {
-		return clientDisconnectThresholdDb;
-	}
+    public Integer getActiveChannel(boolean autoChannelSelection) {
+        return (autoChannelSelection) ? getChannelNumber() : getManualChannelNumber();
+    }
 
-	public Boolean getDeauthAttackDetection() {
-		return this.deauthAttackDetection;
-	}
+    public Integer getActiveBackupChannel(boolean autoChannelSelection) {
+        return (autoChannelSelection) ? getBackupChannelNumber() : getManualBackupChannelNumber();
+    }
 
-	public SourceSelectionValue getEirpTxPower() {
-		return eirpTxPower;
-	}
+    public Integer getBackupChannelNumber() {
+        return backupChannelNumber;
+    }
 
-	public Integer getManualChannelNumber() {
-		return (this.manualChannelNumber == null) ? this.channelNumber : this.manualChannelNumber;
-	}
-	
-	public Integer getManualBackupChannelNumber() {
-		return (this.manualBackupChannelNumber == null) ? this.backupChannelNumber : this.manualBackupChannelNumber;
-	}
+    public Integer getChannelNumber() {
+        return channelNumber;
+    }
 
-	public SourceSelectionValue getProbeResponseThresholdDb() {
-		return probeResponseThresholdDb;
-	}
+    public SourceSelectionValue getClientDisconnectThresholdDb() {
+        return clientDisconnectThresholdDb;
+    }
 
-	public RadioType getRadioType() {
-		return this.radioType;
-	}
+    public Boolean getDeauthAttackDetection() {
+        return this.deauthAttackDetection;
+    }
 
-	public SourceSelectionValue getRxCellSizeDb() {
-		return rxCellSizeDb;
-	}
-	
-	public void setBackupChannelNumber(Integer channelNumber) {
-		this.backupChannelNumber = channelNumber;
-	}
-		
-	public void setChannelNumber(Integer channelNumber) {
-		this.channelNumber = channelNumber;
-	}
+    public SourceSelectionValue getEirpTxPower() {
+        return eirpTxPower;
+    }
 
-	public void setClientDisconnectThresholdDb(SourceSelectionValue clientDisconnectThresholdDb) {
-		this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
-	}
+    public Integer getManualChannelNumber() {
+        return (this.manualChannelNumber == null) ? this.channelNumber : this.manualChannelNumber;
+    }
 
-	public void setDeauthAttackDetection(Boolean value) {
-		this.deauthAttackDetection = value;
-	}
+    public Integer getManualBackupChannelNumber() {
+        return (this.manualBackupChannelNumber == null) ? this.backupChannelNumber : this.manualBackupChannelNumber;
+    }
 
-	public void setEirpTxPower(SourceSelectionValue eirpTxPower) {
-		this.eirpTxPower = eirpTxPower;
-	}
+    public SourceSelectionValue getProbeResponseThresholdDb() {
+        return probeResponseThresholdDb;
+    }
 
-	public void setManualChannelNumber(Integer channel) {
-		this.manualChannelNumber = channel;
-	}
-	
-	public void setManualBackupChannelNumber(Integer channel) {
-		this.manualBackupChannelNumber = channel;
-	}
+    public RadioType getRadioType() {
+        return this.radioType;
+    }
 
-	public void setProbeResponseThresholdDb(SourceSelectionValue probeResponseThresholdDb) {
-		this.probeResponseThresholdDb = probeResponseThresholdDb;
-	}
+    public SourceSelectionValue getRxCellSizeDb() {
+        return rxCellSizeDb;
+    }
 
-	public void setRadioType(RadioType radioType) {
-		this.radioType = radioType;
-	}
+    public void setBackupChannelNumber(Integer channelNumber) {
+        this.backupChannelNumber = channelNumber;
+    }
 
-	public void setRxCellSizeDb(SourceSelectionValue rxCellSizeDb) {
-		this.rxCellSizeDb = rxCellSizeDb;
-	}
+    public void setChannelNumber(Integer channelNumber) {
+        this.channelNumber = channelNumber;
+    }
 
-	public Boolean getPerimeterDetectionEnabled() {
-		return perimeterDetectionEnabled;
-	}
+    public void setClientDisconnectThresholdDb(SourceSelectionValue clientDisconnectThresholdDb) {
+        this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
+    }
 
-	public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
-		this.perimeterDetectionEnabled = perimeterDetectionEnabled;
-	}
+    public void setDeauthAttackDetection(Boolean value) {
+        this.deauthAttackDetection = value;
+    }
 
-	public BestAPSteerType getBestAPSteerType() {
-		return bestAPSteerType;
-	}
+    public void setEirpTxPower(SourceSelectionValue eirpTxPower) {
+        this.eirpTxPower = eirpTxPower;
+    }
 
-	public void setBestAPSteerType(BestAPSteerType bestAPSteerType) {
-		this.bestAPSteerType = bestAPSteerType;
-	}
+    public void setManualChannelNumber(Integer channel) {
+        this.manualChannelNumber = channel;
+    }
 
-	public Set<ChannelPowerLevel> getAllowedChannelsPowerLevels() {
-		return allowedChannelsPowerLevels;
-	}
+    public void setManualBackupChannelNumber(Integer channel) {
+        this.manualBackupChannelNumber = channel;
+    }
 
-	public void setAllowedChannelsPowerLevels(Set<ChannelPowerLevel> allowedChannelsPowerLevels) {
-		this.allowedChannelsPowerLevels = allowedChannelsPowerLevels;
-	}
+    public void setProbeResponseThresholdDb(SourceSelectionValue probeResponseThresholdDb) {
+        this.probeResponseThresholdDb = probeResponseThresholdDb;
+    }
 
-	@Override
-	public boolean hasUnsupportedValue() {
-		if (super.hasUnsupportedValue()) {
-			return true;
-		}
-		if (RadioType.isUnsupported(radioType) 
-				|| SourceSelectionValue.hasUnsupportedValue(clientDisconnectThresholdDb)
-				|| SourceSelectionValue.hasUnsupportedValue(eirpTxPower)
-				|| SourceSelectionValue.hasUnsupportedValue(probeResponseThresholdDb)
-				|| SourceSelectionValue.hasUnsupportedValue(rxCellSizeDb)
-				|| BestAPSteerType.isUnsupported(bestAPSteerType)) {
-			return true;
-		}
-		return false;
-	}
+    public void setRadioType(RadioType radioType) {
+        this.radioType = radioType;
+    }
 
-    
+    public void setRxCellSizeDb(SourceSelectionValue rxCellSizeDb) {
+        this.rxCellSizeDb = rxCellSizeDb;
+    }
+
+    public Boolean getPerimeterDetectionEnabled() {
+        return perimeterDetectionEnabled;
+    }
+
+    public void setPerimeterDetectionEnabled(Boolean perimeterDetectionEnabled) {
+        this.perimeterDetectionEnabled = perimeterDetectionEnabled;
+    }
+
+    public BestAPSteerType getBestAPSteerType() {
+        return bestAPSteerType;
+    }
+
+    public void setBestAPSteerType(BestAPSteerType bestAPSteerType) {
+        this.bestAPSteerType = bestAPSteerType;
+    }
+
+    public Set<ChannelPowerLevel> getAllowedChannelsPowerLevels() {
+        return allowedChannelsPowerLevels;
+    }
+
+    public void setAllowedChannelsPowerLevels(Set<ChannelPowerLevel> allowedChannelsPowerLevels) {
+        this.allowedChannelsPowerLevels = allowedChannelsPowerLevels;
+    }
+
+    @Override
+    public boolean hasUnsupportedValue() {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+        if (RadioType.isUnsupported(radioType) || SourceSelectionValue.hasUnsupportedValue(clientDisconnectThresholdDb)
+                || SourceSelectionValue.hasUnsupportedValue(eirpTxPower)
+                || SourceSelectionValue.hasUnsupportedValue(probeResponseThresholdDb)
+                || SourceSelectionValue.hasUnsupportedValue(rxCellSizeDb)
+                || BestAPSteerType.isUnsupported(bestAPSteerType)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(allowedChannelsPowerLevels, 
-                backupChannelNumber, 
-                bestAPSteerType, channelNumber, clientDisconnectThresholdDb,
-                deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
-                getManualBackupChannelNumber(),
-                perimeterDetectionEnabled, probeResponseThresholdDb, radioType, rxCellSizeDb);
+        return Objects.hash(allowedChannelsPowerLevels, backupChannelNumber, bestAPSteerType, channelNumber,
+                clientDisconnectThresholdDb, deauthAttackDetection, eirpTxPower, getManualChannelNumber(),
+                getManualBackupChannelNumber(), perimeterDetectionEnabled, probeResponseThresholdDb, radioType,
+                rxCellSizeDb);
     }
 
     @Override
@@ -245,8 +257,7 @@ public class ElementRadioConfiguration extends BaseJsonModel {
         ElementRadioConfiguration other = (ElementRadioConfiguration) obj;
         return Objects.equals(allowedChannelsPowerLevels, other.allowedChannelsPowerLevels)
                 && Objects.equals(backupChannelNumber, other.backupChannelNumber)
-                && this.bestAPSteerType == other.bestAPSteerType
-                && Objects.equals(channelNumber, other.channelNumber)
+                && this.bestAPSteerType == other.bestAPSteerType && Objects.equals(channelNumber, other.channelNumber)
                 && Objects.equals(clientDisconnectThresholdDb, other.clientDisconnectThresholdDb)
                 && Objects.equals(deauthAttackDetection, other.deauthAttackDetection)
                 && Objects.equals(eirpTxPower, other.eirpTxPower)
@@ -256,6 +267,26 @@ public class ElementRadioConfiguration extends BaseJsonModel {
                 && Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
                 && this.radioType == other.radioType && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
     }
-	
-	
+
+    @Override
+    /**
+     * If we go from "previousVersion" to our current version, would that
+     * require a push to the device?
+     */
+    public boolean needsToBeUpdatedOnDevice(ElementRadioConfiguration previousVersion) {
+
+        return !(Objects.equals(backupChannelNumber, previousVersion.backupChannelNumber)
+                && this.bestAPSteerType == previousVersion.bestAPSteerType
+                && Objects.equals(channelNumber, previousVersion.channelNumber)
+                && Objects.equals(clientDisconnectThresholdDb, previousVersion.clientDisconnectThresholdDb)
+                && Objects.equals(deauthAttackDetection, previousVersion.deauthAttackDetection)
+                && Objects.equals(eirpTxPower, previousVersion.eirpTxPower)
+                && Objects.equals(getManualChannelNumber(), previousVersion.getManualChannelNumber())
+                && Objects.equals(getManualBackupChannelNumber(), previousVersion.getManualBackupChannelNumber())
+                && Objects.equals(perimeterDetectionEnabled, previousVersion.perimeterDetectionEnabled)
+                && Objects.equals(probeResponseThresholdDb, previousVersion.probeResponseThresholdDb)
+                && this.radioType == previousVersion.radioType
+                && Objects.equals(rxCellSizeDb, previousVersion.rxCellSizeDb));
+    }
+
 }

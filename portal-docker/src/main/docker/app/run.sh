@@ -1,6 +1,9 @@
 #!/bin/bash
 
-LOGGING_PROPS=" -Dlogging.config=file:/app/portal/logback.xml"
+LOGGING_PROPS=" -Dlogging.config=file:/app/portal/log/logback.xml"
+
+SSL_PROPS=" "
+SSL_PROPS+=" -Dssl.props=file:/app/portal/certs/ssl.properties"
 
 FILE_STORE_DIRECTORY="${FILE_STORE_DIRECTORY_INTERNAL:=/tmp/filestore}"
 
@@ -42,6 +45,6 @@ fi
 
 JVM_EXTRA_PROPS=" ${JVM_MEM_OPTIONS:- } "
 
-export ALL_PROPS="$JVM_EXTRA_PROPS $LOGGING_PROPS $HOST_PROPS $FILE_STORE_PROPS $REMOTE_DEBUG"
+export ALL_PROPS="$JVM_EXTRA_PROPS $SSL_PROPS $LOGGING_PROPS $HOST_PROPS $FILE_STORE_PROPS $REMOTE_DEBUG"
 
 java $ALL_PROPS -jar app.jar

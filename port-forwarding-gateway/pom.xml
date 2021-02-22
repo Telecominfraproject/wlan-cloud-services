@@ -16,30 +16,30 @@
 		<dependency>
 			<artifactId>base-container</artifactId>
 			<groupId>com.telecominfraproject.wlan</groupId>
-			<version>${tip-wlan-cloud.release.version}</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
         <!-- to be able to send startAgent command to equipment -->
         <dependency>
             <artifactId>equipment-gateway-service-interface</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>equipment-service-interface</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <artifactId>status-service-interface</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <artifactId>cloud-event-dispatcher-interface</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         
 		

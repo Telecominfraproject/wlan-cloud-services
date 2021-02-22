@@ -15,23 +15,23 @@
 		<dependency>
 			<groupId>com.telecominfraproject.wlan</groupId>
 			<artifactId>base-client</artifactId>
-			<version>${tip-wlan-cloud.release.version}</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.telecominfraproject.wlan</groupId>
 			<artifactId>port-forwarding-gateway-interface</artifactId>
-			<version>${tip-wlan-cloud.release.version}</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.telecominfraproject.wlan</groupId>
 			<artifactId>port-forwarding-gateway</artifactId>
-			<version>${tip-wlan-cloud.release.version}</version>
+			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	    <dependency>
 	        <groupId>com.telecominfraproject.wlan</groupId>
 	        <artifactId>base-remote-tests</artifactId>
-	        <version>${tip-wlan-cloud.release.version}</version>
+	        <version>0.0.1-SNAPSHOT</version>
 	        <scope>test</scope>
 	    </dependency>		
 	</dependencies>  

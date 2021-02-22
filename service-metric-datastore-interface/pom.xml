@@ -16,12 +16,12 @@
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>service-metric-models</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
                 <dependency>
                         <groupId>com.telecominfraproject.wlan</groupId>
                         <artifactId>base-exceptions</artifactId>
-                        <version>${tip-wlan-cloud.release.version}</version>
+                        <version>0.0.1-SNAPSHOT</version>
                 </dependency>
     </dependencies>
 

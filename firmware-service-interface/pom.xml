@@ -15,7 +15,7 @@
       <dependency>
         <artifactId>firmware-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
     </dependencies>
         

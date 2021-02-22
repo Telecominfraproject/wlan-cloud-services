@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>portal-process</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

@@ -86,7 +86,6 @@ public interface EquipmentDatastore {
      * This method and functionality should be replaced by the RF profile. 
      * See RfConfiguration and RfElementConfiguration
      */
-    @Deprecated
     void updateRrmBulk(EquipmentRrmBulkUpdateRequest request);
     
     CustomerEquipmentCounts getEquipmentCounts(int customerId);
