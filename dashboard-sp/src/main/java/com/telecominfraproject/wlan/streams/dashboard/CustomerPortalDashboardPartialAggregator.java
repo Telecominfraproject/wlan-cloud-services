@@ -151,13 +151,13 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			CustomerPortalDashboardPartialEvent partialEvent = context.getOrCreatePartialEvent(timeBucketId);
 			
 			// Update counters on the context and/or CustomerPortalDashboardPartialEvent
-			context.getEquipmentIds().add(equipmentId);
+			partialEvent.getEquipmentIds().add(equipmentId);
 			
 			if(model.getClientCount() > 0) {
-				context.getEquipmentIdsWithClients().add(equipmentId);
+			    partialEvent.getEquipmentIdsWithClients().add(equipmentId);
 			}
 			
-			context.addClientMacs(model);
+			partialEvent.addClientMacs(model.getClientMacAddressesPerRadio());
 			
 			AtomicLong txBytes = new AtomicLong();
 			model.getTxBytesPerRadio().values().forEach(v -> txBytes.addAndGet(v));			
@@ -195,22 +195,29 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        			CustomerPortalDashboardPartialEvent oldestPartialEvent = context.getOldestPartialEventOrNull();
 			        			if(oldestPartialEvent!=null && oldestPartialEvent.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
 			        				// finalize oldestPartialEvent counters, and put it into customerEventStream
-			        				oldestPartialEvent.getEquipmentInServiceCount().set(context.getEquipmentIds().size());
-			        				oldestPartialEvent.getEquipmentWithClientsCount().set(context.getEquipmentIdsWithClients().size());
-			        				context.getClientCountsPerRadio().forEach((rt, cnt) -> oldestPartialEvent.getAssociatedClientsCountPerRadio().put(rt, new AtomicInteger(cnt)));
-			        				context.getClientMacCountsPerOui().forEach((oui, cnt) -> oldestPartialEvent.getClientCountPerOui().put(oui, cnt));
+			        			    oldestPartialEvent.aggregateCounters();
 			        				
-			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), context.getEquipmentIds(), Collections.emptySet());
+			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), oldestPartialEvent.getEquipmentIds(), Collections.emptySet());
 			        				for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
 			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity(), entry.getValue().get());
 			        				}
 			        				
 			        				customerEventStream.publish(new SystemEventRecord(oldestPartialEvent));
+			        				context.setLastPublishedTimestampMs(System.currentTimeMillis());
 			        				
 			        				//remove that oldest CustomerPortalDashboardPartialEvent from the context				
 			        				context.removePartialEvent(oldestPartialEvent.getTimeBucketId());
 			        				LOG.trace("Finalized processing of {}", oldestPartialEvent);
 			        			}
+			        			
+			        			if(oldestPartialEvent == null && context.getLastPublishedTimestampMs() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
+			        			    //there have not been any metrics reported for this subset of customer equipment in a while, 
+			        			    //we'll create an empty partial event and will post 0 counters for it 
+			        			    long timestamp = System.currentTimeMillis();
+			        			    long timeBucketId = timestamp - ( timestamp % timeBucketMs);
+ 		        		            context.getOrCreatePartialEvent(timeBucketId);
+			        			}
+			        			
 		                	} catch(Exception e) {
 		                		LOG.error("Error when processing context for customer {}", context.getCustomerId(), e);
 		                	}
