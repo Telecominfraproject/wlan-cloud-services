@@ -16,6 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.servo.DefaultMonitorRegistry;
+import com.netflix.servo.monitor.BasicCounter;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.TagList;
+import com.telecominfraproject.wlan.cloudmetrics.CloudMetricsTags;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.stream.StreamMessageDispatcher;
@@ -29,6 +35,21 @@ public class KafkaStreamsConsumerConfig {
 
     	private static final Logger LOG = LoggerFactory.getLogger(KafkaStreamsConsumerConfig.class);
 	
+        private final TagList tags = CloudMetricsTags.commonTags;
+
+        private final Counter messagesReadCounter = new BasicCounter(MonitorConfig.builder("kafka-consumer-msg-read").withTags(tags).build());
+        private final Counter bytesReadCounter = new BasicCounter(MonitorConfig.builder("kafka-consumer-bytes-read").withTags(tags).build());
+        private final Counter messagesErrorsCounter = new BasicCounter(MonitorConfig.builder("kafka-consumer-errors").withTags(tags).build());
+
+        // dtop: use anonymous constructor to ensure that the following code always
+        // get executed,
+        // even when somebody adds another constructor in here
+        {
+            DefaultMonitorRegistry.getInstance().register(messagesReadCounter);
+            DefaultMonitorRegistry.getInstance().register(bytesReadCounter);
+            DefaultMonitorRegistry.getInstance().register(messagesErrorsCounter);
+        }
+
         @Value("${tip.wlan.wlanServiceMetricsTopic:wlan_service_metrics}")
     	private String wlanServiceMetricsTopic;
         
@@ -70,6 +91,7 @@ public class KafkaStreamsConsumerConfig {
 	    	try {
 	    		consumerRecords = consumer.poll(Duration.of(5, ChronoUnit.SECONDS));
 	    	}catch(Exception e) {
+	    	    messagesErrorsCounter.increment();
 				LOG.error("Got exception when polling Kafka ", e);
 				
 				//back off a bit
@@ -87,6 +109,8 @@ public class KafkaStreamsConsumerConfig {
 	    	
 			consumerRecords.forEach(cr -> {
 				try {
+				    messagesReadCounter.increment();
+				    bytesReadCounter.increment(cr.value().length);				    
 					ret.add(new QueuedStreamMessage(cr.topic(),
 						BaseJsonModel.fromZippedBytes(cr.value(), BaseJsonModel.class)));
 				}catch(RuntimeException e) {
