@@ -534,7 +534,7 @@ paths:
       - name: equipmentIdSet
         in: query
         description: Equipment ID Set
-        required: true
+        required: false
         schema:
           type: array
           items: 
@@ -543,7 +543,7 @@ paths:
       - name: alarmCodeSet
         in: query
         description: Alarm Code Set
-        required: true
+        required: false
         schema:
           type: array
           items: 
@@ -551,14 +551,20 @@ paths:
       - name: createdAfterTimestamp
         in: query
         description: Created After Timestamp
-        required: true
+        required: false
         schema:
           type: integer
           format: int64
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       - name: sortBy
         in: query
         description: sort options
-        required: true
+        required: false
         schema:
           type: array
           items:

@@ -204,7 +204,7 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
 
     @Override
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet,
-			long createdAfterTimestamp, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context)  {
+			long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context)  {
 
     	if(context == null) {
     		context = new PaginationContext<>();
@@ -226,6 +226,7 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
         			&& ( equipmentIdSet == null || equipmentIdSet.isEmpty() || equipmentIdSet.contains(a.getEquipmentId()) )
         			&& ( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) )
         			&& a.getCreatedTimestamp() > createdAfterTimestamp
+        			&& (acknowledged == null || a.isAcknowledged() == acknowledged.booleanValue())
         			) {
         		items.add(a.clone());
         	}

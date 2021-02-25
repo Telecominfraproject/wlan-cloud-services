@@ -170,10 +170,10 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
     
     @Override
     public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
-    		Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+    		Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy,
     		PaginationContext<Alarm> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {} )", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, sortBy, context);
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {}, {} )", customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, acknowledged, sortBy, context);
 
         String equipmentIdSetStr = null;
         if (equipmentIdSet != null && !equipmentIdSet.isEmpty()) {
@@ -193,9 +193,9 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
 
         ResponseEntity<PaginationResponse<Alarm>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                		+ "/forCustomer?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}&sortBy={sortBy}&paginationContext={paginationContext}", 
+                		+ "/forCustomer?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}&acknowledged={acknowledged}&sortBy={sortBy}&paginationContext={paginationContext}", 
                 		HttpMethod.GET,
-                null, Alarm_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdSetStr, alarmCodeSetStr, createdAfterTimestamp, sortBy, context);
+                null, Alarm_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdSetStr, alarmCodeSetStr, createdAfterTimestamp, acknowledged, sortBy, context);
 
         PaginationResponse<Alarm> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
