@@ -3144,6 +3144,7 @@ components:
         - $ref: '#/components/schemas/NetworkAggregateStatusData'
         - $ref: '#/components/schemas/OperatingSystemPerformance'
         - $ref: '#/components/schemas/RadioUtilizationReport'
+        - $ref: '#/components/schemas/EquipmentChannelStatusData'
       discriminator:
         propertyName: model_type
     
@@ -4051,6 +4052,21 @@ components:
           description: The percentage of the overall capacity that is currently being used by associated clients.
           type: integer
           format: int32
+          
+    EquipmentChannelStatusData:
+      description: Equipment Channel Status Data.
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+          - EquipmentChannelStatusData
+        statusDataType:
+          type: string
+          enum:
+          - RADIO_CHANNEL
+        channelStatusDataMap:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
                 
 #
 # Equipment configuration data models
