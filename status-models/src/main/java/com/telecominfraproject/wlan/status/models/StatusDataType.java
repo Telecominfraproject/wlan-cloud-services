@@ -92,6 +92,8 @@ public class StatusDataType implements EnumWithId {
     CUSTOMER_DASHBOARD = new StatusDataType(14, "CUSTOMER_DASHBOARD"),
     
     EQUIPMENT_DEBUG_SESSION = new StatusDataType(15, "EQUIPMENT_DEBUG_SESSION"),
+    
+    RADIO_CHANNEL = new StatusDataType(16, "RADIO_CHANNEL", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
 
     UNSUPPORTED  = new StatusDataType(-1, "UNSUPPORTED") ;
     

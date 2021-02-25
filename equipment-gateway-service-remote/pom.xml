@@ -15,54 +15,54 @@
       <dependency>
         <artifactId>equipment-gateway-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>routing-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>base-client</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
 
 	<!-- Dependencies for the unit tests -->
       <dependency>
         <artifactId>base-remote-tests</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       
       <dependency>
         <artifactId>routing-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>routing-service-remote</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>routing-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>cloud-event-dispatcher-empty</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 

@@ -841,7 +841,11 @@ components:
     RrmBulkUpdateApDetails:
       properties:
         channelNumber:
-          # mapped to equipment->details->radioMap->channelNumber
+          # mapped to equipment->details->radioMap->manualChannelNumber
+          type: integer
+          format: int32
+        backupChannelNumber:
+          # mapped to equipment->details->radioMap->manualBackupChannelNumber
           type: integer
           format: int32
         rxCellSizeDb:
@@ -2979,6 +2983,7 @@ components:
         - $ref: '#/components/schemas/OperatingSystemPerformance'
         - $ref: '#/components/schemas/RadioUtilizationReport'
         - $ref: '#/components/schemas/CustomerPortalDashboardStatus'
+        - $ref: '#/components/schemas/EquipmentChannelStatusData'
       discriminator:
         propertyName: model_type
     
@@ -3981,6 +3986,21 @@ components:
           description: The percentage of the overall capacity that is currently being used by associated clients.
           type: integer
           format: int32
+          
+    EquipmentChannelStatusData:
+      description: Equipment Channel Status Data.
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+          - EquipmentChannelStatusData
+        statusDataType:
+          type: string
+          enum:
+          - RADIO_CHANNEL
+        channelStatusDataMap:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
           
 #
 # Objects related to Client sessions
@@ -12534,6 +12554,7 @@ paths:
       - name: alarmCodes
         in: query
         description: Set of alarm codes. Empty or null means retrieve all.
+        required: false
         content:
           text/plain:
             schema:
@@ -12548,9 +12569,16 @@ paths:
           type: integer
           format: int64
           default: -1
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       - name: sortBy
         in: query
         description: sort options
+        required: false
         schema:
           type: array
           items:
@@ -12558,7 +12586,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:

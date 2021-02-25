@@ -16,26 +16,26 @@
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>base-jdbc</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         
          <dependency>
                  <groupId>com.telecominfraproject.wlan</groupId>
                  <artifactId>firmware-datastore-interface</artifactId>
-                 <version>${tip-wlan-cloud.release.version}</version>
+                 <version>0.0.1-SNAPSHOT</version>
          </dependency>
 
         <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>base-jdbc-tests</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
          <dependency>
             <groupId>com.telecominfraproject.wlan</groupId>
             <artifactId>firmware-datastore-common-test</artifactId>
-            <version>${tip-wlan-cloud.release.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
          

@@ -69,11 +69,11 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
 
 	@Override
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
-			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy,
 			PaginationContext<Alarm> context) {
 		
 		return alarmController.getForCustomer(customerId, equipmentIdSet,
-				alarmCodeSet, createdAfterTimestamp, sortBy, context);
+				alarmCodeSet, createdAfterTimestamp, acknowledged, sortBy, context);
 	}
 
 	@Override

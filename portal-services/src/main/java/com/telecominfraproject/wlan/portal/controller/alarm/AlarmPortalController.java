@@ -75,6 +75,7 @@ public class AlarmPortalController  {
     		@RequestParam(required = false) Set<Long> equipmentIds,  
     		@RequestParam(required = false) Set<AlarmCode> alarmCodes, 
     		@RequestParam(required = false, defaultValue = "-1") long createdAfterTimestamp,
+    		@RequestParam(required = false) Boolean acknowledged,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Alarm> paginationContext) {
 
@@ -97,7 +98,7 @@ public class AlarmPortalController  {
         }
 
         PaginationResponse<Alarm> onePage = this.alarmServiceInterface
-                .getForCustomer(customerId, equipmentIds, alarmCodes, createdAfterTimestamp,  sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentIds, alarmCodes, createdAfterTimestamp, acknowledged, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
@@ -162,7 +163,7 @@ public class AlarmPortalController  {
                 //process alarms for one customer
                 PaginationContext<Alarm> context = new PaginationContext<Alarm>(100);
                 while(!context.isLastPage()) {
-                    PaginationResponse<Alarm> alarmPage = alarmServiceInterface.getForCustomer(customerId, null, null, -1, null, context );
+                    PaginationResponse<Alarm> alarmPage = alarmServiceInterface.getForCustomer(customerId, null, null, -1, null, null, context );
                     alarmEquipmentIds.clear();
                     alarmPage.getItems().forEach(a -> alarmEquipmentIds.add(a.getEquipmentId()));
         

@@ -15,29 +15,29 @@
       <dependency>
         <artifactId>base-container</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>cloud-event-dispatcher-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
       
     <dependency>
         <artifactId>status-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
         <artifactId>status-datastore-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
         <artifactId>status-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
 
@@ -45,7 +45,7 @@
       <dependency>
         <artifactId>cloud-event-dispatcher-empty</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 

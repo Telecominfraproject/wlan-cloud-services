@@ -2,12 +2,18 @@ package com.telecominfraproject.wlan.status.dashboard.models.events;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.status.models.StatusCode;
@@ -46,6 +52,17 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 	private Map<String, AtomicInteger> clientCountPerOui = new ConcurrentHashMap<>();
 	
 	private Map<StatusCode, AtomicInteger> alarmsCountBySeverity = new ConcurrentHashMap<>();
+	
+	//intermediate data, not serialized, used when computing various counts
+	@JsonIgnore
+    private Set<Long> equipmentIds = Collections.synchronizedSet(new HashSet<>());
+    //intermediate data, not serialized, used when computing various counts
+    @JsonIgnore
+    private Set<Long> equipmentIdsWithClients = Collections.synchronizedSet(new HashSet<>());
+    //intermediate data, not serialized, used when computing various counts
+    @JsonIgnore
+    private Map<RadioType, Set<MacAddress>> clientMacsPerRadio = new EnumMap<>(RadioType.class);
+
 
 	public long getTimeBucketId() {
 		return timeBucketId;
@@ -189,5 +206,62 @@ public class CustomerPortalDashboardPartialEvent extends SystemEvent implements 
 		
 		return ret;		
 	}
+
+	   public void addClientMacs(Map<RadioType, List<MacAddress>> clientMacAddressesPerRadio) {
+	        //make sure all required sets exist
+	       clientMacAddressesPerRadio.keySet().forEach((rt) -> {
+	            Set<MacAddress> macSet = clientMacsPerRadio.get(rt);
+	            if(macSet == null) {
+	                macSet = Collections.synchronizedSet(new HashSet<>());
+	                macSet = clientMacsPerRadio.putIfAbsent(rt, macSet);
+	                if(macSet == null) {
+	                    macSet = clientMacsPerRadio.get(rt);
+	                }
+	            }
+	        });
+	        
+	        //add each client mac into appropriate set
+	       clientMacAddressesPerRadio.forEach((rt, macList) -> {
+	            Set<MacAddress> macSet = clientMacsPerRadio.get(rt);
+	            macList.forEach(m -> macSet.add(m));            
+	        });
+
+	    }
+	    
+       @JsonIgnore
+	    private Map<String, AtomicInteger> getClientMacCountsPerOui(){
+	        Map<String, AtomicInteger> ret = new HashMap<>();
+	        clientMacsPerRadio.values().forEach(macSet -> macSet.forEach( m-> {
+	            String oui = m.toOuiString();
+	            AtomicInteger cnt = ret.get(oui);
+	            if(cnt == null) {
+	                cnt = new AtomicInteger();
+	                cnt = ret.putIfAbsent(oui, cnt);
+	                if(cnt == null) {
+	                    cnt = ret.get(oui);
+	                }
+	            }
+	            cnt.incrementAndGet();
+	        }));
+	        
+	        return ret;
+	    }
+
+       @JsonIgnore
+       public Set<Long> getEquipmentIds() {
+           return equipmentIds;
+       }
+
+       @JsonIgnore
+       public Set<Long> getEquipmentIdsWithClients() {
+           return equipmentIdsWithClients;
+       }
+
+        public void aggregateCounters() {
+            equipmentInServiceCount.set(this.equipmentIds.size());
+            equipmentWithClientsCount.set(this.equipmentIdsWithClients.size());
+            clientMacsPerRadio.forEach( (rt,macSet) -> this.associatedClientsCountPerRadio.put(rt, new AtomicInteger(macSet.size())));
+            this.getClientMacCountsPerOui().forEach((oui, cnt) -> this.clientCountPerOui.put(oui, cnt));
+        }
 
 }

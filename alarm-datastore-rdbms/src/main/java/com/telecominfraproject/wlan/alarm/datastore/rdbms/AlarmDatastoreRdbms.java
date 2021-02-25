@@ -57,7 +57,7 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
 
 	@Override
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet,
-			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+			Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy,
 			PaginationContext<Alarm> context) {
 		
     	if(context == null) {
@@ -65,7 +65,7 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
     	}
 
 		return alarmDAO.getForCustomer(customerId, equipmentIdSet,
-				alarmCodeSet, createdAfterTimestamp, sortBy,
+				alarmCodeSet, createdAfterTimestamp, acknowledged, sortBy,
 				context);
 	}
 

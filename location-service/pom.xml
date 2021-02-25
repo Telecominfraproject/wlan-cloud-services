@@ -15,24 +15,24 @@
       <dependency>
         <artifactId>base-container</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>location-datastore-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <artifactId>cloud-event-dispatcher-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>      
 
       <dependency>
         <artifactId>cloud-metrics</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>${tip-wlan-cloud.release.version}</version>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
 
     </dependencies>
