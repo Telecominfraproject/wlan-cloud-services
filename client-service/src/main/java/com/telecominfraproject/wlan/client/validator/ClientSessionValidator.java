@@ -11,7 +11,10 @@ public class ClientSessionValidator
 	
 	public void validateClientSession(ClientSession clientSession) throws ClientSessionValidatorException
 	{
-		checkSsidLength(clientSession.getDetails().getSsid());
+		if (clientSession.getDetails().getSsid() != null)
+		{
+			checkSsidLength(clientSession.getDetails().getSsid());
+		}
 	}
 	
 	private void checkSsidLength(String ssid) throws ClientSessionValidatorException
