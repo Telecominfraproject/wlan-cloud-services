@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -22,322 +22,322 @@
       <dependency>
         <artifactId>webtoken-auth-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
     
       <dependency>
         <artifactId>portal-services</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>customer-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>location-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>equipment-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>profile-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>portal-user-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>status-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>client-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>alarm-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>service-metric-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>system-event-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>routing-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>firmware-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>manufacturer-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
     
      <dependency>
         <artifactId>adoption-metrics-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
     
       <dependency>
             <artifactId>filestore-service</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     
       <!-- prov services -->
       <dependency>
         <artifactId>customer-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>customer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>location-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>location-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>equipment-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>equipment-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>profile-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>profile-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>portal-user-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>portal-user-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>firmware-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>firmware-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>manufacturer-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>manufacturer-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>adoption-metrics-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>adoption-metrics-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>cloud-event-dispatcher-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
 	  <!-- ssc services -->
       <dependency>
         <artifactId>cloud-event-dispatcher</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>service-metric-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>service-metric-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>system-event-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>system-event-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>alarm-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>alarm-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>status-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>status-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>client-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>client-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>routing-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>routing-datastore-rdbms</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <!-- Stream Processors -->
       <dependency>
         <artifactId>single-process-streams</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
             
       <dependency>
         <artifactId>provisioning-sp</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>dashboard-sp</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>equipment-alarms-sp</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>adoption-metrics-sp</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>equipment-gateway-service-remote</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
       
     </dependencies>
