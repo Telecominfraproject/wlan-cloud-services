@@ -4071,7 +4071,7 @@ components:
           type: string
           enum:
           - RADIO_CHANNEL
-        channelStatusDataMap:
+        channelNumberStatusDataMap:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
                 
 #

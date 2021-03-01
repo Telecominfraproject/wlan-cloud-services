@@ -60,12 +60,13 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.alarm_by_acknowledged_timestamp (
     PRIMARY KEY ((customerId, acknowledged), alarmCode, createdTimestamp, equipmentId)
 ) WITH comment='Index Table to look up alarms by acknowledged and createdTimestamp used by TIP WLAN CloudSDK';
 
-
+/*
 # COPY tip_wlan_keyspace.alarm(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) TO 'alarmToAcknowledgedTable.csv';
 # COPY tip_wlan_keyspace.alarm_by_acknowledged(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) FROM 'alarmToAcknowledgedTable.csv';
 # COPY tip_wlan_keyspace.alarm_by_acknowledged_equipmentId(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) FROM 'alarmToAcknowledgedTable.csv';
 # COPY tip_wlan_keyspace.alarm_by_acknowledged_alarmCode(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) FROM 'alarmToAcknowledgedTable.csv';
 # COPY tip_wlan_keyspace.alarm_by_acknowledged_timestamp(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) FROM 'alarmToAcknowledgedTable.csv';
+*/
 
 /*
 # Experiment with a separate alarm_counts table because raw alarms table generates warnings like these:
