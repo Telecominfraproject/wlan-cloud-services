@@ -40,6 +40,8 @@ create table if not exists client_session (
     primary key (customerId, equipmentId, macAddress)
 );
 
+alter table client_session add column if not exists macAddressString varchar(100);
+
 create index if not exists idx_clientSession_customerId on client_session (customerId);
 create index if not exists idx_clientSession_locationId on client_session (customerId, locationId);
 create index if not exists idx_clientSession_customerId_macAddressString on client_session (customerId, macAddressString);
