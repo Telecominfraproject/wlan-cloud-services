@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.client.validator;
 
-public class ClientSessionValidatorException extends Exception
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+
+public class ClientSessionValidatorException extends DsDataValidationException
 {
 	private static final long serialVersionUID = 2225776244463518888L;
 	

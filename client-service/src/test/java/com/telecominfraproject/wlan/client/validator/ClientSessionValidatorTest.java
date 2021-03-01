@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.client.validator;
 
 import static org.mockito.Mockito.*;
+import static com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.MAX_SSID_LENGTH;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidExceedsMaxLengthException;
 
 /**
  * @author tcurrie
@@ -56,7 +58,7 @@ public class ClientSessionValidatorTest {
 	public void givenLessThanSsidLimit_whenValidateClientSession_happyPath() throws Exception
 	{
 		when(clientSession.getDetails()).thenReturn(clientSessionDetails);
-		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(ClientSessionValidator.MAX_SSID_LENGTH - 1));
+		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(MAX_SSID_LENGTH - 1));
 		
 		clientSessionValidator.validateClientSession(clientSession);
 	}
@@ -65,22 +67,22 @@ public class ClientSessionValidatorTest {
 	public void givenEqualToSsidLimit_whenValidateClientSession_happyPath() throws Exception
 	{
 		when(clientSession.getDetails()).thenReturn(clientSessionDetails);
-		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(ClientSessionValidator.MAX_SSID_LENGTH));
+		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(MAX_SSID_LENGTH));
 		
 		clientSessionValidator.validateClientSession(clientSession);
 	}
 	
-	@Test(expected = ClientSessionValidatorException.class) 
+	@Test(expected = SsidExceedsMaxLengthException.class) 
 	public void givenGreaterThanSsidLimit_whenValidateClientSession_assertThrows() throws Exception
 	{
 		when(clientSession.getDetails()).thenReturn(clientSessionDetails);
-		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(ClientSessionValidator.MAX_SSID_LENGTH + 1));
+		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(MAX_SSID_LENGTH + 1));
 		
 		clientSessionValidator.validateClientSession(clientSession);
 	}
 	
 	@Test(expected = ClientSessionValidatorException.class) 
-    public void givenNulLCLientSession_whenValidateClientSession_assertThrows() throws Exception
+    public void givenNullClientSession_whenValidateClientSession_assertThrows() throws Exception
     {
         clientSessionValidator.validateClientSession(null);
     }

@@ -24,7 +24,6 @@ import com.telecominfraproject.wlan.client.models.events.ClientSessionChangedEve
 import com.telecominfraproject.wlan.client.models.events.ClientSessionRemovedEvent;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.validator.ClientSessionValidator;
-import com.telecominfraproject.wlan.client.validator.ClientSessionValidatorException;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -370,12 +369,7 @@ public class ClientController {
         
         LOG.debug("Updating Client session {}", clientSession);
         
-        try {
-            clientSessionValidator.validateClientSession(clientSession);
-        } catch (ClientSessionValidatorException e) {
-            LOG.error(e.getMessage());
-            throw new DsDataValidationException(e.getMessage());
-        }
+        clientSessionValidator.validateClientSession(clientSession);
         
         if (BaseJsonModel.hasUnsupportedValue(clientSession)) {
             LOG.error("Failed to update Client session, request contains unsupported value: {}", clientSession);
@@ -409,14 +403,9 @@ public class ClientController {
 
         LOG.debug("Updating Client sessions {}", clientSessions);
         
-        try {
-            for (ClientSession clientSession : clientSessions)
-            {
-                clientSessionValidator.validateClientSession(clientSession);
-            }
-        } catch (ClientSessionValidatorException e) {
-            LOG.error(e.getMessage());
-            throw new DsDataValidationException(e.getMessage());
+        for (ClientSession clientSession : clientSessions)
+        {
+            clientSessionValidator.validateClientSession(clientSession);
         }
         
         if (BaseJsonModel.hasUnsupportedValue(clientSessions)) {

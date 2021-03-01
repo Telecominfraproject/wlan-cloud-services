@@ -1,15 +1,20 @@
 package com.telecominfraproject.wlan.client.validator;
 
+import static com.telecominfraproject.wlan.profile.ssid.models.SsidConfiguration.MAX_SSID_LENGTH;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
+import com.telecominfraproject.wlan.profile.ssid.models.SsidExceedsMaxLengthException;
 
 @Configuration
 public class ClientSessionValidator 
 {
-	protected static final int MAX_SSID_LENGTH = 32;
-
+    private static final Logger LOG = LoggerFactory.getLogger(ClientSessionValidator.class);
+    
 	public void validateClientSession(ClientSession clientSession) throws ClientSessionValidatorException
 	{
 	    throwIfNull(clientSession, ClientSession.class);
@@ -25,7 +30,9 @@ public class ClientSessionValidator
 	{
 		if (ssid.length() > MAX_SSID_LENGTH)
 		{
-			throw new ClientSessionValidatorException(String.format("given SSID: %s of length: %2d exceeds the maximum character limit of %2d.", ssid, ssid.length(), MAX_SSID_LENGTH));
+		    String msg = String.format("given SSID: %s of length: %2d exceeds the maximum character limit of %2d.", ssid, ssid.length(), MAX_SSID_LENGTH);
+		    LOG.error(msg);
+			throw new SsidExceedsMaxLengthException(msg);
 		}
 	}
 	
@@ -33,7 +40,9 @@ public class ClientSessionValidator
 	{
 	    if (object == null)
 	    {
-	        throw new ClientSessionValidatorException(String.format("%s is required but null.", clazz.getName()));
+	        String msg = String.format("%s is required but null.", clazz.getName());
+	        LOG.error(msg);
+            throw new ClientSessionValidatorException(msg);
 	    }
 	}
 }

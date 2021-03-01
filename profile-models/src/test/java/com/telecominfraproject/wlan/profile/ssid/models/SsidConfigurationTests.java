@@ -147,6 +147,39 @@ public class SsidConfigurationTests
        }
    }
    
+   @Test
+   public void testUnderSsidLimit()
+   {
+       SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
+       String filled = "a";
+       String shortSsid = filled.repeat(SsidConfiguration.MAX_SSID_LENGTH - 1);
+       ssidConfig.setSsid(shortSsid);
+
+       ssidConfig.hasUnsupportedValue();
+   }
+   
+   @Test
+   public void testEqualToSsidLimit()
+   {
+       SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
+       String filled = "a";
+       String justRightSsid = filled.repeat(SsidConfiguration.MAX_SSID_LENGTH);
+       ssidConfig.setSsid(justRightSsid);
+
+       ssidConfig.hasUnsupportedValue();
+   }
+   
+   @Test(expected = SsidExceedsMaxLengthException.class)
+   public void testExceedsSsidLimit()
+   {
+       SsidConfiguration ssidConfig = SsidConfiguration.createWithDefaults();
+       String filled = "a";
+       String longSsid = filled.repeat(SsidConfiguration.MAX_SSID_LENGTH + 1);
+       ssidConfig.setSsid(longSsid);
+
+       ssidConfig.hasUnsupportedValue();
+   }
+   
    private void testBadKeyInsertExpectExceptionAndSwallowIt(WepConfiguration config, WepKey key, WepKey expectedResult, int index) {
        try {
            config.setWepKeyAtIndex(key, index);
