@@ -73,13 +73,25 @@ public class ClientSessionValidatorTest {
 	@Test(expected = ClientSessionValidatorException.class) 
 	public void givenGreaterThanSsidLimit_whenValidateClientSession_assertThrows() throws Exception
 	{
-		String ssid = sampleSsidFromLength(ClientSessionValidator.MAX_SSID_LENGTH + 1);
-		int length = ssid.length();
 		when(clientSession.getDetails()).thenReturn(clientSessionDetails);
-		when(clientSessionDetails.getSsid()).thenReturn(ssid);
+		when(clientSessionDetails.getSsid()).thenReturn(sampleSsidFromLength(ClientSessionValidator.MAX_SSID_LENGTH + 1));
 		
 		clientSessionValidator.validateClientSession(clientSession);
 	}
+	
+	@Test(expected = ClientSessionValidatorException.class) 
+    public void givenNulLCLientSession_whenValidateClientSession_assertThrows() throws Exception
+    {
+        clientSessionValidator.validateClientSession(null);
+    }
+	
+	@Test(expected = ClientSessionValidatorException.class) 
+    public void givenNullClientSessionDetails_whenValidateClientSession_assertThrows() throws Exception
+    {
+        when(clientSession.getDetails()).thenReturn(null);
+        
+        clientSessionValidator.validateClientSession(clientSession);
+    }
 	
 	private String sampleSsidFromLength(int length)
 	{
