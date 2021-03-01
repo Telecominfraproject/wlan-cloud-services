@@ -697,17 +697,19 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
            if(i<10) {
         	   mdl.setEquipmentId(equipmentId_1);
         	   mdl.setLocationId(locationId_1);
+        	   mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            } else if(i<20) {
         	   mdl.setEquipmentId(equipmentId_2);
         	   mdl.setLocationId(locationId_2);
+        	   mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            } else {
         	   mdl.setEquipmentId(getNextEquipmentId());
+        	   mdl.setMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            }
            
            ClientSessionDetails details = new ClientSessionDetails();
            details.setApFingerprint("qr_"+apNameIdx);
            mdl.setDetails(details );
-           mdl.setMacAddress(new MacAddress((long)i));
 
            apNameIdx++;
            
@@ -743,13 +745,13 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        sortBy.addAll(Arrays.asList(new ColumnAndSort("macAddress")));
        
        PaginationContext<ClientSession> context = new PaginationContext<>(10);
-       PaginationResponse<ClientSession> page1 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, context);
-       PaginationResponse<ClientSession> page2 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page1.getContext());
-       PaginationResponse<ClientSession> page3 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page2.getContext());
-       PaginationResponse<ClientSession> page4 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page3.getContext());
-       PaginationResponse<ClientSession> page5 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page4.getContext());
-       PaginationResponse<ClientSession> page6 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page5.getContext());
-       PaginationResponse<ClientSession> page7 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, sortBy, page6.getContext());
+       PaginationResponse<ClientSession> page1 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, context);
+       PaginationResponse<ClientSession> page2 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page1.getContext());
+       PaginationResponse<ClientSession> page3 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page2.getContext());
+       PaginationResponse<ClientSession> page4 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page3.getContext());
+       PaginationResponse<ClientSession> page5 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page4.getContext());
+       PaginationResponse<ClientSession> page6 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page5.getContext());
+       PaginationResponse<ClientSession> page7 = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -781,6 +783,57 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
+       
+       // Test macAddress search
+       PaginationResponse<ClientSession> page1SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, page1SearchMac.getContext());
+       PaginationResponse<ClientSession> page3SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, page2SearchMac.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMac.getItems().size());
+       assertEquals(10, page2SearchMac.getItems().size());
+       assertEquals(0, page3SearchMac.getItems().size());
+       page1SearchMac.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page2SearchMac.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+
+       // Test macAddress search with locationId
+       Set<Long> locationSearchSet = new HashSet<Long>(Arrays.asList(locationId_1));
+       PaginationResponse<ClientSession> page1SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, page1SearchMacAndLocation.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, page2SearchMacAndLocation.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndLocation.getItems().size());
+       assertEquals(0, page2SearchMacAndLocation.getItems().size());
+       assertEquals(0, page3SearchMacAndLocation.getItems().size());
+       page1SearchMacAndLocation.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndLocation.getItems().forEach(e -> assertEquals(locationId_1, e.getLocationId()));
+       
+       // Test macAddress search with equipmentId
+       Set<Long> equipmentSearchSet = new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2));
+       PaginationResponse<ClientSession> page1SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, page1SearchMacAndEquipment.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, page2SearchMacAndEquipment.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndEquipment.getItems().size());
+       assertEquals(10, page2SearchMacAndEquipment.getItems().size());
+       assertEquals(0, page3SearchMacAndEquipment.getItems().size());
+       page1SearchMacAndEquipment.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndEquipment.getItems().forEach(e -> assertTrue(equipmentSearchSet.contains(e.getEquipmentId())));
+       
+       // Test macAddress search with equipmentId and locationId
+       PaginationResponse<ClientSession> page1SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, page1SearchMacAndEquipmentAndLocation.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, page2SearchMacAndEquipmentAndLocation.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndEquipmentAndLocation.getItems().size());
+       assertEquals(0, page2SearchMacAndEquipmentAndLocation.getItems().size());
+       assertEquals(0, page3SearchMacAndEquipmentAndLocation.getItems().size());
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertEquals(equipmentId_1, e.getEquipmentId()));
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertEquals(locationId_1, e.getLocationId()));
 
 //       System.out.println("================================");
 //       for(Client pmdl: page3.getItems()){
@@ -791,7 +844,7 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
 //       System.out.println("================================");
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<ClientSession> page1EmptySort = remoteInterface.getSessionsForCustomer(customerId_1, null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page1EmptySort = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -801,7 +854,7 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<ClientSession> page1NullSort = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, context);
+       PaginationResponse<ClientSession> page1NullSort = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -812,7 +865,7 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
 
        
        //test first page of the results with sort descending order by a macAddress property 
-       PaginationResponse<ClientSession> page1SingleSortDesc = remoteInterface.getSessionsForCustomer(customerId_1, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
+       PaginationResponse<ClientSession> page1SingleSortDesc = remoteInterface.getSessionsForCustomer(customerId_1, null, null, null, Collections.singletonList(new ColumnAndSort("macAddress", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" }));
@@ -822,8 +875,8 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);
 
        //test the results for equipment_1 only
-       PaginationResponse<ClientSession> page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, Collections.emptyList(), page1Eq_1.getContext());
+       PaginationResponse<ClientSession> page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), null, null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());
@@ -837,8 +890,8 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1Eq_1Strings, actualPage1Eq_1Strings);
 
        //test the results for equipment_2 only
-       PaginationResponse<ClientSession> page1Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, Collections.emptyList(), page1Eq_2.getContext());
+       PaginationResponse<ClientSession> page1Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_2)), null, null, Collections.emptyList(), page1Eq_2.getContext());
 
        assertEquals(10, page1Eq_2.getItems().size());
        assertEquals(0, page2Eq_2.getItems().size());
@@ -853,9 +906,9 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
 
         
        //test the results for equipment_1 or  equipment_2 only
-       PaginationResponse<ClientSession> page1Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), context);
-       PaginationResponse<ClientSession> page2Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), page1Eq_1or2.getContext());
-       PaginationResponse<ClientSession> page3Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, Collections.emptyList(), page2Eq_1or2.getContext());
+       PaginationResponse<ClientSession> page1Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), context);
+       PaginationResponse<ClientSession> page2Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), page1Eq_1or2.getContext());
+       PaginationResponse<ClientSession> page3Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2)), null, null, Collections.emptyList(), page2Eq_1or2.getContext());
 
        assertEquals(10, page1Eq_1or2.getItems().size());
        assertEquals(10, page2Eq_1or2.getItems().size());
@@ -881,8 +934,8 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        //
        
        //test the results for location_1 only
-       page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), Collections.emptyList(), context);
-       page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), Collections.emptyList(), page1Eq_1.getContext());
+       page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), null, Collections.emptyList(), context);
+       page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1)), null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());
@@ -896,8 +949,8 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1Eq_1Strings, actualPage1Loc_1Strings);
 
        //test the results for location_2 only
-       page1Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), Collections.emptyList(), context);
-       page2Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), Collections.emptyList(), page1Eq_2.getContext());
+       page1Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_2)), null, Collections.emptyList(), page1Eq_2.getContext());
 
        assertEquals(10, page1Eq_2.getItems().size());
        assertEquals(0, page2Eq_2.getItems().size());
@@ -912,9 +965,9 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
 
         
        //test the results for location_1 or  location_2 only
-       page1Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), context);
-       page2Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page1Eq_1or2.getContext());
-       page3Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page2Eq_1or2.getContext());
+       page1Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page1Eq_1or2.getContext());
+       page3Eq_1or2 = remoteInterface.getSessionsForCustomer(customerId_1, null, new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page2Eq_1or2.getContext());
 
        assertEquals(10, page1Eq_1or2.getItems().size());
        assertEquals(10, page2Eq_1or2.getItems().size());
@@ -936,8 +989,8 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage2Eq_1or2Strings, actualPage2Loc_1or2Strings);       
 
        //test the results for ( location_1 or  location_2 ) and equipment_1only
-       page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), context);
-       page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), Collections.emptyList(), page1Eq_1.getContext());
+       page1Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), context);
+       page2Eq_1 = remoteInterface.getSessionsForCustomer(customerId_1, new HashSet<Long>(Arrays.asList(equipmentId_1)), new HashSet<Long>(Arrays.asList(locationId_1, locationId_2)), null, Collections.emptyList(), page1Eq_1.getContext());
 
        assertEquals(10, page1Eq_1.getItems().size());
        assertEquals(0, page2Eq_1.getItems().size());

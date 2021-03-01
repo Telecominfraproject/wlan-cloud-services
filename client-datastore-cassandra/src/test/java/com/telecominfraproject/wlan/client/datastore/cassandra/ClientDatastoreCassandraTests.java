@@ -54,12 +54,12 @@ public class ClientDatastoreCassandraTests extends BaseClientDatastoreTest {
     
     @Override
     protected List<String> getClientSessionPagination_expectedPage1EmptySortStrings(){
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_30", "qr_43", "qr_18", "qr_9", "qr_10", "qr_23", "qr_20", "qr_47", "qr_1", "qr_40" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_18", "qr_34", "qr_0", "qr_27", "qr_16", "qr_24", "qr_31", "qr_4", "qr_30", "qr_49" }));
     }
     
     @Override
     protected List<String> getClientSessionPagination_expectedPage3Strings(){
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_42", "qr_16", "qr_27", "qr_36", "qr_48", "qr_13", "qr_39", "qr_28", "qr_15", "qr_29" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_7", "qr_8", "qr_21", "qr_19", "qr_36", "qr_40", "qr_48", "qr_29", "qr_10", "qr_46" }));
     }
 
     @Override

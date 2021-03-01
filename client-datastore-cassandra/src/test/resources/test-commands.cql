@@ -125,13 +125,42 @@ select * from client_session_by_location where locationId in (1,2,3) and equipme
 
 select customerId, locationId, equipmentId, macAddress from client_session_by_location where locationId in (1,2,3) and equipmentId in (1,2,3);
 
+-- Index table for looking up client sessions by macAddress substring:
+-- insert into it when client record is inserted
+-- delete from it when client record is deleted
+-- no update
+
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 1, 1, 'A1:1');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 2, 2, 'A1:2');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 1, 3, 'A1:3');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 2, 3, 'B1:3');
+insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 3, 2, 3, 'B1:3');
+
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 1, 1, 'A1:1');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 1, 2, 2, 'A1:2');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 1, 3, 'A1:3');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 2, 2, 3, 'B1:3');
+insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values ( 1, 3, 2, 3, 'B1:3');
+
+select macAddress from client_session_by_mac where macAddressString like '%A1%';
+select macAddress from client_session_by_mac where macAddressString like '%A1%' and locationId in (2);
+select macAddress from client_session_by_mac where macAddressString like '%A1%' and locationId in (1,2);
+
+select macAddress from client_session_by_mac_and_equipment where macAddressString like '%A1%' and equipmentId in (2);
+select macAddress from client_session_by_mac_and_equipment where macAddressString like '%A1%' and equipmentId in (1,3);
+
+delete from client_session_by_mac where locationId = 1 and equipmentId = 1 and macAddressString = 'A1:1';
+delete from client_session_by_mac_and_equipment where locationId = 1 and equipmentId = 1 and macAddressString = 'A1:1';
+
 
 -------------------------------------------------------------------------------- 
 -- Commands to clean up after the test 
 -------------------------------------------------------------------------------- 
 
- TRUNCATE TABLE client_session_by_location ;
- TRUNCATE TABLE client_session_by_equipment ;
+ TRUNCATE TABLE client_session_by_location;
+ TRUNCATE TABLE client_session_by_equipment;
+ TRUNCATE TABLE client_session_by_mac;
+ TRUNCATE TABLE client_session_by_mac_and_equipment;
  TRUNCATE TABLE client_session;
  TRUNCATE TABLE client_by_mac_string;
  TRUNCATE TABLE client;

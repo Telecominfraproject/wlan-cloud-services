@@ -491,6 +491,7 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId,
     		Set<Long> equipmentIds,
     		Set<Long> locationIds,
+    		String macSubstring,
     		final List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 
     	if(context == null) {
@@ -520,7 +521,11 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
 							locationIds == null 
 							|| locationIds.isEmpty()
 							|| locationIds.contains(mdl.getLocationId()) 
-						)					    
+						) &&
+					    ( 
+					    	macSubstring == null 
+					    	|| mdl.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase())
+					    )
 					) {
 	            items.add(mdl);
             }

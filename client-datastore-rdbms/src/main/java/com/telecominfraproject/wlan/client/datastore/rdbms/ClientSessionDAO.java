@@ -51,6 +51,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
     
     private static final String[] ALL_COLUMNS_LIST = {        
         COL_ID,
+        "macAddressString",
         
         //TODO: add colums from properties ClientSession in here
         "customerId",
@@ -63,7 +64,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
     };
     
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList());
-    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "customerId", "equipmentId"));
+    private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "macAddressString", "customerId", "equipmentId"));
     
     private static final String TABLE_NAME = "client_session";
     private static final String TABLE_PREFIX = "s.";
@@ -149,6 +150,9 @@ public class ClientSessionDAO extends BaseJdbcDao {
         ;
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where  customerId = ? and "+ COL_ID +" in ";
+    
+    private static final String SQL_APPEND_SEARCH_MAC_SUBSTRING = 
+    		"and macAddressString like ? ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
@@ -181,6 +185,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
                         
                         //TODO: add remaining properties from Client here 
                         ps.setLong(colIdx++, clientSession.getMacAddress().getAddressAsLong());
+                        ps.setString(colIdx++, clientSession.getMacAddress().getAddressAsString());
                         ps.setInt(colIdx++, clientSession.getCustomerId());
                         ps.setLong(colIdx++, clientSession.getEquipmentId());
                         ps.setLong(colIdx++, clientSession.getLocationId());
@@ -332,8 +337,8 @@ public class ClientSessionDAO extends BaseJdbcDao {
     }
 
 
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy,
-			PaginationContext<ClientSession> context) {
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, 
+			String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -387,6 +392,13 @@ public class ClientSessionDAO extends BaseJdbcDao {
             strb.append(") ");
 
             query += strb.toString();
+        }
+        
+        //add macSubstring filter
+        if (macSubstring != null) {
+	        query += SQL_APPEND_SEARCH_MAC_SUBSTRING;
+	
+	        queryArgs.add("%" + macSubstring.toLowerCase() + "%");
         }
 
         // add sorting options for the query

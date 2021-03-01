@@ -323,31 +323,32 @@ public class ClientController {
 
     @RequestMapping(value = "/session/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<ClientSession> getSessionsForCustomer(@RequestParam int customerId,
-    		@RequestParam Set<Long> equipmentIds,
-    		@RequestParam Set<Long> locationIds,
-            @RequestParam List<ColumnAndSort> sortBy,
+    		@RequestParam(required = false) Set<Long> equipmentIds,
+    		@RequestParam(required = false) Set<Long> locationIds,
+    		@RequestParam(required = false) String macSubstring,
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<ClientSession> paginationContext) {
 
     	if(paginationContext == null) {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up Client sessions for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up Client sessions for customer {} equipment {} locations {} macSubstring {} with last returned page number {}", 
+                customerId, equipmentIds, locationIds, macSubstring, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Client sessions for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
+                    "No more pages available when looking up Client sessions for customer {} equipment {} locations {} macSubstring {} with last returned page number {}",
+                    customerId, equipmentIds, locationIds, macSubstring, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<ClientSession> onePage = this.clientDatastore
-                .getSessionsForCustomer(customerId, equipmentIds, locationIds,  sortBy, paginationContext);
+                .getSessionsForCustomer(customerId, equipmentIds, locationIds, macSubstring, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
