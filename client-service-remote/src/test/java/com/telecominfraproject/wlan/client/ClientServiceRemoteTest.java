@@ -697,17 +697,19 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
            if(i<10) {
         	   mdl.setEquipmentId(equipmentId_1);
         	   mdl.setLocationId(locationId_1);
+        	   mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            } else if(i<20) {
         	   mdl.setEquipmentId(equipmentId_2);
         	   mdl.setLocationId(locationId_2);
+        	   mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            } else {
         	   mdl.setEquipmentId(getNextEquipmentId());
+        	   mdl.setMacAddress(new MacAddress("B1:FF:FF:FF:FF:" + Integer.toHexString(i)));
            }
            
            ClientSessionDetails details = new ClientSessionDetails();
            details.setApFingerprint("qr_"+apNameIdx);
            mdl.setDetails(details );
-           mdl.setMacAddress(new MacAddress((long)i));
 
            apNameIdx++;
            
@@ -781,6 +783,57 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
+       
+       // Test macAddress search
+       PaginationResponse<ClientSession> page1SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, page1SearchMac.getContext());
+       PaginationResponse<ClientSession> page3SearchMac = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "A1", sortBy, page2SearchMac.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMac.getItems().size());
+       assertEquals(10, page2SearchMac.getItems().size());
+       assertEquals(0, page3SearchMac.getItems().size());
+       page1SearchMac.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page2SearchMac.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+
+       // Test macAddress search with locationId
+       Set<Long> locationSearchSet = new HashSet<Long>(Arrays.asList(locationId_1));
+       PaginationResponse<ClientSession> page1SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, page1SearchMacAndLocation.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, null, locationSearchSet, "A1", sortBy, page2SearchMacAndLocation.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndLocation.getItems().size());
+       assertEquals(0, page2SearchMacAndLocation.getItems().size());
+       assertEquals(0, page3SearchMacAndLocation.getItems().size());
+       page1SearchMacAndLocation.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndLocation.getItems().forEach(e -> assertEquals(locationId_1, e.getLocationId()));
+       
+       // Test macAddress search with equipmentId
+       Set<Long> equipmentSearchSet = new HashSet<Long>(Arrays.asList(equipmentId_1, equipmentId_2));
+       PaginationResponse<ClientSession> page1SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, page1SearchMacAndEquipment.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndEquipment = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, null, "A1", sortBy, page2SearchMacAndEquipment.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndEquipment.getItems().size());
+       assertEquals(10, page2SearchMacAndEquipment.getItems().size());
+       assertEquals(0, page3SearchMacAndEquipment.getItems().size());
+       page1SearchMacAndEquipment.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndEquipment.getItems().forEach(e -> assertTrue(equipmentSearchSet.contains(e.getEquipmentId())));
+       
+       // Test macAddress search with equipmentId and locationId
+       PaginationResponse<ClientSession> page1SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, context);
+       PaginationResponse<ClientSession> page2SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, page1SearchMacAndEquipmentAndLocation.getContext());
+       PaginationResponse<ClientSession> page3SearchMacAndEquipmentAndLocation = remoteInterface.getSessionsForCustomer(customerId_1, equipmentSearchSet, locationSearchSet, "A1", sortBy, page2SearchMacAndEquipmentAndLocation.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1SearchMacAndEquipmentAndLocation.getItems().size());
+       assertEquals(0, page2SearchMacAndEquipmentAndLocation.getItems().size());
+       assertEquals(0, page3SearchMacAndEquipmentAndLocation.getItems().size());
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertTrue(e.getMacAddress().getAddressAsString().contains("A1".toLowerCase())));
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertEquals(equipmentId_1, e.getEquipmentId()));
+       page1SearchMacAndEquipmentAndLocation.getItems().forEach(e -> assertEquals(locationId_1, e.getLocationId()));
 
 //       System.out.println("================================");
 //       for(Client pmdl: page3.getItems()){
