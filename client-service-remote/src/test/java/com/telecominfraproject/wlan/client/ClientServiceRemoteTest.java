@@ -778,6 +778,25 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
        
+       PaginationResponse<ClientSession> page1EmptySubstring = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, context);
+       PaginationResponse<ClientSession> page2EmptySubstring = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page1.getContext());
+       PaginationResponse<ClientSession> page3EmptySubstring = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page2.getContext());
+       PaginationResponse<ClientSession> page4EmptySubstring = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page3.getContext());
+       PaginationResponse<ClientSession> page5EmptySubstring = remoteInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page4.getContext());
+
+       //verify returned pages
+       assertEquals(10, page1EmptySubstring.getItems().size());
+       assertEquals(10, page2EmptySubstring.getItems().size());
+       assertEquals(10, page3EmptySubstring.getItems().size());
+       assertEquals(10, page4EmptySubstring.getItems().size());
+       assertEquals(10, page5EmptySubstring.getItems().size());
+       
+       assertEquals(page1.getItems(), page1EmptySubstring.getItems());
+       assertEquals(page2.getItems(), page2EmptySubstring.getItems());
+       assertEquals(page3.getItems(), page3EmptySubstring.getItems());
+       assertEquals(page4.getItems(), page4EmptySubstring.getItems());
+       assertEquals(page5.getItems(), page5EmptySubstring.getItems());
+       
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientSessionDetails)ce.getDetails()).getApFingerprint()) );

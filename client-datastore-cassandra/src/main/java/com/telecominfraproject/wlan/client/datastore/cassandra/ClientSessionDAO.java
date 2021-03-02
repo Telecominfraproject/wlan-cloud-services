@@ -431,7 +431,7 @@ public class ClientSessionDAO {
         }
         
         //add macSubstring filters
-        if (macSubstring != null) {
+        if (macSubstring != null && !macSubstring.isEmpty()) {
         	queryArgs.clear();
         	queryArgs.add(customerId);
         	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
@@ -509,7 +509,7 @@ public class ClientSessionDAO {
 			    //apply locationId and equipmentId filtering in here
                 if ((locationIds == null || locationIds.isEmpty() || locationIds.contains(cs.getLocationId()))
                         && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId()))
-                        && (macSubstring == null || cs.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
+                        && (macSubstring == null || macSubstring.isEmpty() || cs.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
                 		) 
                 {
 	                    pageItems.add(cs);

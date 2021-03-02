@@ -870,6 +870,26 @@ public abstract class BaseClientDatastoreTest {
        
        assertTrue(page6.getContext().isLastPage());
        assertTrue(page7.getContext().isLastPage());
+       
+       // when remote interface receives macSubstring = null, it will pass on macSubstring = "" instead. 
+       PaginationResponse<ClientSession> page1EmptySubstring = testInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, context);
+       PaginationResponse<ClientSession> page2EmptySubstring = testInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page1.getContext());
+       PaginationResponse<ClientSession> page3EmptySubstring = testInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page2.getContext());
+       PaginationResponse<ClientSession> page4EmptySubstring = testInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page3.getContext());
+       PaginationResponse<ClientSession> page5EmptySubstring = testInterface.getSessionsForCustomer(customerId_1, null, null, "", sortBy, page4.getContext());
+
+       //verify returned pages
+       assertEquals(10, page1EmptySubstring.getItems().size());
+       assertEquals(10, page2EmptySubstring.getItems().size());
+       assertEquals(10, page3EmptySubstring.getItems().size());
+       assertEquals(10, page4EmptySubstring.getItems().size());
+       assertEquals(10, page5EmptySubstring.getItems().size());
+       
+       assertEquals(page1.getItems(), page1EmptySubstring.getItems());
+       assertEquals(page2.getItems(), page2EmptySubstring.getItems());
+       assertEquals(page3.getItems(), page3EmptySubstring.getItems());
+       assertEquals(page4.getItems(), page4EmptySubstring.getItems());
+       assertEquals(page5.getItems(), page5EmptySubstring.getItems());
 
        Set<String> expectedAllPagesStrings = new HashSet<>();
        for(int i=0; i<50; i++) {
