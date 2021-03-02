@@ -142,10 +142,7 @@ public class ClientDAO {
     private static final String CQL_DELETE_BLOCKED_LIST = 
     		"delete from client_blocklist where customerId = ? and  macAddress = ?";
     
-    // Statements using client_by_mac_string table
-    private static final String CQL_GET_CLIENT_MAC_BY_CUSTOMER_ID = 
-    		"select customerId, macAddress from client_by_mac_string where customerId = ?";
-    
+    // Statements using client_by_mac_string table    
     private static final String CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING = 
     		"select customerId, macAddress from client_by_mac_string where customerId = ? and macAddressString like ?";
     
@@ -169,7 +166,6 @@ public class ClientDAO {
     private PreparedStatement preparedStmt_getBlockedListForCustomer;
     private PreparedStatement preparedStmt_insertBlockedList;
     private PreparedStatement preparedStmt_deleteBlockedList;
-    private PreparedStatement preparedStmt_getClientMacByCustomerId;
     private PreparedStatement preparedStmt_getClientMacLikeMacString;
     private PreparedStatement preparedStmt_insertMacString;
     private PreparedStatement preparedStmt_deleteMacString;
@@ -188,7 +184,6 @@ public class ClientDAO {
             preparedStmt_getBlockedListForCustomer = cqlSession.prepare(CQL_GET_BLOCKED_LIST_BY_CUSTOMER_ID);
             preparedStmt_insertBlockedList = cqlSession.prepare(CQL_INSERT_BLOCKED_LIST);
             preparedStmt_deleteBlockedList = cqlSession.prepare(CQL_DELETE_BLOCKED_LIST);
-            preparedStmt_getClientMacByCustomerId = cqlSession.prepare(CQL_GET_CLIENT_MAC_BY_CUSTOMER_ID);
             preparedStmt_getClientMacLikeMacString = cqlSession.prepare(CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING);
             preparedStmt_insertMacString = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_MAC_STRING);
             preparedStmt_deleteMacString = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_MAC_STRING);
@@ -412,9 +407,10 @@ public class ClientDAO {
         return results;
     }
     
-    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring,
-    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
-        LOG.debug("calling searchByMacAddress({}, {})", customerId, macSubstring);
+    private static enum FilterOptions{ customer_only, customer_and_macAddress}
+
+	public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring, 
+			List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
 
         PaginationResponse<Client> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -422,108 +418,27 @@ public class ClientDAO {
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Clients for customer {} and macSubstring {} with last returned page number {}",
+                    "No more pages available when looking up Clients for customer {} macSubstring {} with last returned page number {}",
                     customerId, macSubstring, context.getLastReturnedPageNumber());
             return ret;
         }
 
-        LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
+        LOG.debug("Looking up Clients for customer {} macSubstring {} with last returned page number {}", 
                 customerId, macSubstring, context.getLastReturnedPageNumber());
-
-        // add sorting options for the query
-        // Cassandra allows very limited support for ordering results
-        // See https://cassandra.apache.org/doc/latest/cql/dml.html#select
-        // In here allowed orderings are the order induced by the clustering columns and the reverse of that one.
-        // also, order by with secondary indexes is not supported
-        // ***** We will ignore the order supplied by the caller for this datastore
         
-        ArrayList<Object> bindVars = new ArrayList<>();
-        BoundStatement boundStmt;
+        String query = CQL_GET_BY_CUSTOMER_ID;
+        FilterOptions filterOptions = FilterOptions.customer_only;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+        queryArgs.add(customerId);
         
         if (macSubstring != null && !macSubstring.isEmpty()) {
-		    bindVars.add(customerId);
-		    bindVars.add("%" + macSubstring.toLowerCase() + "%");
+        	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
 	                
-	        boundStmt = preparedStmt_getClientMacLikeMacString.bind(bindVars.toArray());
-        } else {
-		    bindVars.add(customerId);
-	                
-	        boundStmt = preparedStmt_getClientMacByCustomerId.bind(bindVars.toArray());
+	        query = CQL_GET_CLIENT_MAC_LIKE_MAC_SUBSTRING;
+	        filterOptions = FilterOptions.customer_and_macAddress;
         }
-        //have to do it this way - setPageSize creates new object
-        boundStmt = boundStmt.setPageSize(context.getMaxItemsPerPage());
-        
-        if(context.getThirdPartyPagingState()!=null) {
-        	ByteBuffer currentPagingState = ByteBuffer.wrap(context.getThirdPartyPagingState());
-        	//have to do it this way - setPagingState creates new object
-        	boundStmt = boundStmt.setPagingState(currentPagingState);
-        }
-        
-		ResultSet rs = cqlSession.execute(boundStmt);
-		ByteBuffer nextPagingState = rs.getExecutionInfo().getPagingState();
-
-		List<Client> pageItems = new ArrayList<>();
-		Set<MacAddress> macSet = new HashSet<>();
-		
-		// iterate through the current page
-		while (rs.getAvailableWithoutFetching() > 0) {
-			// macSet will contain MACs of paginated items to get Client objects via macSet
-			macSet.add(new MacAddress(rs.one().getLong("macAddress")));
-		}
-		pageItems.addAll(get(customerId, macSet));
-
-        if (pageItems.isEmpty()) {
-            LOG.debug("Cannot find Clients for customer {} and macSubstring {} with last returned page number {}",
-                    customerId, macSubstring, context.getLastReturnedPageNumber());
-        } else {
-            LOG.debug("Found {} Clients for customer {} and macSubstring {} with last returned page number {}",
-                    pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
-        }
-
-        ret.setItems(pageItems);
-
-        // adjust context for the next page
-        ret.prepareForNextPage();
-
-        if(nextPagingState!=null) {
-        	ret.getContext().setThirdPartyPagingState(nextPagingState.array());
-        } else {
-        	ret.getContext().setThirdPartyPagingState(null);
-        }
-        
-        // startAfterItem is not used in Cassandra datastores, set it to null
-        ret.getContext().setStartAfterItem(null);
-        
-        //in cassandra we will rely only on nextPagingState to set the lastPage indicator
-        ret.getContext().setLastPage(false);
-
-        if(nextPagingState == null) {
-            //in cassandra, if there are no more pages available, the pagingState is returned as null by the driver
-            //this overrides all other heuristics related to guessing the indication of the last page
-            ret.getContext().setLastPage(true);
-        }
-
-        return ret;	
-        
-    }
-
-
-	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Client> context) {
-
-        PaginationResponse<Client> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
-
-        if (ret.getContext().isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up Clients for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-            return ret;
-        }
-
-        LOG.debug("Looking up Clients for customer {} with last returned page number {}", 
-                customerId, context.getLastReturnedPageNumber());
 
         // add sorting options for the query
         // Cassandra allows very limited support for ordering results
@@ -531,8 +446,18 @@ public class ClientDAO {
         // In here allowed orderings are the order induced by the clustering columns and the reverse of that one.
         // also, order by with secondary indexes is not supported
         // ***** We will ignore the order supplied by the caller for this datastore
-                
-        BoundStatement boundStmt = preparedStmt_getPageForCustomer.bind(customerId );
+        
+        PreparedStatement preparedStmt_getPageForCustomer;
+        try {
+        	preparedStmt_getPageForCustomer = cqlSession.prepare(query);
+        } catch(InvalidQueryException e) {
+        	LOG.error("Cannot prepare cassandra query '{}'", query, e);
+        	throw e;
+        }
+
+        // add pagination parameters for the query
+        BoundStatement boundStmt = preparedStmt_getPageForCustomer.bind(queryArgs.toArray() );
+        
         //have to do it this way - setPageSize creates new object
         boundStmt = boundStmt.setPageSize(context.getMaxItemsPerPage());
         
@@ -547,17 +472,36 @@ public class ClientDAO {
 
 		List<Client> pageItems = new ArrayList<>();
 		
-		// iterate through the current page
-		while (rs.getAvailableWithoutFetching() > 0) {
-		  pageItems.add(clientRowMapper.mapRow(rs.one()));
+		switch(filterOptions) {
+		case customer_only:
+			// iterate through the current page
+			while (rs.getAvailableWithoutFetching() > 0) {
+			  pageItems.add(clientRowMapper.mapRow(rs.one()));
+			}
+			break;		
+		case customer_and_macAddress:
+			//the query was against client_by_mac_string table
+			//find all the macAddresses for the page, then retrieve records for them from client table
+			Set<MacAddress> macAddrSet = new HashSet<>();
+			while (rs.getAvailableWithoutFetching() > 0) {
+				macAddrSet.add(new MacAddress(rs.one().getLong("macAddress")));
+			}
+
+			//get all clients for the involved mac addresses
+			pageItems = get(customerId, macAddrSet);
+
+			break;
+		default:
+			LOG.warn("Unknown filter option:", filterOptions);
+			throw new IllegalArgumentException("Unknown filter option " + filterOptions);
 		}
 
         if (pageItems.isEmpty()) {
-            LOG.debug("Cannot find Clients for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
+            LOG.debug("Cannot find Clients for customer {} macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, context.getLastReturnedPageNumber());
         } else {
-            LOG.debug("Found {} Clients for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
+            LOG.debug("Found {} Clients for customer {} macSubstring {} with last returned page number {}",
+                    pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
         }
 
         ret.setItems(pageItems);

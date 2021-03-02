@@ -49,27 +49,21 @@ public class ClientDatastoreCassandra implements ClientDatastore {
     public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
     	return clientDAO.get(customerId, clientMacSet);
     }
-    
-    @Override
-    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring,
-    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
-    	return clientDAO.searchByMacAddress(customerId, macSubstring, sortBy, context);
-    }
-    
+
     @Override
     public List<Client> getBlockedClients(int customerId) {
     	return clientDAO.getBlockedClients(customerId);
     }
     
     @Override
-    public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-    		PaginationContext<Client> context) {
+    public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring,
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
 
     	if(context == null) {
     		context = new PaginationContext<>();
     	}
     	
-    	return clientDAO.getForCustomer( customerId, sortBy, context);
+    	return clientDAO.getForCustomer(customerId, macSubstring, sortBy, context);
     }
 
 	@Override

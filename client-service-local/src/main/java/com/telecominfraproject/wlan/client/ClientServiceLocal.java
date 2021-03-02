@@ -43,15 +43,9 @@ public class ClientServiceLocal implements ClientServiceInterface {
 	}
     
     @Override
-	public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, 
+	public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring, 
 			List<ColumnAndSort> sortBy, PaginationContext<Client> paginationContext) {
-		return clientController.searchByMacAddress(customerId, macSubstring, sortBy, paginationContext);
-	}
-    
-    @Override
-	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Client> paginationContext) {
-		return clientController.getForCustomer(customerId, sortBy, paginationContext);
+		return clientController.getForCustomer(customerId, macSubstring, sortBy, paginationContext);
 	}
 
     @Override
