@@ -125,26 +125,38 @@ public class ClientPortalController  {
         LOG.debug("Looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}", 
                 customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
         
-        @SuppressWarnings("unchecked")
-		PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
-        		paginationContext.getChildren().getChildren().get("clientSessionChild");
-        if (clientSessionContext == null) {
-        	clientSessionContext = new PaginationContext<ClientSession>();
-        	clientSessionContext.setMaxItemsPerPage(paginationContext.getMaxItemsPerPage());
-        	paginationContext.getChildren().getChildren().put("clientSessionChild", clientSessionContext);
-        }
-
         PaginationResponse<Client> clientResponse = new PaginationResponse<>();
-
-        if (paginationContext.isLastPage() || clientSessionContext.isLastPage()) {
-            // no more pages available according to the context or child's context
-            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}",
-                    customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
-            clientResponse.setContext(paginationContext);
-            return clientResponse;
-        }
         
-        clientResponse = processClientResponseWithContextChildren(customerId, equipmentIds, macSubstring, sortBy, paginationContext);
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+	        @SuppressWarnings("unchecked")
+			PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
+	        		paginationContext.getChildren().getChildren().get("clientSessionChild");
+	        if (clientSessionContext == null) {
+	        	clientSessionContext = new PaginationContext<ClientSession>();
+	        	clientSessionContext.setMaxItemsPerPage(paginationContext.getMaxItemsPerPage());
+	        	paginationContext.getChildren().getChildren().put("clientSessionChild", clientSessionContext);
+	        }
+	
+	        if (paginationContext.isLastPage() || clientSessionContext.isLastPage()) {
+	            // no more pages available according to the context or child's context
+	            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}",
+	                    customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
+	            clientResponse.setContext(paginationContext);
+	            return clientResponse;
+	        }
+	        
+	        clientResponse = processClientResponseWithContextChildren(customerId, equipmentIds, macSubstring, sortBy, paginationContext);
+        } else {
+        	if (paginationContext.isLastPage()) {
+	            // no more pages available according to the context
+	            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}",
+	                    customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
+	            clientResponse.setContext(paginationContext);
+	            return clientResponse;
+	        }
+        	
+        	clientResponse = clientServiceInterface.getForCustomer(customerId, macSubstring, sortBy, paginationContext);
+        }
 
         LOG.debug("Retrieved {} Clients for customer {} equipment {} macSubstring {}", clientResponse.getItems().size(), 
                 customerId, equipmentIds, macSubstring);

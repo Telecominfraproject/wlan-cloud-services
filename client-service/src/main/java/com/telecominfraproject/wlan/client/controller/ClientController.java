@@ -151,7 +151,7 @@ public class ClientController {
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Client> getForCustomer(@RequestParam int customerId,
     		@RequestParam(required = false) String macSubstring,  
-            @RequestParam List<ColumnAndSort> sortBy,
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Client> paginationContext) {
 
     	if(paginationContext == null) {
