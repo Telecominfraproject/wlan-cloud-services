@@ -524,6 +524,7 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
 						) &&
 					    ( 
 					    	macSubstring == null 
+					    	|| macSubstring.isEmpty()
 					    	|| mdl.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase())
 					    )
 					) {

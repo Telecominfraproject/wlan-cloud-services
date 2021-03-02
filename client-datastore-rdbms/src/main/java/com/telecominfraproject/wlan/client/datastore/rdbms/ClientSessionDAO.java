@@ -395,7 +395,7 @@ public class ClientSessionDAO extends BaseJdbcDao {
         }
         
         //add macSubstring filter
-        if (macSubstring != null) {
+        if (macSubstring != null && !macSubstring.isEmpty()) {
 	        query += SQL_APPEND_SEARCH_MAC_SUBSTRING;
 	
 	        queryArgs.add("%" + macSubstring.toLowerCase() + "%");
