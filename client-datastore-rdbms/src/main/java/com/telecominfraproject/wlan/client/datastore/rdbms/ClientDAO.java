@@ -388,29 +388,28 @@ public class ClientDAO extends BaseJdbcDao {
         LOG.debug("get({}, {}) returns {} record(s)", customerId, clientMacSet, results.size());
         return results;
     }
-    
-    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, 
-    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
-        LOG.debug("calling searchByMacAddress({}, {})", customerId, macSubstring);
-        
+
+	public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring,
+			List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+
         PaginationResponse<Client> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
 
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Clients for customer {} and macSubstring {} with last returned page number {}",
+                    "No more pages available when looking up Clients for customer {} macSubstring {} with last returned page number {}",
                     customerId, macSubstring, context.getLastReturnedPageNumber());
             return ret;
         }
 
-        LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
+        LOG.debug("Looking up Clients for customer {} macSubstring {} with last returned page number {}", 
                 customerId, macSubstring, context.getLastReturnedPageNumber());
-        
+
         String query = SQL_GET_BY_CUSTOMER_ID;
-        ArrayList<Object> queryArgs = new ArrayList<>();
-        
+
         // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
         
         if (macSubstring != null) {
@@ -467,94 +466,8 @@ public class ClientDAO extends BaseJdbcDao {
         List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 clientRowMapper);
 
-        LOG.debug("Found {} Clients for customer {} and macSubstring {} with last returned page number {}",
+        LOG.debug("Found {} Clients for customer {} macSubstring {} with last returned page number {}",
                     pageItems.size(), customerId, macSubstring, context.getLastReturnedPageNumber());
-
-        ret.setItems(pageItems);
-
-        // adjust context for the next page
-        ret.prepareForNextPage();
-
-        // startAfterItem is not used in RDBMS datastores, set it to null
-        ret.getContext().setStartAfterItem(null);
-
-        return ret;
-    }
-
-
-	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Client> context) {
-
-        PaginationResponse<Client> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
-
-        if (ret.getContext().isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up Clients for customer {} with last returned page number {}",
-                    customerId, context.getLastReturnedPageNumber());
-            return ret;
-        }
-
-        LOG.debug("Looking up Clients for customer {} with last returned page number {}", 
-                customerId, context.getLastReturnedPageNumber());
-
-        String query = SQL_GET_BY_CUSTOMER_ID;
-
-        // add filters for the query
-        ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
-
-        // add sorting options for the query
-        StringBuilder strbSort = new StringBuilder(100);
-        strbSort.append(" order by ");
-
-        if (sortBy != null && !sortBy.isEmpty()) {
-
-            // use supplied sorting options
-            for (ColumnAndSort column : sortBy) {
-                if (!ALL_COLUMNS_LOWERCASE.contains(column.getColumnName().toLowerCase())) {
-                    // unknown column, skip it
-                    continue;
-                }
-
-                strbSort.append(column.getColumnName());
-
-                if (column.getSortOrder() == SortOrder.desc) {
-                    strbSort.append(" desc");
-                }
-
-                strbSort.append(",");
-            }
-
-            // remove last ','
-            strbSort.deleteCharAt(strbSort.length() - 1);
-
-        } else {
-            // no sort order was specified - sort by id to have consistent
-            // paging
-            strbSort.append(COL_ID);
-        }
-
-        query += strbSort.toString();
-
-        // add pagination parameters for the query
-        query += SQL_PAGING_SUFFIX ;
-
-        queryArgs.add(context.getMaxItemsPerPage());
-        queryArgs.add(context.getTotalItemsReturned());
-
-        /*
-         * https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/
-         * Choosing offset=1000 makes cost about 19 and has a 0.609 ms execution
-         * time. Once offset=5,000,000 the cost goes up to 92734 and execution
-         * time is 758.484 ms. - DT: still acceptable for our use case
-         */
-        List<Client> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
-                clientRowMapper);
-
-        LOG.debug("Found {} Clients for customer {} with last returned page number {}",
-                    pageItems.size(), customerId, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

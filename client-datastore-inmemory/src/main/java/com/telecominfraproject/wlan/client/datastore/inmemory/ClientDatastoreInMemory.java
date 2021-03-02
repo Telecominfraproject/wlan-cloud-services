@@ -176,113 +176,6 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         return ret;
     
     }
-    
-    @Override
-    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring,
-    		final List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
-    	
-    	if(context == null) {
-    		context = new PaginationContext<>();
-    	}
-
-        PaginationResponse<Client> ret = new PaginationResponse<>();
-        ret.setContext(context.clone());
-
-        if (ret.getContext().isLastPage()) {
-            // no more pages available according to the context
-            return ret;
-        }
-
-        List<Client> items = new LinkedList<>();
-        
-    	if(macSubstring != null) {
-	    	idToClientMap.forEach(
-	    		(k, c) -> {
-	    			if(k.customerId == customerId && k.mac.getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase())) {
-	    				items.add(c.clone());
-			        } 
-	    		}
-	    	);
-    	} else {
-    		idToClientMap.forEach(
-	    		(k, c) -> {
-	    			if(k.customerId == customerId) {
-	    				items.add(c.clone());
-			        } 
-	    		}
-	    	);
-    	}
-
-        // apply sortBy columns
-        Collections.sort(items, new Comparator<Client>() {
-            @Override
-            public int compare(Client o1, Client o2) {
-                if (sortBy == null || sortBy.isEmpty()) {
-                    // sort ascending by id by default
-                    return o1.getMacAddress().compareTo(o2.getMacAddress());
-                } else {
-                    int cmp;
-                    for (ColumnAndSort column : sortBy) {
-                        switch (column.getColumnName()) {
-                        case "macAddress":
-                            cmp =  o1.getMacAddress().compareTo(o2.getMacAddress());
-                            break;
-                        default:
-                            // skip unknown column
-                            continue;
-                        }
-
-                        if (cmp != 0) {
-                            return (column.getSortOrder() == SortOrder.asc) ? cmp : (-cmp);
-                        }
-
-                    }
-                }
-                return 0;
-            }
-        });
-
-        // now select only items for the requested page
-        // find first item to add
-        int fromIndex = 0;
-        if (context.getStartAfterItem() != null) {
-            for (Client mdl : items) {
-                fromIndex++;
-                if (mdl.getCustomerId() == context.getStartAfterItem().getCustomerId() 
-                		&& mdl.getMacAddress().equals(context.getStartAfterItem().getMacAddress())) {
-                    break;
-                }
-            }
-        }
-
-        // find last item to add
-        int toIndexExclusive = fromIndex + context.getMaxItemsPerPage();
-        if (toIndexExclusive > items.size()) {
-            toIndexExclusive = items.size();
-        }
-
-        // copy page items into result
-        List<Client> selectedItems = new ArrayList<>(context.getMaxItemsPerPage());
-        for (Client mdl : items.subList(fromIndex, toIndexExclusive)) {
-            selectedItems.add(mdl.clone());
-        }
-
-        ret.setItems(selectedItems);
-
-        // adjust context for the next page
-        ret.prepareForNextPage();
-
-        if(ret.getContext().getStartAfterItem()!=null) {
-        	//this datastore is only interested in the last item's id, so we'll clear all other fields on the startAfterItem in the pagination context
-        	Client newStartAfterItem = new Client();
-        	newStartAfterItem.setCustomerId(ret.getContext().getStartAfterItem().getCustomerId());
-        	newStartAfterItem.setMacAddress(ret.getContext().getStartAfterItem().getMacAddress());
-        	ret.getContext().setStartAfterItem(newStartAfterItem);
-        }
-
-        return ret;
-    
-    }
 
     @Override
     public List<Client> getBlockedClients(int customerId) {
@@ -305,7 +198,7 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     }
     
     @Override
-    public PaginationResponse<Client> getForCustomer(int customerId, 
+    public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring, 
     		final List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
 
     	if(context == null) {
@@ -328,8 +221,11 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
             if (mdl.getCustomerId() != customerId) {
                 continue;
             }
-
-            items.add(mdl);
+            
+            if (macSubstring == null || 
+            		mdl.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase())) {
+            	items.add(mdl);
+            }
         }
 
         // apply sortBy columns

@@ -30,21 +30,15 @@ public class ClientDatastoreCassandraTests extends BaseClientDatastoreTest {
     @Override
     protected List<String> getClientPagination_ExpectedPage3Strings() {
         //in cassandra the sort order is weird but consistent - although it may change on the cassandra server restart
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_13", "qr_47", "qr_4", "qr_36", "qr_21", "qr_12", "qr_27", "qr_20", "qr_19" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_10", "qr_13", "qr_8", "qr_18", "qr_42", "qr_30", "qr_35", "qr_28", "qr_14", "qr_22" }));
     }
 
     @Override
     protected List<String> getClientPagination_ExpectedPage1EmptySortStrings(){
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_46", "qr_9", "qr_3", "qr_6", "qr_1", "qr_26", "qr_10", "qr_40", "qr_14", "qr_42" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_32", "qr_0", "qr_12", "qr_25", "qr_40", "qr_39", "qr_29", "qr_41", "qr_4", "qr_44" }));
     }
 
-    
 
-
-    @Override
-    protected List<String> getSearchByMac_ExpectedPage1SingleSortDescStrings() {
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
-    }
 
     @Override
     protected List<String> getClientPagination_ExpectedPage1SingleSortDescStrings() {
@@ -54,12 +48,12 @@ public class ClientDatastoreCassandraTests extends BaseClientDatastoreTest {
     
     @Override
     protected List<String> getClientSessionPagination_expectedPage1EmptySortStrings(){
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_18", "qr_34", "qr_0", "qr_27", "qr_16", "qr_24", "qr_31", "qr_4", "qr_30", "qr_49" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_12", "qr_47", "qr_4", "qr_1", "qr_21", "qr_42", "qr_45", "qr_35", "qr_14", "qr_0" }));
     }
     
     @Override
     protected List<String> getClientSessionPagination_expectedPage3Strings(){
-        return new ArrayList<>(Arrays.asList(new String[]{"qr_7", "qr_8", "qr_21", "qr_19", "qr_36", "qr_40", "qr_48", "qr_29", "qr_10", "qr_46" }));
+        return new ArrayList<>(Arrays.asList(new String[]{"qr_28", "qr_32", "qr_6", "qr_19", "qr_49", "qr_31", "qr_33", "qr_25", "qr_7", "qr_40" }));
     }
 
     @Override

@@ -76,42 +76,6 @@ public class ClientPortalController  {
         return ret;
 
     }
-    
-    @RequestMapping(value = "/client/searchByMac", method = RequestMethod.GET)
-    public PaginationResponse<Client> searchByMacAddress(@RequestParam int customerId,  
-    		@RequestParam(required = false) String macSubstring,
-            @RequestParam(required = false) List<ColumnAndSort> sortBy,
-            @RequestParam(required = false) PaginationContext<Client> paginationContext) {
-      
-        if(paginationContext == null) {
-    		paginationContext = new PaginationContext<>();
-    	}
-
-        LOG.debug("Looking up Clients for customer {} macSubstring {} with last returned page number {}", 
-                customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
-
-        PaginationResponse<Client> ret = new PaginationResponse<>();
-
-        if (paginationContext.isLastPage()) {
-            // no more pages available according to the context
-            LOG.debug(
-                    "No more pages available when looking up Clients for customer {} macSubstring {} with last returned page number {}",
-                    customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
-            ret.setContext(paginationContext);
-            return ret;
-        }
-
-        PaginationResponse<Client> onePage = this.clientServiceInterface
-                .searchByMacAddress(customerId, macSubstring, sortBy, paginationContext);
-        ret.setContext(onePage.getContext());
-        ret.getItems().addAll(onePage.getItems());
-
-        LOG.debug("Retrieved {} Clients for customer {} macSubstring {}", onePage.getItems().size(), 
-                customerId, macSubstring);
-
-        return ret;
-        
-    }
 
     @RequestMapping(value = "/client/blocked", method = RequestMethod.GET)
     public ListOfClients getBlockedClients(@RequestParam int customerId) {
@@ -150,6 +114,7 @@ public class ClientPortalController  {
     @RequestMapping(value = "/client/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Client> getForCustomer(@RequestParam int customerId,
             @RequestParam(required = false) Set<Long> equipmentIds,    		
+            @RequestParam(required = false) String macSubstring,    		
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Client> paginationContext) {
 
@@ -157,32 +122,44 @@ public class ClientPortalController  {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up Clients for customer {} equipment {} with last returned page number {}", 
-                customerId, equipmentIds, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}", 
+                customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
         
-        @SuppressWarnings("unchecked")
-		PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
-        		paginationContext.getChildren().getChildren().get("clientSessionChild");
-        if (clientSessionContext == null) {
-        	clientSessionContext = new PaginationContext<ClientSession>();
-        	clientSessionContext.setMaxItemsPerPage(paginationContext.getMaxItemsPerPage());
-        	paginationContext.getChildren().getChildren().put("clientSessionChild", clientSessionContext);
-        }
-
         PaginationResponse<Client> clientResponse = new PaginationResponse<>();
-
-        if (paginationContext.isLastPage() || clientSessionContext.isLastPage()) {
-            // no more pages available according to the context or child's context
-            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} with last returned page number {}",
-                    customerId, equipmentIds, paginationContext.getLastReturnedPageNumber());
-            clientResponse.setContext(paginationContext);
-            return clientResponse;
-        }
         
-        clientResponse = processClientResponseWithContextChildren(customerId, equipmentIds, sortBy, paginationContext);
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+	        @SuppressWarnings("unchecked")
+			PaginationContext<ClientSession> clientSessionContext = (PaginationContext<ClientSession>) 
+	        		paginationContext.getChildren().getChildren().get("clientSessionChild");
+	        if (clientSessionContext == null) {
+	        	clientSessionContext = new PaginationContext<ClientSession>();
+	        	clientSessionContext.setMaxItemsPerPage(paginationContext.getMaxItemsPerPage());
+	        	paginationContext.getChildren().getChildren().put("clientSessionChild", clientSessionContext);
+	        }
+	
+	        if (paginationContext.isLastPage() || clientSessionContext.isLastPage()) {
+	            // no more pages available according to the context or child's context
+	            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}",
+	                    customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
+	            clientResponse.setContext(paginationContext);
+	            return clientResponse;
+	        }
+	        
+	        clientResponse = processClientResponseWithContextChildren(customerId, equipmentIds, macSubstring, sortBy, paginationContext);
+        } else {
+        	if (paginationContext.isLastPage()) {
+	            // no more pages available according to the context
+	            LOG.debug("No more pages available when looking up Clients for customer {} equipment {} macSubstring {} with last returned page number {}",
+	                    customerId, equipmentIds, macSubstring, paginationContext.getLastReturnedPageNumber());
+	            clientResponse.setContext(paginationContext);
+	            return clientResponse;
+	        }
+        	
+        	clientResponse = clientServiceInterface.getForCustomer(customerId, macSubstring, sortBy, paginationContext);
+        }
 
-        LOG.debug("Retrieved {} Clients for customer {} equipment {}", clientResponse.getItems().size(), 
-                customerId, equipmentIds);
+        LOG.debug("Retrieved {} Clients for customer {} equipment {} macSubstring {}", clientResponse.getItems().size(), 
+                customerId, equipmentIds, macSubstring);
 
         return clientResponse;
     }
@@ -255,8 +232,8 @@ public class ClientPortalController  {
         return ret;
     }
     
-    private PaginationResponse<Client> processClientResponseWithContextChildren(
-    		int customerId, Set<Long> equipmentIds, List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
+    private PaginationResponse<Client> processClientResponseWithContextChildren(int customerId, Set<Long> equipmentIds, String macSubstring, 
+    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
     	PaginationResponse<Client> clientResponse = new PaginationResponse<>();
     	
     	@SuppressWarnings("unchecked")
@@ -264,7 +241,7 @@ public class ClientPortalController  {
         		context.getChildren().getChildren().get("clientSessionChild");
     	
     	PaginationResponse<ClientSession> onePageSession = this.clientServiceInterface
-        		.getSessionsForCustomer(customerId, equipmentIds, null, null, sortBy, clientSessionContext);
+        		.getSessionsForCustomer(customerId, equipmentIds, null, macSubstring, sortBy, clientSessionContext);
         
         // Get clients by MacAddress from the returned client sessions
         Set<MacAddress> macSet = new HashSet<>();

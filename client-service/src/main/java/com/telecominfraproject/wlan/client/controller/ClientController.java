@@ -128,43 +128,6 @@ public class ClientController {
         }
     }
     
-    @RequestMapping(value = "/searchByMac", method = RequestMethod.GET)
-    public PaginationResponse<Client> searchByMacAddress(@RequestParam int customerId,  
-    		@RequestParam(required = false) String macSubstring,      
-	        @RequestParam(required = false) List<ColumnAndSort> sortBy,
-	        @RequestParam(required = false) PaginationContext<Client> paginationContext) {
-	        	LOG.debug("searchByMacAddress({}, {})", customerId, macSubstring);
-	
-		if(paginationContext == null) {
-			paginationContext = new PaginationContext<>();
-		}
-	
-	    LOG.debug("Looking up Clients for customer {} and macSubstring {} with last returned page number {}", 
-	            customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
-	
-	    PaginationResponse<Client> ret = new PaginationResponse<>();
-	
-	    if (paginationContext.isLastPage()) {
-	        // no more pages available according to the context
-	        LOG.debug(
-	                "No more pages available when looking up Clients for customer {} and macSubstring {} with last returned page number {}",
-	                customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
-	        ret.setContext(paginationContext);
-	        return ret;
-	    }
-	
-	    PaginationResponse<Client> onePage = this.clientDatastore
-	            .searchByMacAddress(customerId, macSubstring, sortBy, paginationContext);
-	    ret.setContext(onePage.getContext());
-	    ret.getItems().addAll(onePage.getItems());
-	
-	    LOG.debug("Retrieved {} Clients for customer {} and macSubstring {} ", onePage.getItems().size(), 
-	            customerId, macSubstring);
-	
-	    return ret;
-        
-    }
-    
     /**
      * @param customerId
      * @return list of Clients for the customer that are marked as blocked. This per-customer list of blocked clients is pushed to every AP, so it has to be limited in size. 
@@ -187,34 +150,35 @@ public class ClientController {
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Client> getForCustomer(@RequestParam int customerId,
-            @RequestParam List<ColumnAndSort> sortBy,
+    		@RequestParam(required = false) String macSubstring,  
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Client> paginationContext) {
 
     	if(paginationContext == null) {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up Clients for customer {} with last returned page number {}", 
-                customerId, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up Clients for customer {} macSubstring {} with last returned page number {}", 
+                customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<Client> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up Clients for customer {} with last returned page number {}",
-                    customerId, paginationContext.getLastReturnedPageNumber());
+                    "No more pages available when looking up Clients for customer {} macSubstring {} with last returned page number {}",
+                    customerId, macSubstring, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<Client> onePage = this.clientDatastore
-                .getForCustomer(customerId, sortBy, paginationContext);
+                .getForCustomer(customerId, macSubstring, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
-        LOG.debug("Retrieved {} Clients for customer {} ", onePage.getItems().size(), 
-                customerId);
+        LOG.debug("Retrieved {} Clients for customer {} macSubstring {}", onePage.getItems().size(), 
+                customerId, macSubstring);
 
         return ret;
     }
