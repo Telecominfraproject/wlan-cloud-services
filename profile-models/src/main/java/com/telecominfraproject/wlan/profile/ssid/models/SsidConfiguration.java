@@ -34,10 +34,12 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     final static Integer DEFAULT_VLAN = null;
     final static StateSetting DEFAULT_BROADCAST_SSID = StateSetting.enabled;
     final static Integer BANDWIDTH_LIMIT_NO_LIMIT = 0;
-    final static Integer BANDWIDTH_LIMIT_MAX = 800;
     final static String DEFAULT_SSID_NAME = "Default-SSID";
-    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = 60;
-    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = 600;
+    
+    final static Integer BANDWIDTH_LIMIT_MAX = Integer.getInteger("tip.wlan.ssid.bandwidthLimitMax", 800);
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = Integer.getInteger("tip.wlan.ssid.radiusAccountingServiceIntervalMin", 60);
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = Integer.getInteger("tip.wlan.ssid.radiusAccountingServiceIntervalMax", 600);
+    public static final int MAX_SSID_LENGTH = Integer.getInteger("tip.wlan.ssid.maxSsidLength", 32);
 
     private String ssid;
     private Set<RadioType> appliedRadios = new HashSet<>();
@@ -332,14 +334,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     public void setRadiusAcountingServiceInterval(int radiusAcountingServiceInterval) {
         if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
             LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
-                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX, RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
             this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
         } else if (radiusAcountingServiceInterval < RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN) {
             LOG.info("Unable to set radius accounting service interval to less than {}. Using min value of {}.",
-                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN, RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
             this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
         } else {
-            this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
+            this.radiusAcountingServiceInterval = radiusAcountingServiceInterval;
         }
 
     }
@@ -429,6 +431,13 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 hasUnsupported = true;
                 break;
             }
+        }
+        
+        if (ssid != null  && ssid.length() > MAX_SSID_LENGTH)
+        {
+            String msg = String.format("given SSID: %s of length: %2d exceeds the maximum character limit of %2d.", ssid, ssid.length(), MAX_SSID_LENGTH);
+            LOG.error(msg);
+            throw new SsidExceedsMaxLengthException(msg);
         }
 
         return hasUnsupported;
