@@ -39,6 +39,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = 60;
     final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = 600;
 
+    public static final int MAX_SSID_LENGTH = 32;
+
     private String ssid;
     private Set<RadioType> appliedRadios = new HashSet<>();
     private StateSetting ssidAdminState;
@@ -429,6 +431,13 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 hasUnsupported = true;
                 break;
             }
+        }
+        
+        if (ssid != null  && ssid.length() > MAX_SSID_LENGTH)
+        {
+            String msg = String.format("given SSID: %s of length: %2d exceeds the maximum character limit of %2d.", ssid, ssid.length(), MAX_SSID_LENGTH);
+            LOG.error(msg);
+            throw new SsidExceedsMaxLengthException(msg);
         }
 
         return hasUnsupported;
