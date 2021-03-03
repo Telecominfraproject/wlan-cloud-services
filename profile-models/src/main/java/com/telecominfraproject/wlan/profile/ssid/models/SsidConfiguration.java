@@ -34,10 +34,12 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     final static Integer DEFAULT_VLAN = null;
     final static StateSetting DEFAULT_BROADCAST_SSID = StateSetting.enabled;
     final static Integer BANDWIDTH_LIMIT_NO_LIMIT = 0;
-    final static Integer BANDWIDTH_LIMIT_MAX = 800;
     final static String DEFAULT_SSID_NAME = "Default-SSID";
-    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = 60;
-    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = 600;
+    
+    final static Integer BANDWIDTH_LIMIT_MAX = Integer.getInteger("tip.wlan.ssid.bandwidthLimitMax", 800);
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN = Integer.getInteger("tip.wlan.ssid.radiusAccountingServiceIntervalMin", 60);
+    final static Integer RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX = Integer.getInteger("tip.wlan.ssid.radiusAccountingServiceIntervalMax", 600);
+    public static final int MAX_SSID_LENGTH = Integer.getInteger("tip.wlan.ssid.maxSsidLength", 32);
 
     private String ssid;
     private Set<RadioType> appliedRadios = new HashSet<>();
