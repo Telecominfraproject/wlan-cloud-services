@@ -332,14 +332,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     public void setRadiusAcountingServiceInterval(int radiusAcountingServiceInterval) {
         if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
             LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
-                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX, RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
             this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
         } else if (radiusAcountingServiceInterval < RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN) {
             LOG.info("Unable to set radius accounting service interval to less than {}. Using min value of {}.",
-                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
+                    RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN, RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
             this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
         } else {
-            this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN;
+            this.radiusAcountingServiceInterval = radiusAcountingServiceInterval;
         }
 
     }
