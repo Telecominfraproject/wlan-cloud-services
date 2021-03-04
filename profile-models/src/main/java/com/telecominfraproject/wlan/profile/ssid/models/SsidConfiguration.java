@@ -67,6 +67,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private Long bonjourGatewayProfileId;
 
     private Boolean enable80211w;
+    
+    private Boolean useRadSec;
 
     private WepConfiguration wepConfig;
 
@@ -117,6 +119,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setRadiusServiceId(0L);
         setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
+        setUseRadSec(false);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
@@ -518,6 +521,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         }
     }
 
+    public Boolean getUseRadSec() {
+        return useRadSec;
+    }
+
+    public void setUseRadSec(Boolean useRadSec) {
+        this.useRadSec = useRadSec;
+    }
+
     @Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
@@ -536,10 +547,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     @Override
     public int hashCode() {
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
-                captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, enable80211w, forwardMode,
-                keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, 
-                radiusAcountingServiceInterval, radiusNasConfiguration, radiusServiceId, secureMode, ssid,
-                ssidAdminState, videoTrafficOnly, vlanId, wepConfig);
+                captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, dynamicVlan, enable80211w,
+                forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAcountingServiceInterval,
+                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadSec, videoTrafficOnly,
+                vlanId, wepConfig);
     }
 
     @Override
@@ -558,17 +569,21 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
                 && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
                 && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
-                && Objects.equals(enable80211w, other.enable80211w) && forwardMode == other.forwardMode
-                && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
-                && Objects.equals(noLocalSubnets, other.noLocalSubnets)
+                && Objects.equals(dynamicVlan, other.dynamicVlan) && Objects.equals(enable80211w, other.enable80211w)
+                && forwardMode == other.forwardMode && Objects.equals(keyRefresh, other.keyRefresh)
+                && Objects.equals(keyStr, other.keyStr) && Objects.equals(noLocalSubnets, other.noLocalSubnets)
                 && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
                 && radiusAcountingServiceInterval == other.radiusAcountingServiceInterval
                 && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
                 && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
+                && Objects.equals(useRadSec, other.useRadSec)
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
                 && Objects.equals(wepConfig, other.wepConfig);
-    }  
+    }
 
+
+
+    
     
 }
