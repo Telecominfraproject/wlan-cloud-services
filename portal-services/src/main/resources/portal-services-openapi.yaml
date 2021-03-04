@@ -1738,7 +1738,11 @@ components:
           greTunnelConfigurations:
             type: array
             items:
-              $ref: '#/components/schemas/GreTunnelConfiguration'  
+              $ref: '#/components/schemas/GreTunnelConfiguration'
+          radSecConfigurations:
+            type: array
+            items:
+              $ref: '#/components/schemas/RadSecConfiguration'                             
           radioMap:
             $ref: '#/components/schemas/RadioProfileConfigurationMap'
 
@@ -1758,6 +1762,22 @@ components:
         greRemoteInetAddr: 192.168.1.101
         vlanIdsInGreTunnel:
         - 100
+
+    RadSecConfiguration:
+      properties:
+        caCert:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        clientCert:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        clientKey:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        server:
+          type: string
+        port:
+          type: integer
+          format: int32
+        realm:
+          type: string
 
     RadioProfileConfigurationMap:
       properties:
@@ -2071,6 +2091,9 @@ components:
             format: int64
           enable80211w:
             type: boolean
+          useRadSec:
+            type: boolean
+            default: false
           wepConfig:
             $ref: '#/components/schemas/WepConfiguration'
           forwardMode:

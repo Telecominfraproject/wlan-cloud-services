@@ -2700,9 +2700,49 @@ components:
             type: boolean
           equipmentDiscovery:
             type: boolean
+          greTunnelConfigurations:
+            type: array
+            items:
+              $ref: '#/components/schemas/GreTunnelConfiguration'            
+          radSecConfigurations:
+            type: array
+            items:
+              $ref: '#/components/schemas/RadSecConfiguration'             
           radioMap:
             $ref: '#/components/schemas/RadioProfileConfigurationMap'
- 
+
+    GreTunnelConfiguration:
+      properties:
+        greTunnelName:
+          type: string
+        greRemoteInetAddr:
+          type: string
+        vlanIdsInGreTunnel:
+          type: array
+          items: 
+            type: integer
+            format: int32   
+      example:
+        greTunnelName: gre1
+        greRemoteInetAddr: 192.168.1.101
+        vlanIdsInGreTunnel:
+        - 100
+
+    RadSecConfiguration:
+      properties:
+        caCert:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        clientCert:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        clientKey:
+          $ref: '#/components/schemas/ManagedFileInfo'
+        server:
+          type: string
+        port:
+          type: integer
+          format: int32
+        realm:
+          type: string 
  
     RadioProfileConfigurationMap:
       properties:
@@ -2934,6 +2974,9 @@ components:
             type: boolean
           wepConfig:
             $ref: '#/components/schemas/WepConfiguration'
+          useRadSec:
+            type: boolean
+            default: false            
           forwardMode:
             $ref: '#/components/schemas/NetworkForwardMode'
 
