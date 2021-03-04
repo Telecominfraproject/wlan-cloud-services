@@ -42,6 +42,10 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
      */
     private Set<GreTunnelConfiguration> greTunnelConfigurations;
 
+    /**
+     * RadSec Configurations for this AP.
+     */
+    private Set<RadSecConfiguration> radSecConfigurations;
     /*
      * Don't use the constructor, use the "create" methods.
      */
@@ -65,6 +69,8 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         greTunnelConfigurations = new HashSet<GreTunnelConfiguration>();
         greTunnelConfigurations.add(GreTunnelConfiguration.createWithDefaults());
         
+        setRadSecConfigurations(new HashSet<RadSecConfiguration>());
+        
     }
 
     @Override
@@ -87,6 +93,11 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         if (greTunnelConfigurations != null) {
             ret.greTunnelConfigurations = new HashSet<GreTunnelConfiguration>();
             greTunnelConfigurations.stream().forEach(t -> ret.getGreTunnelConfigurations().add(t.clone()));
+        }
+        
+        if (radSecConfigurations != null) {
+            ret.radSecConfigurations = new HashSet<RadSecConfiguration>();
+            radSecConfigurations.stream().forEach(t -> ret.getRadSecConfigurations().add(t.clone()));
         }
 
         return ret;
@@ -134,6 +145,14 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         this.greTunnelConfigurations = greTunnelConfigurations;
     }
 
+    public Set<RadSecConfiguration> getRadSecConfigurations() {
+        return radSecConfigurations;
+    }
+
+    public void setRadSecConfigurations(Set<RadSecConfiguration> radSecConfigurations) {
+        this.radSecConfigurations = radSecConfigurations;
+    }
+
     public static void main(String[] args) {
         ApNetworkConfiguration a = ApNetworkConfiguration.createWithDefaults();
         System.out.println(a);
@@ -143,7 +162,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(greTunnelConfigurations, radioMap);
+        result = prime * result + Objects.hash(greTunnelConfigurations, radSecConfigurations, radioMap);
         return result;
     }
 
@@ -157,7 +176,10 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
             return false;
         ApNetworkConfiguration other = (ApNetworkConfiguration) obj;
         return Objects.equals(greTunnelConfigurations, other.greTunnelConfigurations)
+                && Objects.equals(radSecConfigurations, other.radSecConfigurations)
                 && Objects.equals(radioMap, other.radioMap);
     }
+
+
 
 }
