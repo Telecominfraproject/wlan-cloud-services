@@ -1,12 +1,14 @@
 package com.telecominfraproject.wlan.startuptasks;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -325,12 +327,6 @@ public class AllInOneStartListener implements ApplicationRunner {
         rfConfig.getRfConfigMap().forEach((x, y) -> y.setRf("TipWlan-rf"));
         profileRf.setDetails(rfConfig);
         profileRf = profileServiceInterface.create(profileRf);
-
-        // create userlist file
-        Path path = constructCaptivePortalUserList();
-
-        LOG.debug("Path to userlist {}", path);
-
         // Captive portal profile
         Profile profileCaptivePortal = new Profile();
         profileCaptivePortal.setCustomerId(customer.getId());
@@ -344,19 +340,15 @@ public class AllInOneStartListener implements ApplicationRunner {
         ManagedFileInfo backgroundFile = new ManagedFileInfo();
         backgroundFile.setFileCategory(FileCategory.CaptivePortalBackground);
         backgroundFile.setFileType(FileType.PNG);
-        backgroundFile.setApExportUrl("/filestore/tip-logo.png");
+        backgroundFile.setApExportUrl("tip-logo.png");
         ManagedFileInfo logoFile = new ManagedFileInfo();
         logoFile.setFileCategory(FileCategory.CaptivePortalLogo);
         logoFile.setFileType(FileType.PNG);
-        logoFile.setApExportUrl("/filestore/tip-logo-mobile.png");
-        ManagedFileInfo usernamePasswordFile = new ManagedFileInfo();
-        usernamePasswordFile.setFileCategory(FileCategory.UsernamePasswordList);
-        usernamePasswordFile.setFileType(FileType.TEXT);
-        usernamePasswordFile.setApExportUrl("/filestore/userlist.txt");
-        captivePortalConfig.setUsernamePasswordFile(usernamePasswordFile);
+        logoFile.setApExportUrl("tip-logo-mobile.png");
         captivePortalConfig.setBackgroundFile(backgroundFile);
         captivePortalConfig.setLogoFile(logoFile);
         captivePortalConfig.setBrowserTitle(profileCaptivePortal.getName());
+        captivePortalConfig.setUserList(constructCaptivePortalUserList());
         profileCaptivePortal.setDetails(captivePortalConfig);
         profileCaptivePortal = profileServiceInterface.create(profileCaptivePortal);
 
@@ -857,7 +849,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         return hotspot20IdProviderProfile;
     }
 
-    protected Path constructCaptivePortalUserList() {
+    protected List<TimedAccessUserRecord> constructCaptivePortalUserList() {
 
         List<TimedAccessUserRecord> userList = new ArrayList<>();
 
@@ -942,22 +934,24 @@ public class AllInOneStartListener implements ApplicationRunner {
         try {
             Files.deleteIfExists(path);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Cannot delete {}", path, e);
         }
-        
-        StringBuilder sb = new StringBuilder();
         for (TimedAccessUserRecord userRecord : userList) {
-            sb.append("username=" + userRecord.getUsername() + ", password=" + userRecord.getPassword()
+            byte[] bytes = ("username=" + userRecord.getUsername() + ", password=" + userRecord.getPassword()
                     + ", firstname=" + userRecord.getUserDetails().getFirstName() + ", lastname="
-                    + userRecord.getUserDetails().getLastName() + System.lineSeparator());
+                    + userRecord.getUserDetails().getLastName() + System.lineSeparator()).getBytes();
+            try {
+                Files.write(path, bytes, StandardOpenOption.APPEND);
+                LOG.debug("Successfully written data to the file {}", path);
+            } catch (IOException e) {
+                try {
+                    Files.write(path, bytes);
+                } catch (IOException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }
         }
-        try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
-            bw.write(sb.toString());
-            System.out.println("Successfully written data to the file");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return path;
+        return userList;
     }
 
     private void createFirmwareObjects(Customer customer) {
@@ -1511,19 +1505,19 @@ public class AllInOneStartListener implements ApplicationRunner {
 
         status.setDetails(eqRadioUtilReport);
         statusList.add(status);
-        
+
         status = new Status();
         status.setCustomerId(equipment.getCustomerId());
         status.setEquipmentId(equipment.getId());
         EquipmentChannelStatusData eqChannelStatus = new EquipmentChannelStatusData();
-        
+
         Map<RadioType, Integer> channelStatusDataMap = new EnumMap<>(RadioType.class);
         channelStatusDataMap.put(RadioType.is2dot4GHz, 6);
         channelStatusDataMap.put(RadioType.is5GHzL, 36);
         channelStatusDataMap.put(RadioType.is5GHzU, 157);
-        
+
         eqChannelStatus.setChannelNumberStatusDataMap(channelStatusDataMap);
-        
+
         status.setDetails(eqChannelStatus);
         statusList.add(status);
 
