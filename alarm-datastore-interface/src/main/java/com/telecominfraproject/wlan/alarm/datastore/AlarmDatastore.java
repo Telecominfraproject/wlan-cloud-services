@@ -60,7 +60,7 @@ public interface AlarmDatastore {
      * @param createdAfterTimestamp
      * @return next page of matching Alarm objects.
      */
-    PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context);
+    PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy, PaginationContext<Alarm> context);
 
     /**
      * @param customerId

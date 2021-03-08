@@ -223,6 +223,11 @@ public abstract class BaseAlarmDatastoreTest {
            	mdl.setCreatedTimestamp(mdl.getCreatedTimestamp() - 10000);
            	pastTimestamp = mdl.getCreatedTimestamp();
            }
+           if (i < 20) {
+        	   mdl.setAcknowledged(true);
+           } else {
+        	   mdl.setAcknowledged(false);
+           }
 
            apNameIdx++;
            testInterface.create(mdl);
@@ -246,13 +251,13 @@ public abstract class BaseAlarmDatastoreTest {
        
        //get active alarms for all equipment and all alarmCodes for the customer since the beginning of time
        PaginationContext<Alarm> context = new PaginationContext<>(10);
-       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, context);
-       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page1.getContext());
-       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page2.getContext());
-       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page3.getContext());
-       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page4.getContext());
-       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page5.getContext());
-       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, null, null, -1, sortBy, page6.getContext());
+       PaginationResponse<Alarm> page1 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, context);
+       PaginationResponse<Alarm> page2 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page1.getContext());
+       PaginationResponse<Alarm> page3 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page2.getContext());
+       PaginationResponse<Alarm> page4 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page3.getContext());
+       PaginationResponse<Alarm> page5 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page4.getContext());
+       PaginationResponse<Alarm> page6 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page5.getContext());
+       PaginationResponse<Alarm> page7 = testInterface.getForCustomer(customerId_1, null, null, -1, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -285,9 +290,99 @@ public abstract class BaseAlarmDatastoreTest {
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
+       // testing Acknowledged filter (alarm_by_acknowledged)
+       PaginationResponse<Alarm> page1Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page1Acknowledged.getContext());
+       PaginationResponse<Alarm> page3Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page2Acknowledged.getContext());
+       PaginationResponse<Alarm> page4Acknowledged = testInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page3Acknowledged.getContext());
        
+       //verify returned pages
+       assertEquals(10, page1Acknowledged.getItems().size());
+       assertEquals(10, page2Acknowledged.getItems().size());
+       assertEquals(0, page3Acknowledged.getItems().size());
+       assertEquals(0, page4Acknowledged.getItems().size());
+       
+       // testing Acknowledged filter with equipmentIds (alarm_by_acknowledged_equipmentId)
+       PaginationResponse<Alarm> page1AcknowledgedAndEquipment = testInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndEquipment = testInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page1AcknowledgedAndEquipment.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndEquipment = testInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page2AcknowledgedAndEquipment.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndEquipment = testInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page3AcknowledgedAndEquipment.getContext());
+       
+       page1AcknowledgedAndEquipment.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndEquipment.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndEquipment.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+       page2AcknowledgedAndEquipment.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+
+       assertTrue(page3AcknowledgedAndEquipment.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndEquipment.getContext().isLastPage());
+       
+       // testing Acknowledged filter with alarmCodes (alarm_by_acknowledged_alarmCode)
+       PaginationResponse<Alarm> page1AcknowledgedAndAlarmCode = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndAlarmCode = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page1AcknowledgedAndAlarmCode.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndAlarmCode = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page2AcknowledgedAndAlarmCode.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndAlarmCode = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page3AcknowledgedAndAlarmCode.getContext());
+       
+       page1AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(AlarmCode.AccessPointIsUnreachable, e.getAlarmCode()));
+       page2AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(AlarmCode.AccessPointIsUnreachable, e.getAlarmCode()));
+
+       assertTrue(page3AcknowledgedAndAlarmCode.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndAlarmCode.getContext().isLastPage());
+       
+       // testing Acknowledged filter with failure alarm code (no alarms initialized with failure code, should return empty page)
+       PaginationResponse<Alarm> page1AcknowledgedAndAlarmCodeFailure = testInterface.getForCustomer(customerId_1, equipmentIds, Collections.singleton(AlarmCode.AssocFailure), -1, true, sortBy, context);
+       
+       assertTrue(page1AcknowledgedAndAlarmCodeFailure.getContext().isLastPage());
+       
+       long checkTimestamp = pastTimestamp;
+       
+       // testing Acknowledged filter with timestamp (alarm_by_acknowledged_timestamp)
+       PaginationResponse<Alarm> page1AcknowledgedAndTimestamp = testInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndTimestamp = testInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page1AcknowledgedAndTimestamp.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndTimestamp = testInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page2AcknowledgedAndTimestamp.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndTimestamp = testInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page3AcknowledgedAndTimestamp.getContext());
+       
+       assertEquals(10, page1AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(9, page2AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(0, page3AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(0, page4AcknowledgedAndTimestamp.getItems().size());
+       
+       page1AcknowledgedAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       page2AcknowledgedAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       
+       assertTrue(page3AcknowledgedAndTimestamp.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndTimestamp.getContext().isLastPage());
+       
+       // testing Acknowledged with equipmentId and timestamp
+       // With timestamp, alarmCodes will be set to AlarmCode.validValues, so these calls will be equivalent to having all filters included.
+       // Because all filters are included, the alarm_by_acknowledged will be used instead of alarm_by_acknowledged_timestamp
+       PaginationResponse<Alarm> page1AcknowledgedEquipmentIdAndTimestamp = testInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedEquipmentIdAndTimestamp = testInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, page1AcknowledgedEquipmentIdAndTimestamp.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedEquipmentIdAndTimestamp = testInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, page2AcknowledgedEquipmentIdAndTimestamp.getContext());
+
+       assertEquals(10, page1AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       assertEquals(9, page2AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       assertEquals(0, page3AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       
+       assertTrue(page3AcknowledgedEquipmentIdAndTimestamp.getContext().isLastPage());
+
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.emptyList(), context);
+       PaginationResponse<Alarm> page1EmptySort = testInterface.getForCustomer(customerId_1, null, null, -1, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = getAlarmPagination_expectedPage1EmptySortStrings();
@@ -297,7 +392,7 @@ public abstract class BaseAlarmDatastoreTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, context);
+       PaginationResponse<Alarm> page1NullSort = testInterface.getForCustomer(customerId_1, null, null, -1, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = expectedPage1EmptySortStrings;
@@ -308,7 +403,7 @@ public abstract class BaseAlarmDatastoreTest {
 
        
        //test first page of the results with sort descending order by a equipmentId property 
-       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
+       PaginationResponse<Alarm> page1SingleSortDesc = testInterface.getForCustomer(customerId_1, null, null, -1, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = getAlarmPagination_expectedPage1SingleSortDescStrings();
@@ -320,13 +415,13 @@ public abstract class BaseAlarmDatastoreTest {
        //test with explicit list of equipmentIds and explicit list of AlarmCodes
        long createdAfterTs = pastTimestamp + 10;
        context = new PaginationContext<>(10);
-       page1 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, context);
-       page2 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page1.getContext());
-       page3 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page2.getContext());
-       page4 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page3.getContext());
-       page5 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page4.getContext());
-       page6 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page5.getContext());
-       page7 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, sortBy, page6.getContext());
+       page1 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, context);
+       page2 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page1.getContext());
+       page3 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page2.getContext());
+       page4 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page3.getContext());
+       page5 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page4.getContext());
+       page6 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page5.getContext());
+       page7 = testInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, createdAfterTs, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -344,7 +439,7 @@ public abstract class BaseAlarmDatastoreTest {
        
        //test with explicit list of equipmentIds of one element and explicit list of AlarmCodes of one element
        context = new PaginationContext<>(10);
-       page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, sortBy, context);
+       page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, null, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
        testInterface.resetAlarmCounters();

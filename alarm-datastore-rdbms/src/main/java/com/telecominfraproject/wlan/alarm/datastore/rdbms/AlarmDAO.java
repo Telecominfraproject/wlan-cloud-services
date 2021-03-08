@@ -445,7 +445,7 @@ public class AlarmDAO extends BaseJdbcDao {
 
 
 	public PaginationResponse<Alarm> getForCustomer(int customerId, 
-			Set<Long> equipmentIds, Set<AlarmCode> alarmCodes, long createdAfterTimestamp, 
+			Set<Long> equipmentIds, Set<AlarmCode> alarmCodes, long createdAfterTimestamp, Boolean acknowledged,
 			List<ColumnAndSort> sortBy, PaginationContext<Alarm> context) {
 
         PaginationResponse<Alarm> ret = new PaginationResponse<>();
@@ -505,6 +505,11 @@ public class AlarmDAO extends BaseJdbcDao {
         if(createdAfterTimestamp > 0) {
         	query += " and createdTimestamp > ?" ;
         	queryArgs.add(createdAfterTimestamp);
+        }
+        
+        if (acknowledged != null) {
+        	query += " and acknowledged = ? ";
+        	queryArgs.add(acknowledged);
         }
         
         // add sorting options for the query

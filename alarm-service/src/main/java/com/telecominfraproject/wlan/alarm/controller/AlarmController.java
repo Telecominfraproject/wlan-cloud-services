@@ -123,10 +123,11 @@ public class AlarmController {
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Alarm> getForCustomer(@RequestParam int customerId,
-    		@RequestParam Set<Long> equipmentIdSet,
-    		@RequestParam Set<AlarmCode> alarmCodeSet,
-    		@RequestParam  long createdAfterTimestamp,
-            @RequestParam List<ColumnAndSort> sortBy,
+    		@RequestParam(required = false) Set<Long> equipmentIdSet,
+    		@RequestParam(required = false) Set<AlarmCode> alarmCodeSet,
+    		@RequestParam(required = false) long createdAfterTimestamp,
+    		@RequestParam(required = false) Boolean acknowledged, 
+            @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Alarm> paginationContext) {
 
     	if(paginationContext == null) {
@@ -148,7 +149,7 @@ public class AlarmController {
         }
 
         PaginationResponse<Alarm> onePage = this.alarmDatastore
-                .getForCustomer(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp,  sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp, acknowledged, sortBy, paginationContext);
         ret.setContext(onePage.getContext());
         ret.getItems().addAll(onePage.getItems());
 
