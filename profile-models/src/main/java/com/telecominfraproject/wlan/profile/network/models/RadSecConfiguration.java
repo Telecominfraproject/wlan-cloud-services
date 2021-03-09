@@ -18,6 +18,8 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
     private InetAddress server;
     private Integer port;
     private String realm;
+    private String name;
+    private String passphrase;
 
     private RadSecConfiguration() {
 
@@ -73,6 +75,22 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
 
     public void setRealm(String realm) {
         this.realm = realm;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPassphrase() {
+        return passphrase;
+    }
+
+    public void setPassphrase(String passphrase) {
+        this.passphrase = passphrase;
     }
 
     @Override

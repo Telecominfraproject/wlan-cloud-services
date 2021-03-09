@@ -1778,7 +1778,11 @@ components:
           format: int32
         realm:
           type: string
-
+        name:
+          type: string
+        passphrase:
+          type: string
+          format: password
     RadioProfileConfigurationMap:
       properties:
         is5GHz:
