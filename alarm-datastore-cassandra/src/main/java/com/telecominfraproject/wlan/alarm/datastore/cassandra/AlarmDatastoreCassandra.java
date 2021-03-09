@@ -36,6 +36,7 @@ import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.server.cassandra.CassandraUtils;
 import com.telecominfraproject.wlan.core.server.cassandra.RowMapper;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
@@ -154,6 +155,18 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         private static final String CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER = "select equipmentId, alarmCode, count(1) from alarm where customerId = ? ";
         private static final String CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_FOOTER = " group by equipmentId, alarmCode";
 
+        private static final String CQL_INSERT_INTO_BY_ACKNOWLEDGED_TABLE = "insert into alarm_by_acknowledged(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) values ( ?, ?, ?, ?, ?) ";
+        private static final String CQL_DELETE_FROM_BY_ACKNOWLEDGED_TABLE = "delete from alarm_by_acknowledged where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ? and acknowledged = ? ";
+
+        private static final String CQL_INSERT_INTO_BY_ACKNOWLEDGED_EQUIPMENTID_TABLE = "insert into alarm_by_acknowledged_equipmentId(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) values ( ?, ?, ?, ?, ?) ";
+        private static final String CQL_DELETE_FROM_BY_ACKNOWLEDGED_EQUIPMENTID_TABLE = "delete from alarm_by_acknowledged_equipmentId where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ? and acknowledged = ? ";
+
+        private static final String CQL_INSERT_INTO_BY_ACKNOWLEDGED_ALARMCODE_TABLE = "insert into alarm_by_acknowledged_alarmCode(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) values ( ?, ?, ?, ?, ?) ";
+        private static final String CQL_DELETE_FROM_BY_ACKNOWLEDGED_ALARMCODE_TABLE = "delete from alarm_by_acknowledged_alarmCode where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ? and acknowledged = ? ";
+        
+        private static final String CQL_INSERT_INTO_BY_ACKNOWLEDGED_TIMESTAMP_TABLE = "insert into alarm_by_acknowledged_timestamp(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) values ( ?, ?, ?, ?, ?) ";
+        private static final String CQL_DELETE_FROM_BY_ACKNOWLEDGED_TIMESTAMP_TABLE = "delete from alarm_by_acknowledged_timestamp where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ? and acknowledged = ? ";
+
         //Cassandra has a difficulty running this:
         // message="Group by currently only support groups of columns following their declared order in the PRIMARY KEY"
         //private static final String CQL_COUNTS_BY_ALARM_CODE_HEADER = "select alarmCode, count(1) from alarm where customerId = ? ";
@@ -193,7 +206,18 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 	
     private PreparedStatement preparedStmt_updateAlarmCountByEquipment;
     private PreparedStatement preparedStmt_updateAlarmCountByCustomer;
+    
+    private PreparedStatement preparedStmt_insertIntoAlarmByAcknowledged;
+	private PreparedStatement preparedStmt_deleteFromAlarmByAcknowledged;
 	
+	private PreparedStatement preparedStmt_insertIntoAlarmByAcknowledgedEquipmentId;
+	private PreparedStatement preparedStmt_deleteFromAlarmByAcknowledgedEquipmentId;
+	
+	private PreparedStatement preparedStmt_insertIntoAlarmByAcknowledgedAlarmCode;
+	private PreparedStatement preparedStmt_deleteFromAlarmByAcknowledgedAlarmCode;
+	
+	private PreparedStatement preparedStmt_insertIntoAlarmByAcknowledgedTimestamp;
+	private PreparedStatement preparedStmt_deleteFromAlarmByAcknowledgedTimestamp;
 
 	@PostConstruct
 	private void postConstruct(){
@@ -211,6 +235,18 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 
 		preparedStmt_updateAlarmCountByEquipment = cqlSession.prepare(CQL_UPDATE_EQUIPMENT_ALARM_COUNT);
 		preparedStmt_updateAlarmCountByCustomer= cqlSession.prepare(CQL_UPDATE_CUSTOMER_ALARM_COUNT);
+		
+		preparedStmt_insertIntoAlarmByAcknowledged = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_TABLE);
+		preparedStmt_deleteFromAlarmByAcknowledged = cqlSession.prepare(CQL_DELETE_FROM_BY_ACKNOWLEDGED_TABLE);
+		
+		preparedStmt_insertIntoAlarmByAcknowledgedEquipmentId = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_EQUIPMENTID_TABLE);
+		preparedStmt_deleteFromAlarmByAcknowledgedEquipmentId = cqlSession.prepare(CQL_DELETE_FROM_BY_ACKNOWLEDGED_EQUIPMENTID_TABLE);
+		
+		preparedStmt_insertIntoAlarmByAcknowledgedAlarmCode = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_ALARMCODE_TABLE);
+		preparedStmt_deleteFromAlarmByAcknowledgedAlarmCode = cqlSession.prepare(CQL_DELETE_FROM_BY_ACKNOWLEDGED_ALARMCODE_TABLE);
+		
+		preparedStmt_insertIntoAlarmByAcknowledgedTimestamp = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_TIMESTAMP_TABLE);
+		preparedStmt_deleteFromAlarmByAcknowledgedTimestamp = cqlSession.prepare(CQL_DELETE_FROM_BY_ACKNOWLEDGED_TIMESTAMP_TABLE);
 
 	}
 	
@@ -255,6 +291,39 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 		cqlSession.execute(preparedStmt_incrementAlarmCountByCustomer.bind(
                 alarm.getCustomerId(),
                 alarm.getAlarmCode().getId()
+                ));
+		
+		//insert entry into acknowledged tables
+		cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledged.bind(
+                alarm.getCustomerId(),
+                alarm.getEquipmentId(),
+                alarm.getAlarmCode().getId(),
+                alarm.getCreatedTimestamp(),
+                alarm.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedEquipmentId.bind(
+                alarm.getCustomerId(),
+                alarm.getEquipmentId(),
+                alarm.getAlarmCode().getId(),
+                alarm.getCreatedTimestamp(),
+                alarm.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedAlarmCode.bind(
+                alarm.getCustomerId(),
+                alarm.getEquipmentId(),
+                alarm.getAlarmCode().getId(),
+                alarm.getCreatedTimestamp(),
+                alarm.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedTimestamp.bind(
+                alarm.getCustomerId(),
+                alarm.getEquipmentId(),
+                alarm.getAlarmCode().getId(),
+                alarm.getCreatedTimestamp(),
+                alarm.isAcknowledged()
                 ));
 
         return alarm.clone();
@@ -410,6 +479,39 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
                 ret.getCustomerId(),
                 ret.getAlarmCode().getId()
                 ));
+		
+		//delete entry into acknowledged tables
+		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledged.bind(
+                ret.getCustomerId(),
+                ret.getEquipmentId(),
+                ret.getAlarmCode().getId(),
+                ret.getCreatedTimestamp(),
+                ret.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedEquipmentId.bind(
+                ret.getCustomerId(),
+                ret.getEquipmentId(),
+                ret.getAlarmCode().getId(),
+                ret.getCreatedTimestamp(),
+                ret.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedAlarmCode.bind(
+                ret.getCustomerId(),
+                ret.getEquipmentId(),
+                ret.getAlarmCode().getId(),
+                ret.getCreatedTimestamp(),
+                ret.isAcknowledged()
+                ));
+		
+		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedTimestamp.bind(
+                ret.getCustomerId(),
+                ret.getEquipmentId(),
+                ret.getAlarmCode().getId(),
+                ret.getCreatedTimestamp(),
+                ret.isAcknowledged()
+                ));
 
         return ret;
 	}
@@ -435,7 +537,40 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
     		cqlSession.execute(preparedStmt_decrementAlarmCountByCustomer.bind(
                     al.getCustomerId(),
                     al.getAlarmCode().getId()
-                    ));        	
+                    ));        
+    		
+    		//delete entry into acknowledged tables
+    		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledged.bind(
+                    al.getCustomerId(),
+                    al.getEquipmentId(),
+                    al.getAlarmCode().getId(),
+                    al.getCreatedTimestamp(),
+                    al.isAcknowledged()
+                    ));
+    		
+    		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedEquipmentId.bind(
+                    al.getCustomerId(),
+                    al.getEquipmentId(),
+                    al.getAlarmCode().getId(),
+                    al.getCreatedTimestamp(),
+                    al.isAcknowledged()
+                    ));
+    		
+    		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedAlarmCode.bind(
+    				al.getCustomerId(),
+    				al.getEquipmentId(),
+    				al.getAlarmCode().getId(),
+    				al.getCreatedTimestamp(),
+    				al.isAcknowledged()
+                    ));
+    		
+    		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedTimestamp.bind(
+    				al.getCustomerId(),
+    				al.getEquipmentId(),
+    				al.getAlarmCode().getId(),
+    				al.getCreatedTimestamp(),
+    				al.isAcknowledged()
+                    ));
 
         });
         
@@ -651,11 +786,12 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         return ret;
         
 	}
-
+	
+    private static enum FilterOptions{ customer_only, customer_and_equipment, customer_and_alarmCode, customer_and_timestamp, customer_and_acknowledged }
 
 	@Override
 	public PaginationResponse<Alarm> getForCustomer(int customerId, Set<Long> equipmentIds,
-			Set<AlarmCode> alarmCodes, long createdAfterTimestamp, List<ColumnAndSort> sortBy,
+			Set<AlarmCode> alarmCodes, long createdAfterTimestamp, Boolean acknowledged, List<ColumnAndSort> sortBy,
 			PaginationContext<Alarm> context) {
         PaginationResponse<Alarm> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -671,7 +807,8 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         LOG.debug("Looking up Alarms for customer {} with last returned page number {}", 
                 customerId, context.getLastReturnedPageNumber());
 
-        String query = CQL_GET_BY_CUSTOMER_ID;
+        String query_head = CQL_GET_BY_CUSTOMER_ID;
+        String query = "";
 
     	if((alarmCodes==null || alarmCodes.isEmpty()) && createdAfterTimestamp>0) {
     		//if alarm codes not specified (means all) - explicitly list all of them, otherwise the following exception if thrown:
@@ -679,6 +816,8 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
     		//	PRIMARY KEY column "createdtimestamp" cannot be restricted as preceding column "alarmcode" is not restricted
     		alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.validValues()));
     	}
+    	
+    	FilterOptions filterOptions = FilterOptions.customer_only;
     	
         // add filters for the query
         ArrayList<Object> queryArgs = new ArrayList<>();
@@ -688,39 +827,52 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
+            query += " and equipmentId in" + CassandraUtils.getBindPlaceholders(equipmentIds);
 
-            query += strb.toString();
+            filterOptions = FilterOptions.customer_and_equipment;
         }
         
         //add alarmCodes filters
         if (alarmCodes != null && !alarmCodes.isEmpty()) {
         	alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and alarmCode in (");
-            for (int i = 0; i < alarmCodes.size(); i++) {
-                strb.append("?");
-                if (i < alarmCodes.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
+        	query += " and alarmCode in" + CassandraUtils.getBindPlaceholders(alarmCodes);
 
-            query += strb.toString();
+        	filterOptions = FilterOptions.customer_and_alarmCode;
         }        
 
         if(createdAfterTimestamp > 0) {
         	query += " and createdTimestamp > ?" ;
         	queryArgs.add(createdAfterTimestamp);
+        	filterOptions = FilterOptions.customer_and_timestamp;
+        }
+        
+        if (acknowledged != null) {
+        	queryArgs.clear();
+        	queryArgs.add(customerId);
+            queryArgs.add(acknowledged);
+            query_head = "select customerId, equipmentId, alarmCode, createdTimestamp from alarm_by_acknowledged where customerId = ? ";
+            
+            if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            	query_head = "select customerId, equipmentId, alarmCode, createdTimestamp from alarm_by_acknowledged_equipmentId where customerId = ? ";
+                queryArgs.addAll(equipmentIds);
+            }
+            if (alarmCodes != null && !alarmCodes.isEmpty()) {
+            	query_head = "select customerId, equipmentId, alarmCode, createdTimestamp from alarm_by_acknowledged_alarmCode where customerId = ? ";
+            	alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
+            }
+            if (createdAfterTimestamp > 0) {
+            	query_head = "select customerId, equipmentId, alarmCode, createdTimestamp from alarm_by_acknowledged_timestamp where customerId = ? ";
+                queryArgs.add(createdAfterTimestamp);
+                
+                if (equipmentIds != null && !equipmentIds.isEmpty()) {
+                	query_head = "select customerId, equipmentId, alarmCode, createdTimestamp from alarm_by_acknowledged where customerId = ? ";
+                }
+            }
+        	
+        	query = " and acknowledged = ? " + query;
+        	
+        	filterOptions = FilterOptions.customer_and_acknowledged;
         }
         
         // add sorting options for the query
@@ -734,7 +886,7 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         //TODO: create a cache of these prepared statements, keyed by the numberOfEquipmentIds_numberOfAlarmCodes
         PreparedStatement preparedStmt_getPageForCustomer;
         try {
-        	preparedStmt_getPageForCustomer = cqlSession.prepare(query);
+        	preparedStmt_getPageForCustomer = cqlSession.prepare(query_head + query);
         } catch(InvalidQueryException e) {
         	LOG.error("Cannot prepare cassandra query '{}'", query, e);
         	throw e;
@@ -755,10 +907,30 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 
 		List<Alarm> pageItems = new ArrayList<>();
 		
-		// iterate through the current page
-		while (rs.getAvailableWithoutFetching() > 0) {
-		  pageItems.add(alarmRowMapper.mapRow(rs.one()));
+		switch(filterOptions) {
+		case customer_only:
+		case customer_and_equipment:
+		case customer_and_alarmCode:
+		case customer_and_timestamp:
+			// iterate through the current page
+			while (rs.getAvailableWithoutFetching() > 0) {
+			  pageItems.add(alarmRowMapper.mapRow(rs.one()));
+			}
+			break;
+		case customer_and_acknowledged:
+			while (rs.getAvailableWithoutFetching() > 0) {
+				Row row = rs.one();
+				long equipmentIdPostQuery = row.getLong("equipmentId");
+				int alarmCodePostQuery = row.getInt("alarmCode");
+				long createdTimestampPostQuery = row.getLong("createdTimestamp");
+				pageItems.add(getOrNull(customerId, equipmentIdPostQuery, AlarmCode.getById(alarmCodePostQuery), createdTimestampPostQuery));
+			}
+			break;
+		default:
+			LOG.warn("Unknown filter option:", filterOptions);
+			throw new IllegalArgumentException("Unknown filter option " + filterOptions);
 		}
+		
 
         if (pageItems.isEmpty()) {
             LOG.debug("Cannot find Alarms for customer {} with last returned page number {}",

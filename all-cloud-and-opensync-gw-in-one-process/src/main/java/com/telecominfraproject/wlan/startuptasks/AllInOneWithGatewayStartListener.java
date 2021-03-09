@@ -86,6 +86,7 @@ import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 import com.telecominfraproject.wlan.status.dashboard.models.CustomerPortalDashboardStatus;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentAdminStatusData;
+import com.telecominfraproject.wlan.status.equipment.models.EquipmentChannelStatusData;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolState;
 import com.telecominfraproject.wlan.status.equipment.models.EquipmentProtocolStatusData;
 import com.telecominfraproject.wlan.status.equipment.report.models.EquipmentCapacityDetails;
@@ -950,6 +951,21 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 
 		status.setDetails(eqRadioUtilReport);
 		statusList.add(status);
+		
+		status = new Status();
+        status.setCustomerId(equipment.getCustomerId());
+        status.setEquipmentId(equipment.getId());
+        EquipmentChannelStatusData eqChannelStatus = new EquipmentChannelStatusData();
+        
+        Map<RadioType, Integer> channelStatusDataMap = new EnumMap<>(RadioType.class);
+        channelStatusDataMap.put(RadioType.is2dot4GHz, 6);
+        channelStatusDataMap.put(RadioType.is5GHzL, 36);
+        channelStatusDataMap.put(RadioType.is5GHzU, 157);
+        
+        eqChannelStatus.setChannelNumberStatusDataMap(channelStatusDataMap);
+        
+        status.setDetails(eqChannelStatus);
+        statusList.add(status);
 
 		statusServiceInterface.update(statusList);
 	}

@@ -44,14 +44,6 @@ public interface ClientServiceInterface {
     List<Client> get(int customerId, Set<MacAddress> clientMacSet);
     
     /**
-     * Retrieves a list of Client records that have mac addresses that match a given substring.
-     * 
-     * @param macSubstring
-     * @return next page of matching Client objects.
-     */
-    PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
-
-    /**
      * Updates Client 
      * 
      * @param Client
@@ -70,7 +62,7 @@ public interface ClientServiceInterface {
     Client delete(int customerId, MacAddress clientMac );
     
     /**
-     * <br>Retrieves all of the Client records that are mapped to the provided customerId.
+     * <br>Retrieves all of the Client records that are mapped to the provided customerId and optional macSubstring filter.
      * Results are returned in pages.
      * 
      * <br>When changing sort order or filters, pagination should be restarted again from the first page. 
@@ -83,9 +75,10 @@ public interface ClientServiceInterface {
 	 *<li>  "macAddress"
      *<br> 
      * @param customerId
+     * @param macSubstring
      * @return next page of matching Client objects.
      */
-    PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
+    PaginationResponse<Client> getForCustomer(int customerId, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<Client> context);
 
     /**
      * @param customerId
@@ -128,9 +121,10 @@ public interface ClientServiceInterface {
      * @param customerId
      * @param equipmentIds - set of equipment ids for which to retrieve session objects. Empty set or null means retrieve for all customer's equipment.
      * @param locationIds - set of location ids for which to retrieve session objects. Empty set or null means retrieve for all customer's locations. 
+     * @param macSubstring - To match with MacAddress
 	 *
      * @return next page of matching Client session objects.
      */
-     PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
+     PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
 
 }

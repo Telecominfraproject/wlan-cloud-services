@@ -2983,6 +2983,7 @@ components:
         - $ref: '#/components/schemas/OperatingSystemPerformance'
         - $ref: '#/components/schemas/RadioUtilizationReport'
         - $ref: '#/components/schemas/CustomerPortalDashboardStatus'
+        - $ref: '#/components/schemas/EquipmentChannelStatusData'
       discriminator:
         propertyName: model_type
     
@@ -3985,6 +3986,21 @@ components:
           description: The percentage of the overall capacity that is currently being used by associated clients.
           type: integer
           format: int32
+          
+    EquipmentChannelStatusData:
+      description: Equipment Channel Status Data.
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+          - EquipmentChannelStatusData
+        statusDataType:
+          type: string
+          enum:
+          - RADIO_CHANNEL
+        channelNumberStatusDataMap:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
           
 #
 # Objects related to Client sessions
@@ -12110,6 +12126,7 @@ paths:
       - name: equipmentIds
         in: query
         description: set of equipment ids. Empty or null means retrieve all equipment for the customer.
+        required: false
         content:
           text/plain:
             schema:
@@ -12120,6 +12137,7 @@ paths:
       - name: locationIds
         in: query
         description: set of location ids. Empty or null means retrieve for all locations for the customer.
+        required: false
         content:
           text/plain:
             schema:
@@ -12127,9 +12145,16 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: macSubstring
+        in: query
+        description: MacAddress search criteria
+        required: false
+        schema:
+          type: string
       - name: sortBy
         in: query
         description: sort options
+        required: false
         schema:
           type: array
           items:
@@ -12137,7 +12162,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -12229,57 +12254,6 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
 
-  /portal/client/searchByMac:
-    get:
-      tags:
-      - Clients
-      summary: Get list of Clients for customerId and searching by macSubstring.
-      operationId: searchByMacAddress
-      parameters:
-      - name: customerId
-        in: query
-        description: customer id
-        required: true
-        schema:
-          type: integer
-          format: int32
-      - name: macSubstring
-        in: query
-        description: MacAddress search criteria
-        required: false
-        schema:
-          type: string
-      - name: sortBy
-        in: query
-        description: sort options
-        required: false
-        schema:
-          type: array
-          items:
-            $ref: '#/components/schemas/SortColumnsClient'
-      - name: paginationContext
-        in: query
-        description: pagination context
-        required: false
-        content:
-          application/json:
-            schema:
-                $ref: '#/components/schemas/PaginationContextClient'
-            examples:
-              initialPginationContext:
-                value:
-                  model_type: PaginationContext
-                  maxItemsPerPage: 10
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginationResponseClient'
-        500:
-          $ref: '#/components/responses/GenericApiError'
-
   /portal/client/blocked:  
     get:
       tags:
@@ -12355,6 +12329,12 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: macSubstring
+        in: query
+        description: MacAddress search criteria
+        required: false
+        schema:
+          type: string
       - name: sortBy
         in: query
         description: sort options
@@ -12529,6 +12509,7 @@ paths:
       - name: alarmCodes
         in: query
         description: Set of alarm codes. Empty or null means retrieve all.
+        required: false
         content:
           text/plain:
             schema:
@@ -12543,9 +12524,16 @@ paths:
           type: integer
           format: int64
           default: -1
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       - name: sortBy
         in: query
         description: sort options
+        required: false
         schema:
           type: array
           items:
@@ -12553,7 +12541,7 @@ paths:
       - name: paginationContext
         in: query
         description: pagination context
-        required: true
+        required: false
         content:
           application/json:
             schema:

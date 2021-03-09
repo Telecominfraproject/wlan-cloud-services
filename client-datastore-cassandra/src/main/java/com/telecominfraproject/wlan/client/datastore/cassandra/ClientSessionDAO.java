@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.server.cassandra.CassandraUtils;
 import com.telecominfraproject.wlan.core.server.cassandra.RowMapper;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 
@@ -134,6 +135,12 @@ public class ClientSessionDAO {
 
     private static final String CQL_INSERT_INTO_BY_LOCATION_TABLE = "insert into client_session_by_location(customerId, locationId, equipmentId, macAddress) values ( ?, ?, ?, ?) ";
     private static final String CQL_DELETE_FROM_BY_LOCATION_TABLE = "delete from client_session_by_location where locationId = ? and equipmentId = ? and macAddress = ? ";
+        
+    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC = "insert into client_session_by_mac (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
+    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC = "delete from client_session_by_mac where locationId = ? and equipmentId = ? and macAddress = ?";
+    
+    private static final String CQL_INSERT_INTO_CLIENT_SESSION_MAC_AND_EQUIPMENT = "insert into client_session_by_mac_and_equipment (customerId, locationId, equipmentId, macAddress, macAddressString) values (?, ?, ?, ?, ?)";
+    private static final String CQL_DELETE_FROM_CLIENT_SESSION_MAC_AND_EQUIPMENT = "delete from client_session_by_mac_and_equipment where locationId = ? and equipmentId = ? and macAddress = ?";
 
     
     private static final RowMapper<ClientSession> clientSessionRowMapper = new ClientSessionRowMapper();
@@ -151,6 +158,11 @@ public class ClientSessionDAO {
 	private PreparedStatement preparedStmt_deleteByEquipment;
 	private PreparedStatement preparedStmt_createByLocation;
 	private PreparedStatement preparedStmt_deleteByLocation;
+    private PreparedStatement preparedStmt_createByMac;
+    private PreparedStatement preparedStmt_deleteByMac;
+    private PreparedStatement preparedStmt_createByMacAndEquipment;
+    private PreparedStatement preparedStmt_deleteByMacAndEquipment;
+
 
 	@PostConstruct
 	private void postConstruct(){
@@ -166,6 +178,10 @@ public class ClientSessionDAO {
         	preparedStmt_deleteByEquipment = cqlSession.prepare(CQL_DELETE_FROM_BY_EQUIPMENT_TABLE);
         	preparedStmt_createByLocation = cqlSession.prepare(CQL_INSERT_INTO_BY_LOCATION_TABLE);
         	preparedStmt_deleteByLocation = cqlSession.prepare(CQL_DELETE_FROM_BY_LOCATION_TABLE);
+        	preparedStmt_createByMac = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC);
+        	preparedStmt_deleteByMac = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC);
+        	preparedStmt_createByMacAndEquipment = cqlSession.prepare(CQL_INSERT_INTO_CLIENT_SESSION_MAC_AND_EQUIPMENT);
+        	preparedStmt_deleteByMacAndEquipment = cqlSession.prepare(CQL_DELETE_FROM_CLIENT_SESSION_MAC_AND_EQUIPMENT);
         	
 		} catch (InvalidQueryException e) {
 			LOG.error("Cannot prepare query", e);
@@ -203,6 +219,22 @@ public class ClientSessionDAO {
 				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
+		
+		cqlSession.execute(preparedStmt_createByMac.bind(
+				clientSession.getCustomerId(),
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong(),
+				clientSession.getMacAddress().getAddressAsString()
+				));
+		
+		cqlSession.execute(preparedStmt_createByMacAndEquipment.bind(
+				clientSession.getCustomerId(),
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong(),
+				clientSession.getMacAddress().getAddressAsString()
+				));
 
         LOG.debug("Stored Client session {}", clientSession);
         
@@ -297,6 +329,16 @@ public class ClientSessionDAO {
 				clientSession.getLocationId(),
 				clientSession.getEquipmentId(),
 				clientSession.getMacAddress().getAddressAsLong()));
+		
+		cqlSession.execute(preparedStmt_deleteByMac.bind(
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong()));
+		
+		cqlSession.execute(preparedStmt_deleteByMacAndEquipment.bind(
+				clientSession.getLocationId(),
+				clientSession.getEquipmentId(),
+				clientSession.getMacAddress().getAddressAsLong()));
 
 
         return clientSession;
@@ -336,9 +378,9 @@ public class ClientSessionDAO {
         return results;
     }
 
-    private static enum FilterOptions{ customer_only, customer_and_equipment, customer_and_location}
+    private static enum FilterOptions{ customer_only, customer_and_equipment, customer_and_location, customer_and_macAddress}
 
-	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, List<ColumnAndSort> sortBy,
+	public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, String macSubstring, List<ColumnAndSort> sortBy,
 			PaginationContext<ClientSession> context) {
 
         PaginationResponse<ClientSession> ret = new PaginationResponse<>();
@@ -367,17 +409,7 @@ public class ClientSessionDAO {
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query += strb.toString();
+            query += "and equipmentId in " + CassandraUtils.getBindPlaceholders(equipmentIds);
             query_head = "select macAddress from client_session_by_equipment where customerId = ? ";
             
             filterOptions = FilterOptions.customer_and_equipment;
@@ -392,20 +424,31 @@ public class ClientSessionDAO {
                 queryArgs.addAll(equipmentIds);
             }
 
-            StringBuilder strb = new StringBuilder(100);
-            strb.append(" locationId in (");
-            for (int i = 0; i < locationIds.size(); i++) {
-                strb.append("?");
-                if (i < locationIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query = strb.toString() + query;
+            query = " locationId in " + CassandraUtils.getBindPlaceholders(locationIds) + query;
             query_head = "select macAddress from client_session_by_location where ";
             
             filterOptions = FilterOptions.customer_and_location;
+        }
+        
+        //add macSubstring filters
+        if (macSubstring != null && !macSubstring.isEmpty()) {
+        	queryArgs.clear();
+        	queryArgs.add(customerId);
+        	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
+        	query_head = "select macAddress from client_session_by_mac where customerId = ? ";
+        	
+        	if (locationIds != null && !locationIds.isEmpty()) {
+        		queryArgs.addAll(locationIds);
+        		query = "and " + query;
+        	}
+        	if (equipmentIds != null && !equipmentIds.isEmpty()) {
+        		queryArgs.addAll(equipmentIds);
+            	query_head = "select macAddress from client_session_by_mac_and_equipment where customerId = ? ";
+        	}
+        	
+        	query = " and macAddressString like ? " + query + " allow filtering";
+        	
+        	filterOptions = FilterOptions.customer_and_macAddress;
         }
 
         // add sorting options for the query
@@ -450,6 +493,7 @@ public class ClientSessionDAO {
 			break;		
 		case customer_and_equipment:
 		case customer_and_location:
+		case customer_and_macAddress:
 			//the query was against client_session_by_equipment or client_session_by_location table
 			//find all the macAddresses for the page, then retrieve records for them from client_session table
 			Set<MacAddress> macAddrSet = new HashSet<>();
@@ -464,10 +508,12 @@ public class ClientSessionDAO {
 			pageSessions.forEach(cs -> {
 			    //apply locationId and equipmentId filtering in here
                 if ((locationIds == null || locationIds.isEmpty() || locationIds.contains(cs.getLocationId()))
-                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId())) ) 
+                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId()))
+                        && (macSubstring == null || macSubstring.isEmpty() || cs.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
+                		) 
                 {
 	                    pageItems.add(cs);
-	             }
+	            }
 			});
 
 			break;

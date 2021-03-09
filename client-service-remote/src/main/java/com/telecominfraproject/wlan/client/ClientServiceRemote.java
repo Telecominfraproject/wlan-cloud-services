@@ -108,27 +108,6 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
 	}
     
     @Override
-    public PaginationResponse<Client> searchByMacAddress(int customerId, String macSubstring, 
-    		List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
-		
-        LOG.debug("searchByMacAddress({} {})", customerId, macSubstring);
-
-        try {
-            ResponseEntity<PaginationResponse<Client>> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/searchByMac?customerId={customerId}&macSubstring={macSubstring}&sortBy={sortBy}&paginationContext={context}", 
-                    HttpMethod.GET, null, Client_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, macSubstring, sortBy, context);
-
-            PaginationResponse<Client> result = responseEntity.getBody();
-            LOG.debug("searchByMacAddress({} {}) return {} entries", customerId, macSubstring, result.getItems().size());
-            return result;
-        } catch (Exception exp) {
-            LOG.error("searchByMacAddress({} {}) exception ", customerId, macSubstring, exp);
-            throw exp;
-        }
-
-	}
-    
-    @Override
     public List<Client> getBlockedClients(int customerId) {
         LOG.debug("getBlockedClients {}", customerId);
 
@@ -150,15 +129,15 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
     }
 
 	@Override
-	public PaginationResponse<Client> getForCustomer(int customerId, List<ColumnAndSort> sortBy,
-			PaginationContext<Client> context) {
+	public PaginationResponse<Client> getForCustomer(int customerId, String macSubstring, 
+			List<ColumnAndSort> sortBy, PaginationContext<Client> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {} )", customerId, sortBy, context);
+        LOG.debug("calling getForCustomer( {}, {}, {}, {} )", customerId, macSubstring, sortBy, context);
 
         ResponseEntity<PaginationResponse<Client>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomer?customerId={customerId}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, Client_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, sortBy, context);
+                        + "/forCustomer?customerId={customerId}&macSubstring={macSubstring}&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, Client_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, macSubstring, sortBy, context);
 
         PaginationResponse<Client> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());
@@ -255,9 +234,9 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
 
     @Override
     public PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds,
-    		List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
+    		String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context) {
 		
-        LOG.debug("calling getSessionsForCustomer( {}, {}, {}, {} )", equipmentIds, customerId, sortBy, context);
+        LOG.debug("calling getSessionsForCustomer( {}, {}, {}, {}, {}, {} )", customerId, equipmentIds, locationIds, macSubstring, sortBy, context);
 
         String equipmentIdsStr = null;
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
@@ -277,8 +256,8 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
 
         ResponseEntity<PaginationResponse<ClientSession>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/session/forCustomer?customerId={customerId}&equipmentIds={equipmentIdsStr}&locationIds={locationIdsStr}&sortBy={sortBy}&paginationContext={paginationContext}",
-                HttpMethod.GET, null, ClientSession_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdsStr, locationIdsStr, sortBy, context);
+                        + "/session/forCustomer?customerId={customerId}&equipmentIds={equipmentIdsStr}&locationIds={locationIdsStr}&macSubstring={macSubstring}&sortBy={sortBy}&paginationContext={paginationContext}",
+                HttpMethod.GET, null, ClientSession_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentIdsStr, locationIdsStr, macSubstring, sortBy, context);
 
         PaginationResponse<ClientSession> ret = responseEntity.getBody();
         LOG.debug("completed getSessionsForCustomer {} ", ret.getItems().size());
