@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.utils.DecibelUtils;
 
 /**
  * Contains scan information from neigbouring equipment that is not managed by
@@ -71,21 +72,24 @@ public class UnmanagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 
     @JsonIgnore
     public int getAverageSignalStrenght(RadioType radioType) {
-        int runningTotal = 0;
-        int numEntries = 0;
-
+        List<Integer> rssiList = new ArrayList<>();
+        
         for (NeighbourRadioInfo radioInfo : this.radios) {
             if (radioInfo.getRadioType() == radioType) {
                 for (NeighbourBssidInfo bssInfo : radioInfo.getBssIds()) {
-                    runningTotal += bssInfo.getSignal();
-                    numEntries++;
+                    rssiList.add(bssInfo.getRssi());
                 }
             }
-
         }
 
-        if (numEntries > 0) {
-            return runningTotal / numEntries;
+        if (rssiList.size() > 0) {
+        	int[] rssiArray = new int[rssiList.size()];
+        	int index = 0;
+        	for (Integer rssi : rssiList) {
+        		rssiArray[index++] = rssi;
+        	}
+ 
+            return (int) Math.round(DecibelUtils.getAverageDecibel(rssiArray));
         } else {
             return 0;
         }

@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.utils.DecibelUtils;
 
 /**
  * @author ekeddy
@@ -59,28 +60,22 @@ public class ManagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 	public Integer getAverageSignalStrenght(RadioType radioType)
 	{
 	   NeighbourRadioInfo info = getRadioInfo(radioType);
-	   
-	   int runningTotal = 0;
+	   Integer returnValue = null; 
 	   int numEntries = 0;
+	   int[] rssiList;
 	   
 	   if(info != null)
 	   {
+		  rssiList = new int[info.getBssIds().size()];
 	      for(NeighbourBssidInfo singleBssidInfo :  info.getBssIds())
 	      {
-	         runningTotal += singleBssidInfo.getSignal();
-	         numEntries++;
+	         rssiList[numEntries++] = singleBssidInfo.getRssi();   
 	      }
+		  if (numEntries != 0) {
+			  returnValue = (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
+		  }
 	   }
-	   
-	   if(numEntries != 0)
-	   {
-	      return runningTotal / numEntries;
-	   }
-	   else
-	   {
-	      return null;
-	   }
-	   
+	   return returnValue;
 	}
 
 	@JsonIgnore
