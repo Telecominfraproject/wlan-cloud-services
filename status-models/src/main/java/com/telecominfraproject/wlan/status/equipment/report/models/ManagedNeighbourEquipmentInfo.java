@@ -60,22 +60,18 @@ public class ManagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 	public Integer getAverageSignalStrenght(RadioType radioType)
 	{
 	   NeighbourRadioInfo info = getRadioInfo(radioType);
-	   Integer returnValue = null; 
-	   int numEntries = 0;
-	   int[] rssiList;
+	   List<Integer> rssiList = new ArrayList<>();
 	   
-	   if(info != null)
-	   {
-		  rssiList = new int[info.getBssIds().size()];
-	      for(NeighbourBssidInfo singleBssidInfo :  info.getBssIds())
-	      {
-	         rssiList[numEntries++] = singleBssidInfo.getRssi();   
+	   if(info != null && info.getBssIds() != null){
+	      for(NeighbourBssidInfo singleBssidInfo :  info.getBssIds()){
+	         rssiList.add(singleBssidInfo.getRssi());   
 	      }
-		  if (numEntries != 0) {
-			  returnValue = (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
-		  }
 	   }
-	   return returnValue;
+	   if (!rssiList.isEmpty()){
+		   return (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
+	   }else{
+		   return null;
+	   }
 	}
 
 	@JsonIgnore

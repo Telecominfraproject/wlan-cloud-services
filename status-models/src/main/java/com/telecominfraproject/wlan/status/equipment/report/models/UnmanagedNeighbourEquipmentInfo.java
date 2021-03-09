@@ -71,27 +71,26 @@ public class UnmanagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
     }
 
     @JsonIgnore
-    public int getAverageSignalStrenght(RadioType radioType) {
+    public Integer getAverageSignalStrenght(RadioType radioType) {
         List<Integer> rssiList = new ArrayList<>();
-        
-        for (NeighbourRadioInfo radioInfo : this.radios) {
-            if (radioInfo.getRadioType() == radioType) {
-                for (NeighbourBssidInfo bssInfo : radioInfo.getBssIds()) {
-                    rssiList.add(bssInfo.getRssi());
-                }
-            }
+        if (this.radios != null) 
+        {
+	        for (NeighbourRadioInfo radioInfo : this.radios) 
+	        {
+	            if (radioInfo != null && radioInfo.getBssIds() != null && radioInfo.getRadioType() == radioType) 
+	            {
+	                for (NeighbourBssidInfo bssInfo : radioInfo.getBssIds()) 
+	                {
+	                    rssiList.add(bssInfo.getRssi());
+	                }
+	            }
+	        }
         }
 
-        if (rssiList.size() > 0) {
-        	int[] rssiArray = new int[rssiList.size()];
-        	int index = 0;
-        	for (Integer rssi : rssiList) {
-        		rssiArray[index++] = rssi;
-        	}
- 
-            return (int) Math.round(DecibelUtils.getAverageDecibel(rssiArray));
+        if (!rssiList.isEmpty()) { 
+            return (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
         } else {
-            return 0;
+            return null;
         }
     }
 
