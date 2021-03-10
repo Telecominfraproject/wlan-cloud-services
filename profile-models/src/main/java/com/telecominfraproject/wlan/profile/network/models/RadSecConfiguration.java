@@ -105,7 +105,7 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(caCert, clientCert, clientKey, port, realm, server);
+        return java.util.Objects.hash(caCert, clientCert, clientKey, name, passphrase, port, realm, server);
     }
 
     @Override
@@ -118,9 +118,10 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
             return false;
         RadSecConfiguration other = (RadSecConfiguration) obj;
         return java.util.Objects.equals(caCert, other.caCert) && java.util.Objects.equals(clientCert, other.clientCert)
-                && java.util.Objects.equals(clientKey, other.clientKey) && java.util.Objects.equals(port, other.port)
+                && java.util.Objects.equals(clientKey, other.clientKey) && java.util.Objects.equals(name, other.name)
+                && java.util.Objects.equals(passphrase, other.passphrase) && java.util.Objects.equals(port, other.port)
                 && java.util.Objects.equals(realm, other.realm) && java.util.Objects.equals(server, other.server);
     }
-    
-    
+
+   
 }

@@ -69,6 +69,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private Boolean enable80211w;
     
     private Boolean useRadSec;
+    
+    private Boolean useRadiusProxy;
 
     private WepConfiguration wepConfig;
 
@@ -120,6 +122,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setRadiusServiceId(0L);
         setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
         setUseRadSec(false);
+        setUseRadiusProxy(false);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
@@ -529,6 +532,14 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.useRadSec = useRadSec;
     }
 
+    public Boolean getUseRadiusProxy() {
+        return useRadiusProxy;
+    }
+
+    public void setUseRadiusProxy(Boolean useRadiusProxy) {
+        this.useRadiusProxy = useRadiusProxy;
+    }
+
     @Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
@@ -549,8 +560,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, dynamicVlan, enable80211w,
                 forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAcountingServiceInterval,
-                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadSec, videoTrafficOnly,
-                vlanId, wepConfig);
+                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadSec, useRadiusProxy,
+                videoTrafficOnly, vlanId, wepConfig);
     }
 
     @Override
@@ -577,13 +588,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
                 && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
-                && Objects.equals(useRadSec, other.useRadSec)
+                && Objects.equals(useRadSec, other.useRadSec) && Objects.equals(useRadiusProxy, other.useRadiusProxy)
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
                 && Objects.equals(wepConfig, other.wepConfig);
     }
-
-
-
-    
-    
 }

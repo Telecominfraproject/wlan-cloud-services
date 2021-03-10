@@ -14,7 +14,7 @@ public enum FileCategory
     UsernamePasswordList,
     DeviceMacBlockList,
     DoNotSteerClientList,
-    
+    RadSecAuthentication,
     UNSUPPORTED;
     
     @JsonCreator

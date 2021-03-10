@@ -1570,7 +1570,7 @@ components:
           $ref: '#/components/schemas/FileType'
         altSlot:
           type: boolean
-          
+
     FileCategory:
       type: string
       enum:
@@ -1580,14 +1580,16 @@ components:
       - UsernamePasswordList
       - DeviceMacBlockList
       - DoNotSteerClientList
-
+      - RadSecAuthentication
+ 
     FileType:
       type: string
       enum:
       - PNG
       - JPG
       - PROTOBUF
-
+      - PEM
+      - KEY
 
     CaptivePortalAuthenticationType:
       type: string
@@ -2096,6 +2098,9 @@ components:
           enable80211w:
             type: boolean
           useRadSec:
+            type: boolean
+            default: false
+          useRadiusProxy:
             type: boolean
             default: false
           wepConfig:

@@ -11,7 +11,9 @@ public enum FileType
     PNG(".png"),
     JPG(".jpg"),
     PROTOBUF(".pb"),
-    TEXT(".txt");
+    TEXT(".txt"),
+    PEM(".pem"),
+    KEY(".key");
     
     private final String extension;
     

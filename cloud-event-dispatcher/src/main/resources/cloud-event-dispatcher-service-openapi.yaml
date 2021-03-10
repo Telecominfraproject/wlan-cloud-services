@@ -2541,6 +2541,7 @@ components:
       - UsernamePasswordList
       - DeviceMacBlockList
       - DoNotSteerClientList
+      - RadSecAuthentication
  
     FileType:
       type: string
@@ -2548,6 +2549,8 @@ components:
       - PNG
       - JPG
       - PROTOBUF
+      - PEM
+      - KEY
  
  
     CaptivePortalAuthenticationType:
@@ -2974,6 +2977,9 @@ components:
           useRadSec:
             type: boolean
             default: false            
+          useRadiusProxy:
+            type: boolean
+            default: false
           wepConfig:
             $ref: '#/components/schemas/WepConfiguration'
           forwardMode:
