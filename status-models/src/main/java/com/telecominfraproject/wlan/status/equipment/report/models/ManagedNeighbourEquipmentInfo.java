@@ -63,10 +63,9 @@ public class ManagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 	   List<Integer> rssiList = new ArrayList<>();
 	   
 	   if(info != null && info.getBssIds() != null){
-	      for(NeighbourBssidInfo singleBssidInfo :  info.getBssIds()){
-	         rssiList.add(singleBssidInfo.getRssi());   
-	      }
+		   info.getBssIds().forEach(bssId -> rssiList.add(bssId.getRssi()));
 	   }
+	   
 	   if (!rssiList.isEmpty()){
 		   return (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
 	   }else{

@@ -79,10 +79,7 @@ public class UnmanagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
 	        {
 	            if (radioInfo != null && radioInfo.getBssIds() != null && radioInfo.getRadioType() == radioType) 
 	            {
-	                for (NeighbourBssidInfo bssInfo : radioInfo.getBssIds()) 
-	                {
-	                    rssiList.add(bssInfo.getRssi());
-	                }
+                   radioInfo.getBssIds().forEach(bssInfo -> rssiList.add(bssInfo.getRssi()));
 	            }
 	        }
         }
