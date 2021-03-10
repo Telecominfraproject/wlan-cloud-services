@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.utils.DecibelUtils;
 
 /**
  * Contains scan information from neigbouring equipment that is not managed by
@@ -70,24 +71,23 @@ public class UnmanagedNeighbourEquipmentInfo extends NeighbourEquipmentInfo {
     }
 
     @JsonIgnore
-    public int getAverageSignalStrenght(RadioType radioType) {
-        int runningTotal = 0;
-        int numEntries = 0;
-
-        for (NeighbourRadioInfo radioInfo : this.radios) {
-            if (radioInfo.getRadioType() == radioType) {
-                for (NeighbourBssidInfo bssInfo : radioInfo.getBssIds()) {
-                    runningTotal += bssInfo.getSignal();
-                    numEntries++;
-                }
-            }
-
+    public Integer getAverageSignalStrenght(RadioType radioType) {
+        List<Integer> rssiList = new ArrayList<>();
+        if (this.radios != null) 
+        {
+	        for (NeighbourRadioInfo radioInfo : this.radios) 
+	        {
+	            if (radioInfo != null && radioInfo.getBssIds() != null && radioInfo.getRadioType() == radioType) 
+	            {
+                   radioInfo.getBssIds().forEach(bssInfo -> rssiList.add(bssInfo.getRssi()));
+	            }
+	        }
         }
 
-        if (numEntries > 0) {
-            return runningTotal / numEntries;
+        if (!rssiList.isEmpty()) { 
+            return (int) Math.round(DecibelUtils.getAverageDecibel(rssiList));
         } else {
-            return 0;
+            return null;
         }
     }
 
