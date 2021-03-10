@@ -464,6 +464,54 @@ public abstract class BaseAlarmDatastoreTest {
         return Arrays.asList(new String[]{"qr_49", "qr_48", "qr_47", "qr_46", "qr_45", "qr_44", "qr_43", "qr_42", "qr_41", "qr_40" });
     }
     
+    @Test
+    public void testAlarmAcknowledgedPaginationWithUpdate() {
+        Alarm alarm = createAlarmObject();
+
+        //create
+        Alarm created = testInterface.create(alarm);
+        assertNotNull(created);
+        assertEquals(alarm.getCustomerId(), created.getCustomerId());
+        assertEquals(alarm.getEquipmentId(), created.getEquipmentId());
+        assertEquals(alarm.getAlarmCode(), created.getAlarmCode());
+        assertEquals(alarm.getCreatedTimestamp(), created.getCreatedTimestamp());
+        assertNotNull(created.getDetails());
+        assertEquals(alarm.getDetails(), created.getDetails());
+        
+        List<ColumnAndSort> sortBy = new ArrayList<>();
+        sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
+        PaginationContext<Alarm> context = new PaginationContext<>(10);
+        
+        PaginationResponse<Alarm> page1CheckFalse = testInterface.getForCustomer(created.getCustomerId(), null, null, -1, false, sortBy, context);
+        
+        assertEquals(1, page1CheckFalse.getItems().size());
+        page1CheckFalse.getItems().forEach(e -> assertFalse(e.isAcknowledged()));
+        
+        PaginationResponse<Alarm> page1CheckTrue = testInterface.getForCustomer(created.getCustomerId(), null, null, -1, true, sortBy, context);
+        
+        assertEquals(0, page1CheckTrue.getItems().size());
+
+        // update
+        created.setAcknowledged(true);
+        Alarm updated = testInterface.update(created);
+        assertNotNull(updated);
+        assertTrue(updated.isAcknowledged());
+        
+        page1CheckFalse = testInterface.getForCustomer(created.getCustomerId(), null, null, -1, false, sortBy, context);
+        
+        assertEquals(0, page1CheckFalse.getItems().size());
+        
+        page1CheckTrue = testInterface.getForCustomer(created.getCustomerId(), null, null, -1, true, sortBy, context);
+        
+        assertEquals(1, page1CheckTrue.getItems().size());
+        page1CheckTrue.getItems().forEach(e -> assertTrue(e.isAcknowledged()));
+
+        //delete
+        created = testInterface.delete(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
+        assertNotNull(created);
+        created = testInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
+        assertNull(created);
+    }
     
     @Test
     public void testAlarmCountsModel() {
@@ -588,6 +636,7 @@ public abstract class BaseAlarmDatastoreTest {
         result.setEquipmentId(testSequence.getAndIncrement());
         result.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
         result.setCreatedTimestamp(System.currentTimeMillis());
+        result.setAcknowledged(false);
         
         result.setScopeId("test-scope-"  + result.getEquipmentId());
         

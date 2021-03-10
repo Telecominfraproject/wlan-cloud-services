@@ -378,6 +378,8 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 
 	@Override
 	public Alarm update(Alarm alarm) {
+	    Alarm original = getOrNull(alarm.getCustomerId(), alarm.getEquipmentId(), alarm.getAlarmCode(), alarm.getCreatedTimestamp());
+	    
         long newLastModifiedTs = System.currentTimeMillis();
         long incomingLastModifiedTs = alarm.getLastModifiedTimestamp();
         
@@ -445,6 +447,78 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
                         alarm.getAlarmCode().getId() + " " +
                         alarm.getCreatedTimestamp());
             }
+        }
+        
+        // if the acknowledged boolean value has been updated (typically false -> true, but opposite could happen too)
+        // then we need to update the values in the supporting acknowledged tables as well. 
+        // Since they are part of the primary key to properly filter, we cannot simply update the acknowledged value in these tables.
+        // We need to delete those rows (in acknowledged tables) and recreate them with the new acknowledged value (in alarm)
+        if (original.isAcknowledged() != alarm.isAcknowledged()) {
+            //delete entry into acknowledged tables
+            cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledged.bind(
+                    original.getCustomerId(),
+                    original.getEquipmentId(),
+                    original.getAlarmCode().getId(),
+                    original.getCreatedTimestamp(),
+                    original.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedEquipmentId.bind(
+                    original.getCustomerId(),
+                    original.getEquipmentId(),
+                    original.getAlarmCode().getId(),
+                    original.getCreatedTimestamp(),
+                    original.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedAlarmCode.bind(
+                    original.getCustomerId(),
+                    original.getEquipmentId(),
+                    original.getAlarmCode().getId(),
+                    original.getCreatedTimestamp(),
+                    original.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledgedTimestamp.bind(
+                    original.getCustomerId(),
+                    original.getEquipmentId(),
+                    original.getAlarmCode().getId(),
+                    original.getCreatedTimestamp(),
+                    original.isAcknowledged()
+                    ));
+            
+            // recreate rows in supporting acknowledged tables with the new acknowledged value
+            cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledged.bind(
+                    alarm.getCustomerId(),
+                    alarm.getEquipmentId(),
+                    alarm.getAlarmCode().getId(),
+                    alarm.getCreatedTimestamp(),
+                    alarm.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedEquipmentId.bind(
+                    alarm.getCustomerId(),
+                    alarm.getEquipmentId(),
+                    alarm.getAlarmCode().getId(),
+                    alarm.getCreatedTimestamp(),
+                    alarm.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedAlarmCode.bind(
+                    alarm.getCustomerId(),
+                    alarm.getEquipmentId(),
+                    alarm.getAlarmCode().getId(),
+                    alarm.getCreatedTimestamp(),
+                    alarm.isAcknowledged()
+                    ));
+            
+            cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledgedTimestamp.bind(
+                    alarm.getCustomerId(),
+                    alarm.getEquipmentId(),
+                    alarm.getAlarmCode().getId(),
+                    alarm.getCreatedTimestamp(),
+                    alarm.isAcknowledged()
+                    ));
         }
         
 

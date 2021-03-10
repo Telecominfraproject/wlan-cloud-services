@@ -296,6 +296,7 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
        
        assertEquals(expectedPage3Strings, actualPage3Strings);
 
+       // testing Acknowledged filter (alarm_by_acknowledged)
        PaginationResponse<Alarm> page1Acknowledged = remoteInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, context);
        PaginationResponse<Alarm> page2Acknowledged = remoteInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page1Acknowledged.getContext());
        PaginationResponse<Alarm> page3Acknowledged = remoteInterface.getForCustomer(customerId_1, null, null, -1, true, sortBy, page2Acknowledged.getContext());
@@ -307,11 +308,84 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
        assertEquals(0, page3Acknowledged.getItems().size());
        assertEquals(0, page4Acknowledged.getItems().size());
        
-       page1Acknowledged.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
-       page2Acknowledged.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       // testing Acknowledged filter with equipmentIds (alarm_by_acknowledged_equipmentId)
+       PaginationResponse<Alarm> page1AcknowledgedAndEquipment = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndEquipment = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page1AcknowledgedAndEquipment.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndEquipment = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page2AcknowledgedAndEquipment.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndEquipment = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, -1, true, sortBy, page3AcknowledgedAndEquipment.getContext());
+       
+       page1AcknowledgedAndEquipment.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndEquipment.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndEquipment.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+       page2AcknowledgedAndEquipment.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
 
-       assertTrue(page3Acknowledged.getContext().isLastPage());
-       assertTrue(page4Acknowledged.getContext().isLastPage());
+       assertTrue(page3AcknowledgedAndEquipment.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndEquipment.getContext().isLastPage());
+       
+       // testing Acknowledged filter with alarmCodes (alarm_by_acknowledged_alarmCode)
+       PaginationResponse<Alarm> page1AcknowledgedAndAlarmCode = remoteInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndAlarmCode = remoteInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page1AcknowledgedAndAlarmCode.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndAlarmCode = remoteInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page2AcknowledgedAndAlarmCode.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndAlarmCode = remoteInterface.getForCustomer(customerId_1, equipmentIds, alarmCodes, -1, true, sortBy, page3AcknowledgedAndAlarmCode.getContext());
+       
+       page1AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(AlarmCode.AccessPointIsUnreachable, e.getAlarmCode()));
+       page2AcknowledgedAndAlarmCode.getItems().forEach(e -> assertEquals(AlarmCode.AccessPointIsUnreachable, e.getAlarmCode()));
+
+       assertTrue(page3AcknowledgedAndAlarmCode.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndAlarmCode.getContext().isLastPage());
+       
+       // testing Acknowledged filter with failure alarm code (no alarms initialized with failure code, should return empty page)
+       PaginationResponse<Alarm> page1AcknowledgedAndAlarmCodeFailure = remoteInterface.getForCustomer(customerId_1, equipmentIds, Collections.singleton(AlarmCode.AssocFailure), -1, true, sortBy, context);
+       
+       assertTrue(page1AcknowledgedAndAlarmCodeFailure.getContext().isLastPage());
+       
+       long checkTimestamp = pastTimestamp;
+       
+       // testing Acknowledged filter with timestamp (alarm_by_acknowledged_timestamp)
+       PaginationResponse<Alarm> page1AcknowledgedAndTimestamp = remoteInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedAndTimestamp = remoteInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page1AcknowledgedAndTimestamp.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedAndTimestamp = remoteInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page2AcknowledgedAndTimestamp.getContext());
+       PaginationResponse<Alarm> page4AcknowledgedAndTimestamp = remoteInterface.getForCustomer(customerId_1, null, null, pastTimestamp, true, sortBy, page3AcknowledgedAndTimestamp.getContext());
+       
+       assertEquals(10, page1AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(9, page2AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(0, page3AcknowledgedAndTimestamp.getItems().size());
+       assertEquals(0, page4AcknowledgedAndTimestamp.getItems().size());
+       
+       page1AcknowledgedAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       page2AcknowledgedAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       
+       assertTrue(page3AcknowledgedAndTimestamp.getContext().isLastPage());
+       assertTrue(page4AcknowledgedAndTimestamp.getContext().isLastPage());
+       
+       // testing Acknowledged with equipmentId and timestamp
+       // With timestamp, alarmCodes will be set to AlarmCode.validValues, so these calls will be equivalent to having all filters included.
+       // Because all filters are included, the alarm_by_acknowledged will be used instead of alarm_by_acknowledged_timestamp
+       PaginationResponse<Alarm> page1AcknowledgedEquipmentIdAndTimestamp = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, context);
+       PaginationResponse<Alarm> page2AcknowledgedEquipmentIdAndTimestamp = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, page1AcknowledgedEquipmentIdAndTimestamp.getContext());
+       PaginationResponse<Alarm> page3AcknowledgedEquipmentIdAndTimestamp = remoteInterface.getForCustomer(customerId_1, equipmentIds, null, pastTimestamp, true, sortBy, page2AcknowledgedEquipmentIdAndTimestamp.getContext());
+
+       assertEquals(10, page1AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       assertEquals(9, page2AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       assertEquals(0, page3AcknowledgedEquipmentIdAndTimestamp.getItems().size());
+       
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertEquals(true, e.isAcknowledged()) );
+       
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(equipmentIds.contains(e.getEquipmentId())));
+
+       page1AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       page2AcknowledgedEquipmentIdAndTimestamp.getItems().forEach(e -> assertTrue(e.getCreatedTimestamp() > checkTimestamp));
+       
+       assertTrue(page3AcknowledgedEquipmentIdAndTimestamp.getContext().isLastPage());
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
        PaginationResponse<Alarm> page1EmptySort = remoteInterface.getForCustomer(customerId_1, null, null, -1, null, Collections.emptyList(), context);
@@ -374,6 +448,55 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
        page1 = remoteInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, null, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
+    }
+    
+    @Test
+    public void testAlarmAcknowledgedPaginationWithUpdate() {
+        Alarm alarm = createAlarmObject();
+
+        //create
+        Alarm created = remoteInterface.create(alarm);
+        assertNotNull(created);
+        assertEquals(alarm.getCustomerId(), created.getCustomerId());
+        assertEquals(alarm.getEquipmentId(), created.getEquipmentId());
+        assertEquals(alarm.getAlarmCode(), created.getAlarmCode());
+        assertEquals(alarm.getCreatedTimestamp(), created.getCreatedTimestamp());
+        assertNotNull(created.getDetails());
+        assertEquals(alarm.getDetails(), created.getDetails());
+        
+        List<ColumnAndSort> sortBy = new ArrayList<>();
+        sortBy.addAll(Arrays.asList(new ColumnAndSort("equipmentId")));
+        PaginationContext<Alarm> context = new PaginationContext<>(10);
+        
+        PaginationResponse<Alarm> page1CheckFalse = remoteInterface.getForCustomer(created.getCustomerId(), null, null, -1, false, sortBy, context);
+        
+        assertEquals(1, page1CheckFalse.getItems().size());
+        page1CheckFalse.getItems().forEach(e -> assertFalse(e.isAcknowledged()));
+        
+        PaginationResponse<Alarm> page1CheckTrue = remoteInterface.getForCustomer(created.getCustomerId(), null, null, -1, true, sortBy, context);
+        
+        assertEquals(0, page1CheckTrue.getItems().size());
+
+        // update
+        created.setAcknowledged(true);
+        Alarm updated = remoteInterface.update(created);
+        assertNotNull(updated);
+        assertTrue(updated.isAcknowledged());
+        
+        page1CheckFalse = remoteInterface.getForCustomer(created.getCustomerId(), null, null, -1, false, sortBy, context);
+        
+        assertEquals(0, page1CheckFalse.getItems().size());
+        
+        page1CheckTrue = remoteInterface.getForCustomer(created.getCustomerId(), null, null, -1, true, sortBy, context);
+        
+        assertEquals(1, page1CheckTrue.getItems().size());
+        page1CheckTrue.getItems().forEach(e -> assertTrue(e.isAcknowledged()));
+
+        //delete
+        created = remoteInterface.delete(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
+        assertNotNull(created);
+        created = remoteInterface.getOrNull(created.getCustomerId(), created.getEquipmentId(), created.getAlarmCode(), created.getCreatedTimestamp());
+        assertNull(created);
     }
 
     
