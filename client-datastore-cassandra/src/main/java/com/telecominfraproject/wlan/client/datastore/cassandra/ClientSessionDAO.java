@@ -503,8 +503,8 @@ public class ClientSessionDAO {
 				// get a single client session per customerId, returned equipmentId, and returned macAddress from filter tables
 				ClientSession retSession = getSessionOrNull(customerId, eqId, macAddr);
 				
-				if (retSession != null 
-				        && (locationIds == null || locationIds.isEmpty() || locationIds.contains(retSession.getLocationId()))
+                if (retSession != null 
+                        && (locationIds == null || locationIds.isEmpty() || locationIds.contains(retSession.getLocationId()))
                         && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(retSession.getEquipmentId()))
                         && (macSubstring == null || macSubstring.isEmpty() || retSession.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
                         ) 
