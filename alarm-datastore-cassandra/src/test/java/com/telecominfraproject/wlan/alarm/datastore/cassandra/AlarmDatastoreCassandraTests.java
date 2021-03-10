@@ -28,12 +28,12 @@ public class AlarmDatastoreCassandraTests extends BaseAlarmDatastoreTest {
     @Override
     protected List<String> getAlarmPagination_expectedPage3Strings(){
         //in cassandra the sort order is weird but consistent - although it may change on the cassandra server restart
-        return Arrays.asList(new String[]{"qr_6", "qr_2", "qr_26", "qr_43", "qr_41", "qr_3", "qr_49", "qr_40", "qr_24", "qr_28" });
+        return Arrays.asList(new String[]{"qr_9", "qr_40", "qr_3", "qr_32", "qr_31", "qr_2", "qr_39", "qr_35", "qr_38", "qr_48" });
     }
 
     @Override
     protected List<String> getAlarmPagination_expectedPage1EmptySortStrings() {
-        return Arrays.asList(new String[]{"qr_17", "qr_14", "qr_9", "qr_38", "qr_18", "qr_30", "qr_0", "qr_7", "qr_25", "qr_19" });
+        return Arrays.asList(new String[]{"qr_28", "qr_21", "qr_46", "qr_20", "qr_22", "qr_15", "qr_49", "qr_45", "qr_43", "qr_42" });
     }
 
     @Override
