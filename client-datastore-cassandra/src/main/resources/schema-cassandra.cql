@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_by_mac_string (
     PRIMARY KEY (customerId, macAddressString)
 ) WITH comment='Index Table to look up wireless client details by macAddress in text form used by TIP WLAN CloudSDK';
 
-CREATE CUSTOM INDEX IF NOT EXISTS idx_client_macAddressString ON tip_wlan_keyspace.client_by_mac_string (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
+DROP INDEX IF EXISTS idx_client_macAddressString;
+CREATE CUSTOM INDEX IF NOT EXISTS idx_client_macAddressString ON tip_wlan_keyspace.client_by_mac_string (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.NonTokenizingAnalyzer', 'case_sensitive': 'false'};
 
 
 CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session (
@@ -87,5 +88,8 @@ CREATE TABLE IF NOT EXISTS tip_wlan_keyspace.client_session_by_mac_and_equipment
 ) WITH comment='Index Table to look up wireless client sessions by macAddressString, location, and equipment by TIP WLAN CloudSDK. Records automatically expire after 30 days'
     AND default_time_to_live = 2592000;
 
-CREATE CUSTOM INDEX IF NOT EXISTS idx_client_session_by_mac_macAddressString ON tip_wlan_keyspace.client_session_by_mac (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
-CREATE CUSTOM INDEX IF NOT EXISTS idx_client_session_by_mac_and_equipment_macAddressString ON tip_wlan_keyspace.client_session_by_mac_and_equipment (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
+DROP INDEX IF EXISTS idx_client_session_by_mac_macAddressString;
+DROP INDEX IF EXISTS idx_client_session_by_mac_and_equipment_macAddressString;
+
+CREATE CUSTOM INDEX IF NOT EXISTS idx_client_session_by_mac_macAddressString ON tip_wlan_keyspace.client_session_by_mac (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.NonTokenizingAnalyzer', 'case_sensitive': 'false'};
+CREATE CUSTOM INDEX IF NOT EXISTS idx_client_session_by_mac_and_equipment_macAddressString ON tip_wlan_keyspace.client_session_by_mac_and_equipment (macAddressString) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.NonTokenizingAnalyzer', 'case_sensitive': 'false'};
