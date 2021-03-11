@@ -410,7 +410,7 @@ public class ClientSessionDAO {
             queryArgs.addAll(equipmentIds);
 
             query += "and equipmentId in " + CassandraUtils.getBindPlaceholders(equipmentIds);
-            query_head = "select macAddress from client_session_by_equipment where customerId = ? ";
+            query_head = "select macAddress, equipmentId from client_session_by_equipment where customerId = ? ";
             
             filterOptions = FilterOptions.customer_and_equipment;
         }
@@ -425,7 +425,7 @@ public class ClientSessionDAO {
             }
 
             query = " locationId in " + CassandraUtils.getBindPlaceholders(locationIds) + query;
-            query_head = "select macAddress from client_session_by_location where ";
+            query_head = "select macAddress, equipmentId from client_session_by_location where ";
             
             filterOptions = FilterOptions.customer_and_location;
         }
@@ -435,7 +435,7 @@ public class ClientSessionDAO {
         	queryArgs.clear();
         	queryArgs.add(customerId);
         	queryArgs.add("%" + macSubstring.toLowerCase() + "%");
-        	query_head = "select macAddress from client_session_by_mac where customerId = ? ";
+        	query_head = "select macAddress, equipmentId from client_session_by_mac where customerId = ? ";
         	
         	if (locationIds != null && !locationIds.isEmpty()) {
         		queryArgs.addAll(locationIds);
@@ -443,7 +443,7 @@ public class ClientSessionDAO {
         	}
         	if (equipmentIds != null && !equipmentIds.isEmpty()) {
         		queryArgs.addAll(equipmentIds);
-            	query_head = "select macAddress from client_session_by_mac_and_equipment where customerId = ? ";
+            	query_head = "select macAddress, equipmentId from client_session_by_mac_and_equipment where customerId = ? ";
         	}
         	
         	query = " and macAddressString like ? " + query + " allow filtering";
@@ -494,27 +494,24 @@ public class ClientSessionDAO {
 		case customer_and_equipment:
 		case customer_and_location:
 		case customer_and_macAddress:
-			//the query was against client_session_by_equipment or client_session_by_location table
-			//find all the macAddresses for the page, then retrieve records for them from client_session table
-			Set<MacAddress> macAddrSet = new HashSet<>();
+			//the query was against client_session_by_equipment, client_session_by_location, or client_session_by_mac(_and_equipment) table
+			//find all the macAddresses and equipmentId for the page, then retrieve records for them from client_session table
 			while (rs.getAvailableWithoutFetching() > 0) {
-				macAddrSet.add(new MacAddress(rs.one().getLong("macAddress")));
-			}
-
-			//get all the sessions for the involved mac addresses
-			List<ClientSession> pageSessions = getSessions(customerId, macAddrSet);
-
-			//apply local filtering because retrieved sessions may be from different equipments and locations
-			pageSessions.forEach(cs -> {
-			    //apply locationId and equipmentId filtering in here
-                if ((locationIds == null || locationIds.isEmpty() || locationIds.contains(cs.getLocationId()))
-                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(cs.getEquipmentId()))
-                        && (macSubstring == null || macSubstring.isEmpty() || cs.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
-                		) 
+			    Row row = rs.one();
+				MacAddress macAddr = new MacAddress(row.getLong("macAddress"));
+				long eqId = row.getLong("equipmentId");
+				// get a single client session per customerId, returned equipmentId, and returned macAddress from filter tables
+				ClientSession retSession = getSessionOrNull(customerId, eqId, macAddr);
+				
+                if (retSession != null 
+                        && (locationIds == null || locationIds.isEmpty() || locationIds.contains(retSession.getLocationId()))
+                        && (equipmentIds == null || equipmentIds.isEmpty() || equipmentIds.contains(retSession.getEquipmentId()))
+                        && (macSubstring == null || macSubstring.isEmpty() || retSession.getMacAddress().getAddressAsString().toLowerCase().contains(macSubstring.toLowerCase()))
+                        ) 
                 {
-	                    pageItems.add(cs);
-	            }
-			});
+                        pageItems.add(retSession);
+                }
+			}
 
 			break;
 		default:

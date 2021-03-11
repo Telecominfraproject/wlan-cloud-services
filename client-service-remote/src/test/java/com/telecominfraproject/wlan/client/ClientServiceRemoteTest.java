@@ -865,6 +865,64 @@ public class ClientServiceRemoteTest extends BaseRemoteTest {
 
     }
     
+    @Test
+    public void testClientSessionPaginationMaxItems()
+    {
+       //create 100 Client sessions
+       ClientSession mdl;
+       int customerId = getNextCustomerId();
+       long locationId = getNextLocationId();
+       
+       int apNameIdx = 0;
+       
+       List<ClientSession> sessionsToCreate = new ArrayList<>();
+       
+       for(int i = 0; i< 10; i++){
+           mdl = new ClientSession();
+           mdl.setCustomerId(customerId);
+           mdl.setLocationId(locationId);
+           mdl.setEquipmentId(getNextEquipmentId());
+           mdl.setMacAddress(new MacAddress("A1:FF:FF:FF:FF:FF"));
+           
+           ClientSessionDetails details = new ClientSessionDetails();
+           details.setApFingerprint("qr_"+apNameIdx);
+           mdl.setDetails(details );
+
+           apNameIdx++;
+           
+           sessionsToCreate.add(mdl);
+       }
+       
+       List<ClientSession> createdList = remoteInterface.updateSessions(sessionsToCreate);
+       List<ClientSessionDetails> createdDetailsList = new ArrayList<>();
+       List<ClientSessionDetails> detailsToCreateList = new ArrayList<>();
+       
+       sessionsToCreate.forEach(s -> detailsToCreateList.add(s.getDetails()));
+       createdList.forEach(s -> createdDetailsList.add(s.getDetails()));       
+       assertEquals(detailsToCreateList, createdDetailsList);
+       
+       PaginationContext<ClientSession> context = new PaginationContext<>(5);
+       PaginationResponse<ClientSession> page1 = remoteInterface.getSessionsForCustomer(customerId, null, new HashSet<Long>(Arrays.asList(locationId)), null, Collections.emptyList(), context);
+
+       assertEquals(5, page1.getItems().size());
+       
+       page1 = remoteInterface.getSessionsForCustomer(customerId, null, null, "A1", Collections.emptyList(), context);
+
+       assertEquals(5, page1.getItems().size());
+       
+       context = new PaginationContext<>(10);
+       page1 = remoteInterface.getSessionsForCustomer(customerId, null, new HashSet<Long>(Arrays.asList(locationId)), null, Collections.emptyList(), context);
+
+       assertEquals(10, page1.getItems().size());
+       
+       context = new PaginationContext<>(20);
+       page1 = remoteInterface.getSessionsForCustomer(customerId, null, new HashSet<Long>(Arrays.asList(locationId)), null, Collections.emptyList(), context);
+
+       assertEquals(10, page1.getItems().size());
+
+       createdList.forEach(c -> remoteInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
+    }
+    
     private ClientSession createClientSessionObject() {
     	ClientSession result = new ClientSession();
         long nextId = getNextCustomerId();
