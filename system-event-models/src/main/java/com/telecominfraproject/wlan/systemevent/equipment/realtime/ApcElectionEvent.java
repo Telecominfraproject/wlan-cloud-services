@@ -118,7 +118,7 @@ public class ApcElectionEvent extends RealTimeEvent implements HasCustomerId, Ha
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Objects.hash(apcBackupDesignatedRouterIpAddress, apcDesignatedRouterIpAddress,
-                apcMode, localIpAddress, radiusProxyAddress);
+                apcMode, enabled, localIpAddress, radiusProxyAddress);
         return result;
     }
 
@@ -133,8 +133,10 @@ public class ApcElectionEvent extends RealTimeEvent implements HasCustomerId, Ha
         ApcElectionEvent other = (ApcElectionEvent) obj;
         return Objects.equals(apcBackupDesignatedRouterIpAddress, other.apcBackupDesignatedRouterIpAddress)
                 && Objects.equals(apcDesignatedRouterIpAddress, other.apcDesignatedRouterIpAddress)
-                && apcMode == other.apcMode && Objects.equals(localIpAddress, other.localIpAddress)
+                && apcMode == other.apcMode && Objects.equals(enabled, other.enabled)
+                && Objects.equals(localIpAddress, other.localIpAddress)
                 && Objects.equals(radiusProxyAddress, other.radiusProxyAddress);
     }
 
+    
 }
