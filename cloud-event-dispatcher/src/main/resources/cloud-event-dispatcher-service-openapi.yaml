@@ -118,6 +118,7 @@ components:
       - ClientDisconnectEvent
       - ClientFirstDataEvent
       - ClientIpAddressEvent
+      - ApcElectionEvent
       - RealTimeChannelHopEvent
       - RealTimeSipCallEventWithStats
       - RealTimeSipCallReportEvent
@@ -197,6 +198,7 @@ components:
         - $ref: '#/components/schemas/ClientDisconnectEvent'
         - $ref: '#/components/schemas/ClientFirstDataEvent'
         - $ref: '#/components/schemas/ClientIpAddressEvent'
+        - $ref: '#/components/schemas/ApcElectionEvent'
         - $ref: '#/components/schemas/RealtimeChannelHopEvent'
         - $ref: '#/components/schemas/RealTimeSipCallEventWithStats'
         - $ref: '#/components/schemas/RealTimeSipCallReportEvent'
@@ -943,6 +945,28 @@ components:
         - RadarDetected
         - HighInterference
         - UNSUPPORTED
+
+    ApcElectionEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/RealTimeEvent'
+        apcDesignatedRouterIpAddress:
+          type: string
+        apcBackupDesignatedRouterIpAddress:
+          type: string
+        localIpAddress:
+          type: string
+        radiusProxyAddress:
+          type: string
+        apcMode:
+          type: string
+          enum:
+           - BDR
+           - DR
+           - SR
+           - NC
+        enabled:
+          type: boolean      
         
     RealtimeChannelHopEvent:
       properties:
