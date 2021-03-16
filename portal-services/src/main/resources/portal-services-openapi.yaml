@@ -1741,10 +1741,10 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/GreTunnelConfiguration'
-          radSecConfigurations:
+          radiusProxyConfigurations:
             type: array
             items:
-              $ref: '#/components/schemas/RadSecConfiguration'                             
+              $ref: '#/components/schemas/RadiusProxyConfiguration'                             
           radioMap:
             $ref: '#/components/schemas/RadioProfileConfigurationMap'
 
@@ -1765,7 +1765,7 @@ components:
         vlanIdsInGreTunnel:
         - 100
 
-    RadSecConfiguration:
+    RadiusProxyConfiguration:
       properties:
         caCert:
           $ref: '#/components/schemas/ManagedFileInfo'
@@ -1779,12 +1779,52 @@ components:
           type: integer
           format: int32
         realm:
-          type: string
+          type: array
+          items:
+            type: string 
         name:
           type: string
         passphrase:
           type: string
           format: password
+        useRadSec:
+          type: boolean
+      example:
+        model_type: RadiusProxyConfiguration
+        caCert:
+          model_type: ManagedFileInfo
+          md5checksum: null
+          lastModifiedTimestamp: null
+          apExportUrl: /filestore/cacert.pem
+          fileCategory: RadSecAuthentication
+          fileType: PEM
+          altSlot: false
+        clientCert:
+          model_type: ManagedFileInfo
+          md5checksum: null
+          lastModifiedTimestamp: null
+          apExportUrl: /filestore/clientcert.pem
+          fileCategory: RadSecAuthentication
+          fileType: PEM
+          altSlot: false
+        clientKey:
+          model_type: ManagedFileInfo
+          md5checksum: null
+          lastModifiedTimestamp: null
+          apExportUrl: /filestore/client_dec.key
+          fileCategory: RadSecAuthentication
+          fileType: KEY
+          altSlot: false
+        server: 41.152.82.115
+        port: 1812
+        realm:
+          - lawson.name
+          - stephan.com
+          - dulce.info
+        name: eyeballs
+        passphrase: PmmHmtxep8S1sPl
+        useRadSec: false
+        
     RadioProfileConfigurationMap:
       properties:
         is5GHz:
@@ -9842,6 +9882,18 @@ components:
            - NC
         enabled:
           type: boolean      
+      example:
+        model_type: ApcElectionEvent
+        eventTimestamp: 1615825942449
+        equipmentId: 1
+        locationId: 8
+        customerId: 2
+        apcDesignatedRouterIpAddress: 10.0.0.130
+        apcBackupDesignatedRouterIpAddress: 0.0.0.0
+        localIpAddress: 10.0.0.130
+        radiusProxyAddress: null
+        apcMode: DR
+        enabled: true
         
     RealtimeChannelHopEvent:
       required:

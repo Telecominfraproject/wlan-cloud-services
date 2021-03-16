@@ -1,13 +1,14 @@
 package com.telecominfraproject.wlan.profile.network.models;
 
 import java.net.InetAddress;
+import java.util.Objects;
+import java.util.Set;
 
-import com.google.common.base.Objects;
 import com.telecominfraproject.wlan.core.model.equipment.PushableConfiguration;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 
-public class RadSecConfiguration extends BaseJsonModel implements PushableConfiguration<RadSecConfiguration> {
+public class RadiusProxyConfiguration extends BaseJsonModel implements PushableConfiguration<RadiusProxyConfiguration> {
 
     private static final long serialVersionUID = 5859624395353373172L;
     
@@ -17,16 +18,17 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
     
     private InetAddress server;
     private Integer port;
-    private String realm;
+    private Set<String> realm;
     private String name;
     private String passphrase;
+    private Boolean useRadSec;
 
-    private RadSecConfiguration() {
+    private RadiusProxyConfiguration() {
 
     }
 
-    public static RadSecConfiguration createWithDefaults() {
-        return new RadSecConfiguration();
+    public static RadiusProxyConfiguration createWithDefaults() {
+        return new RadiusProxyConfiguration();
     }
 
     public ManagedFileInfo getCaCert() {
@@ -69,11 +71,11 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
         this.port = port;
     }
 
-    public String getRealm() {
+    public Set<String> getRealm() {
         return realm;
     }
 
-    public void setRealm(String realm) {
+    public void setRealm(Set<String> realm) {
         this.realm = realm;
     }
 
@@ -93,19 +95,27 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
         this.passphrase = passphrase;
     }
 
-    @Override
-    public boolean needsToBeUpdatedOnDevice(RadSecConfiguration previousVersion) {       
-        return !Objects.equal(this, previousVersion);
+    public Boolean getUseRadSec() {
+        return useRadSec;
+    }
+
+    public void setUseRadSec(Boolean useRadSec) {
+        this.useRadSec = useRadSec;
     }
 
     @Override
-    public RadSecConfiguration clone() {
-        return (RadSecConfiguration) super.clone();
+    public boolean needsToBeUpdatedOnDevice(RadiusProxyConfiguration previousVersion) {       
+        return !Objects.deepEquals(this, previousVersion);
+    }
+
+    @Override
+    public RadiusProxyConfiguration clone() {
+        return (RadiusProxyConfiguration) super.clone();
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(caCert, clientCert, clientKey, name, passphrase, port, realm, server);
+        return Objects.hash(caCert, clientCert, clientKey, name, passphrase, port, realm, server, useRadSec);
     }
 
     @Override
@@ -116,12 +126,13 @@ public class RadSecConfiguration extends BaseJsonModel implements PushableConfig
             return false;
         if (getClass() != obj.getClass())
             return false;
-        RadSecConfiguration other = (RadSecConfiguration) obj;
-        return java.util.Objects.equals(caCert, other.caCert) && java.util.Objects.equals(clientCert, other.clientCert)
-                && java.util.Objects.equals(clientKey, other.clientKey) && java.util.Objects.equals(name, other.name)
-                && java.util.Objects.equals(passphrase, other.passphrase) && java.util.Objects.equals(port, other.port)
-                && java.util.Objects.equals(realm, other.realm) && java.util.Objects.equals(server, other.server);
+        RadiusProxyConfiguration other = (RadiusProxyConfiguration) obj;
+        return Objects.equals(caCert, other.caCert) && Objects.equals(clientCert, other.clientCert)
+                && Objects.equals(clientKey, other.clientKey) && Objects.equals(name, other.name)
+                && Objects.equals(passphrase, other.passphrase) && Objects.equals(port, other.port)
+                && Objects.equals(realm, other.realm) && Objects.equals(server, other.server)
+                && Objects.equals(useRadSec, other.useRadSec);
     }
 
-   
+ 
 }

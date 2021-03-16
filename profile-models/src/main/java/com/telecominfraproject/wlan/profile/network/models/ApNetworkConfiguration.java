@@ -45,7 +45,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
     /**
      * RadSec Configurations for this AP.
      */
-    private Set<RadSecConfiguration> radSecConfigurations;
+    private Set<RadiusProxyConfiguration> radiusProxyConfigurations;
     /*
      * Don't use the constructor, use the "create" methods.
      */
@@ -69,7 +69,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         greTunnelConfigurations = new HashSet<GreTunnelConfiguration>();
         greTunnelConfigurations.add(GreTunnelConfiguration.createWithDefaults());
         
-        setRadSecConfigurations(new HashSet<RadSecConfiguration>());
+        setRadSecConfigurations(new HashSet<RadiusProxyConfiguration>());
         
     }
 
@@ -95,9 +95,9 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
             greTunnelConfigurations.stream().forEach(t -> ret.getGreTunnelConfigurations().add(t.clone()));
         }
         
-        if (radSecConfigurations != null) {
-            ret.radSecConfigurations = new HashSet<RadSecConfiguration>();
-            radSecConfigurations.stream().forEach(t -> ret.getRadSecConfigurations().add(t.clone()));
+        if (radiusProxyConfigurations != null) {
+            ret.radiusProxyConfigurations = new HashSet<RadiusProxyConfiguration>();
+            radiusProxyConfigurations.stream().forEach(t -> ret.getRadSecConfigurations().add(t.clone()));
         }
 
         return ret;
@@ -145,12 +145,12 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         this.greTunnelConfigurations = greTunnelConfigurations;
     }
 
-    public Set<RadSecConfiguration> getRadSecConfigurations() {
-        return radSecConfigurations;
+    public Set<RadiusProxyConfiguration> getRadSecConfigurations() {
+        return radiusProxyConfigurations;
     }
 
-    public void setRadSecConfigurations(Set<RadSecConfiguration> radSecConfigurations) {
-        this.radSecConfigurations = radSecConfigurations;
+    public void setRadSecConfigurations(Set<RadiusProxyConfiguration> radiusProxyConfigurations) {
+        this.radiusProxyConfigurations = radiusProxyConfigurations;
     }
 
     public static void main(String[] args) {
@@ -162,7 +162,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(greTunnelConfigurations, radSecConfigurations, radioMap);
+        result = prime * result + Objects.hash(greTunnelConfigurations, radiusProxyConfigurations, radioMap);
         return result;
     }
 
@@ -176,7 +176,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
             return false;
         ApNetworkConfiguration other = (ApNetworkConfiguration) obj;
         return Objects.equals(greTunnelConfigurations, other.greTunnelConfigurations)
-                && Objects.equals(radSecConfigurations, other.radSecConfigurations)
+                && Objects.equals(radiusProxyConfigurations, other.radiusProxyConfigurations)
                 && Objects.equals(radioMap, other.radioMap);
     }
 

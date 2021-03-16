@@ -68,8 +68,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     private Boolean enable80211w;
     
-    private Boolean useRadSec;
-    
     private Boolean useRadiusProxy;
 
     private WepConfiguration wepConfig;
@@ -121,7 +119,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setRadiusServiceId(0L);
         setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
-        setUseRadSec(false);
         setUseRadiusProxy(false);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
@@ -524,14 +521,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         }
     }
 
-    public Boolean getUseRadSec() {
-        return useRadSec;
-    }
-
-    public void setUseRadSec(Boolean useRadSec) {
-        this.useRadSec = useRadSec;
-    }
-
     public Boolean getUseRadiusProxy() {
         return useRadiusProxy;
     }
@@ -560,7 +549,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
                 captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, dynamicVlan, enable80211w,
                 forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAcountingServiceInterval,
-                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadSec, useRadiusProxy,
+                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadiusProxy,
                 videoTrafficOnly, vlanId, wepConfig);
     }
 
@@ -588,7 +577,7 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
                 && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
                 && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode
                 && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
-                && Objects.equals(useRadSec, other.useRadSec) && Objects.equals(useRadiusProxy, other.useRadiusProxy)
+                && Objects.equals(useRadiusProxy, other.useRadiusProxy)
                 && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
                 && Objects.equals(wepConfig, other.wepConfig);
     }
