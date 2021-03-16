@@ -69,7 +69,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         greTunnelConfigurations = new HashSet<GreTunnelConfiguration>();
         greTunnelConfigurations.add(GreTunnelConfiguration.createWithDefaults());
         
-        setRadSecConfigurations(new HashSet<RadiusProxyConfiguration>());
+        setRadiusProxyConfigurations(new HashSet<RadiusProxyConfiguration>());
         
     }
 
@@ -97,7 +97,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         
         if (radiusProxyConfigurations != null) {
             ret.radiusProxyConfigurations = new HashSet<RadiusProxyConfiguration>();
-            radiusProxyConfigurations.stream().forEach(t -> ret.getRadSecConfigurations().add(t.clone()));
+            radiusProxyConfigurations.stream().forEach(t -> ret.getRadiusProxyConfigurations().add(t.clone()));
         }
 
         return ret;
@@ -145,11 +145,11 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         this.greTunnelConfigurations = greTunnelConfigurations;
     }
 
-    public Set<RadiusProxyConfiguration> getRadSecConfigurations() {
+    public Set<RadiusProxyConfiguration> getRadiusProxyConfigurations() {
         return radiusProxyConfigurations;
     }
 
-    public void setRadSecConfigurations(Set<RadiusProxyConfiguration> radiusProxyConfigurations) {
+    public void setRadiusProxyConfigurations(Set<RadiusProxyConfiguration> radiusProxyConfigurations) {
         this.radiusProxyConfigurations = radiusProxyConfigurations;
     }
 
