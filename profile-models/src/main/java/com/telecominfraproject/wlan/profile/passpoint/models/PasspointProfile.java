@@ -46,7 +46,7 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
 
     private String ipAddressTypeAvailability;
 
-    private Set<String> qosMapSetConfiguration;
+    private List<String> qosMapSetConfiguration;
 
     private String apGeospatialLocation;
 
@@ -210,7 +210,7 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         this.ipAddressTypeAvailability = ipAddressTypeAvailability;
     }
 
-    public Set<String> getQosMapSetConfiguration() {
+    public List<String> getQosMapSetConfiguration() {
         //
         // QoS Map Set configuration
         //
@@ -221,7 +221,7 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         return qosMapSetConfiguration;
     }
 
-    public void setQosMapSetConfiguration(Set<String> qosMapSetConfiguration) {
+    public void setQosMapSetConfiguration(List<String> qosMapSetConfiguration) {
         this.qosMapSetConfiguration = qosMapSetConfiguration;
     }
 
@@ -385,7 +385,9 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         returnValue.setIpAddressTypeAvailability(ipAddressTypeAvailability);
         returnValue.setNetworkAuthenticationType(passpointNetworkAuthenticationType);
         returnValue.setOperatingClass(operatingClass);
-        returnValue.setQosMapSetConfiguration(qosMapSetConfiguration);
+        if (qosMapSetConfiguration != null) {
+            returnValue.setQosMapSetConfiguration(qosMapSetConfiguration);
+        }
         returnValue.setTermsAndConditionsFile(termsAndConditionsFile);
         returnValue.setUnauthenticatedEmergencyServiceAccessible(unauthenticatedEmergencyServiceAccessible);
         returnValue.setWhitelistDomain(whitelistDomain);
