@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
@@ -21,7 +22,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
     private String manufacturerUrl;
     private String modelDescription;
     private String referenceDesign;
-    private String certificationRegion;
+    private CountryCode certificationRegion;
     private MacAddress macAddress;
 
     public EquipmentManufacturerDataStatus() {
@@ -30,7 +31,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
 
     public EquipmentManufacturerDataStatus(String skuNumber, String model, String revision, String serialNumber, EquipmentManufacturerQrCode qrCode,
             EquipmentManufacturer equipmentManufacturer, String manufacturerDate, String manufacturerUrl, String modelDescription, String referenceDesign,
-            String certificationRegion, MacAddress macAddress) {
+            CountryCode certificationRegion, MacAddress macAddress) {
         super();
         this.skuNumber = skuNumber;
         this.model = model;
@@ -131,11 +132,11 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         this.referenceDesign = referenceDesign;
     }
 
-    public String getCertificationRegion() {
+    public CountryCode getCertificationRegion() {
         return certificationRegion;
     }
 
-    public void setCertificationRegion(String certificationRegion) {
+    public void setCertificationRegion(CountryCode certificationRegion) {
         this.certificationRegion = certificationRegion;
     }
 
@@ -150,7 +151,8 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
     @Override
     public boolean hasUnsupportedValue() {
 
-        if (hasUnsupportedValue(macAddress) || EquipmentManufacturer.isUnsupported(equipmentManufacturer) || hasUnsupportedValue(qrCode)) {
+        if (CountryCode.isUnsupported(certificationRegion) || hasUnsupportedValue(macAddress) || EquipmentManufacturer.isUnsupported(equipmentManufacturer)
+                || hasUnsupportedValue(qrCode)) {
             return true;
         }
 
@@ -194,7 +196,5 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
                 && Objects.equals(referenceDesign, other.referenceDesign) && Objects.equals(revision, other.revision)
                 && Objects.equals(serialNumber, other.serialNumber) && Objects.equals(skuNumber, other.skuNumber);
     }
-
-
 
 }
