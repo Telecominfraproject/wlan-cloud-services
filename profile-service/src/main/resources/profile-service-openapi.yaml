@@ -626,24 +626,29 @@ components:
       allOf:
       - $ref: '#/components/schemas/ProfileDetails'
       - type: object
+      - required:
+         - primaryRadiusAuthServer
         properties:
           model_type:
             type: string
             enum:
             - RadiusProfile
           primaryRadiusAuthServer:
-            description: the primary radius auth server
-            required: true
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the primary radius auth server
+                - $ref: '#/components/schemas/RadiusServer'
           secondaryRadiusAuthServer:
-            description: the secondary radius auth server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the secondary radius auth server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
+                - $ref: '#/components/schemas/RadiusServer'
           primaryRadiusAccountingServer:
-            description: the primary radius accounting server
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the primary radius accounting server
+                - $ref: '#/components/schemas/RadiusServer'
           secondaryRadiusAccountingServer:
-            description: the secondary radius accounting server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
-            $ref: '#/components/schemas/RadiusServer'            
+            allOf:
+                - description: the secondary radius accounting server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
+                - $ref: '#/components/schemas/RadiusServer'            
       example:
         primaryRadiusAuthServer:
           model_type: RadiusServer
@@ -651,7 +656,7 @@ components:
           secret: secret
           port: 1812
           timeout: 5
-          
+                    
     RadiusServer:
       properties:
         ipAddress:
@@ -1286,10 +1291,11 @@ components:
           items:
             type: string
         encoding:
-          description: value of PasspointNaiRealmEncoding
-          $ref: '#/components/schemas/PasspointNaiRealmEncoding'
-          discriminator:
-            propertyName: id
+          allOf:
+            - description: value of PasspointNaiRealmEncoding
+            - $ref: '#/components/schemas/PasspointNaiRealmEncoding'
+            - discriminator:
+                 propertyName: id
         eapMethods:
           description: array of EAP methods
           type: array

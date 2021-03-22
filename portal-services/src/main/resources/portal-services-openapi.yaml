@@ -758,7 +758,9 @@ components:
       type: string
       enum:
         - AP
+        - MG
         - SWITCH
+        - CUSTOMER_NETWORK_AGENT
 
     Equipment:
       type: object
@@ -1935,24 +1937,29 @@ components:
       allOf:
       - $ref: '#/components/schemas/ProfileDetails'
       - type: object
+      - required:
+         - primaryRadiusAuthServer
         properties:
           model_type:
             type: string
             enum:
             - RadiusProfile
           primaryRadiusAuthServer:
-            description: the primary radius auth server
-            required: true
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the primary radius auth server
+                - $ref: '#/components/schemas/RadiusServer'
           secondaryRadiusAuthServer:
-            description: the secondary radius auth server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the secondary radius auth server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
+                - $ref: '#/components/schemas/RadiusServer'
           primaryRadiusAccountingServer:
-            description: the primary radius accounting server
-            $ref: '#/components/schemas/RadiusServer'
+            allOf:
+                - description: the primary radius accounting server
+                - $ref: '#/components/schemas/RadiusServer'
           secondaryRadiusAccountingServer:
-            description: the secondary radius accounting server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
-            $ref: '#/components/schemas/RadiusServer'            
+            allOf:
+                - description: the secondary radius accounting server, currently the AP supports only 1 radius auth server and 1 radius accounting server, so this is not provisioned on the AP
+                - $ref: '#/components/schemas/RadiusServer'            
       example:
         primaryRadiusAuthServer:
           model_type: RadiusServer
@@ -2472,10 +2479,11 @@ components:
           items:
             type: string
         encoding:
-          description: value of PasspointNaiRealmEncoding
-          $ref: '#/components/schemas/PasspointNaiRealmEncoding'
-          discriminator:
-            propertyName: id
+          allOf:
+            - description: value of PasspointNaiRealmEncoding
+            - $ref: '#/components/schemas/PasspointNaiRealmEncoding'
+            - discriminator:
+                 propertyName: id
         eapMethods:
           description: array of EAP methods
           type: array
@@ -3012,6 +3020,7 @@ components:
       - RADIO_UTILIZATION
       - ACTIVE_BSSIDS
       - CLIENT_DETAILS
+      - EQUIPMENT_MANUFACTURER_DATA
       - CUSTOMER_DASHBOARD
    
     Status:
@@ -3048,6 +3057,7 @@ components:
         - $ref: '#/components/schemas/EquipmentNeighbouringStatusData'
         - $ref: '#/components/schemas/EquipmentPeerStatusData'
         - $ref: '#/components/schemas/EquipmentProtocolStatusData'
+        - $ref: '#/components/schemas/EquipmentManufacturerDataStatus'
         - $ref: '#/components/schemas/EquipmentScanDetails'
         - $ref: '#/components/schemas/EquipmentUpgradeStatusData'
         - $ref: '#/components/schemas/NetworkAdminStatusData'
@@ -3267,6 +3277,117 @@ components:
         dnsServer3:
           type: string
 
+    EquipmentManufacturerQrCode:
+      description: QR code for the purpose of label printing and scanning.
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+            - EquipmentManufacturerQrCode
+        deviceType:
+          allOf:
+            - $ref: '#/components/schemas/EquipmentType'
+            - default: AP
+        deviceMac:
+          $ref: '#/components/schemas/MacAddress'
+        vendorName:
+          type: string
+        serialNumber:
+          type: string
+        modelName:
+          type: string
+        hwRevision:
+          type: string
+      example:
+        model_type: EquipmentManufacturerQrCode
+        deviceType: AP
+        deviceMac:
+          model_type: MacAddress
+          address: ESIzRFVm
+          addressAsString: '11:22:33:44:55:66'
+        vendorName: PW
+        serialNumber: '12345678'
+        modelName: EC420-G1
+        hwRevision: '02'
+                     
+    EquipmentManufacturer:
+      description: AP Manufacturer name to be displayed on UI
+      type: string
+      enum:
+        - CIG
+        - CX
+        - EC
+        - LO
+        - SC
+        - PW
+        - WNC
+        - WT
+
+    EquipmentManufacturerDataStatus:
+      description: describes the manufacturing identity data programmed in the AP Flash
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum:
+          - EquipmentManufacturerDataStatus
+        statusDataType:
+          type: string
+          enum:
+          - EQUIPMENT_MANUFACTURER_DATA
+        skuNumber:
+          type: string
+        model:
+          type: string
+        revision:
+          type: string
+        serialNumber:
+          type: string
+        qrCode:
+          $ref: '#/components/schemas/EquipmentManufacturerQrCode'
+        equipmentManufacturer:
+          $ref: '#/components/schemas/EquipmentManufacturer'
+        manufacturerDate:
+          type: string
+        manufacturerUrl:
+          type: string
+        modelDescription:
+          type: string
+        referenceDesign:
+          type: string
+        certificationRegion:
+          $ref: '#/components/schemas/CountryCode'       
+        macAddress:
+          $ref: '#/components/schemas/MacAddress'       
+      example:
+        model_type: EquipmentManufacturerDataStatus
+        skuNumber: TIP-MMAP120-US
+        model: MMAP120
+        revision: '02'
+        serialNumber: '12345678'
+        qrCode:
+          model_type: EquipmentManufacturerQrCode
+          deviceType: AP
+          deviceMac:
+            model_type: MacAddress
+            address: ESIzRFVm
+            addressAsString: '11:22:33:44:55:66'
+          vendorName: PW
+          serialNumber: '12345678'
+          modelName: EC420-G1
+          hwRevision: '02'
+        equipmentManufacturer: PW
+        manufacturerDate: 02-07-2020
+        manufacturerUrl: www.manufacturer.com
+        modelDescription: MMAP120 Wi-Fi Dual Radio 2x2 AP
+        referenceDesign: QCA AP-DK04.1
+        certificationRegion: CA
+        macAddress:
+          model_type: MacAddress
+          address: ESIzRFVm
+          addressAsString: '11:22:33:44:55:66'
+        statusDataType: EQUIPMENT_MANUFACTURER_DATA
 
     EquipmentNeighbouringStatusData:
       description: TODO - either describe the properties of this object or remove it.
