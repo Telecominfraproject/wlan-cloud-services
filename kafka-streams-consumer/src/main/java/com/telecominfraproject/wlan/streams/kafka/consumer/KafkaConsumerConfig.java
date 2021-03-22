@@ -63,6 +63,12 @@ public class KafkaConsumerConfig {
         @Value("${tip.wlan.customerEventsTopic:customer_events}")
     	private String customerEventsTopic;
 
+        @Value("${tip.wlan.locationMetricsTopic:location_metrics}")
+        private String locationMetricsTopic;
+
+        @Value("${tip.wlan.locationEventsTopic:location_events}")
+        private String locationEventsTopic;
+
         @Bean
         public Consumer<String,  byte[]> streamConsumer(){
 
@@ -91,7 +97,7 @@ public class KafkaConsumerConfig {
         	props.put("ssl.endpoint.identification.algorithm", sslEndpointIdentificationAlgorithm); 
 
             KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(props);
-            consumer.subscribe(Arrays.asList(wlanServiceMetricsTopic, systemEventsTopic, customerEventsTopic));
+            consumer.subscribe(Arrays.asList(wlanServiceMetricsTopic, systemEventsTopic, customerEventsTopic, locationMetricsTopic, locationEventsTopic));
         			
 
         	//mask passwords when displaying properties

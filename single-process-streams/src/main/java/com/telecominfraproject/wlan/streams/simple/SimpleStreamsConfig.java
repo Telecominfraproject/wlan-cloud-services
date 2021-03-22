@@ -44,6 +44,13 @@ public class SimpleStreamsConfig {
         
         @Value("${tip.wlan.customerEventsTopic:customer_events}")
     	private String customerEventsTopic;
+        
+        @Value("${tip.wlan.locationMetricsTopic:location_metrics}")
+        private String locationMetricsTopic;
+
+        @Value("${tip.wlan.locationEventsTopic:location_events}")
+        private String locationEventsTopic;
+        
     	
         @Autowired
         private StreamMessageDispatcher streamMessageDispatcher;
@@ -82,11 +89,12 @@ public class SimpleStreamsConfig {
                 
                 @Override
                 public void publish(ServiceMetric record) {
-                	LOG.info("publishing metric {}", record);
+                	LOG.debug("publishing metric {}", record);
                 	boolean elementAdded = false;
                 	while(!elementAdded) {
 	                	try {
 	                		elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(wlanServiceMetricsTopic, record), 5, TimeUnit.SECONDS);
+                            LOG.trace("publishing metric completed");
 						} catch (InterruptedException e) {
 							LOG.warn("Interrupted while waiting for the message to be added to the queue");
 							Thread.currentThread().interrupt();
@@ -99,7 +107,36 @@ public class SimpleStreamsConfig {
               
               return si;
         }
-        
+
+        @Bean
+        public StreamInterface<ServiceMetric> locationMetricStreamInterface() {
+            StreamInterface<ServiceMetric> si = new StreamInterface<ServiceMetric>() {
+
+                {
+                    LOG.info("*** Using simple stream for the location metrics");
+                }
+                
+                @Override
+                public void publish(ServiceMetric record) {
+                    LOG.debug("publishing location metric {}", record);
+                    boolean elementAdded = false;
+                    while(!elementAdded) {
+                        try {
+                            elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(locationMetricsTopic, record), 5, TimeUnit.SECONDS);
+                            LOG.trace("publishing location metric completed");
+                        } catch (InterruptedException e) {
+                            LOG.warn("Interrupted while waiting for the message to be added to the queue");
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+                
+              };
+              
+              return si;
+        }
+
         @Bean
         public StreamInterface<SystemEventRecord> eventStreamInterface() {
         	StreamInterface<SystemEventRecord> si = new StreamInterface<SystemEventRecord>() {
@@ -110,7 +147,7 @@ public class SimpleStreamsConfig {
                 
                 @Override
                 public void publish(SystemEventRecord record) {
-                	LOG.info("publishing system event {}", record);
+                	LOG.debug("publishing system event {}", record);
                 	
                 	boolean elementAdded = false;
                 	while(!elementAdded) {
@@ -141,7 +178,7 @@ public class SimpleStreamsConfig {
                 
                 @Override
                 public void publish(SystemEventRecord record) {
-                	LOG.info("publishing customer event {}", record);
+                	LOG.debug("publishing customer event {}", record);
                 	
                 	boolean elementAdded = false;
                 	while(!elementAdded) {
@@ -162,13 +199,43 @@ public class SimpleStreamsConfig {
               return si;
         }
 
+        @Bean
+        public StreamInterface<SystemEventRecord> locationEventStreamInterface() {
+            StreamInterface<SystemEventRecord> si = new StreamInterface<SystemEventRecord>() {
+
+                {
+                    LOG.info("*** Using simple stream for the location events");
+                }
+                
+                @Override
+                public void publish(SystemEventRecord record) {
+                    LOG.debug("publishing location event {}", record);
+                    
+                    boolean elementAdded = false;
+                    while(!elementAdded) {
+                        try {
+                            elementAdded = simpleStreamQueue.offer(new QueuedStreamMessage(locationEventsTopic, record), 5, TimeUnit.SECONDS);
+                            LOG.trace("publishing location event completed");
+                        } catch (InterruptedException e) {
+                            LOG.warn("Interrupted while waiting for the message to be added to the queue");
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+
+                }
+                
+              };
+              
+              return si;
+        }
 
         @Scheduled(initialDelay=60000, fixedDelay=60000)
         public void removeOldMetricsAndEvents(){
         	//remove everything older than x seconds
         	long createdBeforeMs = System.currentTimeMillis() - (purgeStreamRecordsOlderThanSec * 1000);
 
-        	LOG.info("removeOldMetricsAndEvents periodic task started, removing stream records older than {}", createdBeforeMs);
+        	LOG.debug("removeOldMetricsAndEvents periodic task started, removing stream records older than {}", createdBeforeMs);
 
 			simpleStreamQueue.removeIf(sm -> sm.getProducedTimestampMs() < createdBeforeMs);
         	

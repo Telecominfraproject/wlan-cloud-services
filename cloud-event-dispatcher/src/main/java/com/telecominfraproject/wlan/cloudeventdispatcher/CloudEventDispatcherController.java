@@ -32,7 +32,7 @@ public class CloudEventDispatcherController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudEventDispatcherController.class);
 
-    @Autowired private StreamInterface<ServiceMetric> metricStream;
+    @Autowired @Qualifier("metricStreamInterface") private StreamInterface<ServiceMetric> metricStream;
     @Autowired @Qualifier("eventStreamInterface") private StreamInterface<SystemEventRecord> systemEventStream;
     @Autowired private ServiceMetricServiceInterface serviceMetricInterface;
     @Autowired private SystemEventServiceInterface systemEventInterface;
