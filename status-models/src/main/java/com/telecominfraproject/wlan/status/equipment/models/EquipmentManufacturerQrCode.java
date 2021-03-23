@@ -3,14 +3,14 @@ package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 
 public class EquipmentManufacturerQrCode extends BaseJsonModel {
 
-    private static final long serialVersionUID = 1097677833521866340L;
-
+    private static final long serialVersionUID = 5764484656469063439L;
     private EquipmentType deviceType;
     private MacAddress deviceMac;
     private String vendorName;
@@ -20,7 +20,6 @@ public class EquipmentManufacturerQrCode extends BaseJsonModel {
 
     public EquipmentManufacturerQrCode() {
         super();
-        deviceType = EquipmentType.AP;
     }
 
     public EquipmentManufacturerQrCode(EquipmentType deviceType, MacAddress deviceMac, String vendorName, String serialNumber, String modelName,
@@ -84,8 +83,11 @@ public class EquipmentManufacturerQrCode extends BaseJsonModel {
 
     @Override
     public boolean hasUnsupportedValue() {
-
-        if (hasUnsupportedValue(deviceMac) || EquipmentType.isUnsupported(deviceType)) {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+        
+        if ((deviceType != null && EquipmentType.isUnsupported(deviceType)) || (deviceMac != null && hasUnsupportedValue(deviceMac))) {
             return true;
         }
 

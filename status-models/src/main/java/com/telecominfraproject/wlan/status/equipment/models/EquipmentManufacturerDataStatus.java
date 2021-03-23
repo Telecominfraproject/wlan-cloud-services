@@ -150,9 +150,13 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
 
     @Override
     public boolean hasUnsupportedValue() {
-
-        if (CountryCode.isUnsupported(certificationRegion) || hasUnsupportedValue(macAddress) || EquipmentManufacturer.isUnsupported(equipmentManufacturer)
-                || hasUnsupportedValue(qrCode)) {
+        if (super.hasUnsupportedValue()) {
+            return true;
+        }
+        
+        if ((certificationRegion != null && CountryCode.isUnsupported(certificationRegion)) || (macAddress != null && hasUnsupportedValue(macAddress))
+                || (equipmentManufacturer != null && EquipmentManufacturer.isUnsupported(equipmentManufacturer))
+                || (qrCode != null && hasUnsupportedValue(qrCode))) {
             return true;
         }
 

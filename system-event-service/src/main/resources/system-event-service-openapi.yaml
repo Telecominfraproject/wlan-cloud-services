@@ -3471,10 +3471,12 @@ components:
         - CX
         - EC
         - LO
+        - LS
         - SC
         - PW
         - WNC
         - WT
+        - unknown
 
     EquipmentManufacturerDataStatus:
       description: describes the manufacturing identity data programmed in the AP Flash
