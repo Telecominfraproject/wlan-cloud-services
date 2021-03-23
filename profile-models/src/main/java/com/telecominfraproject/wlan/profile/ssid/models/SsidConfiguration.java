@@ -116,7 +116,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         setBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setClientBandwidthLimitUp(BANDWIDTH_LIMIT_NO_LIMIT);
         setRadiusServiceId(0L);
-        setRadiusAcountingServiceInterval(RADIUS_ACCOUNTING_SERVICE_INTERVAL_MIN);
         setForwardMode(forwardMode);
         radioBasedConfigs = initRadioBasedConfig();
         setVideoTrafficOnly(false);
@@ -332,7 +331,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     }
 
     public void setRadiusAcountingServiceInterval(int radiusAcountingServiceInterval) {
-        if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
+        if (radiusAcountingServiceInterval == 0) {
+            // toggles 'off' and lets Radius set this value
+            this.radiusAcountingServiceInterval = 0;
+        } else if (radiusAcountingServiceInterval > RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX) {
             LOG.info("Unable to set radius accounting service interval to greater than {}. Using max value of {}.",
                     RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX, RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX);
             this.radiusAcountingServiceInterval = RADIUS_ACCOUNTING_SERVICE_INTERVAL_MAX;
@@ -343,7 +345,6 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         } else {
             this.radiusAcountingServiceInterval = radiusAcountingServiceInterval;
         }
-
     }
 
     /**

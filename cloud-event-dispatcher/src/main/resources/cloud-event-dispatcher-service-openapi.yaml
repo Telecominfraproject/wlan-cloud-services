@@ -2894,11 +2894,12 @@ components:
             type: integer
             format: int64
           radiusAcountingServiceInterval:
-            description: If this is set (i.e. non-null), RadiusAccountingService is configured, and SsidSecureMode is configured as Enterprise/Radius, ap will send interim accounting updates every N seconds
+            description: If this is set between 60-600, RadiusAccountingService is configured, and SsidSecureMode is configured as Enterprise/Radius, ap will send interim accounting updates every N seconds, if it is set to 0, Radius determines the interval
             type: integer
             format: int32
-            minimum: 60
+            minimum: 0
             maximum: 600
+            default: 0
           radiusNasConfiguration:
             $ref: '#/components/schemas/RadiusNasConfiguration'            
           captivePortalId:
