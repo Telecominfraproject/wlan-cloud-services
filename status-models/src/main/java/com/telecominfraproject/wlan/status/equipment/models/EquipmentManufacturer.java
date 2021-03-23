@@ -33,6 +33,17 @@ public enum EquipmentManufacturer {
     public static EquipmentManufacturer getByName(String value) {
         return JsonDeserializationUtils.deserializEnum(value, EquipmentManufacturer.class, UNSUPPORTED);
     }
+    
+    public static EquipmentManufacturer getByManufacturer(String manufacturer) {
+        
+        for (EquipmentManufacturer equipmentMfg : EquipmentManufacturer.values()) {
+            if (equipmentMfg.getManufacturerName().equals(manufacturer)) {
+                return equipmentMfg;
+            }
+        }
+
+        return EquipmentManufacturer.UNSUPPORTED;
+    }
 
     public static boolean isUnsupported(EquipmentManufacturer value) {
         return (UNSUPPORTED.equals(value));
