@@ -18,6 +18,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
     private String serialNumber;
     private EquipmentManufacturerQrCode qrCode;
     private EquipmentManufacturer equipmentManufacturer;
+    private String manufacturerName;
     private String manufacturerDate;
     private String manufacturerUrl;
     private String modelDescription;
@@ -39,6 +40,24 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         this.serialNumber = serialNumber;
         this.qrCode = qrCode;
         this.equipmentManufacturer = equipmentManufacturer;
+        this.manufacturerDate = manufacturerDate;
+        this.manufacturerUrl = manufacturerUrl;
+        this.modelDescription = modelDescription;
+        this.referenceDesign = referenceDesign;
+        this.certificationRegion = certificationRegion;
+        this.macAddress = macAddress;
+    }
+    
+    public EquipmentManufacturerDataStatus(String skuNumber, String model, String revision, String serialNumber, EquipmentManufacturerQrCode qrCode,
+            String manufacturerName, String manufacturerDate, String manufacturerUrl, String modelDescription, String referenceDesign,
+            CountryCode certificationRegion, MacAddress macAddress) {
+        super();
+        this.skuNumber = skuNumber;
+        this.model = model;
+        this.revision = revision;
+        this.serialNumber = serialNumber;
+        this.qrCode = qrCode;
+        this.manufacturerName = manufacturerName;
         this.manufacturerDate = manufacturerDate;
         this.manufacturerUrl = manufacturerUrl;
         this.modelDescription = modelDescription;
@@ -100,6 +119,14 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         this.equipmentManufacturer = equipmentManufacturer;
     }
 
+    public String getManufacturerName() {
+        return manufacturerName;
+    }
+
+    public void setManufacturerName(String manufacturerName) {
+        this.manufacturerName = manufacturerName;
+    }
+
     public String getManufacturerDate() {
         return manufacturerDate;
     }
@@ -155,7 +182,6 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         }
         
         if ((certificationRegion != null && CountryCode.isUnsupported(certificationRegion)) || (macAddress != null && hasUnsupportedValue(macAddress))
-                || (equipmentManufacturer != null && EquipmentManufacturer.isUnsupported(equipmentManufacturer))
                 || (qrCode != null && hasUnsupportedValue(qrCode))) {
             return true;
         }
@@ -180,7 +206,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(certificationRegion, equipmentManufacturer, macAddress, manufacturerDate, manufacturerUrl, model, modelDescription, qrCode,
+        return Objects.hash(certificationRegion, macAddress, manufacturerDate, manufacturerName, manufacturerUrl, model, modelDescription, qrCode,
                 referenceDesign, revision, serialNumber, skuNumber);
     }
 
@@ -193,12 +219,12 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         if (getClass() != obj.getClass())
             return false;
         EquipmentManufacturerDataStatus other = (EquipmentManufacturerDataStatus) obj;
-        return Objects.equals(certificationRegion, other.certificationRegion) && equipmentManufacturer == other.equipmentManufacturer
-                && Objects.equals(macAddress, other.macAddress) && Objects.equals(manufacturerDate, other.manufacturerDate)
+        return Objects.equals(certificationRegion, other.certificationRegion) && Objects.equals(macAddress, other.macAddress)
+                && Objects.equals(manufacturerDate, other.manufacturerDate) && Objects.equals(manufacturerName, other.manufacturerName)
                 && Objects.equals(manufacturerUrl, other.manufacturerUrl) && Objects.equals(model, other.model)
                 && Objects.equals(modelDescription, other.modelDescription) && Objects.equals(qrCode, other.qrCode)
                 && Objects.equals(referenceDesign, other.referenceDesign) && Objects.equals(revision, other.revision)
                 && Objects.equals(serialNumber, other.serialNumber) && Objects.equals(skuNumber, other.skuNumber);
-    }
+    }   
 
 }
