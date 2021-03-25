@@ -17,7 +17,6 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
     private String revision;
     private String serialNumber;
     private EquipmentManufacturerQrCode qrCode;
-    private EquipmentManufacturer equipmentManufacturer;
     private String manufacturerName;
     private String manufacturerDate;
     private String manufacturerUrl;
@@ -29,25 +28,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
     public EquipmentManufacturerDataStatus() {
         super();
     }
-
-    public EquipmentManufacturerDataStatus(String skuNumber, String model, String revision, String serialNumber, EquipmentManufacturerQrCode qrCode,
-            EquipmentManufacturer equipmentManufacturer, String manufacturerDate, String manufacturerUrl, String modelDescription, String referenceDesign,
-            CountryCode certificationRegion, MacAddress macAddress) {
-        super();
-        this.skuNumber = skuNumber;
-        this.model = model;
-        this.revision = revision;
-        this.serialNumber = serialNumber;
-        this.qrCode = qrCode;
-        this.equipmentManufacturer = equipmentManufacturer;
-        this.manufacturerDate = manufacturerDate;
-        this.manufacturerUrl = manufacturerUrl;
-        this.modelDescription = modelDescription;
-        this.referenceDesign = referenceDesign;
-        this.certificationRegion = certificationRegion;
-        this.macAddress = macAddress;
-    }
-    
+   
     public EquipmentManufacturerDataStatus(String skuNumber, String model, String revision, String serialNumber, EquipmentManufacturerQrCode qrCode,
             String manufacturerName, String manufacturerDate, String manufacturerUrl, String modelDescription, String referenceDesign,
             CountryCode certificationRegion, MacAddress macAddress) {
@@ -109,14 +90,6 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
 
     public void setQrCode(EquipmentManufacturerQrCode qrCode) {
         this.qrCode = qrCode;
-    }
-
-    public EquipmentManufacturer getEquipmentManufacturer() {
-        return equipmentManufacturer;
-    }
-
-    public void setEquipmentManufacturer(EquipmentManufacturer equipmentManufacturer) {
-        this.equipmentManufacturer = equipmentManufacturer;
     }
 
     public String getManufacturerName() {
@@ -225,6 +198,7 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
                 && Objects.equals(modelDescription, other.modelDescription) && Objects.equals(qrCode, other.qrCode)
                 && Objects.equals(referenceDesign, other.referenceDesign) && Objects.equals(revision, other.revision)
                 && Objects.equals(serialNumber, other.serialNumber) && Objects.equals(skuNumber, other.skuNumber);
-    }   
+    }
+
 
 }

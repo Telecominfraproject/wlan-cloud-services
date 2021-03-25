@@ -3459,21 +3459,6 @@ components:
         modelName: EC420-G1
         hwRevision: '02'
                      
-    EquipmentManufacturer:
-      description: AP Manufacturer name to be displayed on UI
-      type: string
-      enum:
-        - CIG
-        - CX
-        - EC
-        - LO
-        - LS
-        - SC
-        - PW
-        - WNC
-        - WT
-        - unknown
-
     EquipmentManufacturerDataStatus:
       description: describes the manufacturing identity data programmed in the AP Flash
       type: object
@@ -3496,8 +3481,8 @@ components:
           type: string
         qrCode:
           $ref: '#/components/schemas/EquipmentManufacturerQrCode'
-        equipmentManufacturer:
-          $ref: '#/components/schemas/EquipmentManufacturer'
+        manufacturerName:
+          type: string
         manufacturerDate:
           type: string
         manufacturerUrl:
@@ -3527,7 +3512,7 @@ components:
           serialNumber: '12345678'
           modelName: EC420-G1
           hwRevision: '02'
-        equipmentManufacturer: PW
+        manufacturerName: Proware (TP-Link)
         manufacturerDate: 02-07-2020
         manufacturerUrl: www.manufacturer.com
         modelDescription: MMAP120 Wi-Fi Dual Radio 2x2 AP
