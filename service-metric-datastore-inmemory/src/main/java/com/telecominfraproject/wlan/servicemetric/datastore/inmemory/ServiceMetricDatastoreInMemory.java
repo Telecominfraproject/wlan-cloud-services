@@ -253,12 +253,15 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
     }
     
     private boolean clientMacAddressesContains(Set<MacAddress> clientMacAddresses, MacAddress macAddress) {
+        if (clientMacAddresses == null) {
+            return false;
+        }
         if (macAddress == null) {
-    	    for (MacAddress clientMacAdress : clientMacAddresses) {
-                if (clientMacAdress.getAddressAsLong() == 0) {
+            for (MacAddress clientMacAddress : clientMacAddresses) {
+                if (clientMacAddress.getAddressAsLong() == 0) {
     	            return true;
-    	        }
-    	    }
+                }
+            }
         }
         return clientMacAddresses.contains(macAddress);
     }
