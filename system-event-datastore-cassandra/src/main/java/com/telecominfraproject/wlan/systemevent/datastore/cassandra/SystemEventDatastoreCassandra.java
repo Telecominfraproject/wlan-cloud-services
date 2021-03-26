@@ -1001,7 +1001,20 @@ public class SystemEventDatastoreCassandra implements SystemEventDatastore {
             
             if(isPresent(equipmentIdsIdx) && isPresent(daysOfYearIdx) && isPresent(clientMacAdressesIdx) && isPresent(timestampsIdx) && isPresent(dataTypesIdx)) {
                 List<SystemEventRecord> pageOfEvents = getPage(customerId, equipmentIdsIdx, daysOfYearIdx, clientMacAdressesIdx, timestampsIdx, dataTypesIdx);
-                pageItems.addAll(pageOfEvents);        
+
+                if(isPresent(locationIds)) {
+                    //apply locationId filtering separately in here - because the main table does not have locationId as part of the primary key.
+                    //this is still not the full solution, unless locationId is declared part of the PK on the main table there can be situations where 
+                    //events/metrics are lost because of PK collisions - this will be happening more frequently in large deployments.  
+                    pageOfEvents.forEach(se -> {
+                        if(locationIds.contains(se.getLocationId())) {
+                            pageItems.add(se);
+                        }
+                    });
+                } else {
+                    pageItems.addAll(pageOfEvents);
+                }
+
             }
             
             break;
@@ -1013,7 +1026,7 @@ public class SystemEventDatastoreCassandra implements SystemEventDatastore {
         // When paging for locations we use client-side filtering, meaning the page from
         // the index filtered on the client side may be empty, but that does not mean we
         // should stop looking for more data, so we'll move to the next page on the index in that case
-        keepPaging.set(filterOptions == FilterOptions.location && indexRecordsRead > 0 && pageItems.isEmpty()  && nextPagingState!=null );
+        keepPaging.set((filterOptions == FilterOptions.location || filterOptions == FilterOptions.location_all_filters) && indexRecordsRead > 0 && pageItems.isEmpty()  && nextPagingState!=null );
         
         return nextPagingState;
     }

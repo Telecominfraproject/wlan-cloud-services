@@ -962,7 +962,7 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
         case mac_and_equipment_dataType:
         case location_all_filters:
         case location:
-            //the query was against the index table table
+            //the query was against the index table 
             //find all the keys for the page, then retrieve records for them from service_metric table
             Set<Long> equipmentIdsIdx = new HashSet<>();
             Set<Long> clientMacAdressesIdx = new HashSet<>();
@@ -1002,7 +1002,20 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
             
             if(isPresent(equipmentIdsIdx) && isPresent(daysOfYearIdx) && isPresent(clientMacAdressesIdx) && isPresent(timestampsIdx) && isPresent(dataTypesIdx)) {
                 List<ServiceMetric> pageOfMetrics = getPage(customerId, equipmentIdsIdx, daysOfYearIdx, clientMacAdressesIdx, timestampsIdx, dataTypesIdx);
-                pageItems.addAll(pageOfMetrics);        
+
+                if(isPresent(locationIds)) {
+                    //apply locationId filtering separately in here - because the main table does not have locationId as part of the primary key.
+                    //this is still not the full solution, unless locationId is declared part of the PK on the main table there can be situations where 
+                    //events/metrics are lost because of PK collisions - this will be happening more frequently in large deployments.  
+                    pageOfMetrics.forEach(sm -> {
+                        if(locationIds.contains(sm.getLocationId())) {
+                            pageItems.add(sm);
+                        }
+                    });
+                } else {
+                    pageItems.addAll(pageOfMetrics);
+                }
+
             }
             
             break;
@@ -1010,11 +1023,11 @@ public class ServiceMetricDatastoreCassandra implements ServiceMetricDatastore {
             LOG.warn("Unknown filter option:", filterOptions);
             throw new IllegalArgumentException("Unknown filter option " + filterOptions);
         }
-
+        
         // When paging for locations we use client-side filtering, meaning the page from
         // the index filtered on the client side may be empty, but that does not mean we
         // should stop looking for more data, so we'll move to the next page on the index in that case
-        keepPaging.set(filterOptions == FilterOptions.location && indexRecordsRead > 0 && pageItems.isEmpty()  && nextPagingState!=null );
+        keepPaging.set((filterOptions == FilterOptions.location || filterOptions == FilterOptions.location_all_filters) && indexRecordsRead > 0 && pageItems.isEmpty()  && nextPagingState!=null );
         
         return nextPagingState;
     }
