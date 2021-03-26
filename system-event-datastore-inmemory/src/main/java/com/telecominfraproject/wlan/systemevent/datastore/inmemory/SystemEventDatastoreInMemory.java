@@ -92,7 +92,7 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
 
     @Override
     public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
-            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<String> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAddresses, Set<String> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<SystemEventRecord> context) {
 
     	if(context == null) {
@@ -115,7 +115,8 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
             if (mdl.getCustomerId() == customerId &&
                     (locationIds==null || locationIds.isEmpty() || locationIds.contains(mdl.getLocationId())) &&
                     (equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
-                    (clientMacAdresses==null || clientMacAdresses.isEmpty() || clientMacAdresses.contains(mdl.getClientMacAddress())) &&
+                    (clientMacAddresses==null || clientMacAddresses.isEmpty() ||
+                    	clientMacAddressesContains(clientMacAddresses, mdl.getClientMacAddress())) &&
             		(dataTypes==null || dataTypes.isEmpty() || dataTypes.contains(mdl.getDataType())) &&
             		mdl.getEventTimestamp() >= fromTime &&
             		mdl.getEventTimestamp() <= toTime 
@@ -211,6 +212,17 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
         }
 
         return ret;
-    }    
+    }
+    
+    private boolean clientMacAddressesContains(Set<MacAddress> clientMacAddresses, MacAddress macAddress) {
+        if (macAddress == null) {
+    	    for (MacAddress clientMacAdress : clientMacAddresses) {
+                if (clientMacAdress.getAddressAsLong() == 0) {
+    	            return true;
+    	        }
+    	    }
+        }
+        return clientMacAddresses.contains(macAddress);
+    }
 
 }
