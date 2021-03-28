@@ -23,6 +23,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 
@@ -228,6 +229,24 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         Equipment ret = responseEntity.getBody();
         
         LOG.debug("completed equipment.update {} ", ret);
+        
+        return ret;
+    }
+    
+    @Override
+    public Equipment updateChannels(EquipmentChannelsUpdateRequest channelsUpdateRequest) {
+        
+        LOG.debug("calling equipment.updateChannels {} ", channelsUpdateRequest);
+
+        HttpEntity<String> request = new HttpEntity<String>( channelsUpdateRequest.toString(), headers );
+
+        ResponseEntity<Equipment> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/channel",
+                HttpMethod.PUT, request, Equipment.class);
+        
+        Equipment ret = responseEntity.getBody();
+        
+        LOG.debug("completed equipment.updateRrmBulk {} ", ret);
         
         return ret;
     }

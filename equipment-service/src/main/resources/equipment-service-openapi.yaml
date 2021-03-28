@@ -506,7 +506,33 @@ components:
           format: int32
         ouiCounts:
           $ref: '#/components/schemas/IntegerValueMap'
-          
+
+    IntegerPerRadioTypeMap:
+      properties:
+        is5GHz:
+          type: integer
+          format: int32
+        is5GHzU:
+          type: integer
+          format: int32
+        is5GHzL:
+          type: integer
+          format: int32
+        is2dot4GHz:
+          type: integer
+          format: int32
+
+    BooleanPerRadioTypeMap:
+      properties:
+        is5GHz:
+          type: boolean
+        is5GHzU:
+          type: boolean
+        is5GHzL:
+          type: boolean
+        is2dot4GHz:
+          type: boolean
+
 #
 # Objects related to pagination
 #
@@ -679,6 +705,22 @@ components:
           # if source is profile, rfProfile->details->rfConfiguration->rfConfigMap->rfElementConfiguration->bestApSettings->minLoadFactor
           type: integer
           format: int32
+
+#
+# Equipment Channel update data models
+#
+    EquipmentChannelsUpdateRequest:
+      properties:
+        equipmentId:
+          type: integer
+          format: int64
+        primaryChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        backupChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        autoChannelSelections:
+          $ref: '#/components/schemas/BooleanPerRadioTypeMap'
+
           
 ## ---------------------------------------------------------------------------
 security:
@@ -1094,7 +1136,29 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
-  
+
+  /api/equipment/channel:
+    put:
+      tags:
+      - Equipment
+      summary: Update Equipment Channels
+      operationId: updateChannels
+      requestBody:
+        description: Equipment Channels update request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentChannelsUpdateRequest'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+        500:
+          $ref: '#/components/responses/GenericApiError'
 
   /api/equipment/countsForCustomer:
      get:

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
@@ -295,6 +297,61 @@ public class EquipmentController {
 			throw new DsDataValidationException("Equipment contains disallowed " + channelType);
 		}
 	}
+	
+    /**
+     * Updates Equipment Channels
+     *
+     * @param Equipment
+     * @return updated Equipment object
+     * @throws RuntimeException if Equipment record does not exist or if it was modified concurrently
+     */
+    @RequestMapping(value = "/channel", method=RequestMethod.PUT)
+    public Equipment updateChannels(@RequestBody EquipmentChannelsUpdateRequest request) {
+        
+        LOG.debug("updateChannels {}", request);
+        if (request == null) {
+            return null;
+        }
+        Equipment existingEquipment = getOrNull(request.getEquipmentId());
+        
+        if (existingEquipment == null || existingEquipment.getDetails() == null) {
+            LOG.debug("updateChannels: no existing equipment or no details on equipment");
+            return null;
+        }
+        Equipment equipmentCopy = existingEquipment.clone();
+        
+        Map<RadioType, Integer> primaryChannels = request.getPrimaryChannels();
+        Map<RadioType, Integer> backupChannels = request.getBackupChannels();
+        Map<RadioType, Boolean> autoChannelSelections = request.getAutoChannelSelections();
+        
+        if (CollectionUtils.isEmpty(autoChannelSelections) ||
+                (CollectionUtils.isEmpty(primaryChannels) && CollectionUtils.isEmpty(backupChannels))) {
+            LOG.debug("updateChannels no update");
+            return equipmentCopy;
+        }
+        
+        ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipmentCopy.getDetails();
+        
+        for (RadioType radioType : RadioType.validValues()) {
+            ElementRadioConfiguration toRadio = apElementConfiguration.getElementRadioConfiguration(radioType);
+            if (toRadio == null) {
+                continue;
+            }
+            if (primaryChannels != null && primaryChannels.get(radioType) != null && autoChannelSelections.get(radioType) != null) {
+                toRadio.alterActiveChannel(primaryChannels.get(radioType), autoChannelSelections.get(radioType));
+            }
+            if (backupChannels != null && backupChannels.get(radioType) != null && autoChannelSelections.get(radioType) != null) {
+                toRadio.alterActiveBackupChannel(backupChannels.get(radioType), autoChannelSelections.get(radioType));
+            }
+        }
+        
+        Equipment ret = equipmentDatastore.update(equipmentCopy);
+
+        EquipmentChangedEvent event = new EquipmentChangedEvent(ret, primaryChannels, backupChannels);
+        publishEvent(event);
+
+        return ret;
+    }
     
     /**
      * Deletes Equipment record

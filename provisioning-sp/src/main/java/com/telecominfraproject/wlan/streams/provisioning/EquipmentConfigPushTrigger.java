@@ -19,11 +19,13 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangeType;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
@@ -116,7 +118,13 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 
 		private void process(EquipmentChangedEvent model) {
 			LOG.debug("Processing EquipmentChangedEvent");
-			equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(), model.getEquipmentId()));
+			if (model.getEquipmentChangeType() == EquipmentChangeType.ChannelsOnly) {
+			    equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
+		               model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
+			} else {
+			    equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(),
+			            model.getEquipmentId()));
+			}
 		}
 		
         private void process(EquipmentRemovedEvent model) {

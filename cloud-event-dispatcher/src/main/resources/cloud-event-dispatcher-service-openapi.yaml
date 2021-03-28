@@ -431,6 +431,18 @@ components:
           format: int64
         payload:
           $ref: '#/components/schemas/Equipment'
+        equipmentChangeType:
+          $ref: '#/components/schemas/EquipmentChangeType'
+        newPrimaryChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        newBackupChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+
+    EquipmentChangeType:
+      type: string
+      enum:
+        - All
+        - ChannelsOnly
  
     EquipmentRemovedEvent:
       properties:
@@ -8735,7 +8747,7 @@ components:
           items:
             $ref: '#/components/schemas/MacAddress'
  
- 
+
  
 ##-------------------------------------------------------------------------
 security:
