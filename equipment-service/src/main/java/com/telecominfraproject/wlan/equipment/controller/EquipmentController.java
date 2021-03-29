@@ -301,7 +301,7 @@ public class EquipmentController {
     /**
      * Updates Equipment Channels
      *
-     * @param Equipment
+     * @param EquipmentChannelsUpdateRequest
      * @return updated Equipment object
      * @throws RuntimeException if Equipment record does not exist or if it was modified concurrently
      */
