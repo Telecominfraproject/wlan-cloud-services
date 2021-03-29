@@ -41,7 +41,7 @@ public interface SystemEventServiceInterface {
 	 * @param customerId
      * @param locationIds - null or empty means all locations for customer
      * @param equipmentIds - null or empty means all equipment for customer
-     * @param clientMacAdresses - null or empty means all client MAC addresses
+     * @param clientMacAddresses - null or empty means all client MAC addresses
 	 * @param dataTypes - null or empty means all event data types
 	 * @param sortBy
 	 * @param context
@@ -53,7 +53,7 @@ public interface SystemEventServiceInterface {
 			int customerId, 
             Set<Long> locationIds,
             Set<Long> equipmentIds,
-            Set<MacAddress> clientMacAdresses, 
+            Set<MacAddress> clientMacAddresses,
 			Set<String> dataTypes, 
 			List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context);

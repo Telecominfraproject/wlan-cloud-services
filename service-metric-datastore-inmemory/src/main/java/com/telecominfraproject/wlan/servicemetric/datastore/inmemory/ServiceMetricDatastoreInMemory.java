@@ -130,7 +130,7 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
 
     @Override
     public PaginationResponse<ServiceMetric> getForCustomer(long fromTime, long toTime, int customerId,
-            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<ServiceMetricDataType> dataTypes,
+            Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAddresses, Set<ServiceMetricDataType> dataTypes,
     		List<ColumnAndSort> sortBy, PaginationContext<ServiceMetric> context) {
 
     	if(context == null) {
@@ -153,7 +153,8 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
             if (mdl.getCustomerId() == customerId &&
                     (locationIds==null || locationIds.isEmpty() || locationIds.contains(mdl.getLocationId())) &&
             		(equipmentIds==null || equipmentIds.isEmpty() || equipmentIds.contains(mdl.getEquipmentId())) &&
-            		(clientMacAdresses==null || clientMacAdresses.isEmpty() || clientMacAdresses.contains(mdl.getClientMacAddress())) &&
+            		(clientMacAddresses==null || clientMacAddresses.isEmpty() ||
+            			clientMacAddressesContains(clientMacAddresses, mdl.getClientMacAddress())) &&
             		(dataTypes==null || dataTypes.isEmpty() || dataTypes.contains(mdl.getDataType())) &&
             		mdl.getCreatedTimestamp() >= fromTime &&
             		mdl.getCreatedTimestamp() <= toTime 
@@ -249,5 +250,19 @@ public class ServiceMetricDatastoreInMemory extends BaseInMemoryDatastore implem
         }
 
         return ret;
-    }    
+    }
+    
+    private boolean clientMacAddressesContains(Set<MacAddress> clientMacAddresses, MacAddress macAddress) {
+        if (clientMacAddresses == null) {
+            return false;
+        }
+        if (macAddress == null) {
+            for (MacAddress clientMacAddress : clientMacAddresses) {
+                if (clientMacAddress.getAddressAsLong() == 0) {
+    	            return true;
+                }
+            }
+        }
+        return clientMacAddresses.contains(macAddress);
+    }
 }

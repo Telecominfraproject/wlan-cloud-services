@@ -43,7 +43,7 @@ public interface SystemEventDatastore {
 	 * @param customerId
      * @param locationIds - null or empty means all locations for customer. Note: Location hierarchy is NOT taken into account when filtering records.
      * @param equipmentIds - null or empty means all equipment for customer
-     * @param clientMacAdresses - null or empty means all client MAC addresses
+     * @param clientMacAddresses - null or empty means all client MAC addresses
 	 * @param dataTypes - null or empty means all event data types
 	 * @param sortBy
 	 * @param context
@@ -55,7 +55,7 @@ public interface SystemEventDatastore {
 			int customerId, 
             Set<Long> locationIds,
             Set<Long> equipmentIds,
-            Set<MacAddress> clientMacAdresses, 
+            Set<MacAddress> clientMacAddresses,
 			Set<String> dataTypes, 
 			List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context);

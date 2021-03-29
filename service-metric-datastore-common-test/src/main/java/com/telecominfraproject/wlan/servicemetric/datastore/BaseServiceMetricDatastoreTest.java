@@ -1021,6 +1021,32 @@ public abstract class BaseServiceMetricDatastoreTest {
        assertTrue(page1.getContext().isLastPage());
        assertTrue(page2.getContext().isLastPage());
        
+       Set<MacAddress> oneZeroClientMac = new HashSet<>();
+       MacAddress zeroClientMac = new MacAddress();
+       zeroClientMac.setAddressAsString("00:00:00:00:00:00");
+       oneZeroClientMac.add(zeroClientMac);
+       
+       //Paginate over all equipment, one client mac and one data type
+       context = new PaginationContext<>(10);
+       returnedEquipmentIds.clear();
+       returnedDataTypes.clear();
+       page1 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneZeroClientMac, oneDataType, sortBy, context);
+       page2 = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, emptyEquipment, oneZeroClientMac, oneDataType, sortBy, page1.getContext());
+       
+       //verify returned pages
+       assertEquals(10, page1.getItems().size());
+       assertEquals(0, page2.getItems().size());
+       
+        page1.getItems().forEach(e -> {
+            assertEquals(customerId_1, e.getCustomerId());
+            returnedDataTypes.add(e.getDataType());
+        });
+        
+        assertEquals(oneDataType, returnedDataTypes);
+       
+       assertTrue(!page1.getContext().isLastPage());
+       assertTrue(page2.getContext().isLastPage());
+       
        //
        // =====================================================================
        //
