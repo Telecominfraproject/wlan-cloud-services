@@ -127,7 +127,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
         }
         
         private void process(EquipmentChannelsChangedEvent model) {
-            LOG.debug("Processing EquipmentChannelsChangedEvent");
+            LOG.debug("Processing EquipmentChannelsChangedEvent for equipmentId {}", model.getEquipmentId());
             equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
                    model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
         }
