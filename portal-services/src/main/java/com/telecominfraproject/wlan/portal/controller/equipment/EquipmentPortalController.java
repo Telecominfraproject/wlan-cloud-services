@@ -28,6 +28,7 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.StateSetting;
@@ -95,6 +96,12 @@ public class EquipmentPortalController  {
         }
         
         return ret;
+    }
+    
+    @RequestMapping(value = "/equipment/channel", method = RequestMethod.PUT)
+    public Equipment updateEquipmentChannels(@RequestBody EquipmentChannelsUpdateRequest request) {
+        LOG.debug("updateEquipmentChannels {}", request);
+        return equipmentServiceInterface.updateChannels(request);
     }
 
     @RequestMapping(value = "/equipment", method = RequestMethod.POST)

@@ -12,8 +12,10 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -39,6 +41,7 @@ import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateItem;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -855,6 +858,130 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(ex.getMessage(), "Cannot build EquipmentRrmBulkUpdateItem from supplied equipment: ApElementConfig type error");
 
         remoteInterface.delete(ce.getId());
+    }
+    
+    @Test
+    public void testChannelsUpdate() {
+        int customerId = getNextCustomerId();
+        
+        //Create test Equipment
+        Equipment equipment = new Equipment();
+
+        equipment.setName("test_ChannelsUpdate");
+        equipment.setCustomerId(customerId);
+        equipment.setProfileId(1);
+        equipment.setLocationId(2);
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setInventoryId("inv-" + equipment.getName());
+        
+        ApElementConfiguration apConfig = ApElementConfiguration.createWithDefaults();
+        if (apConfig.getElementRadioConfiguration(RadioType.is5GHz) == null) {
+            Map<RadioType, ElementRadioConfiguration> radioMap = apConfig.getRadioMap();
+            radioMap.put(RadioType.is5GHz, ElementRadioConfiguration.createWithDefaults(RadioType.is5GHz));
+            apConfig.setRadioMap(radioMap);
+        }
+        equipment.setDetails(apConfig);
+        
+        Equipment equipmentCreated = remoteInterface.create(equipment);
+
+        long equipmentId = equipmentCreated.getId();
+        Equipment equipmentGet = remoteInterface.get(equipmentId);
+        assertNotNull(equipmentGet);
+        
+        ApElementConfiguration apElementConfiguration = (ApElementConfiguration)equipmentGet.getDetails();
+        assertNotNull(apElementConfiguration);
+        
+        Map<RadioType, ElementRadioConfiguration> radioMap = apElementConfiguration.getRadioMap();
+        assertNotNull(radioMap);
+
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+        assertEquals(11, radioMap.get(RadioType.is2dot4GHz).getBackupChannelNumber().intValue());
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getManualChannelNumber().intValue());
+        assertEquals(11, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
+        
+        assertEquals(36, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
+        assertEquals(153, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(36, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
+        assertEquals(153, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
+            
+        Map<RadioType, Integer> primaryChannels =  new EnumMap<>(RadioType.class);
+        Map<RadioType, Integer> backupChannels =  new EnumMap<>(RadioType.class);
+        Map<RadioType, Boolean> autoChannelSelections = new EnumMap<>(RadioType.class);
+        
+        primaryChannels.put(RadioType.is2dot4GHz, 1);
+        primaryChannels.put(RadioType.is5GHz, 40);
+        
+        backupChannels.put(RadioType.is2dot4GHz, 6);
+        backupChannels.put(RadioType.is5GHz, 48);
+        
+        autoChannelSelections.put(RadioType.is2dot4GHz, false);
+        autoChannelSelections.put(RadioType.is5GHz, false);
+        
+        EquipmentChannelsUpdateRequest channelsUpdateRequest = new EquipmentChannelsUpdateRequest();
+        channelsUpdateRequest.setEquipmentId(equipmentId);
+        channelsUpdateRequest.setPrimaryChannels(primaryChannels);
+        channelsUpdateRequest.setBackupChannels(backupChannels);
+        channelsUpdateRequest.setAutoChannelSelections(autoChannelSelections);
+     
+        Equipment equipmentUpdate1 = remoteInterface.updateChannels(channelsUpdateRequest);
+        Equipment equipmentGetUpdate1  = remoteInterface.get(equipmentId);
+        assertEqualEquipments(equipmentGetUpdate1, equipmentUpdate1);
+        
+        apElementConfiguration = (ApElementConfiguration)equipmentGetUpdate1.getDetails();
+        assertNotNull(apElementConfiguration);
+        radioMap = apElementConfiguration.getRadioMap();
+        assertNotNull(radioMap);
+        
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+        assertEquals(11, radioMap.get(RadioType.is2dot4GHz).getBackupChannelNumber().intValue());
+        assertEquals(1, radioMap.get(RadioType.is2dot4GHz).getManualChannelNumber().intValue());
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
+        
+        assertEquals(36, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
+        assertEquals(153, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(40, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
+        assertEquals(48, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
+        
+        primaryChannels.clear();
+        primaryChannels.put(RadioType.is2dot4GHz, 11);
+        primaryChannels.put(RadioType.is5GHz, 161);
+        
+        backupChannels.clear();
+        backupChannels.put(RadioType.is2dot4GHz, 6);
+        backupChannels.put(RadioType.is5GHz, 44);
+        
+        autoChannelSelections.clear();
+        autoChannelSelections.put(RadioType.is2dot4GHz, true);
+        autoChannelSelections.put(RadioType.is5GHz, true);
+        
+        channelsUpdateRequest = new EquipmentChannelsUpdateRequest();
+        channelsUpdateRequest.setEquipmentId(equipmentId);
+        channelsUpdateRequest.setPrimaryChannels(primaryChannels);
+        channelsUpdateRequest.setBackupChannels(backupChannels);
+        channelsUpdateRequest.setAutoChannelSelections(autoChannelSelections);
+     
+        Equipment equipmentUpdate2 = remoteInterface.updateChannels(channelsUpdateRequest);
+        Equipment equipmentGetUpdate2  = remoteInterface.get(equipmentId);
+        assertEqualEquipments(equipmentGetUpdate2, equipmentUpdate2);
+        
+        apElementConfiguration = (ApElementConfiguration)equipmentGetUpdate2.getDetails();
+        assertNotNull(apElementConfiguration);
+        radioMap = apElementConfiguration.getRadioMap();
+        assertNotNull(radioMap);
+        
+        assertEquals(11, radioMap.get(RadioType.is2dot4GHz).getChannelNumber().intValue());
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getBackupChannelNumber().intValue());
+        assertEquals(1, radioMap.get(RadioType.is2dot4GHz).getManualChannelNumber().intValue());
+        assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
+        
+        assertEquals(161, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
+        assertEquals(44, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(40, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
+        assertEquals(48, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
+
+        // Clean up after test
+        remoteInterface.delete(equipmentId);
+        
     }
        
     private void assertEqualEquipments(
