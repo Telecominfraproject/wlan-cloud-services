@@ -246,7 +246,7 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         
         Equipment ret = responseEntity.getBody();
         
-        LOG.debug("completed equipment.updateRrmBulk {} ", ret);
+        LOG.debug("completed equipment.updateChannels {} ", ret);
         
         return ret;
     }

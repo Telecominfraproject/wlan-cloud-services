@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangeType;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
@@ -95,6 +96,9 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	case "EquipmentChangedEvent":
 	    		process((EquipmentChangedEvent) se);
 	    		break;
+	    	case "EquipmentChannelsChangedEvent":
+                process((EquipmentChannelsChangedEvent) se);
+                break;
 	    	case "EquipmentRemovedEvent":
                 process((EquipmentRemovedEvent) se);
                 break;
@@ -116,16 +120,17 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	
 	    }
 
-		private void process(EquipmentChangedEvent model) {
-			LOG.debug("Processing EquipmentChangedEvent");
-			if (model.getEquipmentChangeType() == EquipmentChangeType.ChannelsOnly) {
-			    equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
-		               model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
-			} else {
-			    equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(),
-			            model.getEquipmentId()));
-			}
-		}
+        private void process(EquipmentChangedEvent model) {
+            LOG.debug("Processing EquipmentChangedEvent");
+            equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(),
+                    model.getEquipmentId()));
+        }
+        
+        private void process(EquipmentChannelsChangedEvent model) {
+            LOG.debug("Processing EquipmentChannelsChangedEvent");
+            equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
+                   model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
+        }
 		
         private void process(EquipmentRemovedEvent model) {
             LOG.debug("Processing EquipmentRemovedEvent");

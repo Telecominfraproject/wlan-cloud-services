@@ -99,6 +99,7 @@ components:
       - ClientSessionRemovedEvent
       - EquipmentAddedEvent
       - EquipmentChangedEvent
+      - EquipmentChannelsChangedEvent
       - EquipmentRemovedEvent
       - StatusChangedEvent
       - StatusRemovedEvent
@@ -179,6 +180,7 @@ components:
         - $ref: '#/components/schemas/ClientSessionRemovedEvent'
         - $ref: '#/components/schemas/EquipmentAddedEvent'
         - $ref: '#/components/schemas/EquipmentChangedEvent'
+        - $ref: '#/components/schemas/EquipmentChannelsChangedEvent'
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
         - $ref: '#/components/schemas/StatusChangedEvent'
         - $ref: '#/components/schemas/StatusRemovedEvent'
@@ -433,16 +435,21 @@ components:
           $ref: '#/components/schemas/Equipment'
         equipmentChangeType:
           $ref: '#/components/schemas/EquipmentChangeType'
-        newPrimaryChannels:
-          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
-        newBackupChannels:
-          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
 
     EquipmentChangeType:
       type: string
       enum:
         - All
         - ChannelsOnly
+
+    EquipmentChannelsChangedEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/EquipmentChangedEvent'
+        newPrimaryChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        newBackupChannels:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
  
     EquipmentRemovedEvent:
       properties:
