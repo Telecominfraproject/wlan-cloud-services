@@ -1056,12 +1056,14 @@ components:
     RadiusNasConfiguration:
       properties:
         nasClientId: 
-          description: String identifying the NAS (AP) – Default shall be set to the AP BASE MAC Address for the WAN Interface
+          description: String identifying the NAS (AP) – DEFAULT OR BSSID shall be set nasClientId to the MacAddress of the SSID,  AP_BASE_MAC will set nasClientId to the APs WAN Interface MacAddress. USER_DEFINED will take the value entered in userDefinedNasId.
           type: string
           enum:
           - DEFAULT
+          - BSSID
+          - AP_BASE_MAC
           - USER_DEFINED
-          default: DEFAULT
+          default: BSSID
         nasClientIp:
           description:  NAS-IP AVP - Default it shall be the WAN IP address of the AP when AP communicates with RADIUS server directly.
           type: string
