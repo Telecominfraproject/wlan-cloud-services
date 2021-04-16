@@ -77,8 +77,8 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
 	}
 
 	@Override
-	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
-		return alarmController.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged) {
+		return alarmController.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 	}
 	
 	@Override

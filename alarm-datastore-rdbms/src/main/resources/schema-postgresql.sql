@@ -19,4 +19,5 @@ create table if not exists alarm (
 
 create index if not exists idx_alarm_customerId on alarm (customerId);
 create index if not exists idx_alarm_equipmentId on alarm (equipmentId );
+create index if not exists idx_alarm_acknowledged on alarm (acknowledged);
 

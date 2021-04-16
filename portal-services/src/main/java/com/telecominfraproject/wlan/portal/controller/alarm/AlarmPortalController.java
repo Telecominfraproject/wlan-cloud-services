@@ -111,11 +111,12 @@ public class AlarmPortalController  {
     @RequestMapping(value = "/alarm/counts", method = RequestMethod.GET)
 	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
 			@RequestParam(required = false) Set<Long> equipmentIds,
-			@RequestParam(required = false) Set<AlarmCode> alarmCodes) {
+			@RequestParam(required = false) Set<AlarmCode> alarmCodes,
+			@RequestParam(required = false) Boolean acknowledged) {
     	
-        LOG.debug("Getting Alarm counts for {} {} {}", customerId, equipmentIds, alarmCodes);
+        LOG.debug("Getting Alarm counts for {} {} {} {}", customerId, equipmentIds, alarmCodes, acknowledged);
 
-        AlarmCounts ret = this.alarmServiceInterface.getAlarmCounts(customerId, equipmentIds, alarmCodes);
+        AlarmCounts ret = this.alarmServiceInterface.getAlarmCounts(customerId, equipmentIds, alarmCodes, acknowledged);
         
         LOG.debug("Alarm counts: {}", ret);
         return ret;

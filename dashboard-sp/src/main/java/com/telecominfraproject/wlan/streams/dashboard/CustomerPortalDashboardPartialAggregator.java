@@ -197,7 +197,7 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        				// finalize oldestPartialEvent counters, and put it into customerEventStream
 			        			    oldestPartialEvent.aggregateCounters();
 			        				
-			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), oldestPartialEvent.getEquipmentIds(), Collections.emptySet());
+			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), oldestPartialEvent.getEquipmentIds(), Collections.emptySet(), null);
 			        				for (Entry<AlarmCode, AtomicInteger> entry : alarmCounts.getTotalCountsPerAlarmCodeMap().entrySet()) {
 			        					oldestPartialEvent.incrementAlarmsCountBySeverity(entry.getKey().getSeverity(), entry.getValue().get());
 			        				}

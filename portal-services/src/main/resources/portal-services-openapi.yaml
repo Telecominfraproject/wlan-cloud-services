@@ -12881,6 +12881,12 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/AlarmCode'
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       responses:
         200:
           description: successful operation

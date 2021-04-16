@@ -234,11 +234,12 @@ public class AlarmController {
     @RequestMapping(value = "/counts", method = RequestMethod.GET)
 	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
 			@RequestParam Set<Long> equipmentIdSet,
-			@RequestParam Set<AlarmCode> alarmCodeSet) {
+			@RequestParam Set<AlarmCode> alarmCodeSet,
+			@RequestParam Boolean acknowledged) {
     	
-        LOG.debug("Getting Alarm counts for {} {} {}", customerId, equipmentIdSet, alarmCodeSet);
+        LOG.debug("Getting Alarm counts for {} {} {} {}", customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 
-        AlarmCounts ret = alarmDatastore.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+        AlarmCounts ret = alarmDatastore.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet, acknowledged);
         
         LOG.debug("Alarm counts: {}", ret);
         return ret;

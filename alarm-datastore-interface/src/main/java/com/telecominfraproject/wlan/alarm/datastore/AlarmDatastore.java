@@ -66,9 +66,10 @@ public interface AlarmDatastore {
      * @param customerId
      * @param equipmentIdSet - if empty, then only total counts of all alarms for customer per alarm code will be counted
      * @param alarmCodeSet - can be empty, in which case all alarm codes will be counted
+     * @param acknowledged - can by empty, in which case acknowledged will be ignored
      * @return alarm counts for the given filters
      */
-    AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet);
+    AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged);
 
     /**
      * In some datastores (i.e. Cassandra) it makes sense to store counts of alarms in a separate table for fast retrieval by UI.

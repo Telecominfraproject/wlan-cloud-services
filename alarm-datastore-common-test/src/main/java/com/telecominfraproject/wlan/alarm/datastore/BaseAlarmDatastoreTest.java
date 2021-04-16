@@ -549,6 +549,7 @@ public abstract class BaseAlarmDatastoreTest {
             mdl.setScopeId("qr_"+apNameIdx);
             if((i%2) == 0) {
             	mdl.setAlarmCode(AlarmCode.CPUUtilization);
+            	mdl.setAcknowledged(true);
             	equipmentIds_CPUUtilization.add(mdl.getEquipmentId());
             } else {
             	equipmentIds_AccessPointIsUnreachable.add(mdl.getEquipmentId());
@@ -560,21 +561,21 @@ public abstract class BaseAlarmDatastoreTest {
             testInterface.create(mdl);
         }
         
-        {
-        	mdl = createAlarmObject();
-            mdl.setCustomerId(customerId_1);
-            mdl.setEquipmentId(0);
-          	mdl.setAlarmCode(AlarmCode.GenericError);
-            equipmentIds_c1.add(mdl.getEquipmentId());
-            
-            testInterface.create(mdl);        	
-        }
+    	mdl = createAlarmObject();
+        mdl.setCustomerId(customerId_1);
+        mdl.setEquipmentId(0);
+      	mdl.setAlarmCode(AlarmCode.GenericError);
+        equipmentIds_c1.add(mdl.getEquipmentId());
+        
+        testInterface.create(mdl);        	
 
         for(int i = 0; i< 50; i++){
             mdl = createAlarmObject();
             mdl.setCustomerId(customerId_2);
             mdl.setScopeId("qr_"+apNameIdx);
             equipmentIds_c2.add(mdl.getEquipmentId());
+            mdl.setAcknowledged(false);
+            mdl.setAlarmCode(AlarmCode.GenericError);
 
             apNameIdx++;
             testInterface.create(mdl);
@@ -582,7 +583,7 @@ public abstract class BaseAlarmDatastoreTest {
         
         Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.GenericError, AlarmCode.CPUUtilization));
 
-        AlarmCounts alarmCounts = testInterface.getAlarmCounts(customerId_1, equipmentIds, alarmCodes);
+        AlarmCounts alarmCounts = testInterface.getAlarmCounts(customerId_1, equipmentIds, alarmCodes, null);
         assertEquals(0, alarmCounts.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(25, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
@@ -590,21 +591,46 @@ public abstract class BaseAlarmDatastoreTest {
         equipmentIds_CPUUtilization.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.CPUUtilization)));
         equipmentIds_AccessPointIsUnreachable.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.AccessPointIsUnreachable)) );        
 
-		AlarmCounts alarmCounts_noEq = testInterface.getAlarmCounts(customerId_1, null, alarmCodes);
+		AlarmCounts alarmCounts_noEq = testInterface.getAlarmCounts(customerId_1, null, alarmCodes, null);
         assertEquals(1, alarmCounts_noEq.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.AccessPointIsUnreachable));
         assertTrue(alarmCounts_noEq.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(3, alarmCounts_noEq.getTotalCountsPerAlarmCodeMap().size());
 
-		AlarmCounts alarmCounts_noEq_1code = testInterface.getAlarmCounts(customerId_1, null, Collections.singleton(AlarmCode.CPUUtilization));
+		AlarmCounts alarmCounts_noEq_1code = testInterface.getAlarmCounts(customerId_1, null, Collections.singleton(AlarmCode.CPUUtilization), null);
         assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts_noEq_1code.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.AccessPointIsUnreachable));
         assertTrue(alarmCounts_noEq_1code.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(1, alarmCounts_noEq_1code.getTotalCountsPerAlarmCodeMap().size());
         
-		AlarmCounts alarmCounts_1Eq_1code = testInterface.getAlarmCounts(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.CPUUtilization));
+        AlarmCounts alarmCounts_acknowledgedT = testInterface.getAlarmCounts(customerId_1, null, Collections.singleton(AlarmCode.CPUUtilization), true);
+        assertTrue(alarmCounts_acknowledgedT.getAcknowledged());
+        assertEquals(0, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.GenericError));
+        assertEquals(25, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertTrue(alarmCounts_acknowledgedT.getCountsPerEquipmentIdMap().isEmpty());
+        assertEquals(1, alarmCounts_acknowledgedT.getTotalCountsPerAlarmCodeMap().size());
+        
+        AlarmCounts alarmCounts_acknowledgedF = testInterface.getAlarmCounts(customerId_1, null, Collections.singleton(AlarmCode.CPUUtilization), false);
+        assertFalse(alarmCounts_acknowledgedF.getAcknowledged());
+        assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.GenericError));
+        assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertTrue(alarmCounts_acknowledgedF.getCountsPerEquipmentIdMap().isEmpty());
+        assertEquals(0, alarmCounts_acknowledgedF.getTotalCountsPerAlarmCodeMap().size());
+        
+        AlarmCounts alarmCounts_acknowledgedF2 = testInterface.getAlarmCounts(customerId_2, null, Collections.singleton(AlarmCode.GenericError), false);
+        assertFalse(alarmCounts_acknowledgedF2.getAcknowledged());
+        assertEquals(50, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.GenericError));
+        assertEquals(0, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(0, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertTrue(alarmCounts_acknowledgedF2.getCountsPerEquipmentIdMap().isEmpty());
+        assertEquals(1, alarmCounts_acknowledgedF2.getTotalCountsPerAlarmCodeMap().size());
+        assertEquals(50, alarmCounts_acknowledgedF2.getTotalCountsPerAlarmCodeMap().get(AlarmCode.GenericError).intValue());
+        
+		AlarmCounts alarmCounts_1Eq_1code = testInterface.getAlarmCounts(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.CPUUtilization), null);
         assertEquals(0, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.GenericError));
         assertEquals(1, alarmCounts_1Eq_1code.getCounter(equipmentIds.iterator().next(), AlarmCode.CPUUtilization));
         assertEquals(1, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.CPUUtilization));
@@ -618,7 +644,7 @@ public abstract class BaseAlarmDatastoreTest {
         for(int i=0; i< 4; i++) {
         	smallEqIds.add(iter.next());
         }
-        AlarmCounts alarmCounts_small = testInterface.getAlarmCounts(customerId_1, smallEqIds, alarmCodes);
+        AlarmCounts alarmCounts_small = testInterface.getAlarmCounts(customerId_1, smallEqIds, alarmCodes, null);
         assertEquals(0, alarmCounts_small.getCounter(0, AlarmCode.GenericError));
         assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.AccessPointIsUnreachable));

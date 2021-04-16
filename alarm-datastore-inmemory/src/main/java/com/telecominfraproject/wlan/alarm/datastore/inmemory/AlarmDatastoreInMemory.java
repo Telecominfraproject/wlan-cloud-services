@@ -322,22 +322,37 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
     }
     
     @Override
-    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged) {
     	
     	AlarmCounts alarmCounts = new AlarmCounts();
     	alarmCounts.setCustomerId(customerId);
+    	alarmCounts.setAcknowledged(acknowledged);
     	
-        idToAlarmMap.values().forEach(a -> {
-        	if(a.getCustomerId() == customerId) {
-        		if( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) ) {
-		        	if( equipmentIdSet != null && !equipmentIdSet.isEmpty() && equipmentIdSet.contains(a.getEquipmentId()) ) {
-		            	alarmCounts.addToCounter(a.getEquipmentId(), a.getAlarmCode(), 1);
-		        	} else if( equipmentIdSet == null || equipmentIdSet.isEmpty()) {		        		 
-		        		alarmCounts.addToCounter(0, a.getAlarmCode(), 1);		        		
-		        	}
-        		}
-	        }
-        });
+    	if (acknowledged == null) {
+            idToAlarmMap.values().forEach(a -> {
+            	if(a.getCustomerId() == customerId) {
+            		if( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) ) {
+    		        	if( equipmentIdSet != null && !equipmentIdSet.isEmpty() && equipmentIdSet.contains(a.getEquipmentId()) ) {
+    		            	alarmCounts.addToCounter(a.getEquipmentId(), a.getAlarmCode(), 1);
+    		        	} else if (equipmentIdSet == null || equipmentIdSet.isEmpty()) {		        		 
+    		        		alarmCounts.addToCounter(0, a.getAlarmCode(), 1);		        		
+    		        	}
+            		}
+    	        }
+            });
+    	} else {
+    	    idToAlarmMap.values().forEach(a -> {
+                if(a.getCustomerId() == customerId && acknowledged.equals(a.isAcknowledged())) {
+                    if( alarmCodeSet ==null || alarmCodeSet.isEmpty() || alarmCodeSet.contains(a.getAlarmCode()) ) {
+                        if( equipmentIdSet != null && !equipmentIdSet.isEmpty() && equipmentIdSet.contains(a.getEquipmentId()) ) {
+                            alarmCounts.addToCounter(a.getEquipmentId(), a.getAlarmCode(), 1);
+                        } else if (equipmentIdSet == null || equipmentIdSet.isEmpty()) {                         
+                            alarmCounts.addToCounter(0, a.getAlarmCode(), 1);                       
+                        }
+                    }
+                }
+            });
+    	}
 
         return alarmCounts;
     }

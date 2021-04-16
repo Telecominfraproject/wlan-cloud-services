@@ -11,6 +11,7 @@ public class AlarmCounts extends BaseJsonModel {
 	private static final long serialVersionUID = -8513006445975878351L;
 	
 	private int customerId;
+	private Boolean acknowledged;
 	private Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap = new HashMap<>();
 	private Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap = new HashMap<>();
 	
@@ -20,7 +21,13 @@ public class AlarmCounts extends BaseJsonModel {
 	public void setCustomerId(int customerId) {
 		this.customerId = customerId;
 	}
-	public Map<Long, Map<AlarmCode, AtomicInteger>> getCountsPerEquipmentIdMap() {
+	public Boolean getAcknowledged() {
+        return acknowledged;
+    }
+    public void setAcknowledged(Boolean acknowledged) {
+        this.acknowledged = acknowledged;
+    }
+    public Map<Long, Map<AlarmCode, AtomicInteger>> getCountsPerEquipmentIdMap() {
 		return countsPerEquipmentIdMap;
 	}
 	public void setCountsPerEquipmentIdMap(Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap) {
