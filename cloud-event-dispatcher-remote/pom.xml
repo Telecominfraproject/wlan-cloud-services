@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -15,48 +15,48 @@
       <dependency>
         <artifactId>cloud-event-dispatcher-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>base-client</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
 	<!-- Dependencies for the unit tests -->
       <dependency>
         <artifactId>base-remote-tests</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       
       <dependency>
         <artifactId>base-container</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>cloud-event-dispatcher</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>equipment-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>equipment-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
           <scope>test</scope>
       </dependency>
 
@@ -64,49 +64,49 @@
       <dependency>
         <artifactId>base-stream-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       
       <dependency>
         <artifactId>service-metric-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>service-metric-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>service-metric-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>system-event-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>system-event-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>system-event-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
      
