@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -15,80 +15,80 @@
       <dependency>
         <artifactId>base-stream-consumer</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>service-metric-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>system-event-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>base-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>routing-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>equipment-gateway-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>equipment-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>location-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>profile-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>client-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <!--  models used by the application logic of the stream processor -->
       <dependency>
         <artifactId>equipment-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>profile-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <artifactId>location-models</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
     </dependencies>
