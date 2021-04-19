@@ -17,7 +17,6 @@ import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -58,22 +57,6 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         Alarm ret = responseEntity.getBody();
         
         LOG.debug("completed alarm.create {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public GenericResponse resetAlarmCounters() {
-        
-        LOG.debug("calling resetAlarmCounters ");
-        
-        ResponseEntity<GenericResponse> responseEntity = restTemplate.postForEntity(
-                getBaseUrl() + "/resetCounts",
-                null, GenericResponse.class);
-        
-        GenericResponse ret = responseEntity.getBody();
-        
-        LOG.debug("completed resetAlarmCounters {} ", ret);
         
         return ret;
     }

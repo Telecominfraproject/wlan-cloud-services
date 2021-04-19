@@ -209,9 +209,7 @@ public abstract class BaseAlarmDatastoreTest {
        Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.AssocFailure));
        long pastTimestamp = 0;
        Set<Long> equipmentIds_c2 = new HashSet<>();
-       
-       testInterface.resetAlarmCounters();
-       
+              
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
            mdl.setCustomerId(customerId_1);
@@ -232,8 +230,6 @@ public abstract class BaseAlarmDatastoreTest {
            apNameIdx++;
            testInterface.create(mdl);
        }
-
-       testInterface.resetAlarmCounters();
 
        for(int i = 0; i< 50; i++){
            mdl = createAlarmObject();
@@ -442,14 +438,10 @@ public abstract class BaseAlarmDatastoreTest {
        page1 = testInterface.getForCustomer(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.AccessPointIsUnreachable), -1, null, sortBy, context);
        assertEquals(1, page1.getItems().size());
 
-       testInterface.resetAlarmCounters();
-
        //clean up after the test
        equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId));
        equipmentIds_c2.forEach(eqId -> testInterface.delete(customerId_2, eqId));
        
-       testInterface.resetAlarmCounters();
-
     }
     
     protected List<String> getAlarmPagination_expectedPage3Strings(){
@@ -652,6 +644,36 @@ public abstract class BaseAlarmDatastoreTest {
         //clean up after the test
         equipmentIds_c1.forEach(eqId -> testInterface.delete(customerId_1, eqId));
         equipmentIds_c2.forEach(eqId -> testInterface.delete(customerId_2, eqId));
+
+    }
+    
+    @Test
+    public void testAlarmCountsForSingleEquipment() {
+        //create some Alarms
+        Alarm mdl;
+        int customerId = (int) testSequence.incrementAndGet();
+        long equipmentId = testSequence.incrementAndGet();
+        
+        
+        mdl = createAlarmObject();
+        mdl.setCustomerId(customerId);
+        mdl.setEquipmentId(equipmentId);
+        mdl.setAlarmCode(AlarmCode.CPUUtilization);
+        testInterface.create(mdl);
+        
+        mdl.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
+        testInterface.create(mdl);
+                
+        Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.GenericError, AlarmCode.CPUUtilization));
+
+        AlarmCounts alarmCounts = testInterface.getAlarmCounts(customerId, Collections.singleton(equipmentId), alarmCodes, null);
+        assertEquals(0, alarmCounts.getCounter(0, AlarmCode.GenericError));
+        assertEquals(1, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(1, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(2, alarmCounts.getCounter(equipmentId, null));
+        
+        //clean up after the test
+        testInterface.delete(customerId, equipmentId);
 
     }
     

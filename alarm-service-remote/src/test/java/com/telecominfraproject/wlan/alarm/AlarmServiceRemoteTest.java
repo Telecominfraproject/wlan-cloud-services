@@ -605,6 +605,36 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
 
     }
     
+    @Test
+    public void testAlarmCountsForSingleEquipment() {
+        //create some Alarms
+        Alarm mdl;
+        int customerId = getNextCustomerId();
+        long equipmentId = getNextEquipmentId();
+        
+        
+        mdl = createAlarmObject();
+        mdl.setCustomerId(customerId);
+        mdl.setEquipmentId(equipmentId);
+        mdl.setAlarmCode(AlarmCode.CPUUtilization);
+        remoteInterface.create(mdl);
+        
+        mdl.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
+        remoteInterface.create(mdl);
+                
+        Set<AlarmCode> alarmCodes = new HashSet<>(Arrays.asList(AlarmCode.AccessPointIsUnreachable, AlarmCode.GenericError, AlarmCode.CPUUtilization));
+
+        AlarmCounts alarmCounts = remoteInterface.getAlarmCounts(customerId, Collections.singleton(equipmentId), alarmCodes, null);
+        assertEquals(0, alarmCounts.getCounter(0, AlarmCode.GenericError));
+        assertEquals(1, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
+        assertEquals(1, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(2, alarmCounts.getCounter(equipmentId, null));
+        
+        //clean up after the test
+        remoteInterface.delete(customerId, equipmentId);
+
+    }
+    
     private Alarm createAlarmObject() {
     	Alarm result = new Alarm();
         result.setCustomerId(getNextCustomerId());

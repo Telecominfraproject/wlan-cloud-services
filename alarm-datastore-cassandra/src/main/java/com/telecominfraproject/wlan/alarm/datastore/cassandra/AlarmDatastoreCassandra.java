@@ -7,12 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 
@@ -119,9 +116,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
             " from "+TABLE_NAME+" " +
             " where  customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ?";
 
-        private static final String CQL_GET_ALL_NO_DETAILS = 
-                "select customerId, equipmentId, alarmCode, createdTimestamp, acknowledged from alarm " ; 
-
         private static final String CQL_GET_BY_CUSTOMER_ID = 
         		"select " + ALL_COLUMNS +
         		" from " + TABLE_NAME + " " + 
@@ -152,9 +146,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
             + " IF lastModifiedTimestamp = ? " 
             ;
     
-        private static final String CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER = "select equipmentId, alarmCode, count(1) from alarm where customerId = ? ";
-        private static final String CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_FOOTER = " group by equipmentId, alarmCode";
-
         private static final String CQL_INSERT_INTO_BY_ACKNOWLEDGED_TABLE = "insert into alarm_by_acknowledged(customerId, equipmentId, alarmCode, createdTimestamp, acknowledged) values ( ?, ?, ?, ?, ?) ";
         private static final String CQL_DELETE_FROM_BY_ACKNOWLEDGED_TABLE = "delete from alarm_by_acknowledged where customerId = ? and equipmentId = ? and alarmCode = ? and createdTimestamp = ? and acknowledged = ? ";
 
@@ -172,48 +163,11 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         //private static final String CQL_COUNTS_BY_ALARM_CODE_HEADER = "select alarmCode, count(1) from alarm where customerId = ? ";
         //private static final String CQL_COUNTS_BY_ALARM_CODE_FOOTER = " group by alarmCode";
         
-        // CQL statements for counts without acknowledged
-        private static final String CQL_INCREMENT_EQUIPMENT_ALARM_COUNT = "update alarm_counts_by_equipment set alarmCount = alarmCount + 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_EQUIPMENT_ALARM_COUNT = "update alarm_counts_by_equipment set alarmCount = alarmCount - 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
+        // CQL statements for counts
+        private static final String CQL_GET_CUSTOMER_ALARM_COUNT_BY_CUSTOMER_ID = "select equipmentId, alarmCode from alarm where customerId = ? ";
         
-        private static final String CQL_GET_EQUIPMENT_ALARM_COUNT_BY_CUSTOMER_ID = "select equipmentId, alarmCode, alarmCount from alarm_counts_by_equipment where customerId = ? ";
-
-        private static final String CQL_INCREMENT_CUSTOMER_ALARM_COUNT = "update alarm_counts_by_customer set alarmCount = alarmCount + 1 where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_CUSTOMER_ALARM_COUNT = "update alarm_counts_by_customer set alarmCount = alarmCount - 1 where  customerId = ?  and alarmCode = ? ";
+        private static final String CQL_GET_CUSTOMER_ACKNOWLEDGED_ALARM_COUNT_BY_CUSTOMER_ID = "select equipmentId, alarmCode from alarm_by_acknowledged where customerId = ? and acknowledged = ? ";
         
-        private static final String CQL_GET_CUSTOMER_ALARM_COUNT_BY_CUSTOMER_ID = "select alarmCode, alarmCount from alarm_counts_by_customer where customerId = ? ";
-        
-        private static final String CQL_UPDATE_CUSTOMER_ALARM_COUNT = "update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_UPDATE_EQUIPMENT_ALARM_COUNT = "update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-
-        // CQL statements for counts with acknowledged = true
-        private static final String CQL_INCREMENT_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_equipment set alarmCount = alarmCount + 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_equipment set alarmCount = alarmCount - 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-        
-        private static final String CQL_GET_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT_BY_CUSTOMER_ID = "select equipmentId, alarmCode, alarmCount from acknowledged_true_alarm_counts_by_equipment where customerId = ? ";
-
-        private static final String CQL_INCREMENT_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_customer set alarmCount = alarmCount + 1 where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_customer set alarmCount = alarmCount - 1 where  customerId = ?  and alarmCode = ? ";
-        
-        private static final String CQL_GET_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT_BY_CUSTOMER_ID = "select alarmCode, alarmCount from acknowledged_true_alarm_counts_by_customer where customerId = ? ";
-        
-        private static final String CQL_UPDATE_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_UPDATE_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT = "update acknowledged_true_alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-
-        // CQL statements for counts with acknowledged = false
-        private static final String CQL_INCREMENT_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_equipment set alarmCount = alarmCount + 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_equipment set alarmCount = alarmCount - 1 where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-        
-        private static final String CQL_GET_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT_BY_CUSTOMER_ID = "select equipmentId, alarmCode, alarmCount from acknowledged_false_alarm_counts_by_equipment where customerId = ? ";
-
-        private static final String CQL_INCREMENT_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_customer set alarmCount = alarmCount + 1 where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_DECREMENT_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_customer set alarmCount = alarmCount - 1 where  customerId = ?  and alarmCode = ? ";
-        
-        private static final String CQL_GET_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT_BY_CUSTOMER_ID = "select alarmCode, alarmCount from acknowledged_false_alarm_counts_by_customer where customerId = ? ";
-        
-        private static final String CQL_UPDATE_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? ";
-        private static final String CQL_UPDATE_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT = "update acknowledged_false_alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? ";
-
 
     private static final RowMapper<Alarm> alarmRowMapper = new AlarmRowMapper();
     
@@ -221,36 +175,11 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 	private CqlSession cqlSession;
 	
 	private PreparedStatement preparedStmt_getOrNull;
-    private PreparedStatement preparedStmt_getAllNoDetails;
 	private PreparedStatement preparedStmt_create;
 	private PreparedStatement preparedStmt_update;
 	private PreparedStatement preparedStmt_getLastmod;
 	private PreparedStatement preparedStmt_delete;
 	private PreparedStatement preparedStmt_deleteByEquipment;
-	
-	// alarm count statements
-	private PreparedStatement preparedStmt_incrementAlarmCountByEquipment;
-	private PreparedStatement preparedStmt_decrementAlarmCountByEquipment;
-	private PreparedStatement preparedStmt_incrementAlarmCountByCustomer;
-	private PreparedStatement preparedStmt_decrementAlarmCountByCustomer;
-    private PreparedStatement preparedStmt_updateAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_updateAlarmCountByCustomer;
-    
-    // alarm count with acknowledged = true statements
-    private PreparedStatement preparedStmt_incrementAcknowledgedTrueAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_decrementAcknowledgedTrueAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_incrementAcknowledgedTrueAlarmCountByCustomer;
-    private PreparedStatement preparedStmt_decrementAcknowledgedTrueAlarmCountByCustomer;
-    private PreparedStatement preparedStmt_updateAcknowledgedTrueAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_updateAcknowledgedTrueAlarmCountByCustomer;
-    
- // alarm count with acknowledged = false statements
-    private PreparedStatement preparedStmt_incrementAcknowledgedFalseAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_decrementAcknowledgedFalseAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_incrementAcknowledgedFalseAlarmCountByCustomer;
-    private PreparedStatement preparedStmt_decrementAcknowledgedFalseAlarmCountByCustomer;
-    private PreparedStatement preparedStmt_updateAcknowledgedFalseAlarmCountByEquipment;
-    private PreparedStatement preparedStmt_updateAcknowledgedFalseAlarmCountByCustomer;
     
     // filter by acknowledged statements
     private PreparedStatement preparedStmt_insertIntoAlarmByAcknowledged;
@@ -265,34 +194,12 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 	@PostConstruct
 	private void postConstruct(){
 		preparedStmt_getOrNull = cqlSession.prepare(CQL_GET_BY_ID);
-        preparedStmt_getAllNoDetails = cqlSession.prepare(CQL_GET_ALL_NO_DETAILS);
 		preparedStmt_create = cqlSession.prepare(CQL_INSERT);
 		preparedStmt_update = cqlSession.prepare(CQL_UPDATE);
 		preparedStmt_getLastmod = cqlSession.prepare(CQL_GET_LASTMOD_BY_ID);
 		preparedStmt_delete = cqlSession.prepare(CQL_DELETE);
 		preparedStmt_deleteByEquipment = cqlSession.prepare(CQL_DELETE_BY_EQUIPMENT);
 		
-		preparedStmt_incrementAlarmCountByEquipment = cqlSession.prepare(CQL_INCREMENT_EQUIPMENT_ALARM_COUNT);
-		preparedStmt_decrementAlarmCountByEquipment = cqlSession.prepare(CQL_DECREMENT_EQUIPMENT_ALARM_COUNT);
-		preparedStmt_incrementAlarmCountByCustomer= cqlSession.prepare(CQL_INCREMENT_CUSTOMER_ALARM_COUNT);
-		preparedStmt_decrementAlarmCountByCustomer = cqlSession.prepare(CQL_DECREMENT_CUSTOMER_ALARM_COUNT);
-		preparedStmt_updateAlarmCountByEquipment = cqlSession.prepare(CQL_UPDATE_EQUIPMENT_ALARM_COUNT);
-		preparedStmt_updateAlarmCountByCustomer= cqlSession.prepare(CQL_UPDATE_CUSTOMER_ALARM_COUNT);
-		
-		preparedStmt_incrementAcknowledgedTrueAlarmCountByEquipment = cqlSession.prepare(CQL_INCREMENT_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-        preparedStmt_decrementAcknowledgedTrueAlarmCountByEquipment = cqlSession.prepare(CQL_DECREMENT_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-        preparedStmt_incrementAcknowledgedTrueAlarmCountByCustomer= cqlSession.prepare(CQL_INCREMENT_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-        preparedStmt_decrementAcknowledgedTrueAlarmCountByCustomer = cqlSession.prepare(CQL_DECREMENT_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-        preparedStmt_updateAcknowledgedTrueAlarmCountByEquipment = cqlSession.prepare(CQL_UPDATE_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-        preparedStmt_updateAcknowledgedTrueAlarmCountByCustomer= cqlSession.prepare(CQL_UPDATE_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT);
-		
-        preparedStmt_incrementAcknowledgedFalseAlarmCountByEquipment = cqlSession.prepare(CQL_INCREMENT_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-        preparedStmt_decrementAcknowledgedFalseAlarmCountByEquipment = cqlSession.prepare(CQL_DECREMENT_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-        preparedStmt_incrementAcknowledgedFalseAlarmCountByCustomer= cqlSession.prepare(CQL_INCREMENT_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-        preparedStmt_decrementAcknowledgedFalseAlarmCountByCustomer = cqlSession.prepare(CQL_DECREMENT_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-        preparedStmt_updateAcknowledgedFalseAlarmCountByEquipment = cqlSession.prepare(CQL_UPDATE_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-        preparedStmt_updateAcknowledgedFalseAlarmCountByCustomer= cqlSession.prepare(CQL_UPDATE_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT);
-
 		preparedStmt_insertIntoAlarmByAcknowledged = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_TABLE);
 		preparedStmt_deleteFromAlarmByAcknowledged = cqlSession.prepare(CQL_DELETE_FROM_BY_ACKNOWLEDGED_TABLE);
 		preparedStmt_insertIntoAlarmByAcknowledgedEquipmentId = cqlSession.prepare(CQL_INSERT_INTO_BY_ACKNOWLEDGED_EQUIPMENTID_TABLE);
@@ -334,43 +241,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 				));
 		
         LOG.debug("Stored Alarm {}", alarm);
-
-        //update alarm count
-		cqlSession.execute(preparedStmt_incrementAlarmCountByEquipment.bind(
-                alarm.getCustomerId(),
-                alarm.getEquipmentId(),
-                alarm.getAlarmCode().getId()
-                ));
-
-		cqlSession.execute(preparedStmt_incrementAlarmCountByCustomer.bind(
-                alarm.getCustomerId(),
-                alarm.getAlarmCode().getId()
-                ));
-		
-		//update acknowledged alarm count
-		if (alarm.isAcknowledged()) {
-    		cqlSession.execute(preparedStmt_incrementAcknowledgedTrueAlarmCountByEquipment.bind(
-                    alarm.getCustomerId(),
-                    alarm.getEquipmentId(),
-                    alarm.getAlarmCode().getId()
-                    ));
-    
-            cqlSession.execute(preparedStmt_incrementAcknowledgedTrueAlarmCountByCustomer.bind(
-                    alarm.getCustomerId(),
-                    alarm.getAlarmCode().getId()
-                    ));
-		} else {
-		    cqlSession.execute(preparedStmt_incrementAcknowledgedFalseAlarmCountByEquipment.bind(
-                    alarm.getCustomerId(),
-                    alarm.getEquipmentId(),
-                    alarm.getAlarmCode().getId()
-                    ));
-    
-            cqlSession.execute(preparedStmt_incrementAcknowledgedFalseAlarmCountByCustomer.bind(
-                    alarm.getCustomerId(),
-                    alarm.getAlarmCode().getId()
-                    ));
-		}
 		
 		//insert entry into acknowledged tables
 		cqlSession.execute(preparedStmt_insertIntoAlarmByAcknowledged.bind(
@@ -620,43 +490,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         
         cqlSession.execute(preparedStmt_delete.bind(customerId, equipmentId, alarmCode.getId(), createdTimestamp));
         LOG.debug("Deleted Alarm {}", ret);
-        
-        //update alarm count
-		cqlSession.execute(preparedStmt_decrementAlarmCountByEquipment.bind(
-                ret.getCustomerId(),
-                ret.getEquipmentId(),
-                ret.getAlarmCode().getId()
-                ));
-
-		cqlSession.execute(preparedStmt_decrementAlarmCountByCustomer.bind(
-                ret.getCustomerId(),
-                ret.getAlarmCode().getId()
-                ));
-		
-		//update acknowledged alarm count
-		if (ret.isAcknowledged()) {
-    	    cqlSession.execute(preparedStmt_decrementAcknowledgedTrueAlarmCountByEquipment.bind(
-                    ret.getCustomerId(),
-                    ret.getEquipmentId(),
-                    ret.getAlarmCode().getId()
-                    ));
-    
-            cqlSession.execute(preparedStmt_decrementAcknowledgedTrueAlarmCountByCustomer.bind(
-                    ret.getCustomerId(),
-                    ret.getAlarmCode().getId()
-                    ));
-		} else {
-		    cqlSession.execute(preparedStmt_decrementAcknowledgedFalseAlarmCountByEquipment.bind(
-                    ret.getCustomerId(),
-                    ret.getEquipmentId(),
-                    ret.getAlarmCode().getId()
-                    ));
-    
-            cqlSession.execute(preparedStmt_decrementAcknowledgedFalseAlarmCountByCustomer.bind(
-                    ret.getCustomerId(),
-                    ret.getAlarmCode().getId()
-                    ));
-		}
 		
 		//delete entry into acknowledged tables
 		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledged.bind(
@@ -704,41 +537,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         LOG.debug("Deleted Alarms {}", ret);
         
         ret.forEach(al -> {
-        	//TODO: replace with one update of a counter
-            //update alarm count
-    		cqlSession.execute(preparedStmt_decrementAlarmCountByEquipment.bind(
-                    al.getCustomerId(),
-                    al.getEquipmentId(),
-                    al.getAlarmCode().getId()
-                    ));
-    		
-    		cqlSession.execute(preparedStmt_decrementAlarmCountByCustomer.bind(
-                    al.getCustomerId(),
-                    al.getAlarmCode().getId()
-                    ));        
-    		
-    		cqlSession.execute(preparedStmt_decrementAcknowledgedTrueAlarmCountByEquipment.bind(
-                    al.getCustomerId(),
-                    al.getEquipmentId(),
-                    al.getAlarmCode().getId()
-                    ));
-            
-            cqlSession.execute(preparedStmt_decrementAcknowledgedTrueAlarmCountByCustomer.bind(
-                    al.getCustomerId(),
-                    al.getAlarmCode().getId()
-                    )); 
-            
-            cqlSession.execute(preparedStmt_decrementAcknowledgedFalseAlarmCountByEquipment.bind(
-                    al.getCustomerId(),
-                    al.getEquipmentId(),
-                    al.getAlarmCode().getId()
-                    ));
-            
-            cqlSession.execute(preparedStmt_decrementAcknowledgedFalseAlarmCountByCustomer.bind(
-                    al.getCustomerId(),
-                    al.getAlarmCode().getId()
-                    )); 
-    		
     		//delete entry into acknowledged tables
     		cqlSession.execute(preparedStmt_deleteFromAlarmByAcknowledged.bind(
                     al.getCustomerId(),
@@ -775,367 +573,6 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         });
         
         return ret;
-	}
-	
-	@Override
-	public void resetAlarmCounters() {
-        LOG.debug("Resetting Alarm counters ");
-	    
-        //count real alarms per-customer and per equipment
-        Map<Integer, AlarmCounts> alarmCountsPerCustomerMap = new HashMap<>();
-        Map<Integer, AlarmCounts> acknowledgedTrueAlarmCountsPerCustomerMap = new HashMap<>();
-        Map<Integer, AlarmCounts> acknowledgedFalseAlarmCountsPerCustomerMap = new HashMap<>();
-
-        //select customerId, equipmentId, alarmCode, createdTimestamp, acknowledged from alarm
-        ResultSet rs = cqlSession.execute(preparedStmt_getAllNoDetails.bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            long equipmentId = row.getLong(1);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
-            Boolean acknowledged = row.getBoolean(4);
-            
-            AlarmCounts alarmCounts = alarmCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                alarmCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(equipmentId, alarmCode, 1);
-            
-            if (acknowledged != null) {
-                if (acknowledged) {
-                    AlarmCounts acknowledgedTrueAlarmCounts = acknowledgedTrueAlarmCountsPerCustomerMap.get(customerId);
-                    if(acknowledgedTrueAlarmCounts == null) {
-                        acknowledgedTrueAlarmCounts = new AlarmCounts();
-                        acknowledgedTrueAlarmCounts.setCustomerId(customerId);
-                        acknowledgedTrueAlarmCounts.setAcknowledged(acknowledged);
-                        acknowledgedTrueAlarmCountsPerCustomerMap.put(customerId, acknowledgedTrueAlarmCounts);
-                    }
-    
-                    acknowledgedTrueAlarmCounts.addToCounter(equipmentId, alarmCode, 1);
-                } else {
-                    AlarmCounts acknowledgedFalseAlarmCounts = acknowledgedFalseAlarmCountsPerCustomerMap.get(customerId);
-                    if(acknowledgedFalseAlarmCounts == null) {
-                        acknowledgedFalseAlarmCounts = new AlarmCounts();
-                        acknowledgedFalseAlarmCounts.setCustomerId(customerId);
-                        acknowledgedFalseAlarmCounts.setAcknowledged(acknowledged);
-                        acknowledgedFalseAlarmCountsPerCustomerMap.put(customerId, acknowledgedFalseAlarmCounts);
-                    }
-    
-                    acknowledgedFalseAlarmCounts.addToCounter(equipmentId, alarmCode, 1);
-                }
-            }
-            
-        });
-        
-        //read existing counters alarms per-customer
-        Map<Integer, AlarmCounts> existingCustomerCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, alarmcode, alarmcount from alarm_counts_by_customer ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(1));
-            long count = row.getLong(2);
-
-            AlarmCounts alarmCounts = existingCustomerCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                existingCustomerCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(0, alarmCode, (int) count);
-            
-        });
-
-        //read existing counters alarms per equipment
-        Map<Integer, AlarmCounts> existingEquipmentCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, equipmentid, alarmcode, alarmcount from alarm_counts_by_equipment ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            long equipmentId = row.getLong(1);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
-            long count = row.getLong(3);
-
-            AlarmCounts alarmCounts = existingEquipmentCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                existingEquipmentCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(equipmentId, alarmCode, (int) count);
-            
-        });
-        
-        //read existing counters acknowledged true alarms per-customer
-        Map<Integer, AlarmCounts> existingCustomerAcknowledgedTrueCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, alarmcode, alarmcount from acknowledged_true_alarm_counts_by_customer ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(1));
-            long count = row.getLong(2);
-
-            AlarmCounts alarmCounts = existingCustomerAcknowledgedTrueCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                alarmCounts.setAcknowledged(true);
-                existingCustomerAcknowledgedTrueCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(0, alarmCode, (int) count);
-            
-        });
-
-        //read existing counters acknowledged true alarms per equipment
-        Map<Integer, AlarmCounts> existingEquipmentAcknowledgedTrueCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, equipmentid, alarmcode, alarmcount from acknowledged_true_alarm_counts_by_equipment ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            long equipmentId = row.getLong(1);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
-            long count = row.getLong(3);
-
-            AlarmCounts alarmCounts = existingEquipmentAcknowledgedTrueCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                alarmCounts.setAcknowledged(true);
-                existingEquipmentAcknowledgedTrueCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(equipmentId, alarmCode, (int) count);
-            
-        });
-        
-        //read existing counters acknowledged false alarms per-customer
-        Map<Integer, AlarmCounts> existingCustomerAcknowledgedFalseCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, alarmcode, alarmcount from acknowledged_false_alarm_counts_by_customer ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(1));
-            long count = row.getLong(2);
-
-            AlarmCounts alarmCounts = existingCustomerAcknowledgedFalseCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                alarmCounts.setAcknowledged(false);
-                existingCustomerAcknowledgedFalseCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(0, alarmCode, (int) count);
-            
-        });
-
-        //read existing counters acknowledged false alarms per equipment
-        Map<Integer, AlarmCounts> existingEquipmentAcknowledgedFalseCountsPerCustomerMap = new HashMap<>();
-        rs = cqlSession.execute(cqlSession.prepare("select customerid, equipmentid, alarmcode, alarmcount from acknowledged_false_alarm_counts_by_equipment ").bind());
-        
-        rs.forEach(row -> {
-            int customerId = row.getInt(0);
-            long equipmentId = row.getLong(1);
-            AlarmCode alarmCode = AlarmCode.getById(row.getInt(2));
-            long count = row.getLong(3);
-
-            AlarmCounts alarmCounts = existingEquipmentAcknowledgedFalseCountsPerCustomerMap.get(customerId);
-            if(alarmCounts == null) {
-                alarmCounts = new AlarmCounts();
-                alarmCounts.setCustomerId(customerId);
-                alarmCounts.setAcknowledged(false);
-                existingEquipmentAcknowledgedFalseCountsPerCustomerMap.put(customerId, alarmCounts);
-            }
-
-            alarmCounts.addToCounter(equipmentId, alarmCode, (int) count);
-            
-        });
-
-        //set existing counters per customer - first to 0, then to new computed values
-        existingCustomerCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts realAlarmCounts = alarmCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, existingCount) -> {
-                int realCount = realAlarmCounts != null ? realAlarmCounts.getTotalCountsPerAlarmCodeMap().getOrDefault(alarmCode, new AtomicInteger(0)).get(): 0;
-                //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
-                cqlSession.execute(preparedStmt_updateAlarmCountByCustomer.bind( (long) (0L - existingCount.get() + realCount), customerCounts.getCustomerId(), alarmCode.getId()));
-            });            
-        });
-
-        //set existing counters per equipment - first to 0, then to new computed values
-        existingEquipmentCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts realAlarmCounts = alarmCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                
-                perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                    int realCount = 0;
-                    if(realAlarmCounts != null && realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId)!=null ) {
-                        realCount  = realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId).getOrDefault(alarmCode, new AtomicInteger(0)).get();
-                    }
-                    //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ?  
-                    cqlSession.execute(preparedStmt_updateAlarmCountByEquipment.bind( (long) ( 0L - existingCount.get() + realCount), customerId, eqId, alarmCode.getId()));
-                });            
-                
-            });
-            
-        });
-        
-        //set existing acknowledged true counters per customer - first to 0, then to new computed values
-        existingCustomerAcknowledgedTrueCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts realAlarmCounts = acknowledgedTrueAlarmCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, existingCount) -> {
-                int realCount = realAlarmCounts != null ? realAlarmCounts.getTotalCountsPerAlarmCodeMap().getOrDefault(alarmCode, new AtomicInteger(0)).get(): 0;
-                //update acknowledged_true_alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
-                cqlSession.execute(preparedStmt_updateAcknowledgedTrueAlarmCountByCustomer.bind( (long) (0L - existingCount.get() + realCount), customerCounts.getCustomerId(), alarmCode.getId()));
-            });            
-        });
-
-        //set existing acknowledged counters per equipment - first to 0, then to new computed values
-        existingEquipmentAcknowledgedTrueCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts realAlarmCounts = acknowledgedTrueAlarmCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                
-                perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                    int realCount = 0;
-                    if(realAlarmCounts != null && realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId)!=null ) {
-                        realCount  = realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId).getOrDefault(alarmCode, new AtomicInteger(0)).get();
-                    }
-                    //update acknowledged_true_alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? 
-                    cqlSession.execute(preparedStmt_updateAcknowledgedTrueAlarmCountByEquipment.bind( (long) ( 0L - existingCount.get() + realCount), customerId, eqId, alarmCode.getId()));
-                });            
-                
-            });
-            
-        });
-        
-      //set existing acknowledged false counters per customer - first to 0, then to new computed values
-        existingCustomerAcknowledgedFalseCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts realAlarmCounts = acknowledgedFalseAlarmCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, existingCount) -> {
-                int realCount = realAlarmCounts != null ? realAlarmCounts.getTotalCountsPerAlarmCodeMap().getOrDefault(alarmCode, new AtomicInteger(0)).get(): 0;
-                //update acknowledged_false_alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ?
-                cqlSession.execute(preparedStmt_updateAcknowledgedFalseAlarmCountByCustomer.bind( (long) (0L - existingCount.get() + realCount), customerCounts.getCustomerId(), alarmCode.getId()));
-            });            
-        });
-
-        //set existing acknowledged false counters per equipment - first to 0, then to new computed values
-        existingEquipmentAcknowledgedFalseCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts realAlarmCounts = acknowledgedFalseAlarmCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                
-                perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                    int realCount = 0;
-                    if(realAlarmCounts != null && realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId)!=null ) {
-                        realCount  = realAlarmCounts.getCountsPerEquipmentIdMap().get(eqId).getOrDefault(alarmCode, new AtomicInteger(0)).get();
-                    }
-                    //update acknowledged_false_alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? 
-                    cqlSession.execute(preparedStmt_updateAcknowledgedFalseAlarmCountByEquipment.bind( (long) ( 0L - existingCount.get() + realCount), customerId, eqId, alarmCode.getId()));
-                });            
-                
-            });
-            
-        });
-        
-        //process new customer counts that are not present in existing counts
-        alarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts existingAlarmCounts = existingCustomerCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            if(existingAlarmCounts == null) {
-                customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, newCount) -> {
-                    //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
-                    cqlSession.execute(preparedStmt_updateAlarmCountByCustomer.bind((long) newCount.get(), customerCounts.getCustomerId(), alarmCode.getId()));
-                });
-            }
-        });
-        
-
-        //process new equipment counts that are not present in existing counts
-        alarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts existingAlarmCounts = existingEquipmentCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                if(existingAlarmCounts == null || existingAlarmCounts.getCountsPerEquipmentIdMap().get(eqId) == null) {                
-                    perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                        //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ?  
-                        cqlSession.execute(preparedStmt_updateAlarmCountByEquipment.bind((long) existingCount.get(), customerId, eqId, alarmCode.getId()));
-                    });
-                }
-                
-            });
-            
-        });
-        
-        //process new customer acknowledged true counts that are not present in existing counts
-        acknowledgedTrueAlarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts existingAlarmCounts = existingCustomerAcknowledgedTrueCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            if(existingAlarmCounts == null) {
-                customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, newCount) -> {
-                    //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
-                    cqlSession.execute(preparedStmt_updateAcknowledgedTrueAlarmCountByCustomer.bind((long) newCount.get(), customerCounts.getCustomerId(), alarmCode.getId()));
-                });
-            }
-        });
-        
-
-        //process new equipment true acknowledged counts that are not present in existing counts
-        acknowledgedTrueAlarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts existingAlarmCounts = existingEquipmentAcknowledgedTrueCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                if(existingAlarmCounts == null || existingAlarmCounts.getCountsPerEquipmentIdMap().get(eqId) == null) {                
-                    perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                        //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? 
-                        cqlSession.execute(preparedStmt_updateAcknowledgedFalseAlarmCountByEquipment.bind((long) existingCount.get(), customerId, eqId, alarmCode.getId()));
-                    });
-                }
-                
-            });
-            
-        });
-        
-      //process new customer acknowledged false counts that are not present in existing counts
-        acknowledgedFalseAlarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            AlarmCounts existingAlarmCounts = existingCustomerAcknowledgedFalseCountsPerCustomerMap.get(customerCounts.getCustomerId());
-            if(existingAlarmCounts == null) {
-                customerCounts.getTotalCountsPerAlarmCodeMap().forEach((alarmCode, newCount) -> {
-                    //update alarm_counts_by_customer set alarmCount = alarmCount + ? where  customerId = ? and alarmCode = ? 
-                    cqlSession.execute(preparedStmt_updateAcknowledgedFalseAlarmCountByCustomer.bind((long) newCount.get(), customerCounts.getCustomerId(), alarmCode.getId()));
-                });
-            }
-        });
-        
-
-        //process new equipment acknowledged false counts that are not present in existing counts
-        acknowledgedFalseAlarmCountsPerCustomerMap.values().forEach(customerCounts -> {
-            int customerId = customerCounts.getCustomerId();
-            AlarmCounts existingAlarmCounts = existingEquipmentAcknowledgedFalseCountsPerCustomerMap.get(customerId);
-            
-            customerCounts.getCountsPerEquipmentIdMap().forEach((eqId, perAlarmCodeMap) -> {
-                if(existingAlarmCounts == null || existingAlarmCounts.getCountsPerEquipmentIdMap().get(eqId) == null) {                
-                    perAlarmCodeMap.forEach((alarmCode, existingCount) -> {
-                        //update alarm_counts_by_equipment set alarmCount = alarmCount + ? where  customerId = ? and equipmentId = ? and alarmCode = ? 
-                        cqlSession.execute(preparedStmt_updateAcknowledgedFalseAlarmCountByEquipment.bind((long) existingCount.get(), customerId, eqId, alarmCode.getId()));
-                    });
-                }
-                
-            });
-            
-        });
-
-        
-        LOG.debug("Completed resetting Alarm counters ");
 	}
 
 	@Override
@@ -1414,23 +851,10 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 		StringBuilder query = new StringBuilder();
 
 		if (acknowledged == null) {
-            if (equipmentIds != null && !equipmentIds.isEmpty()) {
-            	query.append(CQL_GET_EQUIPMENT_ALARM_COUNT_BY_CUSTOMER_ID);
-            } else {
-            	query.append(CQL_GET_CUSTOMER_ALARM_COUNT_BY_CUSTOMER_ID);
-            }
-		} else if (acknowledged) {
-		    if (equipmentIds != null && !equipmentIds.isEmpty()) {
-                query.append(CQL_GET_EQUIPMENT_ACKNOWLEDGED_TRUE_ALARM_COUNT_BY_CUSTOMER_ID);
-            } else {
-                query.append(CQL_GET_CUSTOMER_ACKNOWLEDGED_TRUE_ALARM_COUNT_BY_CUSTOMER_ID);
-            }
+        	query.append(CQL_GET_CUSTOMER_ALARM_COUNT_BY_CUSTOMER_ID);
 		} else {
-		    if (equipmentIds != null && !equipmentIds.isEmpty()) {
-                query.append(CQL_GET_EQUIPMENT_ACKNOWLEDGED_FALSE_ALARM_COUNT_BY_CUSTOMER_ID);
-            } else {
-                query.append(CQL_GET_CUSTOMER_ACKNOWLEDGED_FALSE_ALARM_COUNT_BY_CUSTOMER_ID);
-            }
+		    queryArgs.add(acknowledged);
+            query.append(CQL_GET_CUSTOMER_ACKNOWLEDGED_ALARM_COUNT_BY_CUSTOMER_ID);
 		}
         
 
@@ -1441,18 +865,22 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         //add equipmentId filters
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             queryArgs.addAll(equipmentIds);
-
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
+            
+            if (equipmentIds.size() == 1) {
+                query.append("and equipmentId = ? ");
+            } else {
+                StringBuilder strb = new StringBuilder(100);
+                strb.append("and equipmentId in (");
+                for (int i = 0; i < equipmentIds.size(); i++) {
+                    strb.append("?");
+                    if (i < equipmentIds.size() - 1) {
+                        strb.append(",");
+                    }
                 }
+                strb.append(") ");
+    
+                query.append(strb);
             }
-            strb.append(") ");
-
-            query.append(strb);
         }
 
         
@@ -1469,21 +897,11 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         	throw e;
         }
         
-		ResultSet rs = cqlSession.execute(preparedStmt_getCounts.bind(queryArgs.toArray() ));
+		ResultSet rs = cqlSession.execute(preparedStmt_getCounts.bind(queryArgs.toArray()));
 		
-		int alarmCodeColIdx;
-		int equipmentIdColIdx;
-		int countColIdx;
 		
-		if (equipmentIds == null || equipmentIds.isEmpty()) {
-			alarmCodeColIdx = 0;
-			equipmentIdColIdx = 0;
-			countColIdx = 1;
-		} else {
-			alarmCodeColIdx = 1;
-			equipmentIdColIdx = 0;
-			countColIdx = 2;
-		}
+		int equipmentIdColIdx = 0;
+		int alarmCodeColIdx = 1;
 		
 		rs.forEach(row -> {
 			//we will do the client-side filtering for the AlarmCodes, because querying for it as part of CQL does not seem to work
@@ -1491,86 +909,17 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 			//the amount of distinct alarm codes per equipment is very small
 	        AlarmCode ac = AlarmCode.getById(row.getInt(alarmCodeColIdx));
 	        
-	        if (alarmCodes != null && !alarmCodes.isEmpty() && alarmCodes.contains(ac) 
-	        		|| alarmCodes == null || alarmCodes.isEmpty() ) 
+	        if (alarmCodes != null && !alarmCodes.isEmpty() && alarmCodes.contains(ac) || alarmCodes == null || alarmCodes.isEmpty() ) 
 	        {
 	    		if(equipmentIds == null || equipmentIds.isEmpty()) {
-	    			alarmCounts.addToCounter(0, ac, (int) row.getLong(countColIdx));
+	    			alarmCounts.addToCounter(0, ac, 1);
 	    		} else {
-	    			alarmCounts.addToCounter(row.getLong(equipmentIdColIdx), ac, (int) row.getLong(countColIdx));
+	    			alarmCounts.addToCounter(row.getLong(equipmentIdColIdx), ac, 1);
 	    		}
 	        }
 		});
 
 		return alarmCounts;		
-	}
-	
-	public AlarmCounts getAlarmCounts_raw(int customerId, Set<Long> equipmentIds, Set<AlarmCode> alarmCodes) {
-        ArrayList<Object> queryArgs = new ArrayList<>();
-        queryArgs.add(customerId);
-
-		//build the query
-		
-		StringBuilder query = new StringBuilder();
-
-		query.append(CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER);
-
-		
-        //add alarmCodes filters
-		//we will do the client-side filtering for the AlarmCodes, see below
-
-        //add equipmentId filters
-        if (equipmentIds != null && !equipmentIds.isEmpty()) {
-            queryArgs.addAll(equipmentIds);
-
-            StringBuilder strb = new StringBuilder(100);
-            strb.append("and equipmentId in (");
-            for (int i = 0; i < equipmentIds.size(); i++) {
-                strb.append("?");
-                if (i < equipmentIds.size() - 1) {
-                    strb.append(",");
-                }
-            }
-            strb.append(") ");
-
-            query.append(strb);
-        }
-
-        
-		query.append(CQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_FOOTER);
-
-		AlarmCounts alarmCounts = new AlarmCounts();
-		alarmCounts.setCustomerId(customerId);
-
-        //TODO: create a cache of these prepared statements, keyed by the numberOfEquipmentIds_numberOfAlarmCodes
-        PreparedStatement preparedStmt_getCounts;
-        try {
-        	preparedStmt_getCounts = cqlSession.prepare(query.toString());
-        } catch(InvalidQueryException e) {
-        	LOG.error("Cannot prepare cassandra query '{}'", query.toString(), e);
-        	throw e;
-        }
-        
-		ResultSet rs = cqlSession.execute(preparedStmt_getCounts.bind(queryArgs.toArray() ));
-		
-		rs.forEach(row -> {
-			//we will do the client-side filtering for the AlarmCodes, because querying for it as part of CQL does not seem to work
-			//we can afford it because there are not that many different alarm codes in total, and during normal operations 
-			//the amount of distinct alarm codes per equipment is very small
-	        AlarmCode ac = AlarmCode.getById(row.getInt(1));
-	        
-	        if (alarmCodes != null && !alarmCodes.isEmpty() && alarmCodes.contains(ac) 
-	        		|| alarmCodes == null || alarmCodes.isEmpty() ) 
-	        {
-	    		if(equipmentIds == null || equipmentIds.isEmpty()) {
-	    			alarmCounts.addToCounter(0, ac, (int) row.getLong(2));
-	    		} else {
-	    			alarmCounts.addToCounter(row.getLong(0), ac, (int) row.getLong(2));
-	    		}
-	        }
-		});
-
-		return alarmCounts;
 	}
 
 }

@@ -13,6 +13,7 @@ public class AlarmCounts extends BaseJsonModel {
 	private int customerId;
 	private Boolean acknowledged;
 	private Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap = new HashMap<>();
+	private Map<Long, AtomicInteger> totalCountsPerEquipmentIdMap = new HashMap<>();
 	private Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap = new HashMap<>();
 	
 	public int getCustomerId() {
@@ -33,6 +34,12 @@ public class AlarmCounts extends BaseJsonModel {
 	public void setCountsPerEquipmentIdMap(Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap) {
 		this.countsPerEquipmentIdMap = countsPerEquipmentIdMap;
 	}
+	public Map<Long, AtomicInteger> getTotalCountsPerEquipmentIdMap() {
+        return totalCountsPerEquipmentIdMap;
+    }
+    public void setTotalCountsPerEquipmentIdMap(Map<Long, AtomicInteger> totalCountsPerEquipmentIdMap) {
+        this.totalCountsPerEquipmentIdMap = totalCountsPerEquipmentIdMap;
+    }
 	public Map<AlarmCode, AtomicInteger> getTotalCountsPerAlarmCodeMap() {
 		return totalCountsPerAlarmCodeMap;
 	}
@@ -50,6 +57,13 @@ public class AlarmCounts extends BaseJsonModel {
 		totalCount.addAndGet(valueToAdd);
 		
 		if(equipmentId>0) {
+		    AtomicInteger totalEquipmentIdCount = totalCountsPerEquipmentIdMap.get(equipmentId);
+            if (totalEquipmentIdCount == null) {
+                totalEquipmentIdCount = new AtomicInteger();
+                totalCountsPerEquipmentIdMap.put(equipmentId, totalEquipmentIdCount);
+            }
+            totalEquipmentIdCount.addAndGet(valueToAdd);
+            
 			//update per-equipmentId counts only for real equipmentIds
 			Map<AlarmCode, AtomicInteger> perEquipmentMap = countsPerEquipmentIdMap.get(equipmentId);
 			if(perEquipmentMap == null) {
@@ -70,6 +84,14 @@ public class AlarmCounts extends BaseJsonModel {
 	public int getCounter(long equipmentId, AlarmCode alarmCode) {
 		
 		if(equipmentId>0) {
+		    if (alarmCode == null) {
+		        AtomicInteger perEqTotalCount = totalCountsPerEquipmentIdMap.get(equipmentId);
+                if (perEqTotalCount == null) {
+                    return 0;
+                }
+                return perEqTotalCount.get();
+            }
+		    
 			//get from per-equipmentId counts only for real equipmentIds
 			Map<AlarmCode, AtomicInteger> perEquipmentMap = countsPerEquipmentIdMap.get(equipmentId);
 			if(perEquipmentMap == null) {
