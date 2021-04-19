@@ -12881,6 +12881,12 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/AlarmCode'
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: false
+        schema:
+          type: boolean
       responses:
         200:
           description: successful operation
@@ -12888,22 +12894,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AlarmCounts'
-        500:
-          $ref: '#/components/responses/GenericApiError'
-
-  /portal/alarm/resetCounts:
-    post:
-      tags:
-      - Alarms
-      summary: Reset accumulated counts of Alarms.
-      operationId: resetAlarmCounts
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
           

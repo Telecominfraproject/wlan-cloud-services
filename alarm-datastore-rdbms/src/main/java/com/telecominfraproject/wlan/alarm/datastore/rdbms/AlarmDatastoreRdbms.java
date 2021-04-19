@@ -70,7 +70,7 @@ public class AlarmDatastoreRdbms implements AlarmDatastore {
 	}
 
 	@Override
-	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
-		return alarmDAO.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged) {
+		return alarmDAO.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 	}
 }
