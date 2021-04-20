@@ -117,22 +117,22 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 		    return ret;
 	    }
 	    
-	    @Override
-	    protected void processMessage(QueuedStreamMessage message) {
-	    	
-	    	ServiceMetric mdl = (ServiceMetric) message.getModel();
-	    	ServiceMetricDetails smd = mdl.getDetails();
-	    	LOG.debug("Processing {}", mdl);
-	    	
-	    	switch ( smd.getClass().getSimpleName() ) {
-	    	case "ApNodeMetrics":
-	    		process(mdl.getCustomerId(), mdl.getCreatedTimestamp(), mdl.getEquipmentId(), (ApNodeMetrics) smd);
-	    		break;
-	    	default:
-	    		process(mdl);
-	    	} 
-	    	
-	    }
+		@Override
+		protected void processMessage(QueuedStreamMessage message) {
+
+			ServiceMetric mdl = (ServiceMetric) message.getModel();
+			ServiceMetricDetails smd = mdl.getDetails();
+			LOG.debug("Processing {}", mdl);
+
+			switch (smd.getClass().getSimpleName()) {
+			case "ApNodeMetrics":
+				process(mdl.getCustomerId(), System.currentTimeMillis(), mdl.getEquipmentId(), (ApNodeMetrics) smd);
+				break;
+			default:
+				process(mdl);
+			}
+
+		}
 
 		private void process(int customerId, long timestamp, long equipmentId, ApNodeMetrics model) {
 			LOG.debug("Processing ApNodeMetrics");
@@ -191,10 +191,11 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 	                	contexts.forEach(context -> {
 		                	try {
 		                		// Get the oldest CustomerPortalDashboardPartialEvent from the context,
-			        			// if it is older than (timeBucketsInFlight x timeBucket) ms - finalize it and publish it 
+								// if it is older than timeBucket ms - finalize it and publish it
 			        			CustomerPortalDashboardPartialEvent oldestPartialEvent = context.getOldestPartialEventOrNull();
-			        			if(oldestPartialEvent!=null && oldestPartialEvent.getTimeBucketId() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
-			        				// finalize oldestPartialEvent counters, and put it into customerEventStream
+								if (oldestPartialEvent != null && oldestPartialEvent
+										.getTimeBucketId() < System.currentTimeMillis() - timeBucketMs) {
+									// finalize oldestPartialEvent counters, and put it into customerEventStream
 			        			    oldestPartialEvent.aggregateCounters();
 			        				
 			        				AlarmCounts alarmCounts = alarmServiceInterface.getAlarmCounts(context.getCustomerId(), oldestPartialEvent.getEquipmentIds(), Collections.emptySet(), null);
@@ -210,7 +211,8 @@ public class CustomerPortalDashboardPartialAggregator extends StreamProcessor {
 			        				LOG.trace("Finalized processing of {}", oldestPartialEvent);
 			        			}
 			        			
-			        			if(oldestPartialEvent == null && context.getLastPublishedTimestampMs() < System.currentTimeMillis() - timeBucketsInFlight * timeBucketMs) {
+								if (oldestPartialEvent == null && context
+										.getLastPublishedTimestampMs() < System.currentTimeMillis() - timeBucketMs) {
 			        			    //there have not been any metrics reported for this subset of customer equipment in a while, 
 			        			    //we'll create an empty partial event and will post 0 counters for it 
 			        			    long timestamp = System.currentTimeMillis();

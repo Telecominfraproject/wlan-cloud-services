@@ -167,9 +167,10 @@ public class CustomerPortalDashboardAggregator extends StreamProcessor {
 	                	contexts.forEach(context -> {
 		                	try {
 		            			// Get the oldest CustomerPortalDashboardStatus from the context,
-		                		// If it is older than ( (timeBucketsInFlight + 1) x timeBucket) ms - save it and remove from the context
+								// If it is older than timeBucket ms - save it and remove from the context
 		            			CustomerPortalDashboardStatus oldestDashboardStatus = context.getOldestDashboardStatusOrNull();
-		            			if(oldestDashboardStatus!=null && oldestDashboardStatus.getTimeBucketId() < System.currentTimeMillis() - (timeBucketsInFlight +1)* timeBucketMs) {
+								if (oldestDashboardStatus != null && oldestDashboardStatus
+										.getTimeBucketId() < System.currentTimeMillis() - timeBucketMs) {
 		            				// finalize oldestDashboardStatus counters, and store it
 		            				
 		            				CustomerEquipmentCounts equipmentCounts = equipmentService.getEquipmentCounts(context.getCustomerId());
