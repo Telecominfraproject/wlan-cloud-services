@@ -30,6 +30,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 
 /**
  * @author dtoptygin
@@ -579,6 +580,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(0, alarmCounts.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(25, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(25, alarmCounts.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(25, alarmCounts.getSeverityCounter(StatusCode.error));
         
         equipmentIds_CPUUtilization.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.CPUUtilization)));
         equipmentIds_AccessPointIsUnreachable.forEach(eqId -> assertEquals(1, alarmCounts.getCounter(eqId, AlarmCode.AccessPointIsUnreachable)) );        
@@ -587,6 +590,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(1, alarmCounts_noEq.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(25, alarmCounts_noEq.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(25, alarmCounts_noEq.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(26, alarmCounts_noEq.getSeverityCounter(StatusCode.error));
         assertTrue(alarmCounts_noEq.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(3, alarmCounts_noEq.getTotalCountsPerAlarmCodeMap().size());
 
@@ -594,6 +599,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts_noEq_1code.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_noEq_1code.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(25, alarmCounts_noEq_1code.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(0, alarmCounts_noEq_1code.getSeverityCounter(StatusCode.error));
         assertTrue(alarmCounts_noEq_1code.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(1, alarmCounts_noEq_1code.getTotalCountsPerAlarmCodeMap().size());
         
@@ -602,6 +609,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(0, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.GenericError));
         assertEquals(25, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_acknowledgedT.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(25, alarmCounts_acknowledgedT.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(0, alarmCounts_acknowledgedT.getSeverityCounter(StatusCode.error));
         assertTrue(alarmCounts_acknowledgedT.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(1, alarmCounts_acknowledgedT.getTotalCountsPerAlarmCodeMap().size());
         
@@ -610,6 +619,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.GenericError));
         assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_acknowledgedF.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(0, alarmCounts_acknowledgedF.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(0, alarmCounts_acknowledgedF.getSeverityCounter(StatusCode.error));
         assertTrue(alarmCounts_acknowledgedF.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(0, alarmCounts_acknowledgedF.getTotalCountsPerAlarmCodeMap().size());
         
@@ -618,15 +629,18 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(50, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.GenericError));
         assertEquals(0, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_acknowledgedF2.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(0, alarmCounts_acknowledgedF2.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(50, alarmCounts_acknowledgedF2.getSeverityCounter(StatusCode.error));
         assertTrue(alarmCounts_acknowledgedF2.getCountsPerEquipmentIdMap().isEmpty());
         assertEquals(1, alarmCounts_acknowledgedF2.getTotalCountsPerAlarmCodeMap().size());
-        assertEquals(50, alarmCounts_acknowledgedF2.getTotalCountsPerAlarmCodeMap().get(AlarmCode.GenericError).intValue());
         
 		AlarmCounts alarmCounts_1Eq_1code = testInterface.getAlarmCounts(customerId_1, Collections.singleton(equipmentIds.iterator().next()), Collections.singleton(AlarmCode.CPUUtilization), null);
         assertEquals(0, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.GenericError));
         assertEquals(1, alarmCounts_1Eq_1code.getCounter(equipmentIds.iterator().next(), AlarmCode.CPUUtilization));
         assertEquals(1, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(0, alarmCounts_1Eq_1code.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(1, alarmCounts_1Eq_1code.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(0, alarmCounts_1Eq_1code.getSeverityCounter(StatusCode.error));
         assertEquals(1, alarmCounts_1Eq_1code.getCountsPerEquipmentIdMap().size());
         assertEquals(1, alarmCounts_1Eq_1code.getTotalCountsPerAlarmCodeMap().size());
 
@@ -640,6 +654,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(0, alarmCounts_small.getCounter(0, AlarmCode.GenericError));
         assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(2, alarmCounts_small.getCounter(0, AlarmCode.AccessPointIsUnreachable));
+        assertEquals(2, alarmCounts_small.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(2, alarmCounts_small.getSeverityCounter(StatusCode.error));
 
         //clean up after the test
         equipmentIds_c1.forEach(eqId -> testInterface.delete(customerId_1, eqId));
@@ -671,6 +687,8 @@ public abstract class BaseAlarmDatastoreTest {
         assertEquals(1, alarmCounts.getCounter(0, AlarmCode.CPUUtilization));
         assertEquals(1, alarmCounts.getCounter(0, AlarmCode.AccessPointIsUnreachable));
         assertEquals(2, alarmCounts.getCounter(equipmentId, null));
+        assertEquals(1, alarmCounts.getSeverityCounter(StatusCode.requiresAttention));
+        assertEquals(1, alarmCounts.getSeverityCounter(StatusCode.error));
         
         //clean up after the test
         testInterface.delete(customerId, equipmentId);
