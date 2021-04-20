@@ -87,9 +87,9 @@ public class EquipmentManufacturerQrCode extends BaseJsonModel {
             return true;
         }
         
-        if ((deviceType != null && EquipmentType.isUnsupported(deviceType)) || (deviceMac != null && hasUnsupportedValue(deviceMac))) {
-            return true;
-        }
+//        if ((deviceType != null && EquipmentType.isUnsupported(deviceType)) || (deviceMac != null && hasUnsupportedValue(deviceMac))) {
+//            return true;
+//        }
 
         return false;
     }

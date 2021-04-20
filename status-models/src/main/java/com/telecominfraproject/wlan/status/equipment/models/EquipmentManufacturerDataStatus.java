@@ -153,9 +153,8 @@ public class EquipmentManufacturerDataStatus extends StatusDetails {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        
-        if ((certificationRegion != null && CountryCode.isUnsupported(certificationRegion)) || (macAddress != null && hasUnsupportedValue(macAddress))
-                || (qrCode != null && hasUnsupportedValue(qrCode))) {
+
+        if (macAddress != null && hasUnsupportedValue(macAddress)) {
             return true;
         }
 
