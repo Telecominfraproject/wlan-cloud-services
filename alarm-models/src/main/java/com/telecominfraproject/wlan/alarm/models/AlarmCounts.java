@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.status.models.StatusCode;
 
 public class AlarmCounts extends BaseJsonModel {
 	
@@ -15,6 +16,7 @@ public class AlarmCounts extends BaseJsonModel {
 	private Map<Long, Map<AlarmCode, AtomicInteger>> countsPerEquipmentIdMap = new HashMap<>();
 	private Map<Long, AtomicInteger> totalCountsPerEquipmentIdMap = new HashMap<>();
 	private Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap = new HashMap<>();
+	private Map<StatusCode, AtomicInteger> totalCountsBySeverityMap = new HashMap<>();
 	
 	public int getCustomerId() {
 		return customerId;
@@ -46,8 +48,14 @@ public class AlarmCounts extends BaseJsonModel {
 	public void setTotalCountsPerAlarmCodeMap(Map<AlarmCode, AtomicInteger> totalCountsPerAlarmCodeMap) {
 		this.totalCountsPerAlarmCodeMap = totalCountsPerAlarmCodeMap;
 	}
-
-	public void addToCounter(long equipmentId, AlarmCode alarmCode, int valueToAdd) {
+	public Map<StatusCode, AtomicInteger> getTotalCountsBySeverityMap() {
+        return totalCountsBySeverityMap;
+    }
+    public void setTotalCountsBySeverityMap(Map<StatusCode, AtomicInteger> totalCountsBySeverityMap) {
+        this.totalCountsBySeverityMap = totalCountsBySeverityMap;
+    }
+    
+    public void addToCounter(long equipmentId, AlarmCode alarmCode, int valueToAdd) {
 		//update total counts
 		AtomicInteger totalCount = totalCountsPerAlarmCodeMap.get(alarmCode);
 		if (totalCount == null) {
@@ -56,7 +64,16 @@ public class AlarmCounts extends BaseJsonModel {
 		}
 		totalCount.addAndGet(valueToAdd);
 		
+		//update total counts by severity
+		AtomicInteger totalBySeverityCount = totalCountsBySeverityMap.get(alarmCode.getSeverity());
+		if (totalBySeverityCount == null) {
+		    totalBySeverityCount = new AtomicInteger();
+		    totalCountsBySeverityMap.put(alarmCode.getSeverity(), totalBySeverityCount);
+		}
+		totalBySeverityCount.addAndGet(valueToAdd);
+		
 		if(equipmentId>0) {
+		    //update total counts by equipmentId
 		    AtomicInteger totalEquipmentIdCount = totalCountsPerEquipmentIdMap.get(equipmentId);
             if (totalEquipmentIdCount == null) {
                 totalEquipmentIdCount = new AtomicInteger();
@@ -71,6 +88,7 @@ public class AlarmCounts extends BaseJsonModel {
 				countsPerEquipmentIdMap.put(equipmentId, perEquipmentMap);
 			}
 			
+			//update counts by equipmentId and alarmCode
 			AtomicInteger perEqCount = perEquipmentMap.get(alarmCode);
 			if(perEqCount == null) {
 				perEqCount = new AtomicInteger();
@@ -117,6 +135,12 @@ public class AlarmCounts extends BaseJsonModel {
 		}
 	}
 	
-	
+	public int getSeverityCounter(StatusCode severity) {
+	    AtomicInteger ret = totalCountsBySeverityMap.get(severity);
+	    if (ret == null) {
+	        return 0;
+	    }
+	    return ret.get();
+	}
 	
 }
