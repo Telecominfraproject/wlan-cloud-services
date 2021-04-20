@@ -170,6 +170,10 @@ public class AlarmDAO extends BaseJdbcDao {
 
     private static final String SQL_COUNTS_BY_ALARM_CODE_HEADER = "select alarmCode, count(1) from alarm where customerId = ? ";
     private static final String SQL_COUNTS_BY_ALARM_CODE_FOOTER = " group by alarmCode";
+    
+    private static final String SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_AND_ACKNOWLEDGED_HEADER = "select equipmentId, alarmCode, count(1) from alarm where customerId = ? and acknowledged = ?";
+
+    private static final String SQL_COUNTS_BY_ALARM_CODE_AND_ACKNOWLEDGED_HEADER = "select alarmCode, count(1) from alarm where customerId = ? and acknowledged = ?";
 
     private static final RowMapper<Alarm> alarmRowMapper = new AlarmRowMapper();
 
@@ -575,7 +579,7 @@ public class AlarmDAO extends BaseJdbcDao {
     }
 
 
-	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIds, Set<AlarmCode> alarmCodes) {
+	public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIds, Set<AlarmCode> alarmCodes, Boolean acknowledged) {
 
         ArrayList<Object> queryArgs = new ArrayList<>();
         queryArgs.add(customerId);
@@ -583,10 +587,19 @@ public class AlarmDAO extends BaseJdbcDao {
 		//build the query
 		
 		StringBuilder query = new StringBuilder();
-		if(equipmentIds == null || equipmentIds.isEmpty()) {
-			query.append(SQL_COUNTS_BY_ALARM_CODE_HEADER);
+		if (acknowledged == null) {
+    		if(equipmentIds == null || equipmentIds.isEmpty()) {
+    			query.append(SQL_COUNTS_BY_ALARM_CODE_HEADER);
+    		} else {
+    			query.append(SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER);
+    		}
 		} else {
-			query.append(SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_HEADER);
+		    queryArgs.add(acknowledged);
+		    if(equipmentIds == null || equipmentIds.isEmpty()) {
+                query.append(SQL_COUNTS_BY_ALARM_CODE_AND_ACKNOWLEDGED_HEADER);
+            } else {
+                query.append(SQL_COUNTS_BY_EQUIPMENT_AND_ALARM_CODE_AND_ACKNOWLEDGED_HEADER);
+            }
 		}
 
         //add alarmCodes filters
@@ -632,6 +645,7 @@ public class AlarmDAO extends BaseJdbcDao {
 
 		AlarmCounts alarmCounts = new AlarmCounts();
 		alarmCounts.setCustomerId(customerId);
+		alarmCounts.setAcknowledged(acknowledged);
 		
         this.jdbcTemplate.query(query.toString(), queryArgs.toArray(),
                 new RowCallbackHandler() {

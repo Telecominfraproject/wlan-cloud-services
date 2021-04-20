@@ -262,11 +262,17 @@ components:
         customerId:
           type: integer
           format: int32
+        acknowledged:
+          type: boolean
         countsPerEquipmentIdMap:
           $ref: '#/components/schemas/CountsPerEquipmentIdPerAlarmCodeMap'
         totalCountsPerAlarmCodeMap:
           $ref: '#/components/schemas/CountsPerAlarmCodeMap'
-
+        totalCountsPerEquipmentIdMap:
+          $ref: '#/components/schemas/CountsPerEquipmentIdMap'
+        totalCountsBySeverityMap:
+          $ref: '#/components/schemas/CountsBySeverityMap'
+          
     CountsPerAlarmCodeMap:
       description: map of AlarmCode to the integer count of alarms
       type: object
@@ -279,6 +285,20 @@ components:
       type: object
       additionalProperties:
         $ref: '#/components/schemas/CountsPerAlarmCodeMap'
+        
+    CountsPerEquipmentIdMap:
+      description: map of equipmentId to integer count of alarms
+      type: object
+      additionalProperties:
+        type: integer
+        format: int32
+        
+    CountsBySeverityMap:
+      description: map of severity to integer count of alarms
+      type: object
+      additionalProperties:
+        type: integer
+        format: int32
 
 #
 # Other related objects
@@ -629,6 +649,12 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/AlarmCode'
+      - name: acknowledged
+        in: query
+        description: Acknowledged flag
+        required: true
+        schema:
+          type: boolean
       responses:
         200:
           description: successful operation

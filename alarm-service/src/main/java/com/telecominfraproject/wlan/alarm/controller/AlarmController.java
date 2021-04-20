@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -234,21 +233,16 @@ public class AlarmController {
     @RequestMapping(value = "/counts", method = RequestMethod.GET)
 	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
 			@RequestParam Set<Long> equipmentIdSet,
-			@RequestParam Set<AlarmCode> alarmCodeSet) {
+			@RequestParam Set<AlarmCode> alarmCodeSet,
+			@RequestParam Boolean acknowledged) {
     	
-        LOG.debug("Getting Alarm counts for {} {} {}", customerId, equipmentIdSet, alarmCodeSet);
+        LOG.debug("Getting Alarm counts for {} {} {} {}", customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 
-        AlarmCounts ret = alarmDatastore.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet);
+        AlarmCounts ret = alarmDatastore.getAlarmCounts(customerId, equipmentIdSet, alarmCodeSet, acknowledged);
         
         LOG.debug("Alarm counts: {}", ret);
         return ret;
 	}
-
-    @RequestMapping(value = "/resetCounts", method = RequestMethod.POST)
-    public GenericResponse resetAlarmCounters() {
-        alarmDatastore.resetAlarmCounters();
-        return new GenericResponse(true, "");
-    }
 
     private void publishEvent(SystemEvent event) {
         if (event == null) {

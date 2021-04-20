@@ -17,7 +17,6 @@ import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
-import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -58,22 +57,6 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         Alarm ret = responseEntity.getBody();
         
         LOG.debug("completed alarm.create {} ", ret);
-        
-        return ret;
-    }
-
-    @Override
-    public GenericResponse resetAlarmCounters() {
-        
-        LOG.debug("calling resetAlarmCounters ");
-        
-        ResponseEntity<GenericResponse> responseEntity = restTemplate.postForEntity(
-                getBaseUrl() + "/resetCounts",
-                null, GenericResponse.class);
-        
-        GenericResponse ret = responseEntity.getBody();
-        
-        LOG.debug("completed resetAlarmCounters {} ", ret);
         
         return ret;
     }
@@ -137,9 +120,9 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
 	}
 
     @Override
-    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet) {
+    public AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged) {
 
-		LOG.debug("getAlarmCounts({}, {}, {})", customerId, equipmentIdSet, alarmCodeSet);
+		LOG.debug("getAlarmCounts({}, {}, {}, {})", customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 
         String equipmentIdSetStr = null;
         if (equipmentIdSet != null && !equipmentIdSet.isEmpty()) {
@@ -158,8 +141,8 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         }
         
         ResponseEntity<AlarmCounts> responseEntity = restTemplate.exchange(
-                    getBaseUrl() + "/counts?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}", HttpMethod.GET,
-                    null, AlarmCounts.class, customerId, equipmentIdSetStr, alarmCodeSetStr);
+                    getBaseUrl() + "/counts?customerId={customerId}&equipmentIdSet={equipmentIdSetStr}&alarmCodeSet={alarmCodeSetStr}&acknowledged={acknowledged}", HttpMethod.GET,
+                    null, AlarmCounts.class, customerId, equipmentIdSetStr, alarmCodeSetStr, acknowledged);
 
         AlarmCounts ret = responseEntity.getBody();
         LOG.debug("completed getAlarmCounts {} ", ret);
