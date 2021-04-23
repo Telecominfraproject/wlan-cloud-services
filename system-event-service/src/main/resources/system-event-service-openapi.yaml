@@ -2814,7 +2814,7 @@ components:
           format: password
         useRadSec:
           type: boolean
-        passphrase:
+        sharedSecret:
           type: string
           format: password
       example:
