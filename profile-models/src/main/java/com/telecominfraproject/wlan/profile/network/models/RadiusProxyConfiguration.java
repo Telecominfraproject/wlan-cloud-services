@@ -10,6 +10,8 @@ import com.telecominfraproject.wlan.profile.models.common.ManagedFileInfo;
 
 public class RadiusProxyConfiguration extends BaseJsonModel implements PushableConfiguration<RadiusProxyConfiguration> {
 
+    // TODO: This should be incorporated into the RadiusProfile
+    
     private static final long serialVersionUID = 5859624395353373172L;
     
     private ManagedFileInfo caCert;
@@ -18,10 +20,13 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     
     private InetAddress server;
     private Integer port;
+    private InetAddress acctServer;
+    private Integer acctPort;
     private Set<String> realm;
-    private String name;
-    private String passphrase;
+    private String name; // must be unique, similar to profile name
+    private String passphrase; // for decryption of keys
     private Boolean useRadSec;
+    private String sharedSecret; // if useRadSec is false
 
     private RadiusProxyConfiguration() {
 
@@ -71,6 +76,22 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
         this.port = port;
     }
 
+    public InetAddress getAcctServer() {
+        return acctServer;
+    }
+
+    public void setAcctServer(InetAddress acctServer) {
+        this.acctServer = acctServer;
+    }
+
+    public Integer getAcctPort() {
+        return acctPort;
+    }
+
+    public void setAcctPort(Integer acctPort) {
+        this.acctPort = acctPort;
+    }
+
     public Set<String> getRealm() {
         return realm;
     }
@@ -103,6 +124,14 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
         this.useRadSec = useRadSec;
     }
 
+    public String getSharedSecret() {
+        return sharedSecret;
+    }
+
+    public void setSharedSecret(String sharedSecret) {
+        this.sharedSecret = sharedSecret;
+    }
+
     @Override
     public boolean needsToBeUpdatedOnDevice(RadiusProxyConfiguration previousVersion) {       
         return !Objects.deepEquals(this, previousVersion);
@@ -115,7 +144,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
 
     @Override
     public int hashCode() {
-        return Objects.hash(caCert, clientCert, clientKey, name, passphrase, port, realm, server, useRadSec);
+        return Objects.hash(acctPort, acctServer, caCert, clientCert, clientKey, name, passphrase, port, realm, server, sharedSecret, useRadSec);
     }
 
     @Override
@@ -127,12 +156,10 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
         if (getClass() != obj.getClass())
             return false;
         RadiusProxyConfiguration other = (RadiusProxyConfiguration) obj;
-        return Objects.equals(caCert, other.caCert) && Objects.equals(clientCert, other.clientCert)
-                && Objects.equals(clientKey, other.clientKey) && Objects.equals(name, other.name)
-                && Objects.equals(passphrase, other.passphrase) && Objects.equals(port, other.port)
-                && Objects.equals(realm, other.realm) && Objects.equals(server, other.server)
-                && Objects.equals(useRadSec, other.useRadSec);
+        return Objects.equals(acctPort, other.acctPort) && Objects.equals(acctServer, other.acctServer) && Objects.equals(caCert, other.caCert)
+                && Objects.equals(clientCert, other.clientCert) && Objects.equals(clientKey, other.clientKey) && Objects.equals(name, other.name)
+                && Objects.equals(passphrase, other.passphrase) && Objects.equals(port, other.port) && Objects.equals(realm, other.realm)
+                && Objects.equals(server, other.server) && Objects.equals(sharedSecret, other.sharedSecret) && Objects.equals(useRadSec, other.useRadSec);
     }
-
  
 }

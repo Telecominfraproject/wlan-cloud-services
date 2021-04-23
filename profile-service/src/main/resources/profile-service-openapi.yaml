@@ -469,6 +469,11 @@ components:
         port:
           type: integer
           format: int32
+        acctServer:
+          type: string
+        acctPort:
+          type: integer
+          format: int32
         realm:
           type: array
           items:
@@ -480,6 +485,9 @@ components:
           format: password
         useRadSec:
           type: boolean
+        passphrase:
+          type: string
+          format: password
       example:
         model_type: RadiusProxyConfiguration
         caCert:

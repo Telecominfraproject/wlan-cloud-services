@@ -11,7 +11,7 @@ public class ApcElectionEvent extends RealTimeEvent implements HasCustomerId, Ha
     private static final long serialVersionUID = 8407097410957051875L;
 
     public enum ApcMode {
-        BDR, DR, SR, NC
+        BDR, DR, OR, NC
     }
 
     /**
