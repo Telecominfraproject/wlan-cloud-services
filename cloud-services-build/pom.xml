@@ -136,7 +136,6 @@
                                 <module>../client-datastore-common-test</module>
                                 <module>../client-datastore-inmemory</module>
                                 <module>../client-datastore-interface</module>
-                                <module>../client-datastore-rdbms</module>
                                 <module>../client-datastore-cassandra</module>
                                 <module>../client-models</module>
                                 <module>../client-service</module>
