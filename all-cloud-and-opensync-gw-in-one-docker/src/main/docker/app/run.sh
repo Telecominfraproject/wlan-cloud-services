@@ -39,6 +39,8 @@ OVSDB_PROPS+=" -Dtip.wlan.ovsdb.wifi-iface.default_radio2=$OVSDB_IF_DEFAULT_RADI
 OVSDB_PROPS+=" -Dtip.wlan.ovsdb.wifi-device.radio0=$OVSDB_DEVICE_RADIO_0"
 OVSDB_PROPS+=" -Dtip.wlan.ovsdb.wifi-device.radio1=$OVSDB_DEVICE_RADIO_1"
 OVSDB_PROPS+=" -Dtip.wlan.ovsdb.wifi-device.radio2=$OVSDB_DEVICE_RADIO_2"
+OVSDB_PROPS+=" -Dtip.wlan.defaultOffChannelReportingIntervalSeconds=$OVSDB_OFF_CHANNEL_REPORTING_INTERVAL_SECONDS"
+OVSDB_PROPS+=" -Dtip.wlan.defaultReportingIntervalSeconds=$OVSDB_REPORTING_INTERVAL_SECONDS"
 
 echo OVSDB_PROPS $OVSDB_PROPS
 
