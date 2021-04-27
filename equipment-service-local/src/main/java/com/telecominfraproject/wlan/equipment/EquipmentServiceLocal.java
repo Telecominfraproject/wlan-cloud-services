@@ -71,9 +71,9 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
 
     @Override
     public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-    		Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
-        LOG.debug("calling equipmentController.getForCustomer {} {} {} {} ", customerId, equipmentType, locationIds, criteria);
-        return equipmentController.getForCustomerWithFilter(customerId, equipmentType, locationIds, criteria, sortBy, context);
+    		Set<Long> locationIds, Set<Long> profileIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+        LOG.debug("calling equipmentController.getForCustomer {} {} {} {} {} ", customerId, equipmentType, locationIds, profileIds, criteria);
+        return equipmentController.getForCustomerWithFilter(customerId, equipmentType, locationIds, profileIds, criteria, sortBy, context);
     }
     
     @Override

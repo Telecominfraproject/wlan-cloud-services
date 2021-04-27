@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.equipment.datastore.BaseEquipmentDatastoreTest;
-import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
 
 /**
  * @author dtoptygin

@@ -203,6 +203,7 @@ public class EquipmentController {
     public PaginationResponse<Equipment> getForCustomerWithFilter(@RequestParam int customerId,
             @RequestParam(required = false) EquipmentType equipmentType, 
             @RequestParam(required = false) Set<Long> locationIds,
+            @RequestParam(required = false) Set<Long> profileIds,
             @RequestParam(required = false) String criteria,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
@@ -211,27 +212,27 @@ public class EquipmentController {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up equipment {} for customer {} locations {} criteria {} last returned page number {}", equipmentType,
-                customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up equipment {} for customer {} locations {} profiles {} criteria {} last returned page number {}", equipmentType,
+                customerId, locationIds, profileIds, criteria, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up equipment {} for customer {} locations {} criteria {} last returned page number {}",
-                    equipmentType, customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
+                    "No more pages available when looking up equipment {} for customer {} locations {} profiles {} criteria {} last returned page number {}",
+                    equipmentType, customerId, locationIds, profileIds, criteria, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
 
         PaginationResponse<Equipment> cePage = this.equipmentDatastore
-                .getForCustomer(customerId, equipmentType, locationIds, criteria, sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentType, locationIds, profileIds, criteria, sortBy, paginationContext);
         ret.setContext(cePage.getContext());
         ret.getItems().addAll(cePage.getItems());
 
-        LOG.debug("Retrieved {} equipment {} for customer {} locations {} criteria {}", cePage.getItems().size(), equipmentType,
-                customerId, locationIds, criteria);
+        LOG.debug("Retrieved {} equipment {} for customer {} locations {} profiles {} criteria {}", cePage.getItems().size(), equipmentType,
+                customerId, locationIds, profileIds, criteria);
 
         return ret;
     }

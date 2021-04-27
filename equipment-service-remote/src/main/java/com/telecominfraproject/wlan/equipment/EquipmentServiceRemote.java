@@ -183,9 +183,9 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
 
 	@Override
 	public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-			Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+			Set<Long> locationIds, Set<Long> profileIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 		
-        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {} )", customerId, equipmentType, locationIds, criteria,
+        LOG.debug("calling getForCustomer( {}, {}, {}, {}, {}, {}, {} )", customerId, equipmentType, locationIds, profileIds, criteria,
                 sortBy, context);
 
         String locationIdsStr = null;
@@ -197,12 +197,22 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
             // java.lang.NumberFormatException: For input string: "[690]"
             locationIdsStr = locationIdsStr.substring(1, locationIdsStr.length() - 1);
         }
+        
+        String profileIdsStr = null;
+        if (profileIds != null && !profileIds.isEmpty()) {
+            profileIdsStr = profileIds.toString();
+            // remove [] around the string, otherwise wil get:
+            // Failed to convert value of type 'java.lang.String' to required
+            // type 'java.util.Set'; nested exception is
+            // java.lang.NumberFormatException: For input string: "[690]"
+            profileIdsStr = profileIdsStr.substring(1, profileIdsStr.length() - 1);
+        }
 
         ResponseEntity<PaginationResponse<Equipment>> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                        + "/forCustomerWithFilter?customerId={customerId}&equipmentType={equipmentType}&locationIds={locationIdsStr}&criteria={criteria}&sortBy={sortBy}&paginationContext={context}",
+                        + "/forCustomerWithFilter?customerId={customerId}&equipmentType={equipmentType}&locationIds={locationIdsStr}&profileIds={profileIdsStr}&criteria={criteria}&sortBy={sortBy}&paginationContext={context}",
                 HttpMethod.GET, null, Equipment_PAGINATION_RESPONSE_CLASS_TOKEN, customerId, equipmentType,
-                locationIdsStr, criteria, sortBy, context);
+                locationIdsStr, profileIdsStr, criteria, sortBy, context);
 
         PaginationResponse<Equipment> ret = responseEntity.getBody();
         LOG.debug("completed getForCustomer {} ", ret.getItems().size());

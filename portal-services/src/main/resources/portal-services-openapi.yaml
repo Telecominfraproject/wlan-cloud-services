@@ -11676,7 +11676,7 @@ paths:
         required: true
         schema:
           type: integer
-          format: int64
+          format: int32
       - name: sortBy
         in: query
         description: sort options
@@ -11720,7 +11720,7 @@ paths:
         required: true
         schema:
           type: integer
-          format: int64
+          format: int32
       - name: equipmentType
         in: query
         description: equipment type
@@ -11738,6 +11738,13 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: profileId
+        in: query
+        description: Profile Id to search, if it is a child profile, then it will look for the top level profile that is directly associated to the equipment via profileId
+        required: false
+        schema:
+          type: integer
+          format: int64
       - name: criteria
         in: query
         description: search criteria

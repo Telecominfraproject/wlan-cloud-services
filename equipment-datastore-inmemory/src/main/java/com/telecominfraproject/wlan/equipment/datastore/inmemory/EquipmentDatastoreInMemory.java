@@ -352,7 +352,7 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
     
     @Override
     public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-            Set<Long> locationIds, String criteria, final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+            Set<Long> locationIds, Set<Long> profileIds, String criteria, final List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 
     	if(context == null) {
     		context = new PaginationContext<>();
@@ -388,6 +388,10 @@ public class EquipmentDatastoreInMemory extends BaseInMemoryDatastore implements
             }
 
             if (!(CollectionUtils.isEmpty(locationIds) || locationIds.contains(ce.getLocationId()))) {
+                continue;
+            }
+            
+            if (!(CollectionUtils.isEmpty(profileIds) || profileIds.contains(ce.getProfileId()))) {
                 continue;
             }
             
