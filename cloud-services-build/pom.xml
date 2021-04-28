@@ -92,7 +92,6 @@
                                 <module>../service-metric-datastore-common-test</module>
                                 <module>../service-metric-datastore-inmemory</module>
                                 <module>../service-metric-datastore-interface</module>
-                                <module>../service-metric-datastore-rdbms</module>
                                 <module>../service-metric-datastore-cassandra</module>
                                 <module>../service-metric-models</module>
                                 <module>../service-metric-service</module>
@@ -103,7 +102,6 @@
                                 <module>../system-event-datastore-common-test</module>
                                 <module>../system-event-datastore-inmemory</module>
                                 <module>../system-event-datastore-interface</module>
-                                <module>../system-event-datastore-rdbms</module>
                                 <module>../system-event-datastore-cassandra</module>
                                 <module>../system-event-models</module>
                                 <module>../system-event-service</module>
@@ -114,7 +112,6 @@
                                 <module>../alarm-datastore-common-test</module>
                                 <module>../alarm-datastore-inmemory</module>
                                 <module>../alarm-datastore-interface</module>
-                                <module>../alarm-datastore-rdbms</module>
                                 <module>../alarm-datastore-cassandra</module>
                                 <module>../alarm-models</module>
                                 <module>../alarm-service</module>
@@ -125,7 +122,6 @@
                                 <module>../status-datastore-common-test</module>
                                 <module>../status-datastore-inmemory</module>
                                 <module>../status-datastore-interface</module>
-                                <module>../status-datastore-rdbms</module>
                                 <module>../status-datastore-cassandra</module>
                                 <module>../status-models</module>
                                 <module>../status-service</module>
@@ -146,7 +142,6 @@
                                 <module>../routing-datastore-common-test</module>
                                 <module>../routing-datastore-inmemory</module>
                                 <module>../routing-datastore-interface</module>
-                                <module>../routing-datastore-rdbms</module>
                                 <module>../routing-datastore-cassandra</module>
                                 <module>../routing-models</module>
                                 <module>../routing-service</module>

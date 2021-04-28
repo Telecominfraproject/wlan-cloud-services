@@ -15,6 +15,17 @@ public abstract class EquipmentEventWithPayload<T> extends CustomerEventWithPayl
 
     private long equipmentId;
 
+    /**
+     * EquipmentEventWithPayload constructor with current time stamp.
+     * @param customerId
+     * @param equipmentId
+     * @param payload
+     */
+    protected EquipmentEventWithPayload(int customerId, long equipmentId, T payload) {
+        super(customerId, payload);
+        this.equipmentId = equipmentId;
+    }
+
     protected EquipmentEventWithPayload(int customerId, long equipmentId, long eventTimestamp, T payload) {
         super(customerId, eventTimestamp, payload);
         this.equipmentId = equipmentId;

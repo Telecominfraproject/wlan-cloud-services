@@ -11,7 +11,7 @@ public class ProfileRemovedEvent extends CustomerEventWithPayload<Profile> {
     private static final long serialVersionUID = 7142208488887559985L;
 
     public ProfileRemovedEvent(Profile profile){
-        super(profile.getCustomerId(), profile.getLastModifiedTimestamp(), profile);
+        super(profile.getCustomerId(), profile);
     }
     
     /**

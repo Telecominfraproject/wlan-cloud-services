@@ -12,7 +12,7 @@ public class LocationChangedEvent extends CustomerEventWithPayload<Location> imp
     private static final long serialVersionUID = 7142209997917559985L;
 
     public LocationChangedEvent(Location location){
-        super(location.getCustomerId(), location.getLastModifiedTimestamp(), location);
+        super(location.getCustomerId(), location);
     }
     
     @Override

@@ -11,7 +11,7 @@ public class StatusRemovedEvent extends EquipmentEventWithPayload<Status> {
     private static final long serialVersionUID = 7142208488887559985L;
 
     public StatusRemovedEvent(Status status){
-        super(status.getCustomerId(), status.getEquipmentId(), System.currentTimeMillis(), status);
+        super(status.getCustomerId(), status.getEquipmentId(), status);
     }
     
     /**

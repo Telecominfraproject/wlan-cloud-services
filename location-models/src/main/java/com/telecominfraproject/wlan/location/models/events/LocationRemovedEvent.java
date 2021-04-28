@@ -12,7 +12,7 @@ public class LocationRemovedEvent extends CustomerEventWithPayload<Location> imp
     private static final long serialVersionUID = 7142208488887559985L;
 
     public LocationRemovedEvent(Location location){
-        super(location.getCustomerId(), location.getLastModifiedTimestamp(), location);
+        super(location.getCustomerId(), location);
     }
     
     @Override

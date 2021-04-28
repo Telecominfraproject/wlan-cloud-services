@@ -259,6 +259,7 @@ public class LocationServiceController {
         if (event == null) {
             return;
         }
+        LOG.info("Publish event : {}", event);
         
         try {
             cloudEventDispatcher.publishEvent(event);

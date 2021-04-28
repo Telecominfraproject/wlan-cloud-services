@@ -11,7 +11,7 @@ public class CustomerRemovedEvent extends CustomerEventWithPayload<Customer> {
     private static final long serialVersionUID = 7142208488887559985L;
 
     public CustomerRemovedEvent(Customer customer){
-        super(customer.getId(), customer.getLastModifiedTimestamp(), customer);
+        super(customer.getId(), customer);
     }
     
     /**

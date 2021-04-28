@@ -11,7 +11,7 @@ public class RoutingAddedEvent extends EquipmentEventWithPayload<EquipmentRoutin
     private static final long serialVersionUID = 7142208487917559985L;
 
     public RoutingAddedEvent(EquipmentRoutingRecord routing){
-        super(routing.getCustomerId(), routing.getEquipmentId(), routing.getLastModifiedTimestamp(), routing);
+        super(routing.getCustomerId(), routing.getEquipmentId(), routing);
     }
     
     /**

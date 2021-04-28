@@ -25,6 +25,21 @@ public abstract class RealTimeEvent extends SystemEvent implements HasLocationId
 
     }
 
+    /**
+     * Creates a RealTimeEvent with the current time stamp.
+     * @param eventType
+     * @param customerId
+     * @param locationId
+     * @param equipmentId
+     */
+    public RealTimeEvent(RealTimeEventType eventType, int customerId, long locationId, long equipmentId) {
+        super(System.currentTimeMillis());
+        this.customerId = customerId;
+        this.locationId = locationId;
+        this.equipmentId = equipmentId;
+        this.eventType = eventType;
+    }
+
     public RealTimeEvent(RealTimeEventType eventType, int customerId, long locationId, long equipmentId, Long timestamp) {
         super(timestamp);
         this.customerId = customerId;

@@ -11,7 +11,7 @@ public class ProfileAddedEvent extends CustomerEventWithPayload<Profile> {
     private static final long serialVersionUID = 7142208487917559985L;
 
     public ProfileAddedEvent(Profile profile){
-        super(profile.getCustomerId(), profile.getLastModifiedTimestamp(), profile);
+        super(profile.getCustomerId(), profile);
     }
     
     /**
