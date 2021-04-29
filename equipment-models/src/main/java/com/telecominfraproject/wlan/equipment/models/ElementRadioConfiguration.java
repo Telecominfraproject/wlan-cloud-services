@@ -24,6 +24,8 @@ public class ElementRadioConfiguration extends BaseJsonModel
      */
     public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
     public final static int DEFAULT_EIRP_TX_POWER = 18;
+    public final static int DEFAULT_PROBE_RESPONSE_THRESHOLD_DB = -90;
+    public final static int DEFAULT_CLIENT_DISCONNECT_THRESHOLD_DB = -90;
 
     private RadioType radioType;
     private Integer channelNumber; // The channel that was picked through the
@@ -79,8 +81,8 @@ public class ElementRadioConfiguration extends BaseJsonModel
         // Tx power default was discussed with Shaikh (set to 18)
         setEirpTxPower(SourceSelectionValue.createProfileInstance(DEFAULT_EIRP_TX_POWER));
         setRxCellSizeDb(SourceSelectionValue.createProfileInstance(DEFAULT_RX_CELL_SIZE_DB));
-        setProbeResponseThresholdDb(SourceSelectionValue.createProfileInstance(-90));
-        setClientDisconnectThresholdDb(SourceSelectionValue.createProfileInstance(-90));
+        setProbeResponseThresholdDb(SourceSelectionValue.createProfileInstance(DEFAULT_PROBE_RESPONSE_THRESHOLD_DB));
+        setClientDisconnectThresholdDb(SourceSelectionValue.createProfileInstance(DEFAULT_CLIENT_DISCONNECT_THRESHOLD_DB));
         setPerimeterDetectionEnabled(true);
         setBestAPSteerType(BestAPSteerType.both);
     }

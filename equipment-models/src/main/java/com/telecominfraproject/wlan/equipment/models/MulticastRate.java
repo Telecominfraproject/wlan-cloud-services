@@ -9,14 +9,14 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 public enum MulticastRate {
 
     auto(0L),
-    rate6mbps(1L),
-    rate9mbps(2L),
-    rate12mbps(3L),
-    rate18mbps(4L),
-    rate24mbps(5L),
-    rate36mbps(6L),
-    rate48mbps(7L),
-    rate54mbps(8L),
+    rate6mbps(6L),
+    rate9mbps(9L),
+    rate12mbps(12L),
+    rate18mbps(18L),
+    rate24mbps(24L),
+    rate36mbps(36L),
+    rate48mbps(48L),
+    rate54mbps(54L),
     
     UNSUPPORTED(-1L);
     

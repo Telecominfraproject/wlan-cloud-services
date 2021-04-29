@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.core.model.equipment.SourceSelectionValue;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
@@ -32,14 +33,20 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.CellSizeAttributes;
 import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentCellSizeAttributesUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
+import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
+import com.telecominfraproject.wlan.equipment.models.SourceSelectionManagement;
+import com.telecominfraproject.wlan.equipment.models.SourceSelectionMulticast;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
@@ -349,6 +356,90 @@ public class EquipmentController {
         Equipment ret = equipmentDatastore.update(equipmentCopy);
 
         EquipmentChannelsChangedEvent event = new EquipmentChannelsChangedEvent(ret, primaryChannels, backupChannels);
+        publishEvent(event);
+
+        return ret;
+    }
+    
+    /**
+     * Updates Equipment CellSizeAttributes
+     *
+     * @param EquipmentCellSizeAttributesUpdateRequest
+     * @return updated Equipment object
+     * @throws RuntimeException if Equipment record does not exist or if it was modified concurrently
+     */
+    @RequestMapping(value = "/cellSize", method=RequestMethod.PUT)
+    public Equipment updateCellSizeAttributes(@RequestBody EquipmentCellSizeAttributesUpdateRequest request) {
+        
+        LOG.debug("updateCellSizeAttributes {}", request);
+        if (request == null) {
+            return null;
+        }
+        Equipment existingEquipment = get(request.getEquipmentId());
+        
+        if (existingEquipment.getDetails() == null) {
+            LOG.info("updateCellSizeAttributes: no details on equipment");
+            return null;
+        }
+        Equipment equipmentCopy = existingEquipment.clone();
+        
+        Map<RadioType, CellSizeAttributes> cellSizeAttributesMap = request.getCellSizeAttributesMap();
+        Map<RadioType, Boolean> autoCellSizeSelections = request.getAutoCellSizeSelections();
+        
+        if (CollectionUtils.isEmpty(autoCellSizeSelections) ||
+                CollectionUtils.isEmpty(cellSizeAttributesMap)) {
+            LOG.info("updateCellSizeAttributes no update");
+            return equipmentCopy;
+        }
+        
+        ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipmentCopy.getDetails();
+        
+        for (RadioType radioType : RadioType.validValues()) {
+            ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getElementRadioConfiguration(radioType);
+            RadioConfiguration radioConfig = apElementConfiguration.getAdvancedRadioMap().get(radioType);
+            if (elementRadioConfig == null || radioConfig == null) {
+                continue;
+            }
+            CellSizeAttributes cellSizeAttributes = cellSizeAttributesMap.get(radioType);
+            if (cellSizeAttributes == null) {
+                LOG.info("updateCellSizeAttributes cellSizeAttributes is null for radioType {}", radioType);
+                continue;
+            }
+            if (cellSizeAttributesMap.get(radioType) != null && autoCellSizeSelections.get(radioType) != null) {
+                if (autoCellSizeSelections.get(radioType)) {
+                    elementRadioConfig.setRxCellSizeDb(SourceSelectionValue.createAutomaticInstance(
+                            cellSizeAttributes.getRxCellSizeDb()));
+                    elementRadioConfig.setProbeResponseThresholdDb(SourceSelectionValue.createAutomaticInstance(
+                            cellSizeAttributes.getProbeResponseThresholdDb()));
+                    elementRadioConfig.setClientDisconnectThresholdDb(SourceSelectionValue.createAutomaticInstance(
+                            cellSizeAttributes.getClientDisconnectThresholdDb()));
+                    elementRadioConfig.setEirpTxPower(SourceSelectionValue.createAutomaticInstance(
+                            cellSizeAttributes.getEirpTxPowerDb()));
+                    radioConfig.setMulticastRate(SourceSelectionMulticast.createAutomaticInstance(
+                            cellSizeAttributes.getMulticastRate()));
+                    radioConfig.setManagementRate(SourceSelectionManagement.createAutomaticInstance(
+                            cellSizeAttributes.getManagementRate()));
+                } else {
+                    //TODO or do nothing
+                    elementRadioConfig.setRxCellSizeDb(SourceSelectionValue.createManualInstance(
+                            cellSizeAttributes.getRxCellSizeDb()));
+                    elementRadioConfig.setProbeResponseThresholdDb(SourceSelectionValue.createManualInstance(
+                            cellSizeAttributes.getProbeResponseThresholdDb()));
+                    elementRadioConfig.setClientDisconnectThresholdDb(SourceSelectionValue.createManualInstance(
+                            cellSizeAttributes.getClientDisconnectThresholdDb()));
+                    elementRadioConfig.setEirpTxPower(SourceSelectionValue.createManualInstance(
+                            cellSizeAttributes.getEirpTxPowerDb()));
+                    radioConfig.setMulticastRate(SourceSelectionMulticast.createManualInstance(
+                            cellSizeAttributes.getMulticastRate()));
+                    radioConfig.setManagementRate(SourceSelectionManagement.createManualInstance(
+                            cellSizeAttributes.getManagementRate()));
+                }
+            }
+        }
+        
+        Equipment ret = equipmentDatastore.update(equipmentCopy);
+
+        EquipmentCellSizeAttributesChangedEvent event = new EquipmentCellSizeAttributesChangedEvent(ret, cellSizeAttributesMap);
         publishEvent(event);
 
         return ret;

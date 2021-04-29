@@ -889,6 +889,49 @@ components:
           $ref: '#/components/schemas/BooleanPerRadioTypeMap'
 
 #
+# Equipment Cell Size Attributes update data models
+#
+    EquipmentCellSizeAttributesUpdateRequest:
+      properties:
+        equipmentId:
+          type: integer
+          format: int64
+        cellSizeAttributesMap:
+          $ref: '#/components/schemas/CellSizeAttributesPerRadioTypeMap'
+        autoCellSizeSelections:
+          $ref: '#/components/schemas/BooleanPerRadioTypeMap'
+
+    CellSizeAttributes:
+      properties:
+        rxCellSizeDb:
+          type: integer
+          format: int32
+        probeResponseThresholdDb:
+          type: integer
+          format: int32
+        clientDisconnectThresholdDb:
+          type: integer
+          format: int32
+        eirpTxPowerDb:
+          type: integer
+          format: int32
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
+        managementRate:
+          $ref: '#/components/schemas/ManagementRate'
+
+    CellSizeAttributesPerRadioTypeMap:
+      properties:
+        is5GHz:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is5GHzU:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is5GHzL:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is2dot4GHz:
+          $ref: '#/components/schemas/CellSizeAttributes'
+
+#
 # Equipment configuration data models
 #
 
@@ -8973,6 +9016,7 @@ components:
       - EquipmentAddedEvent
       - EquipmentChangedEvent
       - EquipmentChannelsChangedEvent
+      - EquipmentCellSizeAttributesChangedEvent
       - EquipmentRemovedEvent
       - StatusChangedEvent
       - StatusRemovedEvent
@@ -9064,6 +9108,7 @@ components:
         - $ref: '#/components/schemas/EquipmentAddedEvent'
         - $ref: '#/components/schemas/EquipmentChangedEvent'
         - $ref: '#/components/schemas/EquipmentChannelsChangedEvent'
+        - $ref: '#/components/schemas/EquipmentCellSizeAttributesChangedEvent'
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
         - $ref: '#/components/schemas/StatusChangedEvent'
         - $ref: '#/components/schemas/StatusRemovedEvent'
@@ -9409,6 +9454,13 @@ components:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
         newBackupChannels:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+
+    EquipmentCellSizeAttributesChangedEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/EquipmentChangedEvent'
+        cellSizeAttributesMap:
+          $ref: '#/components/schemas/CellSizeAttributesPerRadioTypeMap'
 
     EquipmentRemovedEvent:
       required:
@@ -11633,6 +11685,29 @@ paths:
         500:
           $ref: '#/components/responses/GenericApiError'
           
+  /portal/equipment/cellSize:
+    put:
+      tags:
+      - Equipment
+      summary: Update Equipment Cell Size Attributes
+      operationId: updateEquipmentCellSizeAttributes
+      requestBody:
+        description: Equipment Cell Size Attributes update request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCellSizeAttributesUpdateRequest'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+
   /portal/equipment/inSet:
     get:
       tags:

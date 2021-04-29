@@ -23,6 +23,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentCellSizeAttributesUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -247,6 +248,24 @@ public class EquipmentServiceRemote extends BaseRemoteClient implements Equipmen
         Equipment ret = responseEntity.getBody();
         
         LOG.debug("completed equipment.updateChannels {} ", ret);
+        
+        return ret;
+    }
+    
+    @Override
+    public Equipment updateCellSizeAttributes(EquipmentCellSizeAttributesUpdateRequest cellSizeAttributesUpdateRequest) {
+        
+        LOG.debug("calling equipment.updateCellSizeAttributes {} ", cellSizeAttributesUpdateRequest);
+
+        HttpEntity<String> request = new HttpEntity<String>( cellSizeAttributesUpdateRequest.toString(), headers );
+
+        ResponseEntity<Equipment> responseEntity = restTemplate.exchange(
+                getBaseUrl() + "/cellSize",
+                HttpMethod.PUT, request, Equipment.class);
+        
+        Equipment ret = responseEntity.getBody();
+        
+        LOG.debug("completed equipment.updateCellSizeAttributes {} ", ret);
         
         return ret;
     }
