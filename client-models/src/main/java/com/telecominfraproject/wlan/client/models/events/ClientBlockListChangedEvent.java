@@ -11,7 +11,7 @@ public class ClientBlockListChangedEvent extends CustomerEventWithPayload<Client
     private static final long serialVersionUID = 7142209997917559985L;
 
     public ClientBlockListChangedEvent(Client client){
-        super(client.getCustomerId(), client.getLastModifiedTimestamp(), client);
+        super(client.getCustomerId(), client);
     }
     
     /**

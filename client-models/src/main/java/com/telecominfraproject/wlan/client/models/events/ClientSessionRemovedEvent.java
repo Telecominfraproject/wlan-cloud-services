@@ -12,10 +12,7 @@ public class ClientSessionRemovedEvent extends EquipmentEventWithPayload<ClientS
     private static final long serialVersionUID = 7142208487917559985L;
 
     public ClientSessionRemovedEvent(ClientSession clientSession){
-		super(clientSession.getCustomerId(), clientSession.getEquipmentId(),
-				(clientSession.getLastModifiedTimestamp() != 0 ? clientSession.getLastModifiedTimestamp()
-						: System.currentTimeMillis()),
-				clientSession);
+		super(clientSession.getCustomerId(), clientSession.getEquipmentId(), clientSession);
     }
     
     @Override

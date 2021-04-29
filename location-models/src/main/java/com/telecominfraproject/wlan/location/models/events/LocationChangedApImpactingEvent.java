@@ -8,7 +8,7 @@ public class LocationChangedApImpactingEvent extends CustomerEventWithPayload<Lo
 	private static final long serialVersionUID = -8369849230866347412L;
 
 	public LocationChangedApImpactingEvent(Location location){
-		super(location.getCustomerId(), location.getLastModifiedTimestamp(), location);
+		super(location.getCustomerId(), location);
     }
     
     @Override

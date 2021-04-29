@@ -11,7 +11,7 @@ public class CustomerAddedEvent extends CustomerEventWithPayload<Customer> {
     private static final long serialVersionUID = 7142208487917559985L;
 
     public CustomerAddedEvent(Customer customer){
-        super(customer.getId(), customer.getLastModifiedTimestamp(), customer);
+        super(customer.getId(), customer);
     }
     
     /**

@@ -11,7 +11,7 @@ public class PortalUserChangedEvent extends CustomerEventWithPayload<PortalUser>
     private static final long serialVersionUID = 7142209997917559985L;
 
     public PortalUserChangedEvent(PortalUser portalUser){
-        super(portalUser.getCustomerId(), portalUser.getLastModifiedTimestamp(), portalUser);
+        super(portalUser.getCustomerId(), portalUser);
     }
     
     /**

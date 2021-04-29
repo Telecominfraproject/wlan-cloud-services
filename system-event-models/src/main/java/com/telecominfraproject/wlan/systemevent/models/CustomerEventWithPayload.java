@@ -17,6 +17,17 @@ public abstract class CustomerEventWithPayload<T> extends SystemEvent implements
     private int customerId;
     private T payload;
 
+    /**
+     * Creates a CustomerEventWithPayload with a current time stamp.
+     * @param customerId
+     * @param payload
+     */
+    protected CustomerEventWithPayload(int customerId, T payload) {
+        super(System.currentTimeMillis());
+        this.customerId = customerId;
+        this.payload = payload;
+    }
+
     protected CustomerEventWithPayload(int customerId, long eventTimestamp, T payload) {
         super(eventTimestamp);
         this.customerId = customerId;

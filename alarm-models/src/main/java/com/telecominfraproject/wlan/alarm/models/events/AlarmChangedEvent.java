@@ -11,7 +11,7 @@ public class AlarmChangedEvent extends EquipmentEventWithPayload<Alarm> {
     private static final long serialVersionUID = 7142209997917559985L;
 
     public AlarmChangedEvent(Alarm alarm){
-        super(alarm.getCustomerId(), alarm.getEquipmentId(), alarm.getLastModifiedTimestamp(), alarm);
+        super(alarm.getCustomerId(), alarm.getEquipmentId(), alarm);
     }
     
     /**

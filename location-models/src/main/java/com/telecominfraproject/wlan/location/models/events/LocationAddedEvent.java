@@ -12,7 +12,7 @@ public class LocationAddedEvent extends CustomerEventWithPayload<Location> imple
     private static final long serialVersionUID = 7142208487917559985L;
 
     public LocationAddedEvent(Location location){
-        super(location.getCustomerId(), location.getLastModifiedTimestamp(), location);
+        super(location.getCustomerId(), location);
     }
 
     @Override

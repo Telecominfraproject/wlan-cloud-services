@@ -11,7 +11,7 @@ public class RoutingRemovedEvent extends EquipmentEventWithPayload<EquipmentRout
     private static final long serialVersionUID = 7142208488887559985L;
 
     public RoutingRemovedEvent(EquipmentRoutingRecord routing){
-        super(routing.getCustomerId(), routing.getEquipmentId(), routing.getLastModifiedTimestamp(), routing);
+        super(routing.getCustomerId(), routing.getEquipmentId(), routing);
     }
     
     /**
