@@ -67,8 +67,9 @@ public class AlarmController {
             throw new DsDataValidationException("Alarm contains unsupported value");
         }
 
-        long ts = System.currentTimeMillis();
-        if (alarm.getCreatedTimestamp() == 0) {
+        long ts = alarm.getCreatedTimestamp();
+        if (ts == 0) {
+			ts = System.currentTimeMillis();
         	alarm.setCreatedTimestamp(ts);
         }
         alarm.setLastModifiedTimestamp(ts);
@@ -77,9 +78,8 @@ public class AlarmController {
 
         LOG.debug("Created Alarm {}", ret);
 
-        AlarmAddedEvent event = new AlarmAddedEvent(ret);
+        AlarmAddedEvent event = new AlarmAddedEvent(ret, ts);
         publishEvent(event);
-
 
         return ret;
     }
