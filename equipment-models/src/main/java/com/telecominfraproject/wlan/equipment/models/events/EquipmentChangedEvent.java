@@ -9,7 +9,7 @@ public class EquipmentChangedEvent extends EquipmentEventWithPayload<Equipment> 
     private EquipmentChangeType equipmentChangeType;
 
     public EquipmentChangedEvent(Equipment equipment){
-        super(equipment.getCustomerId(), equipment.getId(), equipment.getLastModifiedTimestamp(), equipment);
+        super(equipment.getCustomerId(), equipment.getId(), equipment);
         equipmentChangeType = EquipmentChangeType.All;
     }
     

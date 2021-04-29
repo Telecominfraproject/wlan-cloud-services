@@ -12,7 +12,7 @@ public class EquipmentRemovedEvent extends EquipmentEventWithPayload<Equipment> 
     private static final long serialVersionUID = 7142208488887559985L;
 
     public EquipmentRemovedEvent(Equipment equipment){
-        super(equipment.getCustomerId(), equipment.getId(), equipment.getLastModifiedTimestamp(), equipment);
+        super(equipment.getCustomerId(), equipment.getId(), equipment);
     }
     
     @Override

@@ -14,6 +14,16 @@ public abstract class EquipmentEvent extends CustomerEvent implements HasEquipme
 
     private long equipmentId;
 
+    /**
+     * Creates a EquipmentEvent with the current time stamp.
+     * @param customerId
+     * @param equipmentId
+     */
+    protected EquipmentEvent(int customerId, long equipmentId) {
+        super(customerId);
+        this.equipmentId = equipmentId;
+    }
+
     protected EquipmentEvent(int customerId, long equipmentId, long eventTimestamp) {
         super(customerId, eventTimestamp);
         this.equipmentId = equipmentId;

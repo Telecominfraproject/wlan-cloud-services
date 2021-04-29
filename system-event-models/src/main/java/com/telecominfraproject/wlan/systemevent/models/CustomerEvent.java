@@ -15,6 +15,15 @@ public abstract class CustomerEvent extends SystemEvent implements HasCustomerId
     
     private int customerId;
 
+    /**
+     * Creates a CustomerEvent with the current time stamp.
+     * @param customerId
+     */
+    protected CustomerEvent(int customerId) {
+        super(System.currentTimeMillis());
+        this.customerId = customerId;
+    }
+
     protected CustomerEvent(int customerId, long eventTimestamp) {
         super(eventTimestamp);
         this.customerId = customerId;

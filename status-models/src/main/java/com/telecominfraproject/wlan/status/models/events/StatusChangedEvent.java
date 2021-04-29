@@ -11,7 +11,7 @@ public class StatusChangedEvent extends EquipmentEventWithPayload<Status> {
     private static final long serialVersionUID = 7142209997917559985L;
 
     public StatusChangedEvent(Status status){
-        super(status.getCustomerId(), status.getEquipmentId(), status.getLastModifiedTimestamp(), status);
+        super(status.getCustomerId(), status.getEquipmentId(), status);
     }
     
     /**

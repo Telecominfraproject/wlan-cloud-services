@@ -231,66 +231,6 @@
         <version>1.1.0-SNAPSHOT</version>
       </dependency>
 
-      <dependency>
-        <artifactId>service-metric-service</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>service-metric-datastore-rdbms</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>system-event-service</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>system-event-datastore-rdbms</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>alarm-service</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>alarm-datastore-rdbms</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-
-      <dependency>
-        <artifactId>status-service</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>status-datastore-rdbms</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>routing-service</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>routing-datastore-rdbms</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
-      </dependency>
-
       <!-- Stream Processors -->
       <dependency>
         <artifactId>single-process-streams</artifactId>

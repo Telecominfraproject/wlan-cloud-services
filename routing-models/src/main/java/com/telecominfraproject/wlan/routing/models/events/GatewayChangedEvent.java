@@ -13,8 +13,7 @@ public class GatewayChangedEvent extends SystemEvent {
     private EquipmentGatewayRecord gateway;
 
     public GatewayChangedEvent(EquipmentGatewayRecord gateway){
-        super(gateway.getLastModifiedTimestamp());
-        
+        super();
         this.gateway = gateway;
     }
     
