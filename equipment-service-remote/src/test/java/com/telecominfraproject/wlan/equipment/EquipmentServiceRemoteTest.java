@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +65,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
     @Before public void urlSetup(){
         configureBaseUrl("tip.wlan.equipmentServiceBaseUrl");
     }
+    
+    private static AtomicLong profileIdGen = new AtomicLong();
     
     
     @Test
@@ -369,6 +372,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        long locationId_1 = getNextLocationId();
        long locationId_2 = getNextLocationId();
        long locationId_3 = getNextLocationId();
+       long profileId_1 = profileIdGen.incrementAndGet();
+       long profileId_2 = profileIdGen.incrementAndGet();
 
        int apNameIdx = 0;
        
@@ -376,7 +381,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("qr_"+apNameIdx);
-           mdl.setProfileId(1);
+           mdl.setProfileId(profileId_1);
            mdl.setLocationId(locationId_1);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -390,7 +395,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_1);
            mdl.setName("br_"+apNameIdx);
-           mdl.setProfileId(1);
+           mdl.setProfileId(profileId_2);
            mdl.setLocationId(locationId_2);
            mdl.setEquipmentType(EquipmentType.AP);
            mdl.setInventoryId("inv-" + mdl.getName());
@@ -405,7 +410,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
            mdl = new Equipment();
            mdl.setCustomerId(customerId_2);
            mdl.setName("cr_"+apNameIdx);
-           mdl.setProfileId(1);
+           mdl.setProfileId(profileId_2);
            mdl.setLocationId(locationId_3);
            EquipmentType type = (i % 2 == 0) ? EquipmentType.AP : EquipmentType.SWITCH;
            mdl.setEquipmentType(type);
@@ -420,18 +425,23 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        
        Set<Long> locationIds = new HashSet<>();
        locationIds.add(locationId_1);
+       Set<Long> emptyLocationIds = Collections.emptySet();
+       
+       Set<Long> profileIds = new HashSet<>();
+       profileIds.add(profileId_1);
+       Set<Long> emptyProfileIds = Collections.emptySet();
 
        List<ColumnAndSort> sortBy = new ArrayList<>();
        sortBy.addAll(Arrays.asList(new ColumnAndSort("name")));
        
        PaginationContext<Equipment> context = new PaginationContext<>(10);
-       PaginationResponse<Equipment> page1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, context);
-       PaginationResponse<Equipment> page2 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page1.getContext());
-       PaginationResponse<Equipment> page3 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page2.getContext());
-       PaginationResponse<Equipment> page4 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page3.getContext());
-       PaginationResponse<Equipment> page5 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page4.getContext());
-       PaginationResponse<Equipment> page6 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page5.getContext());
-       PaginationResponse<Equipment> page7 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, sortBy, page6.getContext());
+       PaginationResponse<Equipment> page1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, context);
+       PaginationResponse<Equipment> page2 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page1.getContext());
+       PaginationResponse<Equipment> page3 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page2.getContext());
+       PaginationResponse<Equipment> page4 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page3.getContext());
+       PaginationResponse<Equipment> page5 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page4.getContext());
+       PaginationResponse<Equipment> page6 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page5.getContext());
+       PaginationResponse<Equipment> page7 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, sortBy, page6.getContext());
        
        //verify returned pages
        assertEquals(10, page1.getItems().size());
@@ -453,13 +463,13 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertTrue(page7.getContext().isLastPage());
        
        // null criteria and empty criteria should return the same thing
-       PaginationResponse<Equipment> page1emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, context);
-       PaginationResponse<Equipment> page2emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page1emptyCriteria.getContext());
-       PaginationResponse<Equipment> page3emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page2emptyCriteria.getContext());
-       PaginationResponse<Equipment> page4emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page3emptyCriteria.getContext());
-       PaginationResponse<Equipment> page5emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page4emptyCriteria.getContext());
-       PaginationResponse<Equipment> page6emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page5emptyCriteria.getContext());
-       PaginationResponse<Equipment> page7emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, "", sortBy, page6emptyCriteria.getContext());
+       PaginationResponse<Equipment> page1emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, context);
+       PaginationResponse<Equipment> page2emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page1emptyCriteria.getContext());
+       PaginationResponse<Equipment> page3emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page2emptyCriteria.getContext());
+       PaginationResponse<Equipment> page4emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page3emptyCriteria.getContext());
+       PaginationResponse<Equipment> page5emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page4emptyCriteria.getContext());
+       PaginationResponse<Equipment> page6emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page5emptyCriteria.getContext());
+       PaginationResponse<Equipment> page7emptyCriteria = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, "", sortBy, page6emptyCriteria.getContext());
 
        assertEquals(page1.getItems(), page1emptyCriteria.getItems());
        assertEquals(page2.getItems(), page2emptyCriteria.getItems());
@@ -470,14 +480,13 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(page7.getItems(), page7emptyCriteria.getItems());
        
        // "A1" baseMacAddresses should return the same set as locationId_1
-       Set<Long> emptyLocationIds = Collections.emptySet();
-       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, context);
-       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page1EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page2EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page3EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page4EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page5EmptyLocationIdsSearchBaseMac.getContext());
-       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "A1", sortBy, page6EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, context);
+       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page1EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page2EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page3EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page4EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page5EmptyLocationIdsSearchBaseMac.getContext());
+       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBaseMac = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "A1", sortBy, page6EmptyLocationIdsSearchBaseMac.getContext());
        
        assertEquals(page1.getItems(), page1EmptyLocationIdsSearchBaseMac.getItems());
        assertEquals(page2.getItems(), page2EmptyLocationIdsSearchBaseMac.getItems());
@@ -488,21 +497,21 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(page7.getItems(), page7EmptyLocationIdsSearchBaseMac.getItems());
        
        // "br" names should return the same set as "B1" baseMacAddresses
-       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, context);
-       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page1EmptyLocationIdsSearchBr.getContext());
-       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page2EmptyLocationIdsSearchBr.getContext());
-       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page3EmptyLocationIdsSearchBr.getContext());
-       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page4EmptyLocationIdsSearchBr.getContext());
-       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page5EmptyLocationIdsSearchBr.getContext());
-       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "br", sortBy, page6EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page1EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, context);
+       PaginationResponse<Equipment> page2EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page1EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page3EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page2EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page4EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page3EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page5EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page4EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page6EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page5EmptyLocationIdsSearchBr.getContext());
+       PaginationResponse<Equipment> page7EmptyLocationIdsSearchBr = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "br", sortBy, page6EmptyLocationIdsSearchBr.getContext());
        
-       PaginationResponse<Equipment> page1EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, context);
-       PaginationResponse<Equipment> page2EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page1EmptyLocationIdsSearchB1.getContext());
-       PaginationResponse<Equipment> page3EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page2EmptyLocationIdsSearchB1.getContext());
-       PaginationResponse<Equipment> page4EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page3EmptyLocationIdsSearchB1.getContext());
-       PaginationResponse<Equipment> page5EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page4EmptyLocationIdsSearchB1.getContext());
-       PaginationResponse<Equipment> page6EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page5EmptyLocationIdsSearchB1.getContext());
-       PaginationResponse<Equipment> page7EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, "b1", sortBy, page6EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page1EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, context);
+       PaginationResponse<Equipment> page2EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page1EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page3EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page2EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page4EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page3EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page5EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page4EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page6EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page5EmptyLocationIdsSearchB1.getContext());
+       PaginationResponse<Equipment> page7EmptyLocationIdsSearchB1 = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, emptyLocationIds, emptyProfileIds, "b1", sortBy, page6EmptyLocationIdsSearchB1.getContext());
 
        
        assertEquals(page1EmptyLocationIdsSearchB1.getItems(), page1EmptyLocationIdsSearchBr.getItems());
@@ -514,13 +523,13 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(page7EmptyLocationIdsSearchB1.getItems(), page7EmptyLocationIdsSearchBr.getItems());
        
        // check that equipmentType == null gets any equipmentType using 3rd set of created equipment (mixed equipmentTypes)
-       PaginationResponse<Equipment> page1nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, context);
-       PaginationResponse<Equipment> page2nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page1nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page3nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page2nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page4nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page3nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page5nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page4nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page6nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page5nullEquipmentType.getContext());
-       PaginationResponse<Equipment> page7nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, "cr", sortBy, page6nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page1nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, context);
+       PaginationResponse<Equipment> page2nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page1nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page3nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page2nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page4nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page3nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page5nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page4nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page6nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page5nullEquipmentType.getContext());
+       PaginationResponse<Equipment> page7nullEquipmentType = remoteInterface.getForCustomer(customerId_2, null, emptyLocationIds, emptyProfileIds, "cr", sortBy, page6nullEquipmentType.getContext());
 
        // verify
        assertEquals(10, page1nullEquipmentType.getItems().size());
@@ -538,6 +547,23 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(0, page6nullEquipmentType.getItems().size());
        assertEquals(0, page7nullEquipmentType.getItems().size());
        
+       // profileId search
+       PaginationResponse<Equipment> page1ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, context);
+       PaginationResponse<Equipment> page2ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page1ProfileIds.getContext());
+       PaginationResponse<Equipment> page3ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page2ProfileIds.getContext());
+       PaginationResponse<Equipment> page4ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page3ProfileIds.getContext());
+       PaginationResponse<Equipment> page5ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page4ProfileIds.getContext());
+       PaginationResponse<Equipment> page6ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page5ProfileIds.getContext());
+       PaginationResponse<Equipment> page7ProfileIds = remoteInterface.getForCustomer(customerId_1, null, emptyLocationIds, profileIds, "", sortBy, page6ProfileIds.getContext());
+
+       assertEquals(page1.getItems(), page1ProfileIds.getItems());
+       assertEquals(page2.getItems(), page2ProfileIds.getItems());
+       assertEquals(page3.getItems(), page3ProfileIds.getItems());
+       assertEquals(page4.getItems(), page4ProfileIds.getItems());
+       assertEquals(page5.getItems(), page5ProfileIds.getItems());
+       assertEquals(page6.getItems(), page6ProfileIds.getItems());
+       assertEquals(page7.getItems(), page7ProfileIds.getItems());
+       
        List<String> expectedPage3Strings = new ArrayList<	>(Arrays.asList(new String[]{"qr_27", "qr_28", "qr_29", "qr_3", "qr_30", "qr_31", "qr_32", "qr_33", "qr_34", "qr_35" }));
        List<String> actualPage3Strings = new ArrayList<>();
        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(ce.getName()) );
@@ -546,7 +572,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
        
        //test first page of the results with empty sort order -> default sort order (by Id ascending)
-       PaginationResponse<Equipment> page1EmptySort = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, Collections.emptyList(), context);
+       PaginationResponse<Equipment> page1EmptySort = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, Collections.emptyList(), context);
        assertEquals(10, page1EmptySort.getItems().size());
 
        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -556,7 +582,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
        //test first page of the results with null sort order -> default sort order (by Id ascending)
-       PaginationResponse<Equipment> page1NullSort = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, null, context);
+       PaginationResponse<Equipment> page1NullSort = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, null, context);
        assertEquals(10, page1NullSort.getItems().size());
 
        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
@@ -567,7 +593,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
        
        //test first page of the results with sort descending order by a name property 
-       PaginationResponse<Equipment> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, null, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
+       PaginationResponse<Equipment> page1SingleSortDesc = remoteInterface.getForCustomer(customerId_1, EquipmentType.AP, locationIds, emptyProfileIds, null, Collections.singletonList(new ColumnAndSort("name", SortOrder.desc)), context);
        assertEquals(10, page1SingleSortDesc.getItems().size());
 
        List<String> expectedPage1SingleSortDescStrings = new ArrayList<	>(Arrays.asList(new String[]{"qr_9", "qr_8", "qr_7", "qr_6", "qr_5", "qr_49", "qr_48", "qr_47", "qr_46", "qr_45" }));

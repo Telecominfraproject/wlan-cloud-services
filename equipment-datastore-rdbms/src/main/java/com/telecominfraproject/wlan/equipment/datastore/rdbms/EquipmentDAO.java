@@ -181,16 +181,16 @@ public class EquipmentDAO extends BaseJdbcDao {
     		" and (LOWER(name) like ? or LOWER(baseMacAddress) like ?) ";
 
     private static final String SQL_GET_EQUIPMENTIDS_BY_LOCATIONIDS = "select locationId, id from "
-            + TABLE_NAME + " " + " where locationId ";
+            + TABLE_NAME + " where locationId ";
 
     private static final String SQL_GET_EQUIPMENTIDS_BY_PROFILEIDS = "select profileId, id from "
-            + TABLE_NAME + " " + " where profileId ";
+            + TABLE_NAME + " where profileId ";
 
     private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
     private static final String SORT_SUFFIX = "";
 
     private static final String SQL_GET_EQUIPMENT_COUNTS_FOR_CUSTOMER = "select manufacturerOui, count(1) from "
-            + TABLE_NAME + " " + " where customerId = ? group by manufacturerOui ";
+            + TABLE_NAME + " where customerId = ? group by manufacturerOui ";
 
 
     private static final RowMapper<Equipment> equipmentRowMapper = new EquipmentRowMapper();
@@ -531,7 +531,7 @@ public class EquipmentDAO extends BaseJdbcDao {
     }
 	
     public PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType,
-            Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
+            Set<Long> locationIds, Set<Long> profileIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context) {
 
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
         ret.setContext(context.clone());
@@ -539,13 +539,13 @@ public class EquipmentDAO extends BaseJdbcDao {
         if (ret.getContext().isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up equipment {} for customer {} locations {} criteria {} last returned page number {}",
-                    equipmentType, customerId, locationIds, criteria, context.getLastReturnedPageNumber());
+                    "No more pages available when looking up equipment {} for customer {} locations {} profiles {} criteria {} last returned page number {}",
+                    equipmentType, customerId, locationIds, profileIds, criteria, context.getLastReturnedPageNumber());
             return ret;
         }
 
-        LOG.debug("Looking up equipment {} for customer {} locations {} criteria {} last returned page number {}", equipmentType,
-                customerId, locationIds, criteria, context.getLastReturnedPageNumber());
+        LOG.debug("Looking up equipment {} for customer {} locations {} profiles {} criteria {} last returned page number {}", equipmentType,
+                customerId, locationIds, profileIds, criteria, context.getLastReturnedPageNumber());
 
         String query = SQL_GET_BY_CUSTOMER_ID;
 
@@ -568,6 +568,22 @@ public class EquipmentDAO extends BaseJdbcDao {
             for (int i = 0; i < locationIds.size(); i++) {
                 strb.append("?");
                 if (i < locationIds.size() - 1) {
+                    strb.append(",");
+                }
+            }
+            strb.append(") ");
+
+            query += strb.toString();
+        }
+        
+        if (profileIds != null && !profileIds.isEmpty()) {
+            queryArgs.addAll(profileIds);
+
+            StringBuilder strb = new StringBuilder(100);
+            strb.append("and profileId in (");
+            for (int i = 0; i < profileIds.size(); i++) {
+                strb.append("?");
+                if (i < profileIds.size() - 1) {
                     strb.append(",");
                 }
             }
@@ -631,8 +647,8 @@ public class EquipmentDAO extends BaseJdbcDao {
         List<Equipment> pageItems = this.jdbcTemplate.query(query, queryArgs.toArray(),
                 equipmentRowMapper);
 
-        LOG.debug("Found {} equipment {} for customer {} locations {} criteria {} last returned page number {}",
-                    pageItems.size(), equipmentType, customerId, locationIds, criteria, context.getLastReturnedPageNumber());
+        LOG.debug("Found {} equipment {} for customer {} locations {} profiles {} criteria {} last returned page number {}",
+                    pageItems.size(), equipmentType, customerId, locationIds, profileIds, criteria, context.getLastReturnedPageNumber());
 
         ret.setItems(pageItems);
 

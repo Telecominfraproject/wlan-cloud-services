@@ -969,6 +969,17 @@ paths:
               items:
                 type: integer
                 format: int64
+      - name: profileIds
+        in: query
+        description: Set of Profile IDs
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
       - name: criteria
         in: query
         description: search criteria

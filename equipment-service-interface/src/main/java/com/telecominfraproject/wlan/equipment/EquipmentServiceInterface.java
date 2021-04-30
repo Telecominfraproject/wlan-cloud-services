@@ -106,7 +106,16 @@ public interface EquipmentServiceInterface {
      */
     PaginationResponse<Equipment> getForCustomer(int customerId, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
 
-    PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
+    /**
+     * Same as getForCustomer with more filters
+     * @param customerId
+     * @param equipmentType
+     * @param locationIds
+     * @param profileIds
+     * @param criteria (nameSubstring)
+     * @return next page of matching equipment objects
+     */
+    PaginationResponse<Equipment> getForCustomer(int customerId, EquipmentType equipmentType, Set<Long> locationIds, Set<Long> profileIds, String criteria, List<ColumnAndSort> sortBy, PaginationContext<Equipment> context);
     
     /**
      * @param equipmentType

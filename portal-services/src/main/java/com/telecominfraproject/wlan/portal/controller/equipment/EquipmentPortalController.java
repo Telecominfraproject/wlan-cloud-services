@@ -1,7 +1,9 @@
 package com.telecominfraproject.wlan.portal.controller.equipment;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +25,7 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
+import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
@@ -31,8 +34,8 @@ import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
-import com.telecominfraproject.wlan.equipment.models.StateSetting;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
+import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 
 /**
@@ -64,6 +67,9 @@ public class EquipmentPortalController  {
 
     @Autowired
     private StatusServiceInterface statusServiceInterface;
+    
+    @Autowired
+    private ProfileServiceInterface profileServiceInterface;
 
     @RequestMapping(value = "/equipment", method = RequestMethod.GET)
     public Equipment getEquipment(@RequestParam long equipmentId) {
@@ -238,6 +244,7 @@ public class EquipmentPortalController  {
     public PaginationResponse<Equipment> getForCustomerWithFilter(@RequestParam int customerId,
             @RequestParam(required = false) EquipmentType equipmentType, 
             @RequestParam(required = false) Set<Long> locationIds,
+            @RequestParam(required = false) Long profileId,
             @RequestParam(required = false) String criteria,
             @RequestParam(required = false) List<ColumnAndSort> sortBy,
             @RequestParam(required = false) PaginationContext<Equipment> paginationContext) {
@@ -246,27 +253,36 @@ public class EquipmentPortalController  {
     		paginationContext = new PaginationContext<>();
     	}
 
-        LOG.debug("Looking up equipment {} for customer {} locations {} criteria {} last returned page number {}", equipmentType,
-                customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
+        LOG.debug("Looking up equipment {} for customer {} locations {} profileId {} criteria {} last returned page number {}", equipmentType,
+                customerId, locationIds, profileId, criteria, paginationContext.getLastReturnedPageNumber());
 
         PaginationResponse<Equipment> ret = new PaginationResponse<>();
 
         if (paginationContext.isLastPage()) {
             // no more pages available according to the context
             LOG.debug(
-                    "No more pages available when looking up equipment {} for customer {} locations {} criteria {} last returned page number {}",
-                    equipmentType, customerId, locationIds, criteria, paginationContext.getLastReturnedPageNumber());
+                    "No more pages available when looking up equipment {} for customer {} locations {} profileId {} criteria {} last returned page number {}",
+                    equipmentType, customerId, locationIds, profileId, criteria, paginationContext.getLastReturnedPageNumber());
             ret.setContext(paginationContext);
             return ret;
         }
+        
+        Set<Long> topProfileIds = new HashSet<>();
+        if (profileId != null) {
+            //first get top-level profiles for the supplied set - only top-level profiles are linked to equipment
+            List<PairLongLong> topLevelProfiles = profileServiceInterface.getTopLevelProfiles(Collections.singleton(profileId));
+            
+            //gather top-level profile ids
+            topLevelProfiles.forEach(pair -> topProfileIds.add(pair.getValue2()));
+        }
 
         PaginationResponse<Equipment> cePage = this.equipmentServiceInterface
-                .getForCustomer(customerId, equipmentType, locationIds, criteria, sortBy, paginationContext);
+                .getForCustomer(customerId, equipmentType, locationIds, topProfileIds, criteria, sortBy, paginationContext);
         ret.setContext(cePage.getContext());
         ret.getItems().addAll(cePage.getItems());
 
-        LOG.debug("Retrieved {} equipment {} for customer {} locations {} criteria {}", cePage.getItems().size(), equipmentType,
-                customerId, locationIds, criteria);
+        LOG.debug("Retrieved {} equipment {} for customer {} locations {} profileId {} criteria {}", cePage.getItems().size(), equipmentType,
+                customerId, locationIds, profileId, criteria);
 
         return ret;
     }    
