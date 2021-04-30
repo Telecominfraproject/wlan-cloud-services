@@ -44,6 +44,9 @@ public class EquipmentCellSizeAttributesUpdateRequest extends BaseJsonModel {
             if (cellSizeAttributesMap.get(RadioType.UNSUPPORTED) != null) {
                 return true;
             }
+            if (hasUnsupportedValue(cellSizeAttributesMap)) {
+                return true;
+            }
         }
         
         return false;
