@@ -28,8 +28,8 @@ public class PasspointIPv6AddressType implements EnumWithId {
 
     address_type_not_available = new PasspointIPv6AddressType(0, "address_type_not_available"),
             address_type_available = new PasspointIPv6AddressType(1, "address_type_available"),
-            availability_of_the_address_type_is_unknown = new PasspointIPv6AddressType(2,
-                    "availability_of_the_address_type_is_unknown"),
+            availability_of_the_address_type_unknown = new PasspointIPv6AddressType(2,
+                    "availability_of_the_address_type_unknown"),
             reserved = new PasspointIPv6AddressType(3, "reserved"),
             UNSUPPORTED = new PasspointIPv6AddressType(-1, "UNSUPPORTED");
 
