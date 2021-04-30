@@ -8,16 +8,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.equipment.models.CellSizeAttributes;
 
-public class CEGWCellSizeRequest extends EquipmentCommand {
-    private static final long serialVersionUID = 1204349463504941253L;
+public class CEGWCellSizeAttributesRequest extends EquipmentCommand {
+    private static final long serialVersionUID = -5809359509515188374L;
     private Map<RadioType, CellSizeAttributes> cellSizeAttributesMap = new EnumMap<>(RadioType.class);
 
-    protected CEGWCellSizeRequest() {
+    protected CEGWCellSizeAttributesRequest() {
         // serial
     }
 
-    public CEGWCellSizeRequest(String inventoryId, long equipmentId, Map<RadioType, CellSizeAttributes> cellSizeAttributesMap) {
-        super(CEGWCommandType.CellSizeRequest, inventoryId, equipmentId);
+    public CEGWCellSizeAttributesRequest(String inventoryId, long equipmentId, Map<RadioType, CellSizeAttributes> cellSizeAttributesMap) {
+        super(CEGWCommandType.CellSizeAttributesRequest, inventoryId, equipmentId);
         this.cellSizeAttributesMap = cellSizeAttributesMap;
     }
     
@@ -69,7 +69,7 @@ public class CEGWCellSizeRequest extends EquipmentCommand {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        CEGWCellSizeRequest other = (CEGWCellSizeRequest) obj;
+        CEGWCellSizeAttributesRequest other = (CEGWCellSizeAttributesRequest) obj;
         return Objects.equals(cellSizeAttributesMap, other.cellSizeAttributesMap);
     }
 

@@ -401,11 +401,7 @@ public class EquipmentController {
                 continue;
             }
             CellSizeAttributes cellSizeAttributes = cellSizeAttributesMap.get(radioType);
-            if (cellSizeAttributes == null) {
-                LOG.info("updateCellSizeAttributes cellSizeAttributes is null for radioType {}", radioType);
-                continue;
-            }
-            if (cellSizeAttributesMap.get(radioType) != null && autoCellSizeSelections.get(radioType) != null) {
+            if (cellSizeAttributes != null && autoCellSizeSelections.get(radioType) != null) {
                 if (autoCellSizeSelections.get(radioType)) {
                     elementRadioConfig.setRxCellSizeDb(SourceSelectionValue.createAutomaticInstance(
                             cellSizeAttributes.getRxCellSizeDb()));

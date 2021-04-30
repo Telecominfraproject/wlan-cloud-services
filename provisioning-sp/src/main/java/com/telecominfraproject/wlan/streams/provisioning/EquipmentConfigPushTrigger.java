@@ -27,7 +27,7 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
-import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCellSizeRequest;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCellSizeAttributesRequest;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
@@ -138,7 +138,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
         
         private void process(EquipmentCellSizeAttributesChangedEvent model) {
             LOG.debug("Processing EquipmentCellSizeAttributesChangedEvent for equipmentId {}", model.getEquipmentId());
-            equipmentGatewayInterface.sendCommand(new CEGWCellSizeRequest(model.getPayload().getInventoryId(),
+            equipmentGatewayInterface.sendCommand(new CEGWCellSizeAttributesRequest(model.getPayload().getInventoryId(),
                    model.getEquipmentId(), model.getCellSizeAttributesMap()));
         }
 		

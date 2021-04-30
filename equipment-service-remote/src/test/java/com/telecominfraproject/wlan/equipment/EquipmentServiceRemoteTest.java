@@ -1094,7 +1094,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
                 RadioType.is2dot4GHz).getProbeResponseThresholdDb().getValue().intValue());
         
         assertEquals(SourceType.profile, radioMap.get(RadioType.is2dot4GHz).getEirpTxPower().getSource());
-        assertEquals(ElementRadioConfiguration.DEFAULT_EIRP_TX_POWER, radioMap.get(
+        assertEquals(ElementRadioConfiguration.DEFAULT_EIRP_TX_POWER_DB, radioMap.get(
                 RadioType.is2dot4GHz).getEirpTxPower().getValue().intValue());
         
         assertEquals(SourceType.profile, radioMap.get(RadioType.is2dot4GHz).getClientDisconnectThresholdDb().getSource());
@@ -1116,7 +1116,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
                 RadioType.is2dot4GHz).getProbeResponseThresholdDb().getValue().intValue());
         
         assertEquals(SourceType.profile, radioMap.get(RadioType.is5GHz).getEirpTxPower().getSource());
-        assertEquals(ElementRadioConfiguration.DEFAULT_EIRP_TX_POWER, radioMap.get(
+        assertEquals(ElementRadioConfiguration.DEFAULT_EIRP_TX_POWER_DB, radioMap.get(
                 RadioType.is2dot4GHz).getEirpTxPower().getValue().intValue());
         
         assertEquals(SourceType.profile, radioMap.get(RadioType.is5GHz).getClientDisconnectThresholdDb().getSource());
