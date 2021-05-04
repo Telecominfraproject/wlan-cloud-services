@@ -11,6 +11,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentCellSizeAttributesUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -78,6 +79,15 @@ public interface EquipmentServiceInterface {
      * @throws RuntimeException if Equipment record does not exist or if it was modified concurrently
      */
     Equipment updateChannels(EquipmentChannelsUpdateRequest channelsUpdateRequest);
+    
+    /**
+     * Updates Equipment Cell Size Attributes
+     *
+     * @param CellSizeAttributes
+     * @return updated Equipment object
+     * @throws RuntimeException if Equipment record does not exist or if it was modified concurrently
+     */
+    Equipment updateCellSizeAttributes(EquipmentCellSizeAttributesUpdateRequest cellSizeAttributesUpdateRequest);
     
     /**
      * Deletes Equipment

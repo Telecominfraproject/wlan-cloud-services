@@ -100,6 +100,7 @@ components:
       - EquipmentAddedEvent
       - EquipmentChangedEvent
       - EquipmentChannelsChangedEvent
+      - EquipmentCellSizeAttributesChangedEvent
       - EquipmentRemovedEvent
       - StatusChangedEvent
       - StatusRemovedEvent
@@ -181,6 +182,7 @@ components:
         - $ref: '#/components/schemas/EquipmentAddedEvent'
         - $ref: '#/components/schemas/EquipmentChangedEvent'
         - $ref: '#/components/schemas/EquipmentChannelsChangedEvent'
+        - $ref: '#/components/schemas/EquipmentCellSizeAttributesChangedEvent'
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
         - $ref: '#/components/schemas/StatusChangedEvent'
         - $ref: '#/components/schemas/StatusRemovedEvent'
@@ -450,6 +452,43 @@ components:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
         newBackupChannels:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+ 
+    EquipmentCellSizeAttributesChangedEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/EquipmentChangedEvent'
+        cellSizeAttributesMap:
+          $ref: '#/components/schemas/CellSizeAttributesPerRadioTypeMap'
+
+    CellSizeAttributes:
+      properties:
+        rxCellSizeDb:
+          type: integer
+          format: int32
+        probeResponseThresholdDb:
+          type: integer
+          format: int32
+        clientDisconnectThresholdDb:
+          type: integer
+          format: int32
+        eirpTxPowerDb:
+          type: integer
+          format: int32
+        multicastRate:
+          $ref: '#/components/schemas/MulticastRate'
+        managementRate:
+          $ref: '#/components/schemas/ManagementRate'
+
+    CellSizeAttributesPerRadioTypeMap:
+      properties:
+        is5GHz:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is5GHzU:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is5GHzL:
+          $ref: '#/components/schemas/CellSizeAttributes'
+        is2dot4GHz:
+          $ref: '#/components/schemas/CellSizeAttributes'
  
     EquipmentRemovedEvent:
       properties:

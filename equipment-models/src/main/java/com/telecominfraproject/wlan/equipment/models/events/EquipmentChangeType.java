@@ -10,7 +10,7 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 
 public enum EquipmentChangeType {
 
-    All(0), ChannelsOnly(1), UNSUPPORTED(-1);
+    All(0), ChannelsOnly(1), CellSizeAttributesOnly(2), UNSUPPORTED(-1);
 
     private final int id;
     private static final Map<Integer, EquipmentChangeType> ELEMENTS = new HashMap<>();
