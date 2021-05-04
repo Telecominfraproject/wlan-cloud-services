@@ -17,6 +17,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.EquipmentCellSizeAttributesUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
@@ -86,6 +87,12 @@ public class EquipmentServiceLocal implements EquipmentServiceInterface {
     public Equipment updateChannels(EquipmentChannelsUpdateRequest channelsUpdateRequest) {
         LOG.debug("calling equipmentController.updateChannels {} ", channelsUpdateRequest);
         return equipmentController.updateChannels(channelsUpdateRequest);
+    }
+    
+    @Override
+    public Equipment updateCellSizeAttributes(EquipmentCellSizeAttributesUpdateRequest cellSizeAttributesUpdateRequest) {
+        LOG.debug("calling equipmentController.updateCellSizeAttributes {} ", cellSizeAttributesUpdateRequest);
+        return equipmentController.updateCellSizeAttributes(cellSizeAttributesUpdateRequest);
     }
 
     @Override

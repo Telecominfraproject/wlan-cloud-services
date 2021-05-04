@@ -19,7 +19,7 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
-import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangeType;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
@@ -27,6 +27,7 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCellSizeAttributesRequest;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
@@ -99,6 +100,9 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	case "EquipmentChannelsChangedEvent":
                 process((EquipmentChannelsChangedEvent) se);
                 break;
+	    	case "EquipmentCellSizeAttributesChangedEvent":
+                process((EquipmentCellSizeAttributesChangedEvent) se);
+                break;
 	    	case "EquipmentRemovedEvent":
                 process((EquipmentRemovedEvent) se);
                 break;
@@ -130,6 +134,12 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
             LOG.debug("Processing EquipmentChannelsChangedEvent for equipmentId {}", model.getEquipmentId());
             equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
                    model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
+        }
+        
+        private void process(EquipmentCellSizeAttributesChangedEvent model) {
+            LOG.debug("Processing EquipmentCellSizeAttributesChangedEvent for equipmentId {}", model.getEquipmentId());
+            equipmentGatewayInterface.sendCommand(new CEGWCellSizeAttributesRequest(model.getPayload().getInventoryId(),
+                   model.getEquipmentId(), model.getCellSizeAttributesMap()));
         }
 		
         private void process(EquipmentRemovedEvent model) {
