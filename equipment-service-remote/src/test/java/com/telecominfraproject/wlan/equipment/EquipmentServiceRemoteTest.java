@@ -1086,7 +1086,8 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertNotNull(radioMap);
         radioConfigMap = apElementConfiguration.getAdvancedRadioMap();
         
-        checkCellSizeAttrsAutoOrManual(radioMap, radioConfigMap, cellSizeAttributesMap, false);
+        //no changes to equipment b/c autoCellSizeSelection is false
+        checkCellSizeAttrsProfile(radioMap, radioConfigMap);
         
         autoCellSizeSelections.clear();
         autoCellSizeSelections.put(RadioType.is2dot4GHz, true);
@@ -1103,7 +1104,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         radioConfigMap = apElementConfiguration.getAdvancedRadioMap();
         assertNotNull(radioConfigMap);
         
-        checkCellSizeAttrsAutoOrManual(radioMap, radioConfigMap, cellSizeAttributesMap, true);
+        checkCellSizeAttrsAuto(radioMap, radioConfigMap, cellSizeAttributesMap);
         
         // Clean up after test
         remoteInterface.delete(equipmentId);
@@ -1156,105 +1157,57 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(ManagementRate.auto, radioConfigMap.get(RadioType.is5GHz).getManagementRate().getValue());
     }
     
-    private void checkCellSizeAttrsAutoOrManual(Map<RadioType, ElementRadioConfiguration> radioMap, Map<RadioType, RadioConfiguration> radioConfigMap, 
-            Map<RadioType, CellSizeAttributes> cellSizeAttributesMap, boolean auto) {
+    private void checkCellSizeAttrsAuto(Map<RadioType, ElementRadioConfiguration> radioMap, Map<RadioType, RadioConfiguration> radioConfigMap, 
+            Map<RadioType, CellSizeAttributes> cellSizeAttributesMap) {
         CellSizeAttributes cellSizeAttributes2dot4G = cellSizeAttributesMap.get(RadioType.is2dot4GHz);
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getRxCellSizeDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is2dot4GHz).getRxCellSizeDb().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getRxCellSizeDb().getSource());
         assertEquals(cellSizeAttributes2dot4G.getRxCellSizeDb().intValue(), radioMap.get(
                 RadioType.is2dot4GHz).getRxCellSizeDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getProbeResponseThresholdDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is2dot4GHz).getProbeResponseThresholdDb().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getProbeResponseThresholdDb().getSource());
         assertEquals(cellSizeAttributes2dot4G.getProbeResponseThresholdDb().intValue(), radioMap.get(
                 RadioType.is2dot4GHz).getProbeResponseThresholdDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getEirpTxPower().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is2dot4GHz).getEirpTxPower().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getEirpTxPower().getSource());
         assertEquals(cellSizeAttributes2dot4G.getEirpTxPowerDb().intValue(), radioMap.get(
                 RadioType.is2dot4GHz).getEirpTxPower().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getClientDisconnectThresholdDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is2dot4GHz).getClientDisconnectThresholdDb().getSource()); 
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is2dot4GHz).getClientDisconnectThresholdDb().getSource());
         assertEquals(cellSizeAttributes2dot4G.getClientDisconnectThresholdDb().intValue(), radioMap.get(
                 RadioType.is2dot4GHz).getClientDisconnectThresholdDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is2dot4GHz).getMulticastRate().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioConfigMap.get(RadioType.is2dot4GHz).getMulticastRate().getSource());
-        }
+        assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is2dot4GHz).getMulticastRate().getSource());
         assertEquals(cellSizeAttributes2dot4G.getMulticastRate(),
                 radioConfigMap.get(RadioType.is2dot4GHz).getMulticastRate().getValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is2dot4GHz).getManagementRate().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioConfigMap.get(RadioType.is2dot4GHz).getManagementRate().getSource());
-        }
+        assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is2dot4GHz).getManagementRate().getSource());
         assertEquals(cellSizeAttributes2dot4G.getManagementRate(),
                 radioConfigMap.get(RadioType.is2dot4GHz).getManagementRate().getValue());
         
         CellSizeAttributes cellSizeAttributes5G = cellSizeAttributesMap.get(RadioType.is5GHz);
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getRxCellSizeDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is5GHz).getRxCellSizeDb().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getRxCellSizeDb().getSource());
         assertEquals(cellSizeAttributes5G.getRxCellSizeDb().intValue(), radioMap.get(
                 RadioType.is5GHz).getRxCellSizeDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getProbeResponseThresholdDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is5GHz).getProbeResponseThresholdDb().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getProbeResponseThresholdDb().getSource());
         assertEquals(cellSizeAttributes5G.getProbeResponseThresholdDb().intValue(), radioMap.get(
                 RadioType.is5GHz).getProbeResponseThresholdDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getEirpTxPower().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is5GHz).getEirpTxPower().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getEirpTxPower().getSource());
         assertEquals(cellSizeAttributes5G.getEirpTxPowerDb().intValue(), radioMap.get(
                 RadioType.is5GHz).getEirpTxPower().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getClientDisconnectThresholdDb().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioMap.get(RadioType.is5GHz).getClientDisconnectThresholdDb().getSource());
-        }
+        assertEquals(SourceType.auto, radioMap.get(RadioType.is5GHz).getClientDisconnectThresholdDb().getSource());
         assertEquals(cellSizeAttributes5G.getClientDisconnectThresholdDb().intValue(), radioMap.get(
                 RadioType.is5GHz).getClientDisconnectThresholdDb().getValue().intValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is5GHz).getMulticastRate().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioConfigMap.get(RadioType.is5GHz).getMulticastRate().getSource());
-        }
+        assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is5GHz).getMulticastRate().getSource());
         assertEquals(cellSizeAttributes5G.getMulticastRate(),
                 radioConfigMap.get(RadioType.is5GHz).getMulticastRate().getValue());
         
-        if (auto) {
-            assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is5GHz).getManagementRate().getSource());
-        } else {
-            assertEquals(SourceType.manual, radioConfigMap.get(RadioType.is5GHz).getManagementRate().getSource());
-        }
+        assertEquals(SourceType.auto, radioConfigMap.get(RadioType.is5GHz).getManagementRate().getSource());
         assertEquals(cellSizeAttributes5G.getManagementRate(),
                 radioConfigMap.get(RadioType.is5GHz).getManagementRate().getValue());
     }

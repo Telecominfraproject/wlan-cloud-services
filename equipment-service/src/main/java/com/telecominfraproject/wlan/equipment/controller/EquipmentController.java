@@ -416,20 +416,6 @@ public class EquipmentController {
                             cellSizeAttributes.getMulticastRate()));
                     radioConfig.setManagementRate(SourceSelectionManagement.createAutomaticInstance(
                             cellSizeAttributes.getManagementRate()));
-                } else {
-                    //TODO or do nothing
-                    elementRadioConfig.setRxCellSizeDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getRxCellSizeDb()));
-                    elementRadioConfig.setProbeResponseThresholdDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getProbeResponseThresholdDb()));
-                    elementRadioConfig.setClientDisconnectThresholdDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getClientDisconnectThresholdDb()));
-                    elementRadioConfig.setEirpTxPower(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getEirpTxPowerDb()));
-                    radioConfig.setMulticastRate(SourceSelectionMulticast.createManualInstance(
-                            cellSizeAttributes.getMulticastRate()));
-                    radioConfig.setManagementRate(SourceSelectionManagement.createManualInstance(
-                            cellSizeAttributes.getManagementRate()));
                 }
             }
         }
