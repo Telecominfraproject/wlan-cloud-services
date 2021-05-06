@@ -1076,28 +1076,22 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         cellSizeAttributesUpdateRequest.setCellSizeAttributesMap(cellSizeAttributesMap);
         cellSizeAttributesUpdateRequest.setAutoCellSizeSelections(autoCellSizeSelections);
      
-        Equipment equipmentUpdate1 = remoteInterface.updateCellSizeAttributes(cellSizeAttributesUpdateRequest);
-        Equipment equipmentGetUpdate1  = remoteInterface.get(equipmentId);
-        assertEqualEquipments(equipmentGetUpdate1, equipmentUpdate1);
-        
-        apElementConfiguration = (ApElementConfiguration)equipmentGetUpdate1.getDetails();
-        assertNotNull(apElementConfiguration);
-        radioMap = apElementConfiguration.getRadioMap();
-        assertNotNull(radioMap);
-        radioConfigMap = apElementConfiguration.getAdvancedRadioMap();
-        
-        //no changes to equipment b/c autoCellSizeSelection is false
-        checkCellSizeAttrsProfile(radioMap, radioConfigMap);
+        try {
+            remoteInterface.updateCellSizeAttributes(cellSizeAttributesUpdateRequest);
+            fail("updateCellSizeAttributes with disabled autoCellSizeSelection");
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         
         autoCellSizeSelections.clear();
         autoCellSizeSelections.put(RadioType.is2dot4GHz, true);
         autoCellSizeSelections.put(RadioType.is5GHz, true);
         
-        Equipment equipmentUpdate2 = remoteInterface.updateCellSizeAttributes(cellSizeAttributesUpdateRequest);
-        Equipment equipmentGetUpdate2  = remoteInterface.get(equipmentId);
-        assertEqualEquipments(equipmentGetUpdate2, equipmentUpdate2);
+        Equipment equipmentUpdate = remoteInterface.updateCellSizeAttributes(cellSizeAttributesUpdateRequest);
+        Equipment equipmentGetUpdate  = remoteInterface.get(equipmentId);
+        assertEqualEquipments(equipmentGetUpdate, equipmentUpdate);
         
-        apElementConfiguration = (ApElementConfiguration)equipmentGetUpdate2.getDetails();
+        apElementConfiguration = (ApElementConfiguration)equipmentGetUpdate.getDetails();
         assertNotNull(apElementConfiguration);
         radioMap = apElementConfiguration.getRadioMap();
         assertNotNull(radioMap);
