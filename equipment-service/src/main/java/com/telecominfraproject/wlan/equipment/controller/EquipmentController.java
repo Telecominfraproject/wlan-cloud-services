@@ -50,6 +50,7 @@ import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAtt
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
+import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
@@ -416,6 +417,9 @@ public class EquipmentController {
                             cellSizeAttributes.getMulticastRate()));
                     radioConfig.setManagementRate(SourceSelectionManagement.createAutomaticInstance(
                             cellSizeAttributes.getManagementRate()));
+                } else {
+                    throw new ConfigurationException("Unable to update Cell Size Attributes on equipment " + request.getEquipmentId()
+                    + " for radioType " + radioType + " because its autoCellSizeSelection is disabled");
                 }
             }
         }
