@@ -17,6 +17,7 @@ public class RfConfigurationTests {
 		for (RadioType radioType : RadioType.validValues()) {
 		RfElementConfiguration rfConfig = RfElementConfiguration.createWithDefaults(radioType);
 		assertEquals(false, rfConfig.getAutoChannelSelection());
+		assertEquals(false, rfConfig.getAutoCellSizeSelection());
 		}
 	}
 	

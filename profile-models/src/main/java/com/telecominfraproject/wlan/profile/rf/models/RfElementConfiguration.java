@@ -23,18 +23,31 @@ import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 public class RfElementConfiguration extends BaseJsonModel {
 
     private static final long serialVersionUID = 1071268246965238451L;
+    public final static int DEFAULT_MIN_CELL_SIZE_DB = -65;
+    public final static int DEFAULT_MAX_CELL_SIZE_DB = -90;
 
     private final static Map<RadioType, Integer> MIN_CELL_SIZE_MAP;
     static {
         Map<RadioType, Integer> map = new HashMap<>();
-        map.put(RadioType.is2dot4GHz, -65);
-        map.put(RadioType.is5GHz, -65);
-        map.put(RadioType.is5GHzL, -65);
-        map.put(RadioType.is5GHzU, -65);
+        map.put(RadioType.is2dot4GHz, DEFAULT_MIN_CELL_SIZE_DB);
+        map.put(RadioType.is5GHz, DEFAULT_MIN_CELL_SIZE_DB);
+        map.put(RadioType.is5GHzL, DEFAULT_MIN_CELL_SIZE_DB);
+        map.put(RadioType.is5GHzU, DEFAULT_MIN_CELL_SIZE_DB);
         MIN_CELL_SIZE_MAP = Collections.unmodifiableMap(map);
     }
+    private final static Map<RadioType, Integer> MAX_CELL_SIZE_MAP;
+    static {
+        Map<RadioType, Integer> maxMap = new HashMap<>();
+        maxMap.put(RadioType.is2dot4GHz, DEFAULT_MAX_CELL_SIZE_DB);
+        maxMap.put(RadioType.is5GHz, DEFAULT_MAX_CELL_SIZE_DB);
+        maxMap.put(RadioType.is5GHzL, DEFAULT_MAX_CELL_SIZE_DB);
+        maxMap.put(RadioType.is5GHzU, DEFAULT_MAX_CELL_SIZE_DB);
+        MAX_CELL_SIZE_MAP = Collections.unmodifiableMap(maxMap);
+    }
     public final static int DEFAULT_RX_CELL_SIZE_DB = -90;
-    public final static int DEFAULT_EIRP_TX_POWER = 18;
+    public final static int DEFAULT_EIRP_TX_POWER_DB = 18;
+    public final static int DEFAULT_PROBE_RESPONSE_THRESHOLD_DB = -90;
+    public final static int DEFAULT_CLIENT_DISCONNECT_THRESHOLD_DB = -90;
     public final static int MIN_EIRP_TX_POWER = 1;
     public final static int MAX_EIRP_TX_POWER = 32;
     public final static int DEFAULT_BEACON_INTERVAL = 100;
@@ -50,9 +63,11 @@ public class RfElementConfiguration extends BaseJsonModel {
     private MimoMode mimoMode;
     private Integer maxNumClients;
     private boolean autoChannelSelection;
+    private boolean autoCellSizeSelection;
     private ActiveScanSettings activeScanSettings;
     private NeighbouringAPListConfiguration neighbouringListApConfig;
     private Integer minAutoCellSize;
+    private Integer maxAutoCellSize;
     private Boolean perimeterDetectionEnabled;
     private ChannelHopSettings channelHopSettings;
     private Boolean bestApEnabled;
@@ -75,12 +90,13 @@ public class RfElementConfiguration extends BaseJsonModel {
         setMaxNumClients(100);
         setMulticastRate(MulticastRate.auto);
         setAutoChannelSelection(false);
+        setAutoCellSizeSelection(false);
         setActiveScanSettings(ActiveScanSettings.createWithDefaults());
         setManagementRate(ManagementRate.auto);
         setRxCellSizeDb(DEFAULT_RX_CELL_SIZE_DB);
-        setProbeResponseThresholdDb(-90);
-        setClientDisconnectThresholdDb(-90);
-        setEirpTxPower(DEFAULT_EIRP_TX_POWER);
+        setProbeResponseThresholdDb(DEFAULT_PROBE_RESPONSE_THRESHOLD_DB);
+        setClientDisconnectThresholdDb(DEFAULT_CLIENT_DISCONNECT_THRESHOLD_DB);
+        setEirpTxPower(DEFAULT_EIRP_TX_POWER_DB);
         setBestApEnabled(null);
         setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
         setPerimeterDetectionEnabled(true);
@@ -92,6 +108,7 @@ public class RfElementConfiguration extends BaseJsonModel {
         ret.setRadioType(radioType);
         ret.setBestApSettings(RadioBestApSettings.createWithDefaults(radioType));
         ret.setMinAutoCellSize(MIN_CELL_SIZE_MAP.get(radioType));
+        ret.setMaxAutoCellSize(MAX_CELL_SIZE_MAP.get(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
             ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
             ret.setRadioMode(RadioMode.modeAC);
@@ -201,6 +218,14 @@ public class RfElementConfiguration extends BaseJsonModel {
         this.autoChannelSelection = autoChannelSelection;
     }
 
+    public boolean getAutoCellSizeSelection() {
+        return autoCellSizeSelection;
+    }
+
+    public void setAutoCellSizeSelection(boolean autoCellSizeSelection) {
+        this.autoCellSizeSelection = autoCellSizeSelection;
+    }
+
     public ActiveScanSettings getActiveScanSettings() {
         return activeScanSettings;
     }
@@ -287,6 +312,14 @@ public class RfElementConfiguration extends BaseJsonModel {
         this.minAutoCellSize = minAutoCellSize;
     }
 
+    public Integer getMaxAutoCellSize() {
+        return maxAutoCellSize;
+    }
+
+    public void setMaxAutoCellSize(Integer maxAutoCellSize) {
+        this.maxAutoCellSize = maxAutoCellSize;
+    }
+
     public Boolean getPerimeterDetectionEnabled() {
         return perimeterDetectionEnabled;
     }
@@ -358,7 +391,7 @@ public class RfElementConfiguration extends BaseJsonModel {
                 channelBandwidth, channelHopSettings, clientDisconnectThresholdDb, eirpTxPower, forceScanDuringVoice,
                 managementRate, maxNumClients, mimoMode, minAutoCellSize, multicastRate, neighbouringListApConfig,
                 perimeterDetectionEnabled, probeResponseThresholdDb, radioMode, radioType, rf, rtsCtsThreshold,
-                rxCellSizeDb);
+                rxCellSizeDb, autoCellSizeSelection, maxAutoCellSize);
     }
 
     @Override
@@ -372,6 +405,7 @@ public class RfElementConfiguration extends BaseJsonModel {
         RfElementConfiguration other = (RfElementConfiguration) obj;
         return Objects.equals(activeScanSettings, other.activeScanSettings)
                 && autoChannelSelection == other.autoChannelSelection
+                && autoCellSizeSelection == other.autoCellSizeSelection
                 && Objects.equals(beaconInterval, other.beaconInterval)
                 && Objects.equals(bestApEnabled, other.bestApEnabled)
                 && Objects.equals(bestApSettings, other.bestApSettings) && channelBandwidth == other.channelBandwidth
@@ -380,6 +414,7 @@ public class RfElementConfiguration extends BaseJsonModel {
                 && Objects.equals(eirpTxPower, other.eirpTxPower) && forceScanDuringVoice == other.forceScanDuringVoice
                 && managementRate == other.managementRate && Objects.equals(maxNumClients, other.maxNumClients)
                 && mimoMode == other.mimoMode && Objects.equals(minAutoCellSize, other.minAutoCellSize)
+                && Objects.equals(maxAutoCellSize, other.maxAutoCellSize)
                 && multicastRate == other.multicastRate
                 && Objects.equals(neighbouringListApConfig, other.neighbouringListApConfig)
                 && Objects.equals(perimeterDetectionEnabled, other.perimeterDetectionEnabled)

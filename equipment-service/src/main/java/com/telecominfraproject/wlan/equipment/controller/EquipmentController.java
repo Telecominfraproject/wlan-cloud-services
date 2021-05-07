@@ -50,6 +50,7 @@ import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAtt
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
+import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
@@ -417,19 +418,8 @@ public class EquipmentController {
                     radioConfig.setManagementRate(SourceSelectionManagement.createAutomaticInstance(
                             cellSizeAttributes.getManagementRate()));
                 } else {
-                    //TODO or do nothing
-                    elementRadioConfig.setRxCellSizeDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getRxCellSizeDb()));
-                    elementRadioConfig.setProbeResponseThresholdDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getProbeResponseThresholdDb()));
-                    elementRadioConfig.setClientDisconnectThresholdDb(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getClientDisconnectThresholdDb()));
-                    elementRadioConfig.setEirpTxPower(SourceSelectionValue.createManualInstance(
-                            cellSizeAttributes.getEirpTxPowerDb()));
-                    radioConfig.setMulticastRate(SourceSelectionMulticast.createManualInstance(
-                            cellSizeAttributes.getMulticastRate()));
-                    radioConfig.setManagementRate(SourceSelectionManagement.createManualInstance(
-                            cellSizeAttributes.getManagementRate()));
+                    throw new ConfigurationException("Unable to update Cell Size Attributes on equipment " + request.getEquipmentId()
+                    + " for radioType " + radioType + " because its autoCellSizeSelection is disabled");
                 }
             }
         }
