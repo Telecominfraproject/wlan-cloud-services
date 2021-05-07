@@ -10,9 +10,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  * For channelWidth the value is in MHz, -1 means AUTO
  */
 public class ChannelPowerLevel extends BaseJsonModel implements Comparable<ChannelPowerLevel>{
-
-    private static final long serialVersionUID = -5086402852552958089L;
-
+    private static final long serialVersionUID = -2304637628221751230L;
     private int channelNumber;
     private int powerLevel;
     private boolean dfs;
@@ -59,7 +57,7 @@ public class ChannelPowerLevel extends BaseJsonModel implements Comparable<Chann
     
     @Override
 	public int hashCode() {
-		return Objects.hash(channelNumber);
+		return Objects.hash(channelNumber, powerLevel, dfs, channelWidth);
 	}
     
 	@Override
@@ -71,7 +69,11 @@ public class ChannelPowerLevel extends BaseJsonModel implements Comparable<Chann
 			return false;
 		}
 		ChannelPowerLevel other = (ChannelPowerLevel) obj;
-		return channelNumber == other.channelNumber;
+		return channelNumber == other.channelNumber &&
+		       powerLevel == other.powerLevel &&
+		       dfs == other.dfs &&
+		       channelWidth == other.channelWidth;
+		      
 	}
 	
 	@Override

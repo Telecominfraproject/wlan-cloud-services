@@ -19,8 +19,8 @@ import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentApImpactingChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
-import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
@@ -71,7 +71,9 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 			    SystemEventRecord ser = (SystemEventRecord) message.getModel(); 
 			    ret = ret &&
 			    		(
-			    			ser.getDetails() instanceof EquipmentChangedEvent ||
+			    			ser.getDetails() instanceof EquipmentApImpactingChangedEvent ||
+			    			ser.getDetails() instanceof EquipmentChannelsChangedEvent ||
+			    			ser.getDetails() instanceof EquipmentCellSizeAttributesChangedEvent ||
 			    			ser.getDetails() instanceof EquipmentRemovedEvent ||
 			    			ser.getDetails() instanceof ProfileAddedEvent ||
 			    			ser.getDetails() instanceof ProfileChangedEvent ||
@@ -94,8 +96,8 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	LOG.debug("Processing {}", mdl);
 	    	
 	    	switch ( se.getClass().getSimpleName() ) {
-	    	case "EquipmentChangedEvent":
-	    		process((EquipmentChangedEvent) se);
+	    	case "EquipmentApImpactingChangedEvent":
+	    		process((EquipmentApImpactingChangedEvent) se);
 	    		break;
 	    	case "EquipmentChannelsChangedEvent":
                 process((EquipmentChannelsChangedEvent) se);
@@ -124,7 +126,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 	    	
 	    }
 
-        private void process(EquipmentChangedEvent model) {
+        private void process(EquipmentApImpactingChangedEvent model) {
             LOG.debug("Processing EquipmentChangedEvent");
             equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(),
                     model.getEquipmentId()));

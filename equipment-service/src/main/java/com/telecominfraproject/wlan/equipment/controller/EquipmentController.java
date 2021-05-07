@@ -46,6 +46,7 @@ import com.telecominfraproject.wlan.equipment.models.SourceSelectionManagement;
 import com.telecominfraproject.wlan.equipment.models.SourceSelectionMulticast;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentApImpactingChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
@@ -263,12 +264,28 @@ public class EquipmentController {
         }
         
         validateChannelNum(equipment);
+        
+        Equipment existingEquipment = equipmentDatastore.getOrNull(equipment.getId());
+        ApElementConfiguration existingApElementConfig = null;
+        if (existingEquipment != null && existingEquipment.getDetails() instanceof ApElementConfiguration) {
+            existingApElementConfig = (ApElementConfiguration) existingEquipment.getDetails();
+        }
 
         Equipment ret = equipmentDatastore.update(equipment);
+        ApElementConfiguration updatedApElementConfig = null;
+        if (ret != null && ret.getDetails() instanceof ApElementConfiguration) {
+            updatedApElementConfig = (ApElementConfiguration) ret.getDetails();
+        }
 
         LOG.debug("Updated Equipment {}", ret);
-      
-        EquipmentChangedEvent event = new EquipmentChangedEvent(ret);
+        
+        EquipmentChangedEvent event;
+        if (existingApElementConfig != null && updatedApElementConfig != null &&
+                updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig)) {
+            event = new EquipmentApImpactingChangedEvent(ret);
+        } else {
+            event = new EquipmentChangedEvent(ret);
+        }
         publishEvent(event);
 
         return ret;
