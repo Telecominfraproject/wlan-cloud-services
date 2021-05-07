@@ -2842,6 +2842,9 @@ components:
         acctPort:
           type: integer
           format: int32
+        acctSharedSecret:
+          type: string
+          format: password
         realm:
           type: array
           items:
