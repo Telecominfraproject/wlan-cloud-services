@@ -9018,6 +9018,7 @@ components:
       - ClientSessionRemovedEvent
       - EquipmentAddedEvent
       - EquipmentChangedEvent
+      - EquipmentApImpactingChangedEvent
       - EquipmentChannelsChangedEvent
       - EquipmentCellSizeAttributesChangedEvent
       - EquipmentRemovedEvent
@@ -9110,6 +9111,7 @@ components:
         - $ref: '#/components/schemas/ClientSessionRemovedEvent'
         - $ref: '#/components/schemas/EquipmentAddedEvent'
         - $ref: '#/components/schemas/EquipmentChangedEvent'
+        - $ref: '#/components/schemas/EquipmentApImpactingChangedEvent'
         - $ref: '#/components/schemas/EquipmentChannelsChangedEvent'
         - $ref: '#/components/schemas/EquipmentCellSizeAttributesChangedEvent'
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
@@ -9449,6 +9451,12 @@ components:
         - All
         - ChannelsOnly
         - CellSizeAttributesOnly
+        - ApImpacting
+
+    EquipmentApImpactingChangedEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/EquipmentChangedEvent'
 
     EquipmentChannelsChangedEvent:
       properties:
@@ -9458,7 +9466,7 @@ components:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
         newBackupChannels:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
-
+    
     EquipmentCellSizeAttributesChangedEvent:
       properties:
         allOf:
