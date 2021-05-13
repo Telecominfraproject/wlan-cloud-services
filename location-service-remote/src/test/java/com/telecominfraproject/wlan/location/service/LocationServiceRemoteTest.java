@@ -61,7 +61,20 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
         //GET by Id test
         ret = testInterface.get(ret.getId());     
         assertFieldEquals(location, ret);
-
+        
+        try {
+            testInterface.get(-1);
+            fail("expected an exception.");
+        } catch (Exception e)
+        {
+            //expected
+        }
+        
+        //GET or null test
+        ret = testInterface.getOrNull(ret.getId());  
+        assertFieldEquals(location, ret);
+        assertNull(testInterface.getOrNull(-1));
+        
         //UPDATE test - success
         location = ret;
         location.setLocationType(LocationType.FLOOR);
