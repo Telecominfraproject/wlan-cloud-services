@@ -595,6 +595,30 @@ paths:
         500: 
           $ref: '#/components/responses/GenericApiError'
           
+  /api/location/orNull:
+    get:
+      tags:
+      - Location Data
+      summary: Get location using locationId Or Null
+      operationId: getLocationByIdOrNull
+      parameters:
+      - name: locationId
+        in: query
+        description: Location ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        500: 
+          $ref: '#/components/responses/GenericApiError'
+          
   /api/location/top:
     get:
       tags:
