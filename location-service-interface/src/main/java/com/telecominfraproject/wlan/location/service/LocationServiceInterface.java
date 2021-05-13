@@ -15,6 +15,7 @@ public interface LocationServiceInterface {
     Location create(Location location);
     Location update(Location location);
     Location delete(long locationId);
+    Location getOrNull(long locationId);
 
     /**
      * Recursively return all the children of the specified location id.
