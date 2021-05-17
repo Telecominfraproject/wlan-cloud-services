@@ -1,3 +1,4 @@
+
 package com.telecominfraproject.wlan.routing.models.events;
 
 import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
@@ -11,12 +12,12 @@ public class GatewayAddedEvent extends SystemEvent {
     private static final long serialVersionUID = 7142208487917559985L;
 
     private EquipmentGatewayRecord gateway;
-    
-	public GatewayAddedEvent(EquipmentGatewayRecord gateway){
-        super();
+
+    public GatewayAddedEvent(EquipmentGatewayRecord gateway) {
+        super(System.currentTimeMillis());
         this.gateway = gateway;
     }
-    
+
     /**
      * Constructor used by JSON
      */
@@ -25,21 +26,21 @@ public class GatewayAddedEvent extends SystemEvent {
     }
 
     public EquipmentGatewayRecord getGateway() {
-		return gateway;
-	}
+        return gateway;
+    }
 
-	public void setGateway(EquipmentGatewayRecord gateway) {
-		this.gateway = gateway;
-	}
+    public void setGateway(EquipmentGatewayRecord gateway) {
+        this.gateway = gateway;
+    }
 
-	@Override
-	public GatewayAddedEvent clone() {
-		GatewayAddedEvent ret = (GatewayAddedEvent) super.clone();
-		
-		if(gateway!=null) {
-			ret.gateway = gateway.clone();
-		}
-		
-		return ret;
-	}
+    @Override
+    public GatewayAddedEvent clone() {
+        GatewayAddedEvent ret = (GatewayAddedEvent) super.clone();
+
+        if (gateway != null) {
+            ret.gateway = gateway.clone();
+        }
+
+        return ret;
+    }
 }
