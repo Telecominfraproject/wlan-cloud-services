@@ -36,6 +36,7 @@ public class EquipmentDebugSessionStoppedEvent extends SystemEvent {
     
     public EquipmentDebugSessionStoppedEvent(int customerId, long equipmentId, long eventTimestamp, String sessionUser,
             int portForwarderGatewayPort, int equipmentPort) {
+        super(eventTimestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.eventTimestamp = eventTimestamp;

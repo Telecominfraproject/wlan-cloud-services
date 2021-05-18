@@ -36,6 +36,7 @@ public class EquipmentDebugSessionStartedEvent extends SystemEvent {
     
     public EquipmentDebugSessionStartedEvent(int customerId, long equipmentId, long eventTimestamp, String sessionUser,
             int portForwarderGatewayPort, int equipmentPort) {
+        super(eventTimestamp);
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.eventTimestamp = eventTimestamp;
