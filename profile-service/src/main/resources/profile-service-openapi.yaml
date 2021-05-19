@@ -813,6 +813,7 @@ components:
         - modeB
         - modeG
         - modeAB
+        - auto
         
     RfConfiguration:
       description: Properties for the RF ConfigurationProfile

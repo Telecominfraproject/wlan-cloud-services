@@ -16,6 +16,7 @@ public enum RadioMode {
     modeB(5),
     modeG(6),
     modeAB(7),
+    auto(8),
     
     UNSUPPORTED(-1);
 

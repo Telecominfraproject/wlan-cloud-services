@@ -4723,6 +4723,12 @@ components:
         - modeN
         - modeAC
         - modeGN
+        - modeAX
+        - modeA
+        - modeB
+        - modeG
+        - modeAB
+        - auto
  
     MimoMode:
       type: string

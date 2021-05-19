@@ -1309,7 +1309,8 @@ components:
         - modeB
         - modeG
         - modeAB
-
+        - auto
+        
     MimoMode:
       type: string
       enum:
