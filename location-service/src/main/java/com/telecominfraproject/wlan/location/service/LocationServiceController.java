@@ -21,6 +21,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairIntString;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.events.LocationAddedEvent;
@@ -130,7 +131,6 @@ public class LocationServiceController {
         return location;
     }
 
-
     /**
      * Retrieves location record by id
      * 
@@ -144,7 +144,23 @@ public class LocationServiceController {
     	Location location = locationDatastore.get(locationId);
         return location;
     }
-
+    
+    /**
+     * Retrieves location record by id
+     * 
+     * @param locationId
+     * @return location object or null if location record does not exist
+     */
+    @RequestMapping(value="/orNull", method = RequestMethod.GET)
+    public Location getOrNull(long locationId) {
+        try {
+            return locationDatastore.get(locationId);
+        } catch (DsEntityNotFoundException e)
+        {
+            LOG.debug("No location found for id {}, returning null.", locationId);
+            return null;
+        }
+    }
 
     /**
      * Retrieves top-level location record for a supplied location id
@@ -159,7 +175,6 @@ public class LocationServiceController {
     	Location location = locationDatastore.getTopLevelLocation(locationId);
         return location;
     }
-
 
     @RequestMapping(value = "/allForCustomer", method = RequestMethod.GET)
     public ListOfLocations getAllForCustomer(@RequestParam int customerId) {
@@ -275,5 +290,4 @@ public class LocationServiceController {
             LOG.error("Failed to publish events : {}", events, e);
         }
     }
-
 }

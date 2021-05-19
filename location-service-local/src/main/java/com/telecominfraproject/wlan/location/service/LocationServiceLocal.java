@@ -29,6 +29,11 @@ public class LocationServiceLocal implements LocationServiceInterface {
 	public Location get(long locationId) {
 		return locationServiceController.get(locationId);			
 	}
+	
+    @Override
+    public Location getOrNull(long locationId) {
+        return locationServiceController.getOrNull(locationId);
+    }
 
 	@Override
 	public Location create(Location location) {
@@ -72,6 +77,4 @@ public class LocationServiceLocal implements LocationServiceInterface {
         LOG.debug("calling locationController.getForCustomer {} ", customerId);
         return locationServiceController.getForCustomer(customerId, sortBy, context);
     }
-
-
 }

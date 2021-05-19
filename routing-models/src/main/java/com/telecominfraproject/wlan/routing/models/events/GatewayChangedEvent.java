@@ -1,3 +1,4 @@
+
 package com.telecominfraproject.wlan.routing.models.events;
 
 import com.telecominfraproject.wlan.routing.models.EquipmentGatewayRecord;
@@ -12,35 +13,35 @@ public class GatewayChangedEvent extends SystemEvent {
 
     private EquipmentGatewayRecord gateway;
 
-    public GatewayChangedEvent(EquipmentGatewayRecord gateway){
-        super();
+    public GatewayChangedEvent(EquipmentGatewayRecord gateway) {
+        super(System.currentTimeMillis());
         this.gateway = gateway;
     }
-    
+
     /**
      * Constructor used by JSON
      */
     public GatewayChangedEvent() {
         super(0);
     }
-    
+
     public EquipmentGatewayRecord getGateway() {
-		return gateway;
-	}
+        return gateway;
+    }
 
-	public void setGateway(EquipmentGatewayRecord gateway) {
-		this.gateway = gateway;
-	}
+    public void setGateway(EquipmentGatewayRecord gateway) {
+        this.gateway = gateway;
+    }
 
-	@Override
-	public GatewayChangedEvent clone() {
-		GatewayChangedEvent ret = (GatewayChangedEvent) super.clone();
-		
-		if(gateway!=null) {
-			ret.gateway = gateway.clone();
-		}
-		
-		return ret;
-	}
+    @Override
+    public GatewayChangedEvent clone() {
+        GatewayChangedEvent ret = (GatewayChangedEvent) super.clone();
+
+        if (gateway != null) {
+            ret.gateway = gateway.clone();
+        }
+
+        return ret;
+    }
 
 }

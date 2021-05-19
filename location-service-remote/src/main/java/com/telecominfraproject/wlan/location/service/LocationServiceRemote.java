@@ -73,6 +73,20 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
         return result;
     }
     
+    @Override
+    public Location getOrNull(long locationId) {
+        LOG.debug("getOrNull({})", locationId);
+
+        ResponseEntity<Location> responseEntity = restTemplate.getForEntity(
+                getBaseUrl() + "/orNull" + "?locationId={locationId}",
+                Location.class, locationId);
+
+        Location result = responseEntity.getBody();
+
+        LOG.debug("get({}) returned {}", locationId, result);
+        return result;
+    }
+    
 	@Override
 	public List<Location> get(Set<Long> locationIdSet) {
 		
@@ -99,7 +113,6 @@ public class LocationServiceRemote extends BaseRemoteClient implements LocationS
             LOG.error("getAllInSet({}) exception ", locationIdSet, exp);
             throw exp;
         }
-
 	}
 
 	@Override
