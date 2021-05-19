@@ -3542,6 +3542,18 @@ components:
           type: string
         baseMacAddress:
           $ref: '#/components/schemas/MacAddress'
+        apcDesignatedRouterIpAddress:
+          type: string
+        apcBackupDesignatedRouterIpAddress:
+          type: string
+        apcMode:
+          type: string
+          enum:
+           - BDR
+           - DR
+           - OR
+           - NC
+           - WT 
         reportedApcAddress:
           type: string
         lastApcUpdate:
@@ -10135,6 +10147,7 @@ components:
            - DR
            - OR
            - NC
+           - WT
         enabled:
           type: boolean      
       example:

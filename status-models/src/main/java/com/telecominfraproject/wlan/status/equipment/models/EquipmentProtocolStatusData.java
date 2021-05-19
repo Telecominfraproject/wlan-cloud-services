@@ -1,11 +1,13 @@
 package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.net.InetAddress;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
+import com.telecominfraproject.wlan.systemevent.equipment.realtime.ApcElectionEvent.ApcMode;
 
 /**
  * Equipment protocol status. Updated by the Equipment Gateway when
@@ -84,6 +86,21 @@ public class EquipmentProtocolStatusData extends StatusDetails {
      */
     private MacAddress baseMacAddress;
 
+    /**
+     * IP address of the APC
+     */
+    private InetAddress apcDesignatedRouterIpAddress;
+
+    /**
+     * Backup IP address of the APC
+     */
+    private InetAddress apcBackupDesignatedRouterIpAddress;
+    
+    /**
+     * APC mode of the Equipment
+     */
+    private ApcMode apcMode;
+    
     /**
      * The last reported ApcAddress. 
      */
@@ -193,206 +210,24 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof EquipmentProtocolStatusData)) {
-            return false;
-        }
-        EquipmentProtocolStatusData other = (EquipmentProtocolStatusData) obj;
-        if (this.bandPlan == null) {
-            if (other.bandPlan != null) {
-                return false;
-            }
-        } else if (!this.bandPlan.equals(other.bandPlan)) {
-            return false;
-        }
-        if (this.baseMacAddress == null) {
-            if (other.baseMacAddress != null) {
-                return false;
-            }
-        } else if (!this.baseMacAddress.equals(other.baseMacAddress)) {
-            return false;
-        }
-        if (this.cloudCfgDataVersion == null) {
-            if (other.cloudCfgDataVersion != null) {
-                return false;
-            }
-        } else if (!this.cloudCfgDataVersion.equals(other.cloudCfgDataVersion)) {
-            return false;
-        }
-        if (this.cloudProtocolVersion == null) {
-            if (other.cloudProtocolVersion != null) {
-                return false;
-            }
-        } else if (!this.cloudProtocolVersion.equals(other.cloudProtocolVersion)) {
-            return false;
-        }
-        if (this.countryCode == null) {
-            if (other.countryCode != null) {
-                return false;
-            }
-        } else if (!this.countryCode.equals(other.countryCode)) {
-            return false;
-        }
-        if (this.getDataThrottleCfgModeChanged() == null) {
-            if (other.getDataThrottleCfgModeChanged() != null) {
-                return false;
-            }
-        } else if (!this.getDataThrottleCfgModeChanged().equals(other.getDataThrottleCfgModeChanged())) {
-            return false;
-        }
-        if (this.ipBasedConfiguration == null) {
-            if (other.ipBasedConfiguration != null) {
-                return false;
-            }
-        } else if (!this.ipBasedConfiguration.equals(other.ipBasedConfiguration)) {
-            return false;
-        }
-        if (this.isApcConnected == null) {
-            if (other.isApcConnected != null) {
-                return false;
-            }
-        } else if (!this.isApcConnected.equals(other.isApcConnected)) {
-            return false;
-        }
-        if (this.lastApcUpdate == null) {
-            if (other.lastApcUpdate != null) {
-                return false;
-            }
-        } else if (!this.lastApcUpdate.equals(other.lastApcUpdate)) {
-            return false;
-        }
-        if (this.poweredOn != other.poweredOn) {
-            return false;
-        }
-        if (this.protocolState != other.protocolState) {
-            return false;
-        }
-        if (this.radiusProxyAddress == null) {
-            if (other.radiusProxyAddress != null) {
-                return false;
-            }
-        } else if (!this.radiusProxyAddress.equals(other.radiusProxyAddress)) {
-            return false;
-        }
-        if (this.reportedApcAddress == null) {
-            if (other.reportedApcAddress != null) {
-                return false;
-            }
-        } else if (!this.reportedApcAddress.equals(other.reportedApcAddress)) {
-            return false;
-        }
-        if (this.reportedCC != other.reportedCC) {
-            return false;
-        }
-        if (this.reportedCfgDataVersion == null) {
-            if (other.reportedCfgDataVersion != null) {
-                return false;
-            }
-        } else if (!this.reportedCfgDataVersion.equals(other.reportedCfgDataVersion)) {
-            return false;
-        }
-        if (this.reportedHwVersion == null) {
-            if (other.reportedHwVersion != null) {
-                return false;
-            }
-        } else if (!this.reportedHwVersion.equals(other.reportedHwVersion)) {
-            return false;
-        }
-        if (this.reportedIpV4Addr == null) {
-            if (other.reportedIpV4Addr != null) {
-                return false;
-            }
-        } else if (!this.reportedIpV4Addr.equals(other.reportedIpV4Addr)) {
-            return false;
-        }
-        if (this.reportedIpV6Addr == null) {
-            if (other.reportedIpV6Addr != null) {
-                return false;
-            }
-        } else if (!this.reportedIpV6Addr.equals(other.reportedIpV6Addr)) {
-            return false;
-        }
-
-        if (this.reportedMacAddr == null) {
-            if (other.reportedMacAddr != null) {
-                return false;
-            }
-        } else if (!this.reportedMacAddr.equals(other.reportedMacAddr)) {
-            return false;
-        }        
-        
-        if (this.reportedSku == null) {
-            if (other.reportedSku != null) {
-                return false;
-            }
-        } else if (!this.reportedSku.equals(other.reportedSku)) {
-            return false;
-        }
-        if (this.reportedSwAltVersion == null) {
-            if (other.reportedSwAltVersion != null) {
-                return false;
-            }
-        } else if (!this.reportedSwAltVersion.equals(other.reportedSwAltVersion)) {
-            return false;
-        }
-        if (this.reportedSwVersion == null) {
-            if (other.reportedSwVersion != null) {
-                return false;
-            }
-        } else if (!this.reportedSwVersion.equals(other.reportedSwVersion)) {
-            return false;
-        }
-        if (this.serialNumber == null) {
-            if (other.serialNumber != null) {
-                return false;
-            }
-        } else if (!this.serialNumber.equals(other.serialNumber)) {
-            return false;
-        }
-        if (this.systemContact == null) {
-            if (other.systemContact != null) {
-                return false;
-            }
-        } else if (!this.systemContact.equals(other.systemContact)) {
-            return false;
-        }
-        if (this.systemLocation == null) {
-            if (other.systemLocation != null) {
-                return false;
-            }
-        } else if (!this.systemLocation.equals(other.systemLocation)) {
-            return false;
-        }
-        if (this.systemName == null) {
-            if (other.systemName != null) {
-                return false;
-            }
-        } else if (!this.systemName.equals(other.systemName)) {
-            return false;
-        }
-        if (this.useTroubleshotThrottleConfig == null) {
-            if (other.useTroubleshotThrottleConfig != null) {
-                return false;
-            }
-        } else if (!this.useTroubleshotThrottleConfig.equals(other.useTroubleshotThrottleConfig)) {
-            return false;
-        }
-        return true;
-    }
-
     public String getBandPlan() {
         return bandPlan;
     }
 
     public MacAddress getBaseMacAddress() {
         return baseMacAddress;
+    }
+
+    public InetAddress getApcDesignatedRouterIpAddress() {
+        return apcDesignatedRouterIpAddress;
+    }
+
+    public InetAddress getApcBackupDesignatedRouterIpAddress() {
+        return apcBackupDesignatedRouterIpAddress;
+    }
+
+    public ApcMode getApcMode() {
+        return apcMode;
     }
 
     public Long getCloudCfgDataVersion() {
@@ -483,42 +318,6 @@ public class EquipmentProtocolStatusData extends StatusDetails {
         return systemName;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.bandPlan == null) ? 0 : this.bandPlan.hashCode());
-        result = prime * result + ((this.baseMacAddress == null) ? 0 : this.baseMacAddress.hashCode());
-        result = prime * result + ((this.cloudCfgDataVersion == null) ? 0 : this.cloudCfgDataVersion.hashCode());
-        result = prime * result + ((this.cloudProtocolVersion == null) ? 0 : this.cloudProtocolVersion.hashCode());
-        result = prime * result + ((this.countryCode == null) ? 0 : this.countryCode.hashCode());
-        result = prime * result
-                + ((this.getDataThrottleCfgModeChanged() == null) ? 0 : this.getDataThrottleCfgModeChanged().hashCode());
-        result = prime * result + ((this.ipBasedConfiguration == null) ? 0 : this.ipBasedConfiguration.hashCode());
-        result = prime * result + ((this.isApcConnected == null) ? 0 : this.isApcConnected.hashCode());
-        result = prime * result + ((this.lastApcUpdate == null) ? 0 : this.lastApcUpdate.hashCode());
-        result = prime * result + (this.poweredOn ? 1231 : 1237);
-        result = prime * result + ((this.protocolState == null) ? 0 : this.protocolState.hashCode());
-        result = prime * result + ((this.radiusProxyAddress == null) ? 0 : this.radiusProxyAddress.hashCode());
-        result = prime * result + ((this.reportedApcAddress == null) ? 0 : this.reportedApcAddress.hashCode());
-        result = prime * result + ((this.reportedCC == null) ? 0 : this.reportedCC.hashCode());
-        result = prime * result + ((this.reportedCfgDataVersion == null) ? 0 : this.reportedCfgDataVersion.hashCode());
-        result = prime * result + ((this.reportedHwVersion == null) ? 0 : this.reportedHwVersion.hashCode());
-        result = prime * result + ((this.reportedIpV4Addr == null) ? 0 : this.reportedIpV4Addr.hashCode());
-        result = prime * result + ((this.reportedIpV6Addr == null) ? 0 : this.reportedIpV6Addr.hashCode());
-        result = prime * result + ((this.reportedMacAddr == null) ? 0 : this.reportedMacAddr.hashCode());
-        result = prime * result + ((this.reportedSku == null) ? 0 : this.reportedSku.hashCode());
-        result = prime * result + ((this.reportedSwAltVersion == null) ? 0 : this.reportedSwAltVersion.hashCode());
-        result = prime * result + ((this.reportedSwVersion == null) ? 0 : this.reportedSwVersion.hashCode());
-        result = prime * result + ((this.serialNumber == null) ? 0 : this.serialNumber.hashCode());
-        result = prime * result + ((this.systemContact == null) ? 0 : this.systemContact.hashCode());
-        result = prime * result + ((this.systemLocation == null) ? 0 : this.systemLocation.hashCode());
-        result = prime * result + ((this.systemName == null) ? 0 : this.systemName.hashCode());
-        result = prime * result
-                + ((this.useTroubleshotThrottleConfig == null) ? 0 : this.useTroubleshotThrottleConfig.hashCode());
-        return result;
-    }
-
     public boolean isPoweredOn() {
         return poweredOn;
     }
@@ -529,6 +328,18 @@ public class EquipmentProtocolStatusData extends StatusDetails {
 
     public void setBaseMacAddress(MacAddress baseMacAddress) {
         this.baseMacAddress = baseMacAddress;
+    }
+
+    public void setApcDesignatedRouterIpAddress(InetAddress apcDesignatedRouterIpAddress) {
+        this.apcDesignatedRouterIpAddress = apcDesignatedRouterIpAddress;
+    }
+
+    public void setApcBackupDesignatedRouterIpAddress(InetAddress apcBackupDesignatedRouterIpAddress) {
+        this.apcBackupDesignatedRouterIpAddress = apcBackupDesignatedRouterIpAddress;
+    }
+
+    public void setApcMode(ApcMode apcMode) {
+        this.apcMode = apcMode;
     }
 
     public void setCloudCfgDataVersion(Long cloudCfgDataVersion) {
@@ -658,4 +469,41 @@ public class EquipmentProtocolStatusData extends StatusDetails {
     public void setDataThrottleCfgModeChanged(Long dataThrottleCfgModeChanged) {
         this.dataThrottleCfgModeChanged = dataThrottleCfgModeChanged;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(apcBackupDesignatedRouterIpAddress, apcDesignatedRouterIpAddress, apcMode, bandPlan, baseMacAddress, cloudCfgDataVersion,
+                cloudProtocolVersion, countryCode, dataThrottleCfgModeChanged, ipBasedConfiguration, isApcConnected, lastApcUpdate, poweredOn, protocolState,
+                radiusProxyAddress, reportedApcAddress, reportedCC, reportedCfgDataVersion, reportedHwVersion, reportedIpV4Addr, reportedIpV6Addr,
+                reportedMacAddr, reportedSku, reportedSwAltVersion, reportedSwVersion, serialNumber, systemContact, systemLocation, systemName,
+                useTroubleshotThrottleConfig);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EquipmentProtocolStatusData other = (EquipmentProtocolStatusData) obj;
+        return Objects.equals(apcBackupDesignatedRouterIpAddress, other.apcBackupDesignatedRouterIpAddress)
+                && Objects.equals(apcDesignatedRouterIpAddress, other.apcDesignatedRouterIpAddress) && apcMode == other.apcMode
+                && Objects.equals(bandPlan, other.bandPlan) && Objects.equals(baseMacAddress, other.baseMacAddress)
+                && Objects.equals(cloudCfgDataVersion, other.cloudCfgDataVersion) && Objects.equals(cloudProtocolVersion, other.cloudProtocolVersion)
+                && Objects.equals(countryCode, other.countryCode) && Objects.equals(dataThrottleCfgModeChanged, other.dataThrottleCfgModeChanged)
+                && Objects.equals(ipBasedConfiguration, other.ipBasedConfiguration) && Objects.equals(isApcConnected, other.isApcConnected)
+                && Objects.equals(lastApcUpdate, other.lastApcUpdate) && poweredOn == other.poweredOn && protocolState == other.protocolState
+                && Objects.equals(radiusProxyAddress, other.radiusProxyAddress) && Objects.equals(reportedApcAddress, other.reportedApcAddress)
+                && Objects.equals(reportedCC, other.reportedCC) && Objects.equals(reportedCfgDataVersion, other.reportedCfgDataVersion)
+                && Objects.equals(reportedHwVersion, other.reportedHwVersion) && Objects.equals(reportedIpV4Addr, other.reportedIpV4Addr)
+                && Objects.equals(reportedIpV6Addr, other.reportedIpV6Addr) && Objects.equals(reportedMacAddr, other.reportedMacAddr)
+                && Objects.equals(reportedSku, other.reportedSku) && Objects.equals(reportedSwAltVersion, other.reportedSwAltVersion)
+                && Objects.equals(reportedSwVersion, other.reportedSwVersion) && Objects.equals(serialNumber, other.serialNumber)
+                && Objects.equals(systemContact, other.systemContact) && Objects.equals(systemLocation, other.systemLocation)
+                && Objects.equals(systemName, other.systemName) && Objects.equals(useTroubleshotThrottleConfig, other.useTroubleshotThrottleConfig);
+    }
+    
+    
 }
