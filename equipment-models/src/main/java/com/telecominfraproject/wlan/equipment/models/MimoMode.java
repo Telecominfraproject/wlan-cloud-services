@@ -8,11 +8,15 @@ import com.telecominfraproject.wlan.core.model.json.JsonDeserializationUtils;
 
 public enum MimoMode {
 
-    none            (0),
-    oneByOne            (1),
-    twoByTwo            (2),
-    threeByThree            (3),
-    fourByFour            (4),
+    none                          (0),
+    oneByOne                (1),
+    twoByTwo                (2),
+    threeByThree          (3),
+    fourByFour              (4),
+    fiveByFive                (5),
+    sixBySix                    (6),
+    sevenBySeven        (7),
+    eightByEight           (8),
     
     UNSUPPORTED (-1);
     

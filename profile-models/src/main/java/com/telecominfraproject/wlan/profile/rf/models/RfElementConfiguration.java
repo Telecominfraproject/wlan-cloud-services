@@ -77,6 +77,7 @@ public class RfElementConfiguration extends BaseJsonModel {
     private Integer rxCellSizeDb;
     private Integer probeResponseThresholdDb;
     private Integer clientDisconnectThresholdDb;
+    private Boolean useMaxTxPower;
     private Integer eirpTxPower;
     private RadioBestApSettings bestApSettings;
 
@@ -96,6 +97,7 @@ public class RfElementConfiguration extends BaseJsonModel {
         setRxCellSizeDb(DEFAULT_RX_CELL_SIZE_DB);
         setProbeResponseThresholdDb(DEFAULT_PROBE_RESPONSE_THRESHOLD_DB);
         setClientDisconnectThresholdDb(DEFAULT_CLIENT_DISCONNECT_THRESHOLD_DB);
+        setUseMaxTxPower(false);
         setEirpTxPower(DEFAULT_EIRP_TX_POWER_DB);
         setBestApEnabled(null);
         setNeighbouringListApConfig(NeighbouringAPListConfiguration.createDefault());
@@ -266,7 +268,16 @@ public class RfElementConfiguration extends BaseJsonModel {
         this.clientDisconnectThresholdDb = clientDisconnectThresholdDb;
     }
 
+    public Boolean getUseMaxTxPower() {
+        return useMaxTxPower;
+    }
+
+    public void setUseMaxTxPower(Boolean maxTxPower) {
+        this.useMaxTxPower = maxTxPower;
+    }
+
     public Integer getEirpTxPower() {
+        if (getUseMaxTxPower()) return MAX_EIRP_TX_POWER;
         return eirpTxPower;
     }
 

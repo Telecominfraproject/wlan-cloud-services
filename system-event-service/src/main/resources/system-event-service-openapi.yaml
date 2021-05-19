@@ -4747,6 +4747,10 @@ components:
         - twoByTwo
         - threeByThree
         - fourByFour
+        - fiveByFive
+        - sixBySix
+        - sevenBySeven
+        - eightByEight
  
     RadioConfiguration:
       properties:

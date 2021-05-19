@@ -1319,6 +1319,10 @@ components:
         - twoByTwo
         - threeByThree
         - fourByFour
+        - fiveByFive
+        - sixBySix
+        - sevenBySeven
+        - eightByEight
 
     RadioConfiguration:
       properties:
@@ -2121,6 +2125,9 @@ components:
         clientDisconnectThresholdDb:
           type: integer
           format: int32
+        useMaxTxPower:
+          type: boolean
+          default: false
         eirpTxPower:
           type: integer
           format: int32

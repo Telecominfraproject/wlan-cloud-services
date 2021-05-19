@@ -695,6 +695,10 @@ components:
         - twoByTwo
         - threeByThree
         - fourByFour
+        - fiveByFive
+        - sixBySix
+        - sevenBySeven
+        - eightByEight
         
     MulticastRate:
       type: string
@@ -879,6 +883,9 @@ components:
         clientDisconnectThresholdDb:
           type: integer
           format: int32
+        useMaxTxPower:
+          type: boolean
+          default: false          
         eirpTxPower:
           type: integer
           format: int32
