@@ -24,6 +24,7 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.portaluser.datastore.PortalUserDatastore;
 import com.telecominfraproject.wlan.portaluser.models.PortalUser;
+import com.telecominfraproject.wlan.portaluser.models.PortalUserEventPayload;
 import com.telecominfraproject.wlan.portaluser.models.events.PortalUserAddedEvent;
 import com.telecominfraproject.wlan.portaluser.models.events.PortalUserChangedEvent;
 import com.telecominfraproject.wlan.portaluser.models.events.PortalUserRemovedEvent;
@@ -75,7 +76,7 @@ public class PortalUserController {
 
         LOG.debug("Created PortalUser {}", ret);
 
-        PortalUserAddedEvent event = new PortalUserAddedEvent(ret);
+        PortalUserAddedEvent event = new PortalUserAddedEvent(new PortalUserEventPayload(ret));
         publishEvent(event);
 
 
@@ -218,7 +219,7 @@ public class PortalUserController {
 
         LOG.debug("Updated PortalUser {}", ret);
 
-        PortalUserChangedEvent event = new PortalUserChangedEvent(ret);
+        PortalUserChangedEvent event = new PortalUserChangedEvent(new PortalUserEventPayload(ret));
         publishEvent(event);
 
         return ret;
@@ -239,7 +240,7 @@ public class PortalUserController {
 
         LOG.debug("Deleted PortalUser {}", ret);
         
-        PortalUserRemovedEvent event = new PortalUserRemovedEvent(ret);
+        PortalUserRemovedEvent event = new PortalUserRemovedEvent(new PortalUserEventPayload(ret));
         publishEvent(event);
 
         return ret;
