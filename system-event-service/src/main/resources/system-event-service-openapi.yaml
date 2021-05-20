@@ -573,7 +573,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
  
     PortalUserChangedEvent:
       properties:
@@ -584,7 +584,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
  
     PortalUserRemovedEvent:
       properties:
@@ -595,7 +595,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
  
     ProfileAddedEvent:
       properties:
@@ -2415,7 +2415,7 @@ components:
 # Portal User data models
 #
           
-    PortalUser:
+    PortalUserEventPayload:
       type: object
       properties:
         id:
@@ -2426,10 +2426,6 @@ components:
           format: int32
         username:
           type: string
-        password:
-          type: string
-        role:
-          $ref: '#/components/schemas/PortalUserRole'
         createdTimestamp:
           type: integer
           format: int64
