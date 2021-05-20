@@ -3083,6 +3083,25 @@ components:
       - TechSupport
       - TechSupport_RO
       - Public
+      
+    PortalUserEventPayload:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int32
+        username:
+          type: string
+        createdTimestamp:
+          type: integer
+          format: int64
+        lastModifiedTimestamp:
+          description: must be provided for update operation, update will be rejected if provided value does not match the one currently stored in the database
+          type: integer
+          format: int64
 
 #
 # Status data models
@@ -9582,7 +9601,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
 
     PortalUserChangedEvent:
       required:
@@ -9597,7 +9616,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
 
     PortalUserRemovedEvent:
       required:
@@ -9612,7 +9631,7 @@ components:
           type: integer
           format: int32
         payload:
-          $ref: '#/components/schemas/PortalUser'
+          $ref: '#/components/schemas/PortalUserEventPayload'
 
     ProfileAddedEvent:
       required:
