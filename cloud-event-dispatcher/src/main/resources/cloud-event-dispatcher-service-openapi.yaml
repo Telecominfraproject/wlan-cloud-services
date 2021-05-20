@@ -3098,7 +3098,10 @@ components:
             maximum: 600
             default: 0
           radiusNasConfiguration:
-            $ref: '#/components/schemas/RadiusNasConfiguration'            
+            $ref: '#/components/schemas/RadiusNasConfiguration'
+          enableProxyArpForHotspot:
+            type: boolean
+            default: false            
           captivePortalId:
             description: id of a CaptivePortalConfiguration profile, must be also added to the children of this profile
             type: integer

@@ -75,6 +75,8 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
     private NetworkForwardMode forwardMode;
 
     private RadiusNasConfiguration radiusNasConfiguration;
+    
+    private Boolean enableProxyArpForHotspot;
 
     /**
      * @return the noLocalSubnets
@@ -531,6 +533,20 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         this.useRadiusProxy = useRadiusProxy;
     }
 
+    /**
+     * @return the enableProxyArpForHotspot
+     */
+    public Boolean getEnableProxyArpForHotspot() {
+        return enableProxyArpForHotspot;
+    }
+
+    /**
+     * @param enableProxyArpForHotspot the enableProxyArpForHotspot to set
+     */
+    public void setEnableProxyArpForHotspot(Boolean enableProxyArpForHotspot) {
+        this.enableProxyArpForHotspot = enableProxyArpForHotspot;
+    }
+
     @Override
     public SsidConfiguration clone() {
         SsidConfiguration returnValue = (SsidConfiguration) super.clone();
@@ -548,11 +564,10 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
 
     @Override
     public int hashCode() {
-        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid,
-                captivePortalId, clientBandwidthLimitDown, clientBandwidthLimitUp, dynamicVlan, enable80211w,
-                forwardMode, keyRefresh, keyStr, noLocalSubnets, radioBasedConfigs, radiusAcountingServiceInterval,
-                radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState, useRadiusProxy,
-                videoTrafficOnly, vlanId, wepConfig);
+        return Objects.hash(appliedRadios, bandwidthLimitDown, bandwidthLimitUp, bonjourGatewayProfileId, broadcastSsid, captivePortalId,
+                clientBandwidthLimitDown, clientBandwidthLimitUp, dynamicVlan, enable80211w, enableProxyArpForHotspot, forwardMode, keyRefresh, keyStr,
+                noLocalSubnets, radioBasedConfigs, radiusAcountingServiceInterval, radiusNasConfiguration, radiusServiceId, secureMode, ssid, ssidAdminState,
+                useRadiusProxy, videoTrafficOnly, vlanId, wepConfig);
     }
 
     @Override
@@ -564,23 +579,20 @@ public class SsidConfiguration extends ProfileDetails implements PushableConfigu
         if (getClass() != obj.getClass())
             return false;
         SsidConfiguration other = (SsidConfiguration) obj;
-        return Objects.equals(appliedRadios, other.appliedRadios)
-                && Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
-                && Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp)
-                && Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
+        return Objects.equals(appliedRadios, other.appliedRadios) && Objects.equals(bandwidthLimitDown, other.bandwidthLimitDown)
+                && Objects.equals(bandwidthLimitUp, other.bandwidthLimitUp) && Objects.equals(bonjourGatewayProfileId, other.bonjourGatewayProfileId)
                 && broadcastSsid == other.broadcastSsid && Objects.equals(captivePortalId, other.captivePortalId)
                 && Objects.equals(clientBandwidthLimitDown, other.clientBandwidthLimitDown)
-                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp)
-                && Objects.equals(dynamicVlan, other.dynamicVlan) && Objects.equals(enable80211w, other.enable80211w)
-                && forwardMode == other.forwardMode && Objects.equals(keyRefresh, other.keyRefresh)
-                && Objects.equals(keyStr, other.keyStr) && Objects.equals(noLocalSubnets, other.noLocalSubnets)
-                && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
+                && Objects.equals(clientBandwidthLimitUp, other.clientBandwidthLimitUp) && Objects.equals(dynamicVlan, other.dynamicVlan)
+                && Objects.equals(enable80211w, other.enable80211w) && Objects.equals(enableProxyArpForHotspot, other.enableProxyArpForHotspot)
+                && forwardMode == other.forwardMode && Objects.equals(keyRefresh, other.keyRefresh) && Objects.equals(keyStr, other.keyStr)
+                && Objects.equals(noLocalSubnets, other.noLocalSubnets) && Objects.equals(radioBasedConfigs, other.radioBasedConfigs)
                 && radiusAcountingServiceInterval == other.radiusAcountingServiceInterval
-                && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration)
-                && radiusServiceId == other.radiusServiceId && secureMode == other.secureMode
-                && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
-                && Objects.equals(useRadiusProxy, other.useRadiusProxy)
-                && Objects.equals(videoTrafficOnly, other.videoTrafficOnly) && Objects.equals(vlanId, other.vlanId)
-                && Objects.equals(wepConfig, other.wepConfig);
+                && Objects.equals(radiusNasConfiguration, other.radiusNasConfiguration) && radiusServiceId == other.radiusServiceId
+                && secureMode == other.secureMode && Objects.equals(ssid, other.ssid) && ssidAdminState == other.ssidAdminState
+                && Objects.equals(useRadiusProxy, other.useRadiusProxy) && Objects.equals(videoTrafficOnly, other.videoTrafficOnly)
+                && Objects.equals(vlanId, other.vlanId) && Objects.equals(wepConfig, other.wepConfig);
     }
+
+
 }
