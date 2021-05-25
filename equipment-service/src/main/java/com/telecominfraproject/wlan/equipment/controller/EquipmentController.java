@@ -280,8 +280,8 @@ public class EquipmentController {
         LOG.debug("Updated Equipment {}", ret);
         
         EquipmentChangedEvent event;
-        if (existingApElementConfig != null && updatedApElementConfig != null &&
-                updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig)) {
+        if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
+                updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
         } else {
             event = new EquipmentChangedEvent(ret);
