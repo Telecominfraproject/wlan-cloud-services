@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -15,41 +15,41 @@
       <dependency>
         <artifactId>alarm-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
       </dependency>
       
       <dependency>
         <artifactId>base-client</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
       </dependency>
 
     <!-- Dependencies for the unit tests -->
       <dependency>
         <artifactId>base-remote-tests</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       
       <dependency>
         <artifactId>alarm-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>alarm-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <artifactId>cloud-event-dispatcher-empty</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 

@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -19,38 +19,38 @@
 		<dependency>
 			<artifactId>port-forwarding-gateway</artifactId>
 			<groupId>com.telecominfraproject.wlan</groupId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
 
         <!-- to be able to send startAgent command to equipment -->
         <dependency>
             <artifactId>equipment-gateway-service-remote</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>routing-service-remote</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 		
         <dependency>
             <artifactId>equipment-service-remote</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>status-service-remote</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>
             <artifactId>cloud-event-dispatcher-remote</artifactId>
             <groupId>com.telecominfraproject.wlan</groupId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
 	</dependencies>
