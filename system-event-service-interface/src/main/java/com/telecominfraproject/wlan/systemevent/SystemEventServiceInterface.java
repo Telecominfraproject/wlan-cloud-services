@@ -20,6 +20,7 @@ public interface SystemEventServiceInterface {
 	GenericResponse create(SystemEventRecord systemEventRecord);
 	GenericResponse create(List<SystemEventRecord> systemEventRecords);
 	GenericResponse delete(int customerId, long equipmentId, long createdBeforeTimestamp);
+	GenericResponse delete(long createdBeforeTimestamp);
 
     /**
      * <br>Retrieves all of the SystemEvent records that are mapped to the provided customerId.

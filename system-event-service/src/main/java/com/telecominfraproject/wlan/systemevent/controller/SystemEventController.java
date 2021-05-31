@@ -157,4 +157,21 @@ public class SystemEventController {
         
         return new GenericResponse(true, "");
     }
+    
+    /**
+     * Deletes SystemEventRecord records before a given time stamp
+     * 
+     */ 
+    @RequestMapping(value="/delete", method=RequestMethod.DELETE)
+    public GenericResponse delete(@RequestParam long createdBeforeTimestamp) {
+    	
+    	LOG.debug("Deleting SystemEventRecords created before {}", createdBeforeTimestamp);
+    	
+    	systemEventDatastore.delete(createdBeforeTimestamp);
+    	
+    	LOG.debug("Deleted SystemEventRecords created before {}", createdBeforeTimestamp);
+    	
+    	return new GenericResponse(true, "");
+    }
+    
 }
