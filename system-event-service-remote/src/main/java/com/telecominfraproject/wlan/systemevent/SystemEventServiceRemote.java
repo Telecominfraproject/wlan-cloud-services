@@ -150,7 +150,22 @@ public class SystemEventServiceRemote extends BaseRemoteClient implements System
         LOG.debug("completed systemEventRecord.delete {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         
         return ret;
-    }    
+    }
+	
+	@Override 
+	public GenericResponse delete(long createdBeforeTimestamp) {
+		LOG.debug("calling systemEventRecord.delete {}", createdBeforeTimestamp);
+		
+		ResponseEntity<GenericResponse> responseEntity = restTemplate.exchange(
+				getBaseUrl()
+				+"/delete?createdBeforeTimestamp={createdBeforeTimestamp}",
+				HttpMethod.DELETE, null, GenericResponse.class, createdBeforeTimestamp);
+		
+		GenericResponse ret = responseEntity.getBody();
+		LOG.debug("completed systemEventRecords.delete {}", createdBeforeTimestamp);
+		
+		return ret;
+	}
 
     public String getBaseUrl() {
         if(baseUrl==null) {

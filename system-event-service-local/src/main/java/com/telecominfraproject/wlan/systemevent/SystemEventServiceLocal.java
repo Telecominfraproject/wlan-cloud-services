@@ -44,6 +44,12 @@ public class SystemEventServiceLocal implements SystemEventServiceInterface {
         LOG.debug("calling systemEventController.delete {} {} {}", customerId, equipmentId, createdBeforeTimestamp);
         return systemEventController.delete(customerId, equipmentId, createdBeforeTimestamp);
 	}
+	
+	@Override
+	public GenericResponse delete(long createdBeforeTimestamp) {
+		LOG.debug("calling systemEventController.delete {}", createdBeforeTimestamp);
+		return systemEventController.delete(createdBeforeTimestamp);
+	}
 
 	@Override
 	public PaginationResponse<SystemEventRecord> getForCustomer(long fromTime, long toTime, int customerId,
