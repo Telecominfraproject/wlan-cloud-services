@@ -3,15 +3,19 @@
  */
 package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 /**
  * @author ekeddy
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class RadioUtilization extends BaseJsonModel {
+public class RadioUtilization extends BaseJsonModel implements HasSourceTimestamp {
     
 	private static final long serialVersionUID = -6295155025058221865L;
 
@@ -21,7 +25,7 @@ public class RadioUtilization extends BaseJsonModel {
     private Integer unassocClientRx;
     private Integer nonWifi;
     private Integer timestampSeconds;
-    
+    private long sourceTimestampMs;
     //
     // If the two value below are null and the value above aren't, we'll 
     // calculate them on the spot. 
@@ -111,106 +115,40 @@ public class RadioUtilization extends BaseJsonModel {
         this.unAvailableCapacity = unAvailableCapacity;
     }
 
+   
+
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + ((assocClientTx == null) ? 0 : assocClientTx.hashCode());
-        result = prime * result
-                + ((unassocClientTx == null) ? 0 : unassocClientTx.hashCode());
-        result = prime * result
-                + ((assocClientRx == null) ? 0 : assocClientRx.hashCode());
-        result = prime * result
-                + ((unassocClientRx == null) ? 0 : unassocClientRx.hashCode());
-        result = prime * result
-                + ((nonWifi == null) ? 0 : nonWifi.hashCode());
-        result = prime * result
-                + ((timestampSeconds == null) ? 0 : timestampSeconds.hashCode());
-        result = prime * result 
-                + ((ibss == null) ? 0 : ibss.hashCode());
-        result = prime * result
-                + ((unAvailableCapacity == null) ? 0 : unAvailableCapacity.hashCode());
-
-        return result;
+        return Objects.hash(assocClientRx, assocClientTx, ibss, nonWifi, sourceTimestampMs, timestampSeconds, unAvailableCapacity, unassocClientRx,
+                unassocClientTx);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
-
         RadioUtilization other = (RadioUtilization) obj;
-        if (assocClientTx == null) {
-            if (other.assocClientTx != null) {
-                return false;
-            }
-        } else if (!assocClientTx.equals(other.assocClientTx)) {
-            return false;
-        }
-        if (unassocClientTx == null) {
-            if (other.unassocClientTx != null) {
-                return false;
-            }
-        } else if (!unassocClientTx.equals(other.unassocClientTx)) {
-            return false;
-        }
-        if (assocClientRx == null) {
-            if (other.assocClientRx != null) {
-                return false;
-            }
-        } else if (!assocClientRx.equals(other.assocClientRx)) {
-            return false;
-        }
-        if (unassocClientRx == null) {
-            if (other.unassocClientRx != null) {
-                return false;
-            }
-        } else if (!unassocClientRx.equals(other.unassocClientRx)) {
-            return false;
-        }
-        if (nonWifi == null) {
-            if (other.nonWifi != null) {
-                return false;
-            }
-        } else if (!nonWifi.equals(other.nonWifi)) {
-            return false;
-        }
-        if (timestampSeconds == null) {
-            if (other.timestampSeconds != null) {
-                return false;
-            }
-        } else if (!timestampSeconds.equals(other.timestampSeconds)) {
-            return false;
-        }
-        if (ibss == null) {
-            if (other.ibss != null) {
-                return false;
-            }
-        } else if (!ibss.equals(other.ibss)) {
-            return false;
-        }
-        if (unAvailableCapacity == null) {
-            if (other.unAvailableCapacity != null) {
-                return false;
-            }
-        } else if (!unAvailableCapacity.equals(other.unAvailableCapacity)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(assocClientRx, other.assocClientRx) && Objects.equals(assocClientTx, other.assocClientTx) && Objects.equals(ibss, other.ibss)
+                && Objects.equals(nonWifi, other.nonWifi) && sourceTimestampMs == other.sourceTimestampMs
+                && Objects.equals(timestampSeconds, other.timestampSeconds) && Objects.equals(unAvailableCapacity, other.unAvailableCapacity)
+                && Objects.equals(unassocClientRx, other.unassocClientRx) && Objects.equals(unassocClientTx, other.unassocClientTx);
     }
 
     @Override
     public RadioUtilization clone() {
         return (RadioUtilization) super.clone();
+    }
+
+    public void setSourceTimestampMs(long sourceTimestamp) {
+        this.sourceTimestampMs = sourceTimestamp;
+    }
+    
+    @Override
+    public long getSourceTimestampMs() {
+        return this.sourceTimestampMs;
     }
 }

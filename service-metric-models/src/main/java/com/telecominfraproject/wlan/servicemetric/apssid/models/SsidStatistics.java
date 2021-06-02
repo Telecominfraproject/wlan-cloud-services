@@ -5,9 +5,11 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 import com.telecominfraproject.wlan.servicemetric.models.McsStats;
 import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
 import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
@@ -17,7 +19,7 @@ import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueT
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SsidStatistics extends BaseJsonModel {
+public class SsidStatistics extends BaseJsonModel implements HasSourceTimestamp {
 
     private static final long serialVersionUID = 8903368367046455020L;
 
@@ -261,6 +263,11 @@ public class SsidStatistics extends BaseJsonModel {
     private Map<WmmQueueType, WmmQueueStats> wmmQueueStats;
 
     private List<McsStats> mcsStats;
+    
+    /**
+     * Timestamp from the AP source statistics used for this metric
+     */
+    private long sourceTimestampMs;
 
     @Override
     public SsidStatistics clone() {
@@ -1090,5 +1097,14 @@ public class SsidStatistics extends BaseJsonModel {
 
     public void setWmmQueueStats(Map<WmmQueueType, WmmQueueStats> wmmQueueStats) {
         this.wmmQueueStats = wmmQueueStats;
+    }
+    
+    public void setSourceTimestampMs(long sourceTimestamp) {
+        this.sourceTimestampMs = sourceTimestamp;
+    }
+    
+    @Override
+    public long getSourceTimestampMs() {
+        return this.sourceTimestampMs;
     }
 }

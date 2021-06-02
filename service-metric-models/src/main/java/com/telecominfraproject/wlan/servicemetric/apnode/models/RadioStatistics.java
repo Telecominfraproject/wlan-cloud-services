@@ -2,12 +2,15 @@ package com.telecominfraproject.wlan.servicemetric.apnode.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class RadioStatistics extends BaseJsonModel {
+public class RadioStatistics extends BaseJsonModel implements HasSourceTimestamp {
     private static final long serialVersionUID = 1185985309064758000L;
 
     /**
@@ -697,6 +700,8 @@ public class RadioStatistics extends BaseJsonModel {
     private Long numRxVHT_2808_Mbps;
     private Long numRxVHT_3120_Mbps;
     private Long numRxVHT_3466_8_Mbps;
+    
+    private long sourceTimestampMs;
 
     
     @Override
@@ -3681,6 +3686,273 @@ public class RadioStatistics extends BaseJsonModel {
 
     public void setNumRxVHT_3466_8_Mbps(Long numRxVHT_3466_8_Mbps) {
         this.numRxVHT_3466_8_Mbps = numRxVHT_3466_8_Mbps;
+    }
+    
+    public void setSourceTimestampMs(long sourceTimestamp) {
+        this.sourceTimestampMs = sourceTimestamp;
+    }
+    
+    @Override
+    public long getSourceTimestampMs() {
+        return this.sourceTimestampMs;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actualCellSize, curBackupChannel, curChannel, curEirp, elevenGProtection, numChanChanges, numChannelBusy64s, numFreeTxBuf,
+                numRadarChanChanges, numRadioResets, numRcvBcForTx, numRcvFrameForTx, numRx, numRxAck, numRxAmsduDeaggItmd, numRxAmsduDeaggLast,
+                numRxAmsduDeaggSeq, numRxBcMc, numRxBeacon, numRxControl, numRxCts, numRxData, numRxDataFrames, numRxDataFramesRetried,
+                numRxDataFrames_108_Mbps, numRxDataFrames_12_Mbps, numRxDataFrames_1300Plus_Mbps, numRxDataFrames_1300_Mbps, numRxDataFrames_300_Mbps,
+                numRxDataFrames_450_Mbps, numRxDataFrames_54_Mbps, numRxDropAmsduNoRcv, numRxDropBadProtocol, numRxDropEthHdrRunt, numRxDropInvalidSrcMac,
+                numRxDropNoFcField, numRxDropRunt, numRxDup, numRxErr, numRxFcsErr, numRxFramesReceived, numRxHT_104_Mbps, numRxHT_108_Mbps, numRxHT_115_5_Mbps,
+                numRxHT_117_1_Mbps, numRxHT_117_Mbps, numRxHT_120_Mbps, numRxHT_121_5_Mbps, numRxHT_130_3_Mbps, numRxHT_130_Mbps, numRxHT_135_Mbps,
+                numRxHT_13_5_Mbps, numRxHT_13_Mbps, numRxHT_144_3_Mbps, numRxHT_14_3_Mbps, numRxHT_150_Mbps, numRxHT_156_Mbps, numRxHT_15_Mbps,
+                numRxHT_162_Mbps, numRxHT_173_1_Mbps, numRxHT_173_3_Mbps, numRxHT_175_5_Mbps, numRxHT_180_Mbps, numRxHT_195_Mbps, numRxHT_19_5_Mbps,
+                numRxHT_200_Mbps, numRxHT_208_Mbps, numRxHT_216_6_Mbps, numRxHT_216_Mbps, numRxHT_21_7_Mbps, numRxHT_231_1_Mbps, numRxHT_234_Mbps,
+                numRxHT_240_Mbps, numRxHT_243_Mbps, numRxHT_260_Mbps, numRxHT_263_2_Mbps, numRxHT_26_Mbps, numRxHT_270_Mbps, numRxHT_27_Mbps,
+                numRxHT_288_7_Mbps, numRxHT_288_8_Mbps, numRxHT_28_7_Mbps, numRxHT_28_8_Mbps, numRxHT_292_5_Mbps, numRxHT_29_2_Mbps, numRxHT_300_Mbps,
+                numRxHT_30_Mbps, numRxHT_312_Mbps, numRxHT_324_Mbps, numRxHT_325_Mbps, numRxHT_32_5_Mbps, numRxHT_346_7_Mbps, numRxHT_351_2_Mbps,
+                numRxHT_351_Mbps, numRxHT_360_Mbps, numRxHT_39_Mbps, numRxHT_40_5_Mbps, numRxHT_43_2_Mbps, numRxHT_45_Mbps, numRxHT_52_Mbps, numRxHT_54_Mbps,
+                numRxHT_57_5_Mbps, numRxHT_57_7_Mbps, numRxHT_58_5_Mbps, numRxHT_60_Mbps, numRxHT_65_Mbps, numRxHT_6_5_Mbps, numRxHT_72_1_Mbps, numRxHT_78_Mbps,
+                numRxHT_7_1_Mbps, numRxHT_81_Mbps, numRxHT_86_6_Mbps, numRxHT_86_8_Mbps, numRxHT_87_8_Mbps, numRxHT_90_Mbps, numRxHT_97_5_Mbps, numRxLdpc,
+                numRxManagement, numRxNoFcsErr, numRxNullData, numRxOffChan, numRxProbeReq, numRxProbeResp, numRxPspoll, numRxRetry, numRxRetryFrames, numRxRts,
+                numRxStbc, numRxTimeData, numRxTimeToMe, numRxVHT_1040_Mbps, numRxVHT_1053_1_Mbps, numRxVHT_1053_Mbps, numRxVHT_1170_Mbps, numRxVHT_1300_Mbps,
+                numRxVHT_1404_Mbps, numRxVHT_1560_Mbps, numRxVHT_1579_5_Mbps, numRxVHT_1733_1_Mbps, numRxVHT_1733_4_Mbps, numRxVHT_1755_Mbps,
+                numRxVHT_1872_Mbps, numRxVHT_1950_Mbps, numRxVHT_2080_Mbps, numRxVHT_2106_Mbps, numRxVHT_2340_Mbps, numRxVHT_2600_Mbps, numRxVHT_2808_Mbps,
+                numRxVHT_292_5_Mbps, numRxVHT_3120_Mbps, numRxVHT_325_Mbps, numRxVHT_3466_8_Mbps, numRxVHT_364_5_Mbps, numRxVHT_390_Mbps, numRxVHT_400_Mbps,
+                numRxVHT_403_Mbps, numRxVHT_405_Mbps, numRxVHT_432_Mbps, numRxVHT_433_2_Mbps, numRxVHT_450_Mbps, numRxVHT_468_Mbps, numRxVHT_480_Mbps,
+                numRxVHT_486_Mbps, numRxVHT_520_Mbps, numRxVHT_526_5_Mbps, numRxVHT_540_Mbps, numRxVHT_585_Mbps, numRxVHT_600_Mbps, numRxVHT_648_Mbps,
+                numRxVHT_650_Mbps, numRxVHT_702_Mbps, numRxVHT_720_Mbps, numRxVHT_780_Mbps, numRxVHT_800_Mbps, numRxVHT_866_7_Mbps, numRxVHT_877_5_Mbps,
+                numRxVHT_936_Mbps, numRxVHT_975_Mbps, numRx_12_Mbps, numRx_18_Mbps, numRx_1_Mbps, numRx_24_Mbps, numRx_36_Mbps, numRx_48_Mbps, numRx_54_Mbps,
+                numRx_6_Mbps, numRx_9_Mbps, numScanReq, numScanSucc, numTxAction, numTxAggrOneMpdu, numTxAggrSucc, numTxBcDropped, numTxBeaconFail,
+                numTxBeaconSuFail, numTxBeaconSucc, numTxControl, numTxCts, numTxData, numTxDataFrames, numTxDataFrames_108_Mbps, numTxDataFrames_12_Mbps,
+                numTxDataFrames_1300Plus_Mbps, numTxDataFrames_1300_Mbps, numTxDataFrames_300_Mbps, numTxDataFrames_450_Mbps, numTxDataFrames_54_Mbps,
+                numTxDataRetries, numTxDataTransmitted, numTxDataTransmittedRetried, numTxDropped, numTxDtimMc, numTxEapol, numTxFramesTransmitted,
+                numTxHT_104_Mbps, numTxHT_108_Mbps, numTxHT_115_5_Mbps, numTxHT_117_1_Mbps, numTxHT_117_Mbps, numTxHT_120_Mbps, numTxHT_121_5_Mbps,
+                numTxHT_130_3_Mbps, numTxHT_130_Mbps, numTxHT_135_Mbps, numTxHT_13_5_Mbps, numTxHT_13_Mbps, numTxHT_144_3_Mbps, numTxHT_14_3_Mbps,
+                numTxHT_150_Mbps, numTxHT_156_Mbps, numTxHT_15_Mbps, numTxHT_162_Mbps, numTxHT_173_1_Mbps, numTxHT_173_3_Mbps, numTxHT_175_5_Mbps,
+                numTxHT_180_Mbps, numTxHT_195_Mbps, numTxHT_19_5_Mbps, numTxHT_200_Mbps, numTxHT_208_Mbps, numTxHT_216_6_Mbps, numTxHT_216_Mbps,
+                numTxHT_21_7_Mbps, numTxHT_231_1_Mbps, numTxHT_234_Mbps, numTxHT_240_Mbps, numTxHT_243_Mbps, numTxHT_260_Mbps, numTxHT_263_2_Mbps,
+                numTxHT_26_Mbps, numTxHT_270_Mbps, numTxHT_27_Mbps, numTxHT_288_7_Mbps, numTxHT_288_8_Mbps, numTxHT_28_7_Mbps, numTxHT_28_8_Mbps,
+                numTxHT_292_5_Mbps, numTxHT_29_2_Mbps, numTxHT_300_Mbps, numTxHT_30_Mbps, numTxHT_312_Mbps, numTxHT_324_Mbps, numTxHT_325_Mbps,
+                numTxHT_32_5_Mbps, numTxHT_346_7_Mbps, numTxHT_351_2_Mbps, numTxHT_351_Mbps, numTxHT_360_Mbps, numTxHT_39_Mbps, numTxHT_40_5_Mbps,
+                numTxHT_43_2_Mbps, numTxHT_45_Mbps, numTxHT_52_Mbps, numTxHT_54_Mbps, numTxHT_57_5_Mbps, numTxHT_57_7_Mbps, numTxHT_58_5_Mbps, numTxHT_60_Mbps,
+                numTxHT_65_Mbps, numTxHT_6_5_Mbps, numTxHT_72_1_Mbps, numTxHT_78_Mbps, numTxHT_7_1_Mbps, numTxHT_81_Mbps, numTxHT_86_6_Mbps, numTxHT_86_8_Mbps,
+                numTxHT_87_8_Mbps, numTxHT_90_Mbps, numTxHT_97_5_Mbps, numTxLdpc, numTxManagement, numTxMultiRetries, numTxMultipleRetries, numTxNoAck,
+                numTxPowerChanges, numTxProbeResp, numTxPsUnicast, numTxQueued, numTxRateLimitDrop, numTxRetryAttemps, numTxRetryDropped, numTxRtsFail,
+                numTxRtsSucc, numTxStbc, numTxSucc, numTxSuccNoRetry, numTxSuccRetries, numTxSuccessWithRetry, numTxTimeData, numTxTimeFramesTransmitted,
+                numTxTime_BC_MC_Data, numTxTotalAttemps, numTxVHT_1040_Mbps, numTxVHT_1053_1_Mbps, numTxVHT_1053_Mbps, numTxVHT_1170_Mbps, numTxVHT_1300_Mbps,
+                numTxVHT_1404_Mbps, numTxVHT_1560_Mbps, numTxVHT_1579_5_Mbps, numTxVHT_1733_1_Mbps, numTxVHT_1733_4_Mbps, numTxVHT_1755_Mbps,
+                numTxVHT_1872_Mbps, numTxVHT_1950_Mbps, numTxVHT_2080_Mbps, numTxVHT_2106_Mbps, numTxVHT_2340_Mbps, numTxVHT_2600_Mbps, numTxVHT_2808_Mbps,
+                numTxVHT_292_5_Mbps, numTxVHT_3120_Mbps, numTxVHT_325_Mbps, numTxVHT_3466_8_Mbps, numTxVHT_364_5_Mbps, numTxVHT_390_Mbps, numTxVHT_400_Mbps,
+                numTxVHT_403_Mbps, numTxVHT_405_Mbps, numTxVHT_432_Mbps, numTxVHT_433_2_Mbps, numTxVHT_450_Mbps, numTxVHT_468_Mbps, numTxVHT_480_Mbps,
+                numTxVHT_486_Mbps, numTxVHT_520_Mbps, numTxVHT_526_5_Mbps, numTxVHT_540_Mbps, numTxVHT_585_Mbps, numTxVHT_600_Mbps, numTxVHT_648_Mbps,
+                numTxVHT_650_Mbps, numTxVHT_702_Mbps, numTxVHT_720_Mbps, numTxVHT_780_Mbps, numTxVHT_800_Mbps, numTxVHT_866_7_Mbps, numTxVHT_877_5_Mbps,
+                numTxVHT_936_Mbps, numTxVHT_975_Mbps, numTx_12_Mbps, numTx_18_Mbps, numTx_1_Mbps, numTx_24_Mbps, numTx_36_Mbps, numTx_48_Mbps, numTx_54_Mbps,
+                numTx_6_Mbps, numTx_9_Mbps, rxDataBytes, rxLastRssi, sourceTimestampMs);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RadioStatistics other = (RadioStatistics) obj;
+        return Objects.equals(actualCellSize, other.actualCellSize) && Objects.equals(curBackupChannel, other.curBackupChannel)
+                && Objects.equals(curChannel, other.curChannel) && Objects.equals(curEirp, other.curEirp)
+                && Objects.equals(elevenGProtection, other.elevenGProtection) && Objects.equals(numChanChanges, other.numChanChanges)
+                && Objects.equals(numChannelBusy64s, other.numChannelBusy64s) && Objects.equals(numFreeTxBuf, other.numFreeTxBuf)
+                && Objects.equals(numRadarChanChanges, other.numRadarChanChanges) && Objects.equals(numRadioResets, other.numRadioResets)
+                && Objects.equals(numRcvBcForTx, other.numRcvBcForTx) && Objects.equals(numRcvFrameForTx, other.numRcvFrameForTx)
+                && Objects.equals(numRx, other.numRx) && Objects.equals(numRxAck, other.numRxAck)
+                && Objects.equals(numRxAmsduDeaggItmd, other.numRxAmsduDeaggItmd) && Objects.equals(numRxAmsduDeaggLast, other.numRxAmsduDeaggLast)
+                && Objects.equals(numRxAmsduDeaggSeq, other.numRxAmsduDeaggSeq) && Objects.equals(numRxBcMc, other.numRxBcMc)
+                && Objects.equals(numRxBeacon, other.numRxBeacon) && Objects.equals(numRxControl, other.numRxControl)
+                && Objects.equals(numRxCts, other.numRxCts) && Objects.equals(numRxData, other.numRxData)
+                && Objects.equals(numRxDataFrames, other.numRxDataFrames) && Objects.equals(numRxDataFramesRetried, other.numRxDataFramesRetried)
+                && Objects.equals(numRxDataFrames_108_Mbps, other.numRxDataFrames_108_Mbps)
+                && Objects.equals(numRxDataFrames_12_Mbps, other.numRxDataFrames_12_Mbps)
+                && Objects.equals(numRxDataFrames_1300Plus_Mbps, other.numRxDataFrames_1300Plus_Mbps)
+                && Objects.equals(numRxDataFrames_1300_Mbps, other.numRxDataFrames_1300_Mbps)
+                && Objects.equals(numRxDataFrames_300_Mbps, other.numRxDataFrames_300_Mbps)
+                && Objects.equals(numRxDataFrames_450_Mbps, other.numRxDataFrames_450_Mbps)
+                && Objects.equals(numRxDataFrames_54_Mbps, other.numRxDataFrames_54_Mbps) && Objects.equals(numRxDropAmsduNoRcv, other.numRxDropAmsduNoRcv)
+                && Objects.equals(numRxDropBadProtocol, other.numRxDropBadProtocol) && Objects.equals(numRxDropEthHdrRunt, other.numRxDropEthHdrRunt)
+                && Objects.equals(numRxDropInvalidSrcMac, other.numRxDropInvalidSrcMac) && Objects.equals(numRxDropNoFcField, other.numRxDropNoFcField)
+                && Objects.equals(numRxDropRunt, other.numRxDropRunt) && Objects.equals(numRxDup, other.numRxDup) && Objects.equals(numRxErr, other.numRxErr)
+                && Objects.equals(numRxFcsErr, other.numRxFcsErr) && Objects.equals(numRxFramesReceived, other.numRxFramesReceived)
+                && Objects.equals(numRxHT_104_Mbps, other.numRxHT_104_Mbps) && Objects.equals(numRxHT_108_Mbps, other.numRxHT_108_Mbps)
+                && Objects.equals(numRxHT_115_5_Mbps, other.numRxHT_115_5_Mbps) && Objects.equals(numRxHT_117_1_Mbps, other.numRxHT_117_1_Mbps)
+                && Objects.equals(numRxHT_117_Mbps, other.numRxHT_117_Mbps) && Objects.equals(numRxHT_120_Mbps, other.numRxHT_120_Mbps)
+                && Objects.equals(numRxHT_121_5_Mbps, other.numRxHT_121_5_Mbps) && Objects.equals(numRxHT_130_3_Mbps, other.numRxHT_130_3_Mbps)
+                && Objects.equals(numRxHT_130_Mbps, other.numRxHT_130_Mbps) && Objects.equals(numRxHT_135_Mbps, other.numRxHT_135_Mbps)
+                && Objects.equals(numRxHT_13_5_Mbps, other.numRxHT_13_5_Mbps) && Objects.equals(numRxHT_13_Mbps, other.numRxHT_13_Mbps)
+                && Objects.equals(numRxHT_144_3_Mbps, other.numRxHT_144_3_Mbps) && Objects.equals(numRxHT_14_3_Mbps, other.numRxHT_14_3_Mbps)
+                && Objects.equals(numRxHT_150_Mbps, other.numRxHT_150_Mbps) && Objects.equals(numRxHT_156_Mbps, other.numRxHT_156_Mbps)
+                && Objects.equals(numRxHT_15_Mbps, other.numRxHT_15_Mbps) && Objects.equals(numRxHT_162_Mbps, other.numRxHT_162_Mbps)
+                && Objects.equals(numRxHT_173_1_Mbps, other.numRxHT_173_1_Mbps) && Objects.equals(numRxHT_173_3_Mbps, other.numRxHT_173_3_Mbps)
+                && Objects.equals(numRxHT_175_5_Mbps, other.numRxHT_175_5_Mbps) && Objects.equals(numRxHT_180_Mbps, other.numRxHT_180_Mbps)
+                && Objects.equals(numRxHT_195_Mbps, other.numRxHT_195_Mbps) && Objects.equals(numRxHT_19_5_Mbps, other.numRxHT_19_5_Mbps)
+                && Objects.equals(numRxHT_200_Mbps, other.numRxHT_200_Mbps) && Objects.equals(numRxHT_208_Mbps, other.numRxHT_208_Mbps)
+                && Objects.equals(numRxHT_216_6_Mbps, other.numRxHT_216_6_Mbps) && Objects.equals(numRxHT_216_Mbps, other.numRxHT_216_Mbps)
+                && Objects.equals(numRxHT_21_7_Mbps, other.numRxHT_21_7_Mbps) && Objects.equals(numRxHT_231_1_Mbps, other.numRxHT_231_1_Mbps)
+                && Objects.equals(numRxHT_234_Mbps, other.numRxHT_234_Mbps) && Objects.equals(numRxHT_240_Mbps, other.numRxHT_240_Mbps)
+                && Objects.equals(numRxHT_243_Mbps, other.numRxHT_243_Mbps) && Objects.equals(numRxHT_260_Mbps, other.numRxHT_260_Mbps)
+                && Objects.equals(numRxHT_263_2_Mbps, other.numRxHT_263_2_Mbps) && Objects.equals(numRxHT_26_Mbps, other.numRxHT_26_Mbps)
+                && Objects.equals(numRxHT_270_Mbps, other.numRxHT_270_Mbps) && Objects.equals(numRxHT_27_Mbps, other.numRxHT_27_Mbps)
+                && Objects.equals(numRxHT_288_7_Mbps, other.numRxHT_288_7_Mbps) && Objects.equals(numRxHT_288_8_Mbps, other.numRxHT_288_8_Mbps)
+                && Objects.equals(numRxHT_28_7_Mbps, other.numRxHT_28_7_Mbps) && Objects.equals(numRxHT_28_8_Mbps, other.numRxHT_28_8_Mbps)
+                && Objects.equals(numRxHT_292_5_Mbps, other.numRxHT_292_5_Mbps) && Objects.equals(numRxHT_29_2_Mbps, other.numRxHT_29_2_Mbps)
+                && Objects.equals(numRxHT_300_Mbps, other.numRxHT_300_Mbps) && Objects.equals(numRxHT_30_Mbps, other.numRxHT_30_Mbps)
+                && Objects.equals(numRxHT_312_Mbps, other.numRxHT_312_Mbps) && Objects.equals(numRxHT_324_Mbps, other.numRxHT_324_Mbps)
+                && Objects.equals(numRxHT_325_Mbps, other.numRxHT_325_Mbps) && Objects.equals(numRxHT_32_5_Mbps, other.numRxHT_32_5_Mbps)
+                && Objects.equals(numRxHT_346_7_Mbps, other.numRxHT_346_7_Mbps) && Objects.equals(numRxHT_351_2_Mbps, other.numRxHT_351_2_Mbps)
+                && Objects.equals(numRxHT_351_Mbps, other.numRxHT_351_Mbps) && Objects.equals(numRxHT_360_Mbps, other.numRxHT_360_Mbps)
+                && Objects.equals(numRxHT_39_Mbps, other.numRxHT_39_Mbps) && Objects.equals(numRxHT_40_5_Mbps, other.numRxHT_40_5_Mbps)
+                && Objects.equals(numRxHT_43_2_Mbps, other.numRxHT_43_2_Mbps) && Objects.equals(numRxHT_45_Mbps, other.numRxHT_45_Mbps)
+                && Objects.equals(numRxHT_52_Mbps, other.numRxHT_52_Mbps) && Objects.equals(numRxHT_54_Mbps, other.numRxHT_54_Mbps)
+                && Objects.equals(numRxHT_57_5_Mbps, other.numRxHT_57_5_Mbps) && Objects.equals(numRxHT_57_7_Mbps, other.numRxHT_57_7_Mbps)
+                && Objects.equals(numRxHT_58_5_Mbps, other.numRxHT_58_5_Mbps) && Objects.equals(numRxHT_60_Mbps, other.numRxHT_60_Mbps)
+                && Objects.equals(numRxHT_65_Mbps, other.numRxHT_65_Mbps) && Objects.equals(numRxHT_6_5_Mbps, other.numRxHT_6_5_Mbps)
+                && Objects.equals(numRxHT_72_1_Mbps, other.numRxHT_72_1_Mbps) && Objects.equals(numRxHT_78_Mbps, other.numRxHT_78_Mbps)
+                && Objects.equals(numRxHT_7_1_Mbps, other.numRxHT_7_1_Mbps) && Objects.equals(numRxHT_81_Mbps, other.numRxHT_81_Mbps)
+                && Objects.equals(numRxHT_86_6_Mbps, other.numRxHT_86_6_Mbps) && Objects.equals(numRxHT_86_8_Mbps, other.numRxHT_86_8_Mbps)
+                && Objects.equals(numRxHT_87_8_Mbps, other.numRxHT_87_8_Mbps) && Objects.equals(numRxHT_90_Mbps, other.numRxHT_90_Mbps)
+                && Objects.equals(numRxHT_97_5_Mbps, other.numRxHT_97_5_Mbps) && Objects.equals(numRxLdpc, other.numRxLdpc)
+                && Objects.equals(numRxManagement, other.numRxManagement) && Objects.equals(numRxNoFcsErr, other.numRxNoFcsErr)
+                && Objects.equals(numRxNullData, other.numRxNullData) && Objects.equals(numRxOffChan, other.numRxOffChan)
+                && Objects.equals(numRxProbeReq, other.numRxProbeReq) && Objects.equals(numRxProbeResp, other.numRxProbeResp)
+                && Objects.equals(numRxPspoll, other.numRxPspoll) && Objects.equals(numRxRetry, other.numRxRetry)
+                && Objects.equals(numRxRetryFrames, other.numRxRetryFrames) && Objects.equals(numRxRts, other.numRxRts)
+                && Objects.equals(numRxStbc, other.numRxStbc) && Objects.equals(numRxTimeData, other.numRxTimeData)
+                && Objects.equals(numRxTimeToMe, other.numRxTimeToMe) && Objects.equals(numRxVHT_1040_Mbps, other.numRxVHT_1040_Mbps)
+                && Objects.equals(numRxVHT_1053_1_Mbps, other.numRxVHT_1053_1_Mbps) && Objects.equals(numRxVHT_1053_Mbps, other.numRxVHT_1053_Mbps)
+                && Objects.equals(numRxVHT_1170_Mbps, other.numRxVHT_1170_Mbps) && Objects.equals(numRxVHT_1300_Mbps, other.numRxVHT_1300_Mbps)
+                && Objects.equals(numRxVHT_1404_Mbps, other.numRxVHT_1404_Mbps) && Objects.equals(numRxVHT_1560_Mbps, other.numRxVHT_1560_Mbps)
+                && Objects.equals(numRxVHT_1579_5_Mbps, other.numRxVHT_1579_5_Mbps) && Objects.equals(numRxVHT_1733_1_Mbps, other.numRxVHT_1733_1_Mbps)
+                && Objects.equals(numRxVHT_1733_4_Mbps, other.numRxVHT_1733_4_Mbps) && Objects.equals(numRxVHT_1755_Mbps, other.numRxVHT_1755_Mbps)
+                && Objects.equals(numRxVHT_1872_Mbps, other.numRxVHT_1872_Mbps) && Objects.equals(numRxVHT_1950_Mbps, other.numRxVHT_1950_Mbps)
+                && Objects.equals(numRxVHT_2080_Mbps, other.numRxVHT_2080_Mbps) && Objects.equals(numRxVHT_2106_Mbps, other.numRxVHT_2106_Mbps)
+                && Objects.equals(numRxVHT_2340_Mbps, other.numRxVHT_2340_Mbps) && Objects.equals(numRxVHT_2600_Mbps, other.numRxVHT_2600_Mbps)
+                && Objects.equals(numRxVHT_2808_Mbps, other.numRxVHT_2808_Mbps) && Objects.equals(numRxVHT_292_5_Mbps, other.numRxVHT_292_5_Mbps)
+                && Objects.equals(numRxVHT_3120_Mbps, other.numRxVHT_3120_Mbps) && Objects.equals(numRxVHT_325_Mbps, other.numRxVHT_325_Mbps)
+                && Objects.equals(numRxVHT_3466_8_Mbps, other.numRxVHT_3466_8_Mbps) && Objects.equals(numRxVHT_364_5_Mbps, other.numRxVHT_364_5_Mbps)
+                && Objects.equals(numRxVHT_390_Mbps, other.numRxVHT_390_Mbps) && Objects.equals(numRxVHT_400_Mbps, other.numRxVHT_400_Mbps)
+                && Objects.equals(numRxVHT_403_Mbps, other.numRxVHT_403_Mbps) && Objects.equals(numRxVHT_405_Mbps, other.numRxVHT_405_Mbps)
+                && Objects.equals(numRxVHT_432_Mbps, other.numRxVHT_432_Mbps) && Objects.equals(numRxVHT_433_2_Mbps, other.numRxVHT_433_2_Mbps)
+                && Objects.equals(numRxVHT_450_Mbps, other.numRxVHT_450_Mbps) && Objects.equals(numRxVHT_468_Mbps, other.numRxVHT_468_Mbps)
+                && Objects.equals(numRxVHT_480_Mbps, other.numRxVHT_480_Mbps) && Objects.equals(numRxVHT_486_Mbps, other.numRxVHT_486_Mbps)
+                && Objects.equals(numRxVHT_520_Mbps, other.numRxVHT_520_Mbps) && Objects.equals(numRxVHT_526_5_Mbps, other.numRxVHT_526_5_Mbps)
+                && Objects.equals(numRxVHT_540_Mbps, other.numRxVHT_540_Mbps) && Objects.equals(numRxVHT_585_Mbps, other.numRxVHT_585_Mbps)
+                && Objects.equals(numRxVHT_600_Mbps, other.numRxVHT_600_Mbps) && Objects.equals(numRxVHT_648_Mbps, other.numRxVHT_648_Mbps)
+                && Objects.equals(numRxVHT_650_Mbps, other.numRxVHT_650_Mbps) && Objects.equals(numRxVHT_702_Mbps, other.numRxVHT_702_Mbps)
+                && Objects.equals(numRxVHT_720_Mbps, other.numRxVHT_720_Mbps) && Objects.equals(numRxVHT_780_Mbps, other.numRxVHT_780_Mbps)
+                && Objects.equals(numRxVHT_800_Mbps, other.numRxVHT_800_Mbps) && Objects.equals(numRxVHT_866_7_Mbps, other.numRxVHT_866_7_Mbps)
+                && Objects.equals(numRxVHT_877_5_Mbps, other.numRxVHT_877_5_Mbps) && Objects.equals(numRxVHT_936_Mbps, other.numRxVHT_936_Mbps)
+                && Objects.equals(numRxVHT_975_Mbps, other.numRxVHT_975_Mbps) && Objects.equals(numRx_12_Mbps, other.numRx_12_Mbps)
+                && Objects.equals(numRx_18_Mbps, other.numRx_18_Mbps) && Objects.equals(numRx_1_Mbps, other.numRx_1_Mbps)
+                && Objects.equals(numRx_24_Mbps, other.numRx_24_Mbps) && Objects.equals(numRx_36_Mbps, other.numRx_36_Mbps)
+                && Objects.equals(numRx_48_Mbps, other.numRx_48_Mbps) && Objects.equals(numRx_54_Mbps, other.numRx_54_Mbps)
+                && Objects.equals(numRx_6_Mbps, other.numRx_6_Mbps) && Objects.equals(numRx_9_Mbps, other.numRx_9_Mbps)
+                && Objects.equals(numScanReq, other.numScanReq) && Objects.equals(numScanSucc, other.numScanSucc)
+                && Objects.equals(numTxAction, other.numTxAction) && Objects.equals(numTxAggrOneMpdu, other.numTxAggrOneMpdu)
+                && Objects.equals(numTxAggrSucc, other.numTxAggrSucc) && Objects.equals(numTxBcDropped, other.numTxBcDropped)
+                && Objects.equals(numTxBeaconFail, other.numTxBeaconFail) && Objects.equals(numTxBeaconSuFail, other.numTxBeaconSuFail)
+                && Objects.equals(numTxBeaconSucc, other.numTxBeaconSucc) && Objects.equals(numTxControl, other.numTxControl)
+                && Objects.equals(numTxCts, other.numTxCts) && Objects.equals(numTxData, other.numTxData)
+                && Objects.equals(numTxDataFrames, other.numTxDataFrames) && Objects.equals(numTxDataFrames_108_Mbps, other.numTxDataFrames_108_Mbps)
+                && Objects.equals(numTxDataFrames_12_Mbps, other.numTxDataFrames_12_Mbps)
+                && Objects.equals(numTxDataFrames_1300Plus_Mbps, other.numTxDataFrames_1300Plus_Mbps)
+                && Objects.equals(numTxDataFrames_1300_Mbps, other.numTxDataFrames_1300_Mbps)
+                && Objects.equals(numTxDataFrames_300_Mbps, other.numTxDataFrames_300_Mbps)
+                && Objects.equals(numTxDataFrames_450_Mbps, other.numTxDataFrames_450_Mbps)
+                && Objects.equals(numTxDataFrames_54_Mbps, other.numTxDataFrames_54_Mbps) && Objects.equals(numTxDataRetries, other.numTxDataRetries)
+                && Objects.equals(numTxDataTransmitted, other.numTxDataTransmitted)
+                && Objects.equals(numTxDataTransmittedRetried, other.numTxDataTransmittedRetried) && Objects.equals(numTxDropped, other.numTxDropped)
+                && Objects.equals(numTxDtimMc, other.numTxDtimMc) && Objects.equals(numTxEapol, other.numTxEapol)
+                && Objects.equals(numTxFramesTransmitted, other.numTxFramesTransmitted) && Objects.equals(numTxHT_104_Mbps, other.numTxHT_104_Mbps)
+                && Objects.equals(numTxHT_108_Mbps, other.numTxHT_108_Mbps) && Objects.equals(numTxHT_115_5_Mbps, other.numTxHT_115_5_Mbps)
+                && Objects.equals(numTxHT_117_1_Mbps, other.numTxHT_117_1_Mbps) && Objects.equals(numTxHT_117_Mbps, other.numTxHT_117_Mbps)
+                && Objects.equals(numTxHT_120_Mbps, other.numTxHT_120_Mbps) && Objects.equals(numTxHT_121_5_Mbps, other.numTxHT_121_5_Mbps)
+                && Objects.equals(numTxHT_130_3_Mbps, other.numTxHT_130_3_Mbps) && Objects.equals(numTxHT_130_Mbps, other.numTxHT_130_Mbps)
+                && Objects.equals(numTxHT_135_Mbps, other.numTxHT_135_Mbps) && Objects.equals(numTxHT_13_5_Mbps, other.numTxHT_13_5_Mbps)
+                && Objects.equals(numTxHT_13_Mbps, other.numTxHT_13_Mbps) && Objects.equals(numTxHT_144_3_Mbps, other.numTxHT_144_3_Mbps)
+                && Objects.equals(numTxHT_14_3_Mbps, other.numTxHT_14_3_Mbps) && Objects.equals(numTxHT_150_Mbps, other.numTxHT_150_Mbps)
+                && Objects.equals(numTxHT_156_Mbps, other.numTxHT_156_Mbps) && Objects.equals(numTxHT_15_Mbps, other.numTxHT_15_Mbps)
+                && Objects.equals(numTxHT_162_Mbps, other.numTxHT_162_Mbps) && Objects.equals(numTxHT_173_1_Mbps, other.numTxHT_173_1_Mbps)
+                && Objects.equals(numTxHT_173_3_Mbps, other.numTxHT_173_3_Mbps) && Objects.equals(numTxHT_175_5_Mbps, other.numTxHT_175_5_Mbps)
+                && Objects.equals(numTxHT_180_Mbps, other.numTxHT_180_Mbps) && Objects.equals(numTxHT_195_Mbps, other.numTxHT_195_Mbps)
+                && Objects.equals(numTxHT_19_5_Mbps, other.numTxHT_19_5_Mbps) && Objects.equals(numTxHT_200_Mbps, other.numTxHT_200_Mbps)
+                && Objects.equals(numTxHT_208_Mbps, other.numTxHT_208_Mbps) && Objects.equals(numTxHT_216_6_Mbps, other.numTxHT_216_6_Mbps)
+                && Objects.equals(numTxHT_216_Mbps, other.numTxHT_216_Mbps) && Objects.equals(numTxHT_21_7_Mbps, other.numTxHT_21_7_Mbps)
+                && Objects.equals(numTxHT_231_1_Mbps, other.numTxHT_231_1_Mbps) && Objects.equals(numTxHT_234_Mbps, other.numTxHT_234_Mbps)
+                && Objects.equals(numTxHT_240_Mbps, other.numTxHT_240_Mbps) && Objects.equals(numTxHT_243_Mbps, other.numTxHT_243_Mbps)
+                && Objects.equals(numTxHT_260_Mbps, other.numTxHT_260_Mbps) && Objects.equals(numTxHT_263_2_Mbps, other.numTxHT_263_2_Mbps)
+                && Objects.equals(numTxHT_26_Mbps, other.numTxHT_26_Mbps) && Objects.equals(numTxHT_270_Mbps, other.numTxHT_270_Mbps)
+                && Objects.equals(numTxHT_27_Mbps, other.numTxHT_27_Mbps) && Objects.equals(numTxHT_288_7_Mbps, other.numTxHT_288_7_Mbps)
+                && Objects.equals(numTxHT_288_8_Mbps, other.numTxHT_288_8_Mbps) && Objects.equals(numTxHT_28_7_Mbps, other.numTxHT_28_7_Mbps)
+                && Objects.equals(numTxHT_28_8_Mbps, other.numTxHT_28_8_Mbps) && Objects.equals(numTxHT_292_5_Mbps, other.numTxHT_292_5_Mbps)
+                && Objects.equals(numTxHT_29_2_Mbps, other.numTxHT_29_2_Mbps) && Objects.equals(numTxHT_300_Mbps, other.numTxHT_300_Mbps)
+                && Objects.equals(numTxHT_30_Mbps, other.numTxHT_30_Mbps) && Objects.equals(numTxHT_312_Mbps, other.numTxHT_312_Mbps)
+                && Objects.equals(numTxHT_324_Mbps, other.numTxHT_324_Mbps) && Objects.equals(numTxHT_325_Mbps, other.numTxHT_325_Mbps)
+                && Objects.equals(numTxHT_32_5_Mbps, other.numTxHT_32_5_Mbps) && Objects.equals(numTxHT_346_7_Mbps, other.numTxHT_346_7_Mbps)
+                && Objects.equals(numTxHT_351_2_Mbps, other.numTxHT_351_2_Mbps) && Objects.equals(numTxHT_351_Mbps, other.numTxHT_351_Mbps)
+                && Objects.equals(numTxHT_360_Mbps, other.numTxHT_360_Mbps) && Objects.equals(numTxHT_39_Mbps, other.numTxHT_39_Mbps)
+                && Objects.equals(numTxHT_40_5_Mbps, other.numTxHT_40_5_Mbps) && Objects.equals(numTxHT_43_2_Mbps, other.numTxHT_43_2_Mbps)
+                && Objects.equals(numTxHT_45_Mbps, other.numTxHT_45_Mbps) && Objects.equals(numTxHT_52_Mbps, other.numTxHT_52_Mbps)
+                && Objects.equals(numTxHT_54_Mbps, other.numTxHT_54_Mbps) && Objects.equals(numTxHT_57_5_Mbps, other.numTxHT_57_5_Mbps)
+                && Objects.equals(numTxHT_57_7_Mbps, other.numTxHT_57_7_Mbps) && Objects.equals(numTxHT_58_5_Mbps, other.numTxHT_58_5_Mbps)
+                && Objects.equals(numTxHT_60_Mbps, other.numTxHT_60_Mbps) && Objects.equals(numTxHT_65_Mbps, other.numTxHT_65_Mbps)
+                && Objects.equals(numTxHT_6_5_Mbps, other.numTxHT_6_5_Mbps) && Objects.equals(numTxHT_72_1_Mbps, other.numTxHT_72_1_Mbps)
+                && Objects.equals(numTxHT_78_Mbps, other.numTxHT_78_Mbps) && Objects.equals(numTxHT_7_1_Mbps, other.numTxHT_7_1_Mbps)
+                && Objects.equals(numTxHT_81_Mbps, other.numTxHT_81_Mbps) && Objects.equals(numTxHT_86_6_Mbps, other.numTxHT_86_6_Mbps)
+                && Objects.equals(numTxHT_86_8_Mbps, other.numTxHT_86_8_Mbps) && Objects.equals(numTxHT_87_8_Mbps, other.numTxHT_87_8_Mbps)
+                && Objects.equals(numTxHT_90_Mbps, other.numTxHT_90_Mbps) && Objects.equals(numTxHT_97_5_Mbps, other.numTxHT_97_5_Mbps)
+                && Objects.equals(numTxLdpc, other.numTxLdpc) && Objects.equals(numTxManagement, other.numTxManagement)
+                && Objects.equals(numTxMultiRetries, other.numTxMultiRetries) && Objects.equals(numTxMultipleRetries, other.numTxMultipleRetries)
+                && Objects.equals(numTxNoAck, other.numTxNoAck) && Objects.equals(numTxPowerChanges, other.numTxPowerChanges)
+                && Objects.equals(numTxProbeResp, other.numTxProbeResp) && Objects.equals(numTxPsUnicast, other.numTxPsUnicast)
+                && Objects.equals(numTxQueued, other.numTxQueued) && Objects.equals(numTxRateLimitDrop, other.numTxRateLimitDrop)
+                && Objects.equals(numTxRetryAttemps, other.numTxRetryAttemps) && Objects.equals(numTxRetryDropped, other.numTxRetryDropped)
+                && Objects.equals(numTxRtsFail, other.numTxRtsFail) && Objects.equals(numTxRtsSucc, other.numTxRtsSucc)
+                && Objects.equals(numTxStbc, other.numTxStbc) && Objects.equals(numTxSucc, other.numTxSucc)
+                && Objects.equals(numTxSuccNoRetry, other.numTxSuccNoRetry) && Objects.equals(numTxSuccRetries, other.numTxSuccRetries)
+                && Objects.equals(numTxSuccessWithRetry, other.numTxSuccessWithRetry) && Objects.equals(numTxTimeData, other.numTxTimeData)
+                && Objects.equals(numTxTimeFramesTransmitted, other.numTxTimeFramesTransmitted)
+                && Objects.equals(numTxTime_BC_MC_Data, other.numTxTime_BC_MC_Data) && Objects.equals(numTxTotalAttemps, other.numTxTotalAttemps)
+                && Objects.equals(numTxVHT_1040_Mbps, other.numTxVHT_1040_Mbps) && Objects.equals(numTxVHT_1053_1_Mbps, other.numTxVHT_1053_1_Mbps)
+                && Objects.equals(numTxVHT_1053_Mbps, other.numTxVHT_1053_Mbps) && Objects.equals(numTxVHT_1170_Mbps, other.numTxVHT_1170_Mbps)
+                && Objects.equals(numTxVHT_1300_Mbps, other.numTxVHT_1300_Mbps) && Objects.equals(numTxVHT_1404_Mbps, other.numTxVHT_1404_Mbps)
+                && Objects.equals(numTxVHT_1560_Mbps, other.numTxVHT_1560_Mbps) && Objects.equals(numTxVHT_1579_5_Mbps, other.numTxVHT_1579_5_Mbps)
+                && Objects.equals(numTxVHT_1733_1_Mbps, other.numTxVHT_1733_1_Mbps) && Objects.equals(numTxVHT_1733_4_Mbps, other.numTxVHT_1733_4_Mbps)
+                && Objects.equals(numTxVHT_1755_Mbps, other.numTxVHT_1755_Mbps) && Objects.equals(numTxVHT_1872_Mbps, other.numTxVHT_1872_Mbps)
+                && Objects.equals(numTxVHT_1950_Mbps, other.numTxVHT_1950_Mbps) && Objects.equals(numTxVHT_2080_Mbps, other.numTxVHT_2080_Mbps)
+                && Objects.equals(numTxVHT_2106_Mbps, other.numTxVHT_2106_Mbps) && Objects.equals(numTxVHT_2340_Mbps, other.numTxVHT_2340_Mbps)
+                && Objects.equals(numTxVHT_2600_Mbps, other.numTxVHT_2600_Mbps) && Objects.equals(numTxVHT_2808_Mbps, other.numTxVHT_2808_Mbps)
+                && Objects.equals(numTxVHT_292_5_Mbps, other.numTxVHT_292_5_Mbps) && Objects.equals(numTxVHT_3120_Mbps, other.numTxVHT_3120_Mbps)
+                && Objects.equals(numTxVHT_325_Mbps, other.numTxVHT_325_Mbps) && Objects.equals(numTxVHT_3466_8_Mbps, other.numTxVHT_3466_8_Mbps)
+                && Objects.equals(numTxVHT_364_5_Mbps, other.numTxVHT_364_5_Mbps) && Objects.equals(numTxVHT_390_Mbps, other.numTxVHT_390_Mbps)
+                && Objects.equals(numTxVHT_400_Mbps, other.numTxVHT_400_Mbps) && Objects.equals(numTxVHT_403_Mbps, other.numTxVHT_403_Mbps)
+                && Objects.equals(numTxVHT_405_Mbps, other.numTxVHT_405_Mbps) && Objects.equals(numTxVHT_432_Mbps, other.numTxVHT_432_Mbps)
+                && Objects.equals(numTxVHT_433_2_Mbps, other.numTxVHT_433_2_Mbps) && Objects.equals(numTxVHT_450_Mbps, other.numTxVHT_450_Mbps)
+                && Objects.equals(numTxVHT_468_Mbps, other.numTxVHT_468_Mbps) && Objects.equals(numTxVHT_480_Mbps, other.numTxVHT_480_Mbps)
+                && Objects.equals(numTxVHT_486_Mbps, other.numTxVHT_486_Mbps) && Objects.equals(numTxVHT_520_Mbps, other.numTxVHT_520_Mbps)
+                && Objects.equals(numTxVHT_526_5_Mbps, other.numTxVHT_526_5_Mbps) && Objects.equals(numTxVHT_540_Mbps, other.numTxVHT_540_Mbps)
+                && Objects.equals(numTxVHT_585_Mbps, other.numTxVHT_585_Mbps) && Objects.equals(numTxVHT_600_Mbps, other.numTxVHT_600_Mbps)
+                && Objects.equals(numTxVHT_648_Mbps, other.numTxVHT_648_Mbps) && Objects.equals(numTxVHT_650_Mbps, other.numTxVHT_650_Mbps)
+                && Objects.equals(numTxVHT_702_Mbps, other.numTxVHT_702_Mbps) && Objects.equals(numTxVHT_720_Mbps, other.numTxVHT_720_Mbps)
+                && Objects.equals(numTxVHT_780_Mbps, other.numTxVHT_780_Mbps) && Objects.equals(numTxVHT_800_Mbps, other.numTxVHT_800_Mbps)
+                && Objects.equals(numTxVHT_866_7_Mbps, other.numTxVHT_866_7_Mbps) && Objects.equals(numTxVHT_877_5_Mbps, other.numTxVHT_877_5_Mbps)
+                && Objects.equals(numTxVHT_936_Mbps, other.numTxVHT_936_Mbps) && Objects.equals(numTxVHT_975_Mbps, other.numTxVHT_975_Mbps)
+                && Objects.equals(numTx_12_Mbps, other.numTx_12_Mbps) && Objects.equals(numTx_18_Mbps, other.numTx_18_Mbps)
+                && Objects.equals(numTx_1_Mbps, other.numTx_1_Mbps) && Objects.equals(numTx_24_Mbps, other.numTx_24_Mbps)
+                && Objects.equals(numTx_36_Mbps, other.numTx_36_Mbps) && Objects.equals(numTx_48_Mbps, other.numTx_48_Mbps)
+                && Objects.equals(numTx_54_Mbps, other.numTx_54_Mbps) && Objects.equals(numTx_6_Mbps, other.numTx_6_Mbps)
+                && Objects.equals(numTx_9_Mbps, other.numTx_9_Mbps) && Objects.equals(rxDataBytes, other.rxDataBytes)
+                && Objects.equals(rxLastRssi, other.rxLastRssi) && sourceTimestampMs == other.sourceTimestampMs;
     }
 
 }

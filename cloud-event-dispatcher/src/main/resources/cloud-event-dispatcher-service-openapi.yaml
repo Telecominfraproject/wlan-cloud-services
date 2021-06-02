@@ -4866,6 +4866,9 @@ components:
         createdTimestamp:
           type: integer
           format: int64
+        sourceTimestampMs:
+          type: integer
+          format: int64          
         details:
           $ref: '#/components/schemas/ServiceMetricDetails'
         
@@ -6753,7 +6756,11 @@ components:
           description: The number of aggregation frames sent using single MPDU (where the A-MPDU contains only one MPDU ).
           type: integer
           format: int32
-        
+
+        sourceTimestampMs:
+          type: integer
+          format: int64
+                  
         wmmQueueStats:
           $ref: '#/components/schemas/WmmQueueStatsPerQueueTypeMap'
  
@@ -6902,6 +6909,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PerProcessUtilization'
+        sourceTimestampMs:
+          type: integer
+          format: int64
           
     EthernetLinkState:
       type: string
@@ -6948,6 +6958,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DnsProbeMetric'
+        sourceTimestampMs:
+          type: integer
+          format: int64
  
     StateUpDownError:
       type: string
@@ -8762,7 +8775,10 @@ components:
         numRxVHT_3466_8_Mbps:
           type: integer
           format: int64
-        
+
+        sourceTimestampMs:
+          type: integer
+          format: int64        
     
     ListOfRadioUtilizationPerRadioMap:
       properties:
@@ -8810,6 +8826,9 @@ components:
         unAvailableCapacity:
           type: number
           format: double
+        sourceTimestampMs:
+          type: integer
+          format: int64
  
     ListOfMacsPerRadioMap:
       properties:

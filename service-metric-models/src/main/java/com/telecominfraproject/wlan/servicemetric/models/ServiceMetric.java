@@ -10,12 +10,13 @@ import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasEquipmentId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasLocationId;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasProducedTimestamp;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 /**
  * @author dtoptygin
  *
  */
-public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac, HasLocationId, HasProducedTimestamp {
+public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEquipmentId, HasClientMac, HasLocationId, HasProducedTimestamp, HasSourceTimestamp{
     
 	private static final long serialVersionUID = 5570757656953699233L;
 	
@@ -24,7 +25,8 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 	private long locationId;
 	private long clientMac;
 	private ServiceMetricDataType dataType;
-    private long createdTimestamp;    
+    private long createdTimestamp;  
+    private long sourceTimestamp;
 
     private ServiceMetricDetails details;
     
@@ -106,7 +108,11 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 		this.createdTimestamp = createdTimestamp;
 	}
 
-	@Override
+    public void setSourceTimestampMs(long sourceTimestampMs) {
+        this.sourceTimestamp = sourceTimestampMs;
+    }
+
+    @Override
 	public MacAddress getClientMacAddress() {
 		if(clientMac==0) {
 			return null;
@@ -174,6 +180,11 @@ public class ServiceMetric extends BaseJsonModel implements HasCustomerId, HasEq
 	public long getProducedTimestampMs() {
 		return createdTimestamp;
 	}
+
+    @Override
+    public long getSourceTimestampMs() {
+        return sourceTimestamp;
+    }
     
     
 }

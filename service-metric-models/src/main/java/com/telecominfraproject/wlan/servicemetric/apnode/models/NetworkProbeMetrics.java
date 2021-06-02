@@ -3,8 +3,10 @@ package com.telecominfraproject.wlan.servicemetric.apnode.models;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 /**
  * Metric Data from network probes that are running on CE
@@ -13,7 +15,7 @@ import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class NetworkProbeMetrics extends BaseJsonModel {
+public class NetworkProbeMetrics extends BaseJsonModel implements HasSourceTimestamp {
 
     private static final long serialVersionUID = 7293164162279703547L;
 
@@ -29,6 +31,11 @@ public class NetworkProbeMetrics extends BaseJsonModel {
    private long radiusLatencyMs;
 
    private List<DnsProbeMetric> dnsProbeResults;
+
+   /** 
+    * timestamp for the source data (AP stats) for this metrics report
+    */
+   private long sourceTimestampMs;
 
    public String getVlanIF()
    {
@@ -109,39 +116,7 @@ public void setDnsProbeResults(List<DnsProbeMetric> dnsProbeResults) {
     this.dnsProbeResults = dnsProbeResults;
 }
 
-@Override
-   public int hashCode() 
-   {
-      return Objects.hash(this.dhcpState, 
-            this.dhcpLatencyMs, 
-            this.dnsState,
-            this.dnsLatencyMs,
-            this.vlanIF,
-            this.radiusLatencyMs,
-            this.radiusState,
-            this.dnsProbeResults);
-   }
 
-   @Override
-   public boolean equals(Object obj) 
-   {
-      if(obj instanceof NetworkProbeMetrics)
-      {
-         NetworkProbeMetrics casted = (NetworkProbeMetrics) obj;
-
-         return Objects.equals(casted.dhcpState, dhcpState) &&
-               Objects.equals(casted.dnsState, dnsState) &&
-               Objects.equals(casted.dnsLatencyMs, dnsLatencyMs) &&
-               Objects.equals(casted.dhcpLatencyMs, dhcpLatencyMs) &&
-               Objects.equals(casted.vlanIF, vlanIF) &&
-               Objects.equals(casted.radiusLatencyMs, radiusLatencyMs) &&
-               Objects.equals(casted.dnsProbeResults, dnsProbeResults) &&
-               Objects.equals(casted.radiusState, radiusState);
-      }
-
-      return false;
-
-   }
 
     @Override
     public boolean hasUnsupportedValue() {
@@ -165,5 +140,33 @@ public void setDnsProbeResults(List<DnsProbeMetric> dnsProbeResults) {
     @Override
     public NetworkProbeMetrics clone() {
         return (NetworkProbeMetrics) super.clone();
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(dhcpLatencyMs, dhcpState, dnsLatencyMs, dnsProbeResults, dnsState, radiusLatencyMs, radiusState, sourceTimestampMs, vlanIF);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NetworkProbeMetrics other = (NetworkProbeMetrics) obj;
+        return dhcpLatencyMs == other.dhcpLatencyMs && dhcpState == other.dhcpState && dnsLatencyMs == other.dnsLatencyMs
+                && Objects.equals(dnsProbeResults, other.dnsProbeResults) && dnsState == other.dnsState && radiusLatencyMs == other.radiusLatencyMs
+                && radiusState == other.radiusState && sourceTimestampMs == other.sourceTimestampMs && Objects.equals(vlanIF, other.vlanIF);
+    }
+    
+    public void setSourceTimestampMs(long sourceTimestamp) {
+        this.sourceTimestampMs = sourceTimestamp;
+    }
+    
+    @Override
+    public long getSourceTimestampMs() {
+        return this.sourceTimestampMs;
     }
 }

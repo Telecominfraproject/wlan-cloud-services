@@ -8,13 +8,14 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 /**
  * @author yongli
  *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApPerformance extends BaseJsonModel {
+public class ApPerformance extends BaseJsonModel implements HasSourceTimestamp {
 
 	private static final long serialVersionUID = 4520822419578448525L;
 
@@ -70,6 +71,11 @@ public class ApPerformance extends BaseJsonModel {
     private Long cloudRxBytes;
     
     /**
+     * Timestamp of the stats report used to generate this metric (i.e. timestamp from the AP)
+     */
+    private long sourceTimestampMs;
+    
+    /**
      *  Top CPU consuming processes.
      *  CPU usage in percent.
      */
@@ -100,15 +106,19 @@ public class ApPerformance extends BaseJsonModel {
         return ret;
     }
 
+  
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(cpuUtilized);
-        result = prime * result + Objects.hash(camiCrashed, cloudRxBytes, cloudTxBytes, cpuTemperature, ethLinkState,
-                freeMemory, lowMemoryReboot, psCpuUtil, psMemUtil, upTime);
+        result = prime * result + Objects.hash(camiCrashed, cloudRxBytes, cloudTxBytes, cpuTemperature, ethLinkState, freeMemory, lowMemoryReboot, psCpuUtil,
+                psMemUtil, sourceTimestampMs, upTime);
         return result;
     }
+
+
 
     @Override
     public boolean equals(Object obj) {
@@ -120,12 +130,13 @@ public class ApPerformance extends BaseJsonModel {
             return false;
         ApPerformance other = (ApPerformance) obj;
         return Objects.equals(camiCrashed, other.camiCrashed) && Objects.equals(cloudRxBytes, other.cloudRxBytes)
-                && Objects.equals(cloudTxBytes, other.cloudTxBytes)
-                && Objects.equals(cpuTemperature, other.cpuTemperature) && Arrays.equals(cpuUtilized, other.cpuUtilized)
-                && ethLinkState == other.ethLinkState && Objects.equals(freeMemory, other.freeMemory)
+                && Objects.equals(cloudTxBytes, other.cloudTxBytes) && Objects.equals(cpuTemperature, other.cpuTemperature)
+                && Arrays.equals(cpuUtilized, other.cpuUtilized) && ethLinkState == other.ethLinkState && Objects.equals(freeMemory, other.freeMemory)
                 && Objects.equals(lowMemoryReboot, other.lowMemoryReboot) && Objects.equals(psCpuUtil, other.psCpuUtil)
-                && Objects.equals(psMemUtil, other.psMemUtil) && Objects.equals(upTime, other.upTime);
+                && Objects.equals(psMemUtil, other.psMemUtil) && sourceTimestampMs == other.sourceTimestampMs && Objects.equals(upTime, other.upTime);
     }
+
+
 
     @JsonIgnore
     public Float getAvgCpuUtilized() {
@@ -192,7 +203,6 @@ public class ApPerformance extends BaseJsonModel {
         return psMemUtil;
     }
 
-  
     @Override
     public boolean hasUnsupportedValue() {
         return (super.hasUnsupportedValue() || EthernetLinkState.isUnsupported(this.ethLinkState));
@@ -252,6 +262,15 @@ public class ApPerformance extends BaseJsonModel {
 
     public void setPsMemUtil(List<PerProcessUtilization> psMemUtil) {
         this.psMemUtil = psMemUtil;
+    }
+    
+    public void setSourceTimestampMs(long sourceTimestamp) {
+        this.sourceTimestampMs = sourceTimestamp;
+    }
+
+    @Override
+    public long getSourceTimestampMs() {
+        return sourceTimestampMs;
     }
     
 }
