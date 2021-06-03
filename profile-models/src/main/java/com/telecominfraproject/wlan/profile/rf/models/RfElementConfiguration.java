@@ -324,6 +324,13 @@ public class RfElementConfiguration extends BaseJsonModel {
     }
 
     public Integer getMaxAutoCellSize() {
+        if (maxAutoCellSize == null) {
+            if (MAX_CELL_SIZE_MAP.containsKey(this.radioType)) {
+                return MAX_CELL_SIZE_MAP.get(this.radioType);
+            } else {
+                return MAX_CELL_SIZE_MAP.get(RadioType.is2dot4GHz);
+            }
+        }
         return maxAutoCellSize;
     }
 
