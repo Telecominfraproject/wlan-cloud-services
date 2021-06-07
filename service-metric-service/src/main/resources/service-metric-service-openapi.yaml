@@ -96,13 +96,15 @@ components:
         createdTimestamp:
           type: integer
           format: int64
-        sourceTimestampMs:
-          type: integer
-          format: int64
         details:
           $ref: '#/components/schemas/ServiceMetricDetails'
         
     ServiceMetricDetails:
+      type: object
+      properties:
+        sourceTimestampMs:
+          type: integer
+          format: int64
       oneOf:
         - $ref: '#/components/schemas/ApNodeMetrics'
         - $ref: '#/components/schemas/ApSsidMetrics'
@@ -111,7 +113,7 @@ components:
         - $ref: '#/components/schemas/NeighbourScanReports'
       discriminator:
         propertyName: model_type
- 
+         
     NeighbourScanReports:
       properties:
         neighbourReports:

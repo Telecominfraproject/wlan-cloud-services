@@ -3,15 +3,17 @@ package com.telecominfraproject.wlan.servicemetric.models;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
 
 /**
  * @author dtoptygin
  *
  */
-public abstract class ServiceMetricDetails extends BaseJsonModel {
+public abstract class ServiceMetricDetails extends BaseJsonModel implements HasSourceTimestamp {
     
 	private static final long serialVersionUID = 5570757656953699233L;
-	
+    private long sourceTimestamp;
+
     public abstract ServiceMetricDataType getDataType();
 
 	@Override
@@ -44,5 +46,14 @@ public abstract class ServiceMetricDetails extends BaseJsonModel {
 		ServiceMetricDetails other = (ServiceMetricDetails) obj;
 		return Objects.equals(getDataType(), other.getDataType());
 	}
+	
+    public void setSourceTimestampMs(long sourceTimestampMs) {
+        this.sourceTimestamp = sourceTimestampMs;
+    }
+	
+    @Override
+    public long getSourceTimestampMs() {
+        return sourceTimestamp;
+    }
     
 }
