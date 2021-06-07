@@ -30,23 +30,23 @@ public abstract class ServiceMetricDetails extends BaseJsonModel implements HasS
         return (ServiceMetricDetails) super.clone();
     }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getDataType());
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceTimestamp);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof ServiceMetricDetails)) {
-			return false;
-		}
-		ServiceMetricDetails other = (ServiceMetricDetails) obj;
-		return Objects.equals(getDataType(), other.getDataType());
-	}
-	
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ServiceMetricDetails other = (ServiceMetricDetails) obj;
+        return sourceTimestamp == other.sourceTimestamp;
+    }
+
     public void setSourceTimestampMs(long sourceTimestampMs) {
         this.sourceTimestamp = sourceTimestampMs;
     }
