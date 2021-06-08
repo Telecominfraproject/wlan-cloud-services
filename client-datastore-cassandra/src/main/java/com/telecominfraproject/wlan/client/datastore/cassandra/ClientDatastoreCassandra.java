@@ -46,6 +46,12 @@ public class ClientDatastoreCassandra implements ClientDatastore {
     }
     
     @Override
+    public void delete(long createdBeforeTimestamp) {
+    	//This should be handled by Cassandra's life cycle for data.
+    	return;
+    }
+    
+    @Override
     public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
     	return clientDAO.get(customerId, clientMacSet);
     }
@@ -79,6 +85,12 @@ public class ClientDatastoreCassandra implements ClientDatastore {
 	@Override
 	public ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac) {
 		return clientSessionDAO.deleteSession(customerId, equipmentId, clientMac);
+	}
+	
+	@Override
+	public void deleteSessions(long createdBeforeTimestamp) {
+		//This should be handled by Cassandra's lifecycle for data.
+		return;
 	}
 
 	@Override

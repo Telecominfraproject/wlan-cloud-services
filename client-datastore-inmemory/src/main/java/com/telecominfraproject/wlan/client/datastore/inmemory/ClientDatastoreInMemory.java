@@ -156,6 +156,11 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
 		//client is already cloned by the getOrNull method
         return client;
     }
+    
+    @Override
+    public void delete(long createdBeforeTimestamp) {
+    	return;
+    }
 
     @Override
     public List<Client> get(int customerId, Set<MacAddress> clientMacSet) {
@@ -362,6 +367,10 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         return clientSession.clone();
     }    
     
+    @Override
+    public void deleteSessions(long createdBeforeTimestamp) {
+    	return;
+    }
 
     @Override
     public List<ClientSession> getSessions(int customerId, Set<MacAddress> clientMacSet) {

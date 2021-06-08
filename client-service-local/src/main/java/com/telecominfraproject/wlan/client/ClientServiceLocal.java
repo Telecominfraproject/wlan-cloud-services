@@ -13,6 +13,7 @@ import com.telecominfraproject.wlan.client.controller.ClientController.ListOfCli
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -57,6 +58,11 @@ public class ClientServiceLocal implements ClientServiceInterface {
 	public Client delete(int customerId, MacAddress macAddress) {
 		return clientController.delete(customerId, macAddress);
 	}
+    
+    @Override
+    public GenericResponse delete(long createdBeforeTimestamp) {
+    	return clientController.delete(createdBeforeTimestamp); 
+    }
 
     @Override
     public List<Client> getBlockedClients(int customerId) {
@@ -98,5 +104,10 @@ public class ClientServiceLocal implements ClientServiceInterface {
 	public ClientSession deleteSession(int customerId, long equipmentId, MacAddress macAddress) {
 		return clientController.deleteSession(customerId, equipmentId, macAddress);
 	}
+    
+    @Override
+    public GenericResponse deleteSessions(long createdBeforeTimestamp) {
+    	return clientController.deleteSessions(createdBeforeTimestamp);
+    }
 	
 }

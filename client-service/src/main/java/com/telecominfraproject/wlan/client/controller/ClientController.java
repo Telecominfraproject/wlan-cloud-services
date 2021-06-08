@@ -26,6 +26,7 @@ import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -246,6 +247,16 @@ public class ClientController {
         return ret;
     }
 
+    @RequestMapping(value="/bulk", method=RequestMethod.DELETE)
+    public GenericResponse delete(@RequestParam long createdBeforeTimestamp) {
+    	LOG.debug("Deleting Clients older than: {}", createdBeforeTimestamp);
+        
+        clientDatastore.delete(createdBeforeTimestamp);
+
+        LOG.debug("Deleted Clients");
+        
+        return new GenericResponse(true, "");
+    }
     
     //
     // Client Session -related methods
@@ -408,8 +419,17 @@ public class ClientController {
 
         return ret;
     }
-
     
+    @RequestMapping(value="/session/bulk", method=RequestMethod.DELETE)
+    public GenericResponse deleteSessions(@RequestParam long createdBeforeTimestamp) {
+    	LOG.debug("Deleting Client session older than {}", createdBeforeTimestamp);
+        
+        clientDatastore.deleteSessions(createdBeforeTimestamp);
+
+        LOG.debug("Deleted old Client sessions");
+        
+        return new GenericResponse(true, "");
+    }
     
     private void publishEvent(SystemEvent event) {
         if (event == null) {

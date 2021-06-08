@@ -21,6 +21,7 @@ public interface ClientDatastore {
     Client getOrNull(int customerId, MacAddress clientMac);
     Client update(Client client);
     Client delete(int customerId, MacAddress clientMac);
+    void   delete(long createdBeforeTimestamp);
     
     /**
      * Retrieves a list of Client records that which have their mac address in the provided set.
@@ -72,7 +73,7 @@ public interface ClientDatastore {
 
     
     ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac);
-    
+    void deleteSessions(long createdBeforeTimestamp);
     /**
      * Retrieves a list of Client sessions that which have their mac address in the provided set.
      * 
