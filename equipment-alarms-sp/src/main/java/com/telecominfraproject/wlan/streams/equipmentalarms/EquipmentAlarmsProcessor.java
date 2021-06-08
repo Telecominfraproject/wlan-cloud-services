@@ -40,7 +40,7 @@ import com.telecominfraproject.wlan.stream.StreamProcessor;
 /**
  * @author dtop 
  * <br> This stream processor is listening for APNodeMetrics, aggregating them in sliding windows of 5 minutes and raising/clearing alarms based on preconfigured thresholds.
- * <br> "AP out of reach" alarm is raised when no APNodeMetrics have been received for the equipment in the last interval, cleared when APNodeMetrics appear again
+ * <br> "No metrics received" alarm is raised when no APNodeMetrics have been received for the equipment in the last interval, cleared when APNodeMetrics appear again
  * <br> "Temperature too high" alarm is raised when average temperature over the last interval goes above the configured threshold of 80C, cleared when average temperature goes below the threshold
  * <br> "CPU utilization is too high" alarm is raised when average CPU utilization on AP over the last interval goes above the configured threshold of 80%, cleared when average CPU utilization goes below the threshold
  * <br> "Memory utilization is too high" alarm is raised when average RAM utilization on AP over the last interval goes above the configured threshold of 70%, cleared when average RAM utilization goes below the threshold
@@ -304,10 +304,10 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 	    	equipmentAlarmsThread.start();
 	    	
 	    	//populate alarm codes this SP is responsible for
+	    	alarmCodeSet.add(AlarmCode.NoMetricsReceived);
 			alarmCodeSet.add(AlarmCode.CPUTemperature);
 			alarmCodeSet.add(AlarmCode.CPUUtilization);
 			alarmCodeSet.add(AlarmCode.MemoryUtilization);
-			alarmCodeSet.add(AlarmCode.AccessPointIsUnreachable);
 
 	    }
 

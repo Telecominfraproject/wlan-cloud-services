@@ -53,7 +53,7 @@ public class AlarmCode implements EnumWithId {
     public static final AlarmCode 
     LimitedCloudConnectivity = new AlarmCode(3, "LimitedCloudConnectivity", "Equipment is connected, however it's not reporting status or metrics", StatusCode.error, "Service AP and verify networking path to cloud"),
     AccessPointIsUnreachable = new AlarmCode(4, "AccessPointIsUnreachable", "Equipment is not reachable from cloud", StatusCode.error, "Service AP and verify networking path to cloud"),
-    NoMetricsReceived = new AlarmCode(6, "NoMetricsReceived", "Equipment is not report metrics"),
+    NoMetricsReceived = new AlarmCode(6, "NoMetricsReceived", "Metrics are not received from the equipment"),
     NoiseFloor2G = new AlarmCode(7, "NoiseFloor2G", "Noise floor is too high on 2G radio", StatusCode.requiresAttention, "Investigate interference sources"),
     ChannelUtilization2G = new AlarmCode(8, "ChannelUtilization2G", "Channel utilization is too high on 2G radio", StatusCode.requiresAttention, "Consider adding more APs"),
     NoiseFloor5G = new AlarmCode(9, "NoiseFloor5G", "Noise floor is too high on 5G radio", StatusCode.requiresAttention, "Investigate interference sources"),
