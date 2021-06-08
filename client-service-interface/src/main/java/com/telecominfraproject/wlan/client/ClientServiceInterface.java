@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -59,7 +60,15 @@ public interface ClientServiceInterface {
      * @param clientMac
      * @return deleted Client object
      */
-    Client delete(int customerId, MacAddress clientMac );
+    Client delete(int customerId, MacAddress clientMac);
+    
+    /**
+     * Deletes Clients that are older than a given timestamp
+     * 
+     * @param createdBeforeTimestamp
+     * @return GenericResponse 
+     */
+    GenericResponse delete(long createdBeforeTimestamp);
     
     /**
      * <br>Retrieves all of the Client records that are mapped to the provided customerId and optional macSubstring filter.
@@ -95,6 +104,14 @@ public interface ClientServiceInterface {
     List<ClientSession> updateSessions(List<ClientSession> clientSession);
 
     ClientSession deleteSession(int customerId, long equipmentId, MacAddress clientMac);
+    
+    /**
+     * Deletes Client Sessions that older than a given timestamp
+     * 
+     * @param createdBeforeTimestamp
+     * @return GenericResponse
+     */
+    GenericResponse deleteSessions(long createdBeforeTimestamp);
     
     /**
      * Retrieves a list of Client sessions that which have their mac address in the provided set.

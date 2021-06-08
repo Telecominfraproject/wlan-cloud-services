@@ -17,6 +17,7 @@ import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
+import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -182,7 +183,22 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
         LOG.debug("completed client.delete {} ", ret);
         
         return ret;
-    }    
+    } 
+    
+    @Override 
+	public GenericResponse delete(long createdBeforeTimestamp) {
+		LOG.debug("calling client.delete {}", createdBeforeTimestamp);
+		
+		ResponseEntity<GenericResponse> responseEntity = restTemplate.exchange(
+				getBaseUrl()
+				+"/bulk?createdBeforeTimestamp={createdBeforeTimestamp}",
+				HttpMethod.DELETE, null, GenericResponse.class, createdBeforeTimestamp);
+		
+		GenericResponse ret = responseEntity.getBody();
+		LOG.debug("completed client.delete {}", createdBeforeTimestamp);
+		
+		return ret;
+	}
 
     //
     // Methods for managing client sessions
@@ -303,6 +319,21 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
         
         return ret;
     }    
+    
+    @Override 
+	public GenericResponse deleteSessions(long createdBeforeTimestamp) {
+		LOG.debug("calling client.deleteSessions {}", createdBeforeTimestamp);
+		
+		ResponseEntity<GenericResponse> responseEntity = restTemplate.exchange(
+				getBaseUrl()
+				+"/session/bulk?createdBeforeTimestamp={createdBeforeTimestamp}",
+				HttpMethod.DELETE, null, GenericResponse.class, createdBeforeTimestamp);
+		
+		GenericResponse ret = responseEntity.getBody();
+		LOG.debug("completed client.deleteSessions {}", createdBeforeTimestamp);
+		
+		return ret;
+	}
     
     @Override
     public List<ClientSession> updateSessions(List<ClientSession> clientSessions) {
