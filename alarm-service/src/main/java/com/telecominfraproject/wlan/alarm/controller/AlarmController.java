@@ -20,6 +20,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 import com.telecominfraproject.wlan.alarm.datastore.AlarmDatastore;
@@ -48,6 +49,7 @@ public class AlarmController {
 
     @Autowired private AlarmDatastore alarmDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
+    @Autowired private EquipmentServiceInterface equipmentServiceInterface;
 
     
     /**
@@ -65,6 +67,11 @@ public class AlarmController {
         if (BaseJsonModel.hasUnsupportedValue(alarm)) {
             LOG.error("Failed to create Alarm, request contains unsupported value: {}", alarm);
             throw new DsDataValidationException("Alarm contains unsupported value");
+        }
+        
+        if (alarm.getEquipmentId() != 0)
+        {
+            equipmentServiceInterface.get(alarm.getEquipmentId());
         }
 
         long ts = alarm.getCreatedTimestamp();
