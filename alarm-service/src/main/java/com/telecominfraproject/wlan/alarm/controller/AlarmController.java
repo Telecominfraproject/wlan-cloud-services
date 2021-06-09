@@ -71,7 +71,10 @@ public class AlarmController {
         
         if (alarm.getEquipmentId() != 0)
         {
-            equipmentServiceInterface.get(alarm.getEquipmentId());
+            if (equipmentServiceInterface.getOrNull(alarm.getEquipmentId()) == null)
+            {
+                throw new DsDataValidationException(String.format("Unable to create alarm for non-existant equipment ID: %d", alarm.getEquipmentId()));
+            }
         }
 
         long ts = alarm.getCreatedTimestamp();
