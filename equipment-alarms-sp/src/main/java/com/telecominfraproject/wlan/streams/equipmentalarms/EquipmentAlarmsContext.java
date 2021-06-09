@@ -15,7 +15,7 @@ import com.telecominfraproject.wlan.servicemetric.apnode.models.ApNodeMetrics;
  * 	<li>AlarmCode.CPUTemperature
  * 	<li>AlarmCode.CPUUtilization
  * 	<li>AlarmCode.MemoryUtilization
- * 	<li>AlarmCode.AccessPointIsUnreachable
+ * 	<li>AlarmCode.NoMetricsReceived
  * </ul>
  * 
  * @author dtop
@@ -112,7 +112,7 @@ public class EquipmentAlarmsContext {
 		AtomicInteger count = new AtomicInteger();
 		
 		//check alarms against thresholds
-		if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
+		if(alarmCode.getId() == AlarmCode.NoMetricsReceived.getId()) {
 			ret = metricReceivedTimestamps.isEmpty();
 		} else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
@@ -149,7 +149,7 @@ public class EquipmentAlarmsContext {
 		AtomicInteger count = new AtomicInteger();
 		
 		//check alarms against thresholds
-        if(alarmCode.getId() == AlarmCode.AccessPointIsUnreachable.getId()) {
+        if(alarmCode.getId() == AlarmCode.NoMetricsReceived.getId()) {
 			ret = !metricReceivedTimestamps.isEmpty();
         } else if(alarmCode.getId() == AlarmCode.CPUTemperature.getId()) {
 			cpuTempSamples.values().forEach(v -> { sum.addAndGet(v); count.incrementAndGet(); });
