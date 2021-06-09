@@ -28,6 +28,8 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     private Boolean useRadSec;
     private String sharedSecret; // if useRadSec is false
     private String acctSharedSecret; // if useRadSec is false
+    private Boolean dynamicDiscovery; // dynamic discovery of HSP and IdPs (home service and identity providers).
+                                      // regardless of configured value, this will only be set 'true' on the AP if useRadSec is also true.
 
     private RadiusProxyConfiguration() {
 
@@ -70,6 +72,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     }
 
     public Integer getPort() {
+        if (port == null) return -1;
         return port;
     }
 
@@ -86,6 +89,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     }
 
     public Integer getAcctPort() {
+        if (acctPort == null) return -1;
         return acctPort;
     }
 
@@ -118,6 +122,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     }
 
     public Boolean getUseRadSec() {
+        if (useRadSec == null) return false;
         return useRadSec;
     }
 
@@ -141,6 +146,21 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
         this.acctSharedSecret = acctSharedSecret;
     }
 
+    /**
+     * @return the dynamicDiscovery
+     */
+    public Boolean getDynamicDiscovery() {
+        if (dynamicDiscovery == null) return false;
+        return dynamicDiscovery;
+    }
+
+    /**
+     * @param dynamicDiscovery the dynamicDiscovery to set
+     */
+    public void setDynamicDiscovery(Boolean dynamicDiscovery) {
+        this.dynamicDiscovery = dynamicDiscovery;
+    }
+
     @Override
     public boolean needsToBeUpdatedOnDevice(RadiusProxyConfiguration previousVersion) {       
         return !Objects.deepEquals(this, previousVersion);
@@ -153,8 +173,8 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
 
     @Override
     public int hashCode() {
-        return Objects.hash(acctPort, acctServer, acctSharedSecret, caCert, clientCert, clientKey, name, passphrase, port, realm, server, sharedSecret,
-                useRadSec);
+        return Objects.hash(acctPort, acctServer, acctSharedSecret, caCert, clientCert, clientKey, dynamicDiscovery, name, passphrase, port, realm, server,
+                sharedSecret, useRadSec);
     }
 
     @Override
@@ -168,9 +188,10 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
         RadiusProxyConfiguration other = (RadiusProxyConfiguration) obj;
         return Objects.equals(acctPort, other.acctPort) && Objects.equals(acctServer, other.acctServer)
                 && Objects.equals(acctSharedSecret, other.acctSharedSecret) && Objects.equals(caCert, other.caCert)
-                && Objects.equals(clientCert, other.clientCert) && Objects.equals(clientKey, other.clientKey) && Objects.equals(name, other.name)
-                && Objects.equals(passphrase, other.passphrase) && Objects.equals(port, other.port) && Objects.equals(realm, other.realm)
-                && Objects.equals(server, other.server) && Objects.equals(sharedSecret, other.sharedSecret) && Objects.equals(useRadSec, other.useRadSec);
+                && Objects.equals(clientCert, other.clientCert) && Objects.equals(clientKey, other.clientKey)
+                && Objects.equals(dynamicDiscovery, other.dynamicDiscovery) && Objects.equals(name, other.name) && Objects.equals(passphrase, other.passphrase)
+                && Objects.equals(port, other.port) && Objects.equals(realm, other.realm) && Objects.equals(server, other.server)
+                && Objects.equals(sharedSecret, other.sharedSecret) && Objects.equals(useRadSec, other.useRadSec);
     }
 
 

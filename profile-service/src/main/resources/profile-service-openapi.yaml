@@ -491,6 +491,9 @@ components:
         sharedSecret:
           type: string
           format: password
+        dynamicDiscovery:
+          description: Dynamic discovery of HSP and IdPs (home service and identity providers). Regardless of configured value, this will only be set 'true' on the AP if useRadSec is also true.      
+          type: boolean
       example:
         model_type: RadiusProxyConfiguration
         caCert:
