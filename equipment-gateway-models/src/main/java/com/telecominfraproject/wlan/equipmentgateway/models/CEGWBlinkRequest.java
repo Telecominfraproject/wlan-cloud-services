@@ -1,11 +1,14 @@
 package com.telecominfraproject.wlan.equipmentgateway.models;
 
+import java.util.Objects;
+
 import com.telecominfraproject.wlan.core.model.equipment.LEDColour;
 
 public class CEGWBlinkRequest extends EquipmentCommand {
 
 		private static final long serialVersionUID = 3464950479960821571L;
 	
+		private boolean blinkAllLEDs;
 		private int numCycles;
 	    private int colour1DurationMs;
 	    private int colour2DurationMs;
@@ -27,6 +30,14 @@ public class CEGWBlinkRequest extends EquipmentCommand {
 	     */
 	    public CEGWBlinkRequest() {
 	        super(CEGWCommandType.BlinkRequest, null, 0);
+	    }
+	    
+	    public boolean getBlinkAllLEDs() {
+	        return this.blinkAllLEDs;
+	    }
+	    
+	    public void setBlinkAllLEDs(boolean blinkAllLEDs) {
+	        this.blinkAllLEDs = blinkAllLEDs;
 	    }
 
 	    public int getNumCycles() {
@@ -79,4 +90,25 @@ public class CEGWBlinkRequest extends EquipmentCommand {
 	        }
 	        return false;
 	    }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(blinkAllLEDs, colour1, colour1DurationMs, colour2, colour2DurationMs, numCycles);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CEGWBlinkRequest other = (CEGWBlinkRequest) obj;
+            return blinkAllLEDs == other.blinkAllLEDs && colour1 == other.colour1 && colour1DurationMs == other.colour1DurationMs && colour2 == other.colour2
+                    && colour2DurationMs == other.colour2DurationMs && numCycles == other.numCycles;
+        }
 }

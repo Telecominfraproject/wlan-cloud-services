@@ -346,6 +346,7 @@ components:
         - off
 
     CEGWBlinkRequest:
+      description: Turn all LEDs on the AP to blinking, or turn off. The blinkAllLEDs attribute is the only currently supported functionality on the AP.
       allOf:
       - $ref: '#/components/schemas/CEGWBaseCommand'
       properties:
@@ -357,6 +358,8 @@ components:
           type: string
           enum:
           - CEGWBlinkRequest
+        blinkAllLEDs:
+          type: boolean
         colour1:
           $ref: '#/components/schemas/LEDColour'
         colour2:
@@ -375,6 +378,7 @@ components:
         inventoryId: inv-1
         model_type: CEGWBlinkRequest
         commandType: BlinkRequest
+        blinkAllLEDs: true
         colour1: blue
         colour2: red
         colour1DurationMs: 1000
