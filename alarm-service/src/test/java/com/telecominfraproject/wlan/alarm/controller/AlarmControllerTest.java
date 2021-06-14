@@ -17,7 +17,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
-
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceLocal;
+import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
+import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.alarm.datastore.inmemory.AlarmDatastoreInMemory;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
@@ -39,10 +43,14 @@ import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
         CloudEventDispatcherEmpty.class,
         AlarmDatastoreInMemory.class,
         AlarmControllerTest.Config.class, 
+        EquipmentServiceLocal.class,
+        EquipmentController.class,
+        EquipmentDatastoreInMemory.class
         })
 public class AlarmControllerTest {
     
     @Autowired private AlarmController alarmController;
+    @Autowired EquipmentServiceLocal equipmentServicelocal;
 
     
     @Configuration
@@ -59,8 +67,9 @@ public class AlarmControllerTest {
         
         //Create new Alarm - success
         Alarm alarm = new Alarm();
-        alarm.setCustomerId((int) testSequence.getAndIncrement());
-        alarm.setEquipmentId(testSequence.getAndIncrement());
+        int customerId = (int) testSequence.getAndIncrement();
+        alarm.setCustomerId(customerId);
+        alarm.setEquipmentId(createEquipmentObject(customerId).getId());
         alarm.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
         alarm.setCreatedTimestamp(System.currentTimeMillis());
         
@@ -91,5 +100,14 @@ public class AlarmControllerTest {
         assertEquals(expected.getDetails(), actual.getDetails());
         //TODO: add more fields to check here
     }
-
+    
+    private Equipment createEquipmentObject(int customerId)
+    {
+        Equipment equipment = new Equipment();
+        equipment.setName("testName");
+        equipment.setInventoryId("test-inv");
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setCustomerId(customerId);
+        return equipmentServicelocal.create(equipment);
+    }
 }
