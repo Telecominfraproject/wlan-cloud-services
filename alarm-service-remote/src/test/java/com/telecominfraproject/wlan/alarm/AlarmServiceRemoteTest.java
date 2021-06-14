@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -26,12 +27,17 @@ import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
 import com.telecominfraproject.wlan.alarm.models.AlarmCounts;
 import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
+import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmpty;
+import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
+import com.telecominfraproject.wlan.equipment.EquipmentServiceLocal;
+import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
+import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.remote.tests.BaseRemoteTest;
 import com.telecominfraproject.wlan.status.models.StatusCode;
 
@@ -44,10 +50,16 @@ import com.telecominfraproject.wlan.status.models.StatusCode;
         "integration_test",
         "no_ssl","http_digest_auth","rest-template-single-user-per-service-digest-auth",
         }) //NOTE: these profiles will be ADDED to the list of active profiles  
+@Import(value = {
+        EquipmentServiceLocal.class,
+        EquipmentDatastoreInMemory.class,
+        CloudEventDispatcherEmpty.class
+})
 public class AlarmServiceRemoteTest extends BaseRemoteTest {
 
     
     @Autowired AlarmServiceRemote remoteInterface; 
+    @Autowired EquipmentServiceLocal equipmentServicelocal;
     
     @Before public void urlSetup(){
         configureBaseUrl("tip.wlan.alarmServiceBaseUrl");
@@ -505,8 +517,10 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
     public void testAlarmCountsRetrieval() {
         //create some Alarms
         Alarm mdl;
-        int customerId_1 = getNextCustomerId();
-        int customerId_2 = getNextCustomerId();
+        final int customerId_1 = getNextCustomerId();
+        final int customerId_2 = getNextCustomerId();
+        final long equipmentId_1 = createEquipmentObject(customerId_1).getId();
+
         
         int apNameIdx = 0;
         Set<Long> equipmentIds = new HashSet<>();
@@ -514,8 +528,8 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
         Set<Long> equipmentIds_AccessPointIsUnreachable = new HashSet<>();
         
         for(int i = 0; i< 50; i++){
-            mdl = createAlarmObject();
-            mdl.setCustomerId(customerId_1);
+            mdl = createAlarmObject(customerId_1, createEquipmentObject(customerId_1).getId());
+            mdl.setEquipmentId(createEquipmentObject(customerId_1).getId());
             mdl.setScopeId("qr_"+apNameIdx);
             if((i%2) == 0) {
             	mdl.setAlarmCode(AlarmCode.CPUUtilization);
@@ -530,16 +544,14 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
             remoteInterface.create(mdl);
         }
         
-    	mdl = createAlarmObject();
+    	mdl = createAlarmObject(customerId_1, equipmentId_1);
         mdl.setCustomerId(customerId_1);
-        mdl.setEquipmentId(0);
       	mdl.setAlarmCode(AlarmCode.GenericError);
         
       	remoteInterface.create(mdl);        	
 
         for(int i = 0; i< 50; i++){
-            mdl = createAlarmObject();
-            mdl.setCustomerId(customerId_2);
+            mdl = createAlarmObject(customerId_2, createEquipmentObject(customerId_2).getId());
             mdl.setScopeId("qr_"+apNameIdx);    
             mdl.setAcknowledged(false);
             mdl.setAlarmCode(AlarmCode.GenericError);
@@ -651,18 +663,33 @@ public class AlarmServiceRemoteTest extends BaseRemoteTest {
     }
     
     private Alarm createAlarmObject() {
-    	Alarm result = new Alarm();
-        result.setCustomerId(getNextCustomerId());
-        result.setEquipmentId(getNextEquipmentId());
+    	int customerId = getNextCustomerId(); 
+    	return createAlarmObject(customerId, createEquipmentObject(customerId).getId());
+    }
+    
+    private Alarm createAlarmObject(int customerId, long equipmentId) {
+        Alarm result = new Alarm();
+        result.setCustomerId(customerId);
         result.setAlarmCode(AlarmCode.AccessPointIsUnreachable);
         result.setCreatedTimestamp(System.currentTimeMillis());
+        result.setEquipmentId(equipmentId);
         
         result.setScopeId("test-scope-"  + result.getEquipmentId());
         
         AlarmDetails details = new AlarmDetails();
         details.setMessage("test-details-" + result.getEquipmentId());
-		result.setDetails(details );
+        result.setDetails(details );
+        
         return result;
     }
-
+    
+    private Equipment createEquipmentObject(int customerId)
+    {
+        Equipment equipment = new Equipment();
+        equipment.setName("testName");
+        equipment.setInventoryId("test-inv");
+        equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setCustomerId(customerId);
+        return equipmentServicelocal.create(equipment);
+    }
 }
