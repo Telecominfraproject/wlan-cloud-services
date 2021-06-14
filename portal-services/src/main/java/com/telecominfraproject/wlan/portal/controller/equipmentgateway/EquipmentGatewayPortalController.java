@@ -1,3 +1,4 @@
+
 package com.telecominfraproject.wlan.portal.controller.equipmentgateway;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.RadioChannelChangeSettings;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBlinkRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWFirmwareDownloadRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
@@ -30,7 +32,7 @@ import com.telecominfraproject.wlan.status.equipment.models.EquipmentResetMethod
  */
 @RestController
 @RequestMapping(value = "/portal")
-public class EquipmentGatewayPortalController  {
+public class EquipmentGatewayPortalController {
 
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentGatewayPortalController.class);
 
@@ -49,94 +51,113 @@ public class EquipmentGatewayPortalController  {
 
         Equipment equipment = equipmentServiceInterface.get(equipmentId);
         FirmwareVersion fwVersion = firmwareServiceInterface.getFirmwareVersion(firmwareVersionId);
-        
-        CEGWFirmwareDownloadRequest fwDownloadRequest = new CEGWFirmwareDownloadRequest(equipment.getInventoryId(),
-                equipment.getId(), fwVersion.getVersionName(), fwVersion.getFilename());
+
+        CEGWFirmwareDownloadRequest fwDownloadRequest =
+                new CEGWFirmwareDownloadRequest(equipment.getInventoryId(), equipment.getId(), fwVersion.getVersionName(), fwVersion.getFilename());
 
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(fwDownloadRequest);
         LOG.debug("FW Download Response {}", response);
 
-        if(response.getResultCode() == CEGWCommandResultCode.Success) {
-        	return new GenericResponse(true,"");
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
         } else {
-        	return new GenericResponse(false, "Failed to request firmware update: "+ response.getResultCode() + " " + response.getResultDetail());
+            return new GenericResponse(false, "Failed to request firmware update: " + response.getResultCode() + " " + response.getResultDetail());
         }
     }
-    
+
     @RequestMapping(value = "/equipmentGateway/requestChannelChange", method = RequestMethod.POST)
     public GenericResponse requestChannelChange(@RequestParam long equipmentId, @RequestBody RadioChannelChangeSettings radioChannelChangeSettings) {
         LOG.debug("requestChannelChange {} {}", equipmentId);
 
-        Equipment equipment = equipmentServiceInterface.get(equipmentId);       
- 
-        CEGWNewChannelRequest newChannelRequest = new CEGWNewChannelRequest(equipment.getInventoryId(), equipmentId, radioChannelChangeSettings.getBackupChannel(), radioChannelChangeSettings.getPrimaryChannel());
-        
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);
+
+        CEGWNewChannelRequest newChannelRequest = new CEGWNewChannelRequest(equipment.getInventoryId(), equipmentId,
+                radioChannelChangeSettings.getBackupChannel(), radioChannelChangeSettings.getPrimaryChannel());
+
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(newChannelRequest);
         LOG.debug("Channel Change Response {}", response);
 
-        if(response.getResultCode() == CEGWCommandResultCode.Success) {
-            return new GenericResponse(true,"");
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
         } else {
-            return new GenericResponse(false, "Failed to initiate channel change: "+ response.getResultCode() + " " + response.getResultDetail());
+            return new GenericResponse(false, "Failed to initiate channel change: " + response.getResultCode() + " " + response.getResultDetail());
         }
     }
-    
+
     @RequestMapping(value = "/equipmentGateway/requestApReboot", method = RequestMethod.POST)
     public GenericResponse requestApReboot(@RequestParam long equipmentId) {
         LOG.debug("requestApReboot {}", equipmentId);
 
         Equipment equipment = equipmentServiceInterface.get(equipmentId);
-       // No config change, just plain reboot
-        CEGWRebootRequest apRebootRequest = new CEGWRebootRequest(equipment.getInventoryId(),
-                equipment.getId(), false, EquipmentResetMethod.NoReset);
+        // No config change, just plain reboot
+        CEGWRebootRequest apRebootRequest = new CEGWRebootRequest(equipment.getInventoryId(), equipment.getId(), false, EquipmentResetMethod.NoReset);
 
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apRebootRequest);
         LOG.debug("AP reboot response {}", response);
 
-        if(response.getResultCode() == CEGWCommandResultCode.Success) {
-            return new GenericResponse(true,"");
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
         } else {
-            return new GenericResponse(false, "Failed to trigger AP reboot: "+ response.getResultCode() + " " + response.getResultDetail());
+            return new GenericResponse(false, "Failed to trigger AP reboot: " + response.getResultCode() + " " + response.getResultDetail());
         }
     }
-    
+
     @RequestMapping(value = "/equipmentGateway/requestApSwitchSoftwareBank", method = RequestMethod.POST)
     public GenericResponse requestApSwitchSoftwareBank(@RequestParam long equipmentId) {
         LOG.debug("requestApSwitchSoftwareBank {}", equipmentId);
 
         Equipment equipment = equipmentServiceInterface.get(equipmentId);
-       // Reboot, switch active/inactive software bank
-        CEGWRebootRequest apSwitchSoftwareBank = new CEGWRebootRequest(equipment.getInventoryId(),
-                equipment.getId(), true, EquipmentResetMethod.NoReset);
+        // Reboot, switch active/inactive software bank
+        CEGWRebootRequest apSwitchSoftwareBank = new CEGWRebootRequest(equipment.getInventoryId(), equipment.getId(), true, EquipmentResetMethod.NoReset);
 
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apSwitchSoftwareBank);
         LOG.debug("AP switch software bank response {}", response);
 
-        if(response.getResultCode() == CEGWCommandResultCode.Success) {
-            return new GenericResponse(true,"");
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
         } else {
-            return new GenericResponse(false, "Failed to trigger AP switch software bank: "+ response.getResultCode() + " " + response.getResultDetail());
+            return new GenericResponse(false, "Failed to trigger AP switch software bank: " + response.getResultCode() + " " + response.getResultDetail());
         }
     }
-    
+
     @RequestMapping(value = "/equipmentGateway/requestApFactoryReset", method = RequestMethod.POST)
     public GenericResponse requestApFactoryReset(@RequestParam long equipmentId) {
         LOG.debug("requestApFactoryReset {}", equipmentId);
 
         Equipment equipment = equipmentServiceInterface.get(equipmentId);
-       // Reboot Ap with factory settings
-        CEGWRebootRequest apFactoryReset = new CEGWRebootRequest(equipment.getInventoryId(),
-                equipment.getId(), false, EquipmentResetMethod.FactoryReset);
+        // Reboot Ap with factory settings
+        CEGWRebootRequest apFactoryReset = new CEGWRebootRequest(equipment.getInventoryId(), equipment.getId(), false, EquipmentResetMethod.FactoryReset);
 
         EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apFactoryReset);
         LOG.debug("AP factory reset response {}", response);
 
-        if(response.getResultCode() == CEGWCommandResultCode.Success) {
-            return new GenericResponse(true,"");
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
         } else {
-            return new GenericResponse(false, "Failed to trigger AP factory reset: "+ response.getResultCode() + " " + response.getResultDetail());
+            return new GenericResponse(false, "Failed to trigger AP factory reset: " + response.getResultCode() + " " + response.getResultDetail());
         }
     }
+    
+    @RequestMapping(value = "/equipmentGateway/requestApBlinkLEDs", method = RequestMethod.POST)
+    public GenericResponse requestApBlinkLEDs(@RequestParam long equipmentId, @RequestParam boolean blinkAllLEDs) {
+        String action = "stop blinking LEDs on AP ";
+        if (blinkAllLEDs) action = "start blinking LEDs on AP ";
+        Equipment equipment = equipmentServiceInterface.get(equipmentId);
+        LOG.debug("Request {} for AP {}", action, equipment.getInventoryId());
 
+        // Turn LEDs on Ap on or off based on blinkAllLEDs value
+        CEGWBlinkRequest apBlinkLEDs = new CEGWBlinkRequest(equipment.getInventoryId(), equipment.getId());
+        apBlinkLEDs.setBlinkAllLEDs(blinkAllLEDs);
+
+        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(apBlinkLEDs);
+        LOG.debug("{} response {}", action,response);
+
+
+        if (response.getResultCode() == CEGWCommandResultCode.Success) {
+            return new GenericResponse(true, "");
+        } else {
+            return new GenericResponse(false, "Failed to " + action + " for AP: " + response.getResultCode() + " " + response.getResultDetail());
+        }
+    }
 
 }

@@ -14241,6 +14241,36 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
+
+  /portal/equipmentGateway/requestApBlinkLEDs:
+    post:
+      tags:
+       - Equipment Gateway
+      summary: Request to enable or disable the blinking of LEDs on the AP
+      operationId: requestApBlinkLEDs
+      parameters:
+      - name: equipmentId
+        in: query
+        description: Equipment id for AP on which the enabling or disabling of blinking LEDs is requested.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: blinkAllLEDs
+        in: query
+        description: enable (true) or disable (false) the LEDs blinking state.
+        required: true
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        500:
+          $ref: '#/components/responses/GenericApiError'
           
   /portal/equipmentGateway/requestChannelChange:
     post:
