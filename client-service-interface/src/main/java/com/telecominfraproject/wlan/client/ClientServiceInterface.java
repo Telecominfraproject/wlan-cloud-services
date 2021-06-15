@@ -8,7 +8,7 @@ import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
-
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 
@@ -143,5 +143,13 @@ public interface ClientServiceInterface {
      * @return next page of matching Client session objects.
      */
      PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
+
+     /**
+      * Get Client Session counts for the given customerId.
+      * 
+      * @param customerId
+      * @return
+      */
+     ClientSessionCounts getSessionCounts(int customerId);
 
 }

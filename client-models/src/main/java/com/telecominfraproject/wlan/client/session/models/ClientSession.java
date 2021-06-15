@@ -8,6 +8,8 @@ import com.telecominfraproject.wlan.core.model.json.interfaces.HasCustomerId;
 
 public class ClientSession extends BaseJsonModel implements HasCustomerId {
 
+    private static final String UNKNOWN_OUI = "ffffff";
+
     private static final long serialVersionUID = -7714023056859882994L;
 
     private MacAddress macAddress;
@@ -16,6 +18,7 @@ public class ClientSession extends BaseJsonModel implements HasCustomerId {
     private long locationId;
     private ClientSessionDetails details;
     private long lastModifiedTimestamp;
+    private String oui;
 
     public long getEquipmentId() {
         return equipmentId;
@@ -47,6 +50,12 @@ public class ClientSession extends BaseJsonModel implements HasCustomerId {
 
 	public void setMacAddress(MacAddress macAddress) {
 		this.macAddress = macAddress;
+		if (macAddress != null && macAddress.isGlobalAddress()) {
+	        this.oui = macAddress.toOuiString();
+		}
+		else {
+		    this.oui = UNKNOWN_OUI;
+		}
 	}
 
 	public long getLastModifiedTimestamp() {
@@ -65,6 +74,14 @@ public class ClientSession extends BaseJsonModel implements HasCustomerId {
 		this.details = details;
 	}
 
+    public String getOui() {
+        return oui;
+    }
+
+    public void setOui(String oui) {
+        this.oui = oui;
+    }
+
 	@Override
     public ClientSession clone() {
         ClientSession ret = (ClientSession) super.clone();
@@ -79,7 +96,7 @@ public class ClientSession extends BaseJsonModel implements HasCustomerId {
 
     @Override
 	public int hashCode() {
-		return Objects.hash(customerId, details, equipmentId, locationId, lastModifiedTimestamp, macAddress);
+		return Objects.hash(customerId, details, equipmentId, locationId, lastModifiedTimestamp, macAddress, oui);
 	}
 
 	@Override
@@ -95,7 +112,8 @@ public class ClientSession extends BaseJsonModel implements HasCustomerId {
 				&& equipmentId == other.equipmentId 
 				&& locationId == other.locationId 
 				&& lastModifiedTimestamp == other.lastModifiedTimestamp
-				&& Objects.equals(macAddress, other.macAddress);
+				&& Objects.equals(macAddress, other.macAddress)
+				&& Objects.equals(oui, other.oui);
 	}
 
 	@Override

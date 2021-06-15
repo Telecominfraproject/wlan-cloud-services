@@ -3,13 +3,12 @@ package com.telecominfraproject.wlan.client;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.client.controller.ClientController;
 import com.telecominfraproject.wlan.client.controller.ClientController.ListOfClientSessions;
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -26,7 +25,6 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 public class ClientServiceLocal implements ClientServiceInterface {
 
     @Autowired private ClientController clientController;
-    private static final Logger LOG = LoggerFactory.getLogger(ClientServiceLocal.class);
     
     @Override
 	public Client create(Client client) {
@@ -108,6 +106,11 @@ public class ClientServiceLocal implements ClientServiceInterface {
     @Override
     public GenericResponse deleteSessions(long createdBeforeTimestamp) {
     	return clientController.deleteSessions(createdBeforeTimestamp);
+    }
+
+    @Override
+    public ClientSessionCounts getSessionCounts(int customerId) {
+        return clientController.getSessionCounts(customerId);
     }
 	
 }

@@ -12,6 +12,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 
 import com.telecominfraproject.wlan.client.datastore.ClientDatastore;
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 
@@ -108,6 +109,13 @@ public class ClientDatastoreCassandra implements ClientDatastore {
 		
 		return clientSessionDAO.getSessionsForCustomer(customerId, equipmentIds, locationIds, macSubstring, sortBy, context);
 	}
+
+    @Override
+    public ClientSessionCounts getSessionCounts(int customerId) {
+        // Not yet supported.
+        ClientSessionCounts counts = new ClientSessionCounts();
+        return counts;
+    }
     
     
 }

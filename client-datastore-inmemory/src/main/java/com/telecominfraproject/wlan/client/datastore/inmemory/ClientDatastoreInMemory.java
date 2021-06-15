@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.client.datastore.inmemory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.telecominfraproject.wlan.client.datastore.ClientDatastore;
 import com.telecominfraproject.wlan.client.info.models.ClientInfoDetails;
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -510,6 +512,32 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
         }
 
         return ret;
+    }
+
+    @Override
+    public ClientSessionCounts getSessionCounts(int customerId) {
+        ClientSessionCounts counts = new ClientSessionCounts();
+        int totalCount = 0;
+        Map<String, Integer> perOuiMap = new HashMap<>();
+
+        for (ClientSession session : idToClientSessionMap.values()) {
+            if (session.getCustomerId() == customerId) {
+                totalCount++;
+                if (session.getOui() != null) {
+                    Integer cnt = perOuiMap.get(session.getOui());
+                    if (cnt == null) {
+                        cnt = 0;
+                    } else {
+                        cnt++;
+                    }
+                    perOuiMap.put(session.getOui(), cnt);
+                }
+            }
+        }
+
+        counts.setTotalCount(totalCount);
+        counts.setOuiCounts(perOuiMap);
+        return counts;
     }
 
 }
