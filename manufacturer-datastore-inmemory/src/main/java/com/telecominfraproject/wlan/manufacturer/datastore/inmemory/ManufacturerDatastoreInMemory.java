@@ -45,15 +45,6 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
 
     private static AtomicLong clientManufacturerDetailsIdCounter = new AtomicLong(0);
     
-    private static final ManufacturerOuiDetails PRIVATE_MAC_RESPONSE = new ManufacturerOuiDetails();
-    private static final int GLOBE_BIT = (0x1 << 1);
-    
-    static {
-    	PRIVATE_MAC_RESPONSE.setOui("ffffff");
-		PRIVATE_MAC_RESPONSE.setManufacturerName("Unknown (Private Address)");
-		PRIVATE_MAC_RESPONSE.setManufacturerAlias("Unknown");
-    }
-    
     @Override
     public ManufacturerOuiDetails createOuiDetails(ManufacturerOuiDetails ouiDetails) {
         if (ouiDetails.getManufacturerName() == null || ouiDetails.getManufacturerName().isEmpty()) {
@@ -124,9 +115,6 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
 
     @Override
     public ManufacturerOuiDetails getByOui(String oui) {
-    	if (!isGlobalAddress(oui)) {
-    		return PRIVATE_MAC_RESPONSE;
-    	}
         Long detailsId = ouiToManufacturerDetailsMap.get(oui.toLowerCase());
         if (null == detailsId) {
             LOG.debug("Unable to find ManufacturerDetailsRecord with oui {}", oui);
@@ -356,14 +344,5 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
         return result;
     }
 
-    private boolean isGlobalAddress(String oui) {
-    	if (oui != null && oui.length() == 6) {
-            // we only need to check the first Byte of the OUI 
-    		Integer hex = Integer.parseInt(oui.substring(0, 2), 16);
-    		byte firstByte = hex.byteValue();
-    		return (firstByte & GLOBE_BIT) == 0;
-    	}
-    	return false;
-    }
 
 }

@@ -58,9 +58,6 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
     private static final String ALL_COLUMNS_FOR_INSERT; 
     private static final String BIND_VARS_FOR_INSERT;
     
-    private static final ManufacturerOuiDetails PRIVATE_MAC_RESPONSE = new ManufacturerOuiDetails();
-    private static final int GLOBE_BIT = (0x1 << 1);
-    
     static{
         StringBuilder strbAllColumns = new StringBuilder(1024);
         StringBuilder strbAllColumnsForInsert = new StringBuilder(1024);
@@ -83,11 +80,6 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
         ALL_COLUMNS = strbAllColumns.toString();
         ALL_COLUMNS_FOR_INSERT = strbAllColumnsForInsert.toString();
         BIND_VARS_FOR_INSERT = strbBindVarsForInsert.toString();
-        
-        //filling in the OUI, name and alias of PRIVATE_MAC_RESPONSE
-        PRIVATE_MAC_RESPONSE.setOui("ffffff");
-        PRIVATE_MAC_RESPONSE.setManufacturerName("Unknown (Private Address)");
-        PRIVATE_MAC_RESPONSE.setManufacturerAlias("Unknown");
         
     }
     
@@ -178,9 +170,6 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
         LOG.debug("Looking up ManufacturerOuiDetails record with oui {}", oui);
 
         try {
-        	if (!isGlobalAddress(oui)) {
-        		return PRIVATE_MAC_RESPONSE;
-        	}
             ManufacturerOuiDetails clientOuiDetails = this.jdbcTemplate.queryForObject(SQL_GET_BY_OUI,
                     ManufacturerOuiRowMapper, oui.toLowerCase());
 
@@ -273,15 +262,5 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
             LOG.debug("No Manufacturer Details record currently stored for oui {}", oui);
             return -1;
         }
-    }
-    
-    private boolean isGlobalAddress(String oui) {
-    	if (oui != null && oui.length() == 6) {
-            // we only need to check the first Byte of the OUI 
-    		Integer hex = Integer.parseInt(oui.substring(0, 2), 16);
-    		byte firstByte = hex.byteValue();
-    		return (firstByte & GLOBE_BIT) == 0;
-    	}
-    	return false;
     }
 }
