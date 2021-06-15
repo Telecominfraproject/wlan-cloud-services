@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -105,5 +106,12 @@ public interface ClientDatastore {
      */
     PaginationResponse<ClientSession> getSessionsForCustomer(int customerId, Set<Long> equipmentIds, Set<Long> locationIds, String macSubstring, List<ColumnAndSort> sortBy, PaginationContext<ClientSession> context);
 
+    /**
+     * Get Client Session counts for the given customerId.
+     * 
+     * @param customerId
+     * @return
+     */
+    ClientSessionCounts getSessionCounts(int customerId);
     
 }

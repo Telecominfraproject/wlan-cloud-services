@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.client.info.models.ClientSessionCounts;
 import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.client.BaseRemoteClient;
@@ -365,5 +366,21 @@ public class ClientServiceRemote extends BaseRemoteClient implements ClientServi
     	return baseUrl;
     }
 
+    @Override
+    public ClientSessionCounts getSessionCounts(int customerId) {
+        LOG.debug("calling getSessionCounts( {} )", customerId);
+
+        try {
+            ResponseEntity<ClientSessionCounts> responseEntity = restTemplate.exchange(getBaseUrl() + "/session/countsForCustomer?customerId={customerId}",
+                    HttpMethod.GET, null, ClientSessionCounts.class, customerId);
+
+            ClientSessionCounts result = responseEntity.getBody();
+            LOG.debug("getSessionCounts({}) returns {} ", customerId, result);
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getSessionCounts({}) exception ", customerId, exp);
+            throw exp;
+        }
+    }
 
 }
