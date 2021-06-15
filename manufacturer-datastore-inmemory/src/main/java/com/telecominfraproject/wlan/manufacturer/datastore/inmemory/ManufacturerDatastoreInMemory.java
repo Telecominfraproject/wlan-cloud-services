@@ -49,7 +49,7 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
     private static final int GLOBE_BIT = (0x1 << 1);
     
     static {
-    	PRIVATE_MAC_RESPONSE.setOui("FFFFFF");
+    	PRIVATE_MAC_RESPONSE.setOui("ffffff");
 		PRIVATE_MAC_RESPONSE.setManufacturerName("Unknown (Private Address)");
 		PRIVATE_MAC_RESPONSE.setManufacturerAlias("Unknown");
     }
@@ -124,7 +124,7 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
 
     @Override
     public ManufacturerOuiDetails getByOui(String oui) {
-    	if (this.isGroupAddress(oui)) {
+    	if (!isGlobalAddress(oui)) {
     		return PRIVATE_MAC_RESPONSE;
     	}
         Long detailsId = ouiToManufacturerDetailsMap.get(oui.toLowerCase());
@@ -356,12 +356,12 @@ public class ManufacturerDatastoreInMemory extends BaseInMemoryDatastore impleme
         return result;
     }
 
-    private boolean isGroupAddress(String oui) {
+    private boolean isGlobalAddress(String oui) {
     	if (oui != null && oui.length() == 6) {
             // we only need to check the first Byte of the OUI 
     		Integer hex = Integer.parseInt(oui.substring(0, 2), 16);
     		byte firstByte = hex.byteValue();
-    		return (firstByte & GLOBE_BIT) != 0;
+    		return (firstByte & GLOBE_BIT) == 0;
     	}
     	return false;
     }

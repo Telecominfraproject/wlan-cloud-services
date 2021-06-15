@@ -85,7 +85,7 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
         BIND_VARS_FOR_INSERT = strbBindVarsForInsert.toString();
         
         //filling in the OUI, name and alias of PRIVATE_MAC_RESPONSE
-        PRIVATE_MAC_RESPONSE.setOui("FFFFFF");
+        PRIVATE_MAC_RESPONSE.setOui("ffffff");
         PRIVATE_MAC_RESPONSE.setManufacturerName("Unknown (Private Address)");
         PRIVATE_MAC_RESPONSE.setManufacturerAlias("Unknown");
         
@@ -178,7 +178,7 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
         LOG.debug("Looking up ManufacturerOuiDetails record with oui {}", oui);
 
         try {
-        	if (isGroupAddress(oui)) {
+        	if (!isGlobalAddress(oui)) {
         		return PRIVATE_MAC_RESPONSE;
         	}
             ManufacturerOuiDetails clientOuiDetails = this.jdbcTemplate.queryForObject(SQL_GET_BY_OUI,
@@ -275,12 +275,12 @@ public class ManufacturerOuiDAO extends BaseJdbcDao {
         }
     }
     
-    private boolean isGroupAddress(String oui) {
+    private boolean isGlobalAddress(String oui) {
     	if (oui != null && oui.length() == 6) {
             // we only need to check the first Byte of the OUI 
     		Integer hex = Integer.parseInt(oui.substring(0, 2), 16);
     		byte firstByte = hex.byteValue();
-    		return (firstByte & GLOBE_BIT) != 0;
+    		return (firstByte & GLOBE_BIT) == 0;
     	}
     	return false;
     }
