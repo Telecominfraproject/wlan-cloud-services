@@ -35,7 +35,9 @@ import com.telecominfraproject.wlan.manufacturer.models.ManufacturerOuiDetails;
 public class ManufacturerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManufacturerController.class);
-
+    
+    private static final int GLOBE_BIT = (0x1 << 1);
+    
     @Autowired
     private ManufacturerDatastoreInterface manufacturerDatastore;
 
@@ -76,8 +78,18 @@ public class ManufacturerController {
     @GetMapping(value = "/oui")
     public ManufacturerOuiDetails getByOui(@RequestParam String oui) {
         LOG.debug("Retrieving OUI details for OUI {} ", oui);
-
-        ManufacturerOuiDetails ret = manufacturerDatastore.getByOui(oui);
+        ManufacturerOuiDetails ret = null;
+        
+	    if (isGlobalAddress(oui)) {
+	    	ret = manufacturerDatastore.getByOui(oui); 
+	    }else{
+	    	ManufacturerOuiDetails privateMacResponse = new ManufacturerOuiDetails();
+	    	privateMacResponse.setOui("ffffff");
+	    	privateMacResponse.setManufacturerName("Unknown (Private Address)");
+	    	privateMacResponse.setManufacturerAlias("Unknown");
+	 		
+	 	   	ret = privateMacResponse;
+	    }
 
         LOG.debug("Retrieved OUI details {} ", ret);
         return ret;
@@ -179,5 +191,15 @@ public class ManufacturerController {
     public List<String> getStoredAliasValuesThatBeginWith(@RequestParam String prefix, @RequestParam int maxResults) {
         LOG.debug("Retrieving alias values that begin with {}", prefix);
         return manufacturerDatastore.getAliasValuesThatBeginWith(prefix, maxResults);
+    }
+    
+    private boolean isGlobalAddress(String oui) {
+    	if (oui != null && oui.length() == 6) {
+            // we only need to check the first Byte of the OUI 
+    		Integer hex = Integer.parseInt(oui.substring(0, 2), 16);
+    		byte firstByte = hex.byteValue();
+    		return (firstByte & GLOBE_BIT) == 0;
+    	}
+    	return false;
     }
 }
