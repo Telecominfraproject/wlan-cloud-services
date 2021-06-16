@@ -37,6 +37,7 @@ public class ManufacturerController {
     private static final Logger LOG = LoggerFactory.getLogger(ManufacturerController.class);
     
     private static final int GLOBE_BIT = (0x1 << 1);
+    private static final ManufacturerOuiDetails PRIVATE_MAC_RESPONSE = new ManufacturerOuiDetails();
     
     @Autowired
     private ManufacturerDatastoreInterface manufacturerDatastore;
@@ -45,6 +46,11 @@ public class ManufacturerController {
         private static final long serialVersionUID = -8035392255039609079L;
     }
 
+    static {
+    	PRIVATE_MAC_RESPONSE.setOui("ffffff");
+    	PRIVATE_MAC_RESPONSE.setManufacturerName("Unknown (Private Address)");
+    	PRIVATE_MAC_RESPONSE.setManufacturerAlias("Unknown");
+    }
     @PostMapping(value = "/oui")
     public ManufacturerOuiDetails createOuiDetails(@RequestBody ManufacturerOuiDetails ouiDetails) {
         LOG.debug("Creating OUI details {} ", ouiDetails);
@@ -78,19 +84,7 @@ public class ManufacturerController {
     @GetMapping(value = "/oui")
     public ManufacturerOuiDetails getByOui(@RequestParam String oui) {
         LOG.debug("Retrieving OUI details for OUI {} ", oui);
-        ManufacturerOuiDetails ret = null;
-        
-	    if (isGlobalAddress(oui)) {
-	    	ret = manufacturerDatastore.getByOui(oui); 
-	    }else{
-	    	ManufacturerOuiDetails privateMacResponse = new ManufacturerOuiDetails();
-	    	privateMacResponse.setOui("ffffff");
-	    	privateMacResponse.setManufacturerName("Unknown (Private Address)");
-	    	privateMacResponse.setManufacturerAlias("Unknown");
-	 		
-	 	   	ret = privateMacResponse;
-	    }
-
+        ManufacturerOuiDetails ret = isGlobalAddress(oui) ? manufacturerDatastore.getByOui(oui) : PRIVATE_MAC_RESPONSE;
         LOG.debug("Retrieved OUI details {} ", ret);
         return ret;
     }
@@ -169,7 +163,14 @@ public class ManufacturerController {
     public Map<String, ManufacturerOuiDetails> getManufacturerDetailsForOuiList(
             @RequestParam List<String> ouiList) {
         LOG.debug("calling getManufacturerDetailsForOuiList ");
-        return manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
+        Map<String, ManufacturerOuiDetails> manufMap = manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
+        for (String oui : manufMap.keySet()) {
+        	if (!isGlobalAddress(oui)) {
+        		manufMap.put(oui, PRIVATE_MAC_RESPONSE);
+        	}
+        }
+        manufMap.put(PRIVATE_MAC_RESPONSE.getOui(), PRIVATE_MAC_RESPONSE);
+        return manufMap;
     }
     
     @PutMapping(value = "/oui/alias")
