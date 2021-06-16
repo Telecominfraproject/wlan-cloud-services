@@ -191,18 +191,18 @@ public class ManufacturerServiceRemoteTest extends BaseRemoteTest {
         Set<String> ouiList = new HashSet<>();
         ouiList.add(oui1);
         ouiListSearchResult = remoteInterface.getManufacturerDetailsForOuiSet(ouiList);
-        assertTrue(ouiListSearchResult.size() == 1);
+        assertTrue(ouiListSearchResult.size() == 2);
         assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
         
         ouiList.add(oui2);
         ouiListSearchResult = remoteInterface.getManufacturerDetailsForOuiSet(ouiList);
-        assertTrue(ouiListSearchResult.size() == 2);
+        assertTrue(ouiListSearchResult.size() == 3);
         assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
         assertTrue(ouiListSearchResult.get(oui2).equals(ret2));
         
         ouiList.add(oui3);
         ouiListSearchResult = remoteInterface.getManufacturerDetailsForOuiSet(ouiList);
-        assertTrue(ouiListSearchResult.size() == 3);
+        assertTrue(ouiListSearchResult.size() == 4);
         assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
         assertTrue(ouiListSearchResult.get(oui2).equals(ret2));
         assertTrue(ouiListSearchResult.get(oui3).equals(ret3));
@@ -211,7 +211,7 @@ public class ManufacturerServiceRemoteTest extends BaseRemoteTest {
             ouiList.add(String.format("%06d", i));
         }
         ouiListSearchResult = remoteInterface.getManufacturerDetailsForOuiSet(ouiList);
-        assertEquals(3,ouiListSearchResult.size());
+        assertEquals(4,ouiListSearchResult.size());
         assertTrue(ouiListSearchResult.get(oui1).equals(ret1));
         assertTrue(ouiListSearchResult.get(oui2).equals(ret2));
         assertTrue(ouiListSearchResult.get(oui3).equals(ret3));
