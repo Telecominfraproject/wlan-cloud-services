@@ -517,26 +517,52 @@ public class ClientDatastoreInMemory extends BaseInMemoryDatastore implements Cl
     @Override
     public ClientSessionCounts getSessionCounts(int customerId) {
         ClientSessionCounts counts = new ClientSessionCounts();
-        int totalCount = 0;
-        Map<String, Integer> perOuiMap = new HashMap<>();
+        counts.setCustomerId(customerId);
+
+        long totalCount = 0;
+        Map<String, Long> perEquipmentMap = new HashMap<>();
+        Map<String, Long> perOuiMap = new HashMap<>();
+        Map<String, Long> perRadioMap = new HashMap<>();
 
         for (ClientSession session : idToClientSessionMap.values()) {
             if (session.getCustomerId() == customerId) {
                 totalCount++;
+                String equipmentIdString = Long.toString(session.getEquipmentId());
+                Long cnt = perEquipmentMap.get(equipmentIdString);
+                if (cnt == null) {
+                    cnt = 0L;
+                } else {
+                    cnt++;
+                }
+                perEquipmentMap.put(equipmentIdString, cnt);
+
                 if (session.getOui() != null) {
-                    Integer cnt = perOuiMap.get(session.getOui());
+                    cnt = perOuiMap.get(session.getOui());
                     if (cnt == null) {
-                        cnt = 0;
+                        cnt = 0L;
                     } else {
                         cnt++;
                     }
                     perOuiMap.put(session.getOui(), cnt);
                 }
+
+                if (session.getDetails() != null && session.getDetails().getRadioType() != null) {
+                    String radioTypeString = session.getDetails().getRadioType().toString();
+                    cnt = perRadioMap.get(radioTypeString);
+                    if (cnt == null) {
+                        cnt = 0L;
+                    } else {
+                        cnt++;
+                    }
+                    perRadioMap.put(radioTypeString, cnt);
+                }
             }
         }
 
         counts.setTotalCount(totalCount);
+        counts.setEquipmentCounts(perEquipmentMap);
         counts.setOuiCounts(perOuiMap);
+        counts.setRadioCounts(perRadioMap);
         return counts;
     }
 
