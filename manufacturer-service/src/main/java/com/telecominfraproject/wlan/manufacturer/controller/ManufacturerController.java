@@ -164,11 +164,8 @@ public class ManufacturerController {
             @RequestParam List<String> ouiList) {
         LOG.debug("calling getManufacturerDetailsForOuiList ");
         Map<String, ManufacturerOuiDetails> manufMap = manufacturerDatastore.getManufacturerDetailsForOuiList(ouiList);
-        for (String oui : manufMap.keySet()) {
-        	if (!isGlobalAddress(oui)) {
-        		manufMap.put(oui, PRIVATE_MAC_RESPONSE);
-        	}
-        }
+        
+        ouiList.forEach(oui -> {if (!isGlobalAddress(oui)) manufMap.put(oui, PRIVATE_MAC_RESPONSE);});
         manufMap.put(PRIVATE_MAC_RESPONSE.getOui(), PRIVATE_MAC_RESPONSE);
         return manufMap;
     }
