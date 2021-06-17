@@ -3162,6 +3162,14 @@ components:
       - wpa2OnlyPSK
       - wpa2OnlyRadius
       - wep
+      - wpaEAP
+      - wpa2EAP
+      - wpa2OnlyEAP
+      - wpa3OnlySAE
+      - wpa3MixedSAE
+      - wpa3OnlyEAP
+      - wpa3MixedEAP
+      - wpa3OnlyEAP192
       
     RadioBasedSsidConfigurationMap:
       properties:

@@ -2266,7 +2266,8 @@ components:
       - wpa3OnlySAE
       - wpa3MixedSAE
       - wpa3OnlyEAP
-      - wpa3MixedEAP      
+      - wpa3MixedEAP
+      - wpa3OnlyEAP192
 
     RadioBasedSsidConfigurationMap:
       properties:
