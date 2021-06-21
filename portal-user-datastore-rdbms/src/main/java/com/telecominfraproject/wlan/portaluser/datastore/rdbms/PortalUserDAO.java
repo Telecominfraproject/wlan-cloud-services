@@ -69,15 +69,15 @@ public class PortalUserDAO extends BaseJdbcDao {
     private static final Set<String> columnsToSkipForInsert = new HashSet<>(Arrays.asList(COL_ID));
     private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList(COL_ID, "createdTimestamp"));
     
-    private static final String TABLE_NAME = "portal_user";
-    private static final String TABLE_PREFIX = "s.";
-    private static final String ALL_COLUMNS;
+    public static final String TABLE_NAME = "portal_user";
+    public static final String TABLE_PREFIX = "s.";
+    public static final String ALL_COLUMNS;
 
-    private static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
+    public static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
 
     @SuppressWarnings("unused")
     //use this for queries where multiple tables are involved
-    private static final String ALL_COLUMNS_WITH_PREFIX;
+    public static final String ALL_COLUMNS_WITH_PREFIX;
     
     private static final String ALL_COLUMNS_FOR_INSERT; 
     private static final String BIND_VARS_FOR_INSERT;
@@ -162,8 +162,8 @@ public class PortalUserDAO extends BaseJdbcDao {
 
     private static final String SQL_GET_ALL_IN_SET = "select " + ALL_COLUMNS + " from "+TABLE_NAME + " where "+ COL_ID +" in ";
 
-    private static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
-    private static final String SORT_SUFFIX = "";
+    public static final String SQL_PAGING_SUFFIX = " LIMIT ? OFFSET ? ";
+    public static final String SORT_SUFFIX = "";
 
 
     private static final RowMapper<PortalUser> portalUserRowMapper = new PortalUserRowMapper();
