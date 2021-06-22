@@ -85,38 +85,40 @@ public class EquipmentAlarmsProcessor extends StreamProcessor {
 
 	    @Override
 	    protected boolean acceptMessage(QueuedStreamMessage message) {
-		    boolean ret = message.getTopic().equals(wlanServiceMetricsTopic);
-
-		    if(ret && ( message.getModel() instanceof ServiceMetric) ) {
-			    
-	    		ServiceMetric sm = (ServiceMetric) message.getModel(); 
-			    ret = ret &&
-			    		(
-			    			sm.getDetails() instanceof ApNodeMetrics		    			
-			    		);
-		    } else {
-		    	ret = false;
-		    }
+//		    boolean ret = message.getTopic().equals(wlanServiceMetricsTopic);
+//
+//		    if(ret && ( message.getModel() instanceof ServiceMetric) ) {
+//			    
+//	    		ServiceMetric sm = (ServiceMetric) message.getModel(); 
+//			    ret = ret &&
+//			    		(
+//			    			sm.getDetails() instanceof ApNodeMetrics		    			
+//			    		);
+//		    } else {
+//		    	ret = false;
+//		    }
 		    
-		    LOG.trace("acceptMessage {}", ret);
+//		    LOG.trace("acceptMessage {}", ret);
 		    
-		    return ret;
+//		    return ret;
+	        
+	        return false;
 	    }
 	    
 	    @Override
 	    protected void processMessage(QueuedStreamMessage message) {
 	    	
-	    	ServiceMetric mdl = (ServiceMetric) message.getModel();
-	    	ServiceMetricDetails smd = mdl.getDetails();
-	    	LOG.debug("Processing {}", mdl);
-	    	
-	    	switch ( smd.getClass().getSimpleName() ) {
-	    	case "ApNodeMetrics":
-	    		process(mdl.getCustomerId(), mdl.getCreatedTimestamp(), mdl.getEquipmentId(), (ApNodeMetrics) smd);
-	    		break;
-	    	default:
-	    		process(mdl);
-	    	} 
+//	    	ServiceMetric mdl = (ServiceMetric) message.getModel();
+//	    	ServiceMetricDetails smd = mdl.getDetails();
+//	    	LOG.debug("Processing {}", mdl);
+//	    	
+//	    	switch ( smd.getClass().getSimpleName() ) {
+//	    	case "ApNodeMetrics":
+//	    		process(mdl.getCustomerId(), mdl.getCreatedTimestamp(), mdl.getEquipmentId(), (ApNodeMetrics) smd);
+//	    		break;
+//	    	default:
+//	    		process(mdl);
+//	    	} 
 	    	
 	    }
 
