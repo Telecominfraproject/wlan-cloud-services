@@ -189,7 +189,6 @@
 
                                 <module>../provisioning-sp</module>
                                 <module>../dashboard-sp</module>
-                                <module>../equipment-alarms-sp</module>
                                 <module>../adoption-metrics-sp</module>
                                 
                                 <module>../single-process-streams</module>
