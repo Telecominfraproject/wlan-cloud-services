@@ -165,6 +165,7 @@ public class ProfilePortalController  {
         Map<Long, AtomicInteger> profileIdToCountMap = new HashMap<Long, AtomicInteger>();
         profileIdSet.forEach(profileId -> profileIdToCountMap.put(profileId, new AtomicInteger(0)));
         
+        //Maps child at all top level profiles that reference it. A top level profile references itself int this map
         Map<Long, List<Long>> childProfileToTopProfileMap = new HashMap<Long, List<Long>>();
         
         List<PairLongLong> topLevelProfileList = profileServiceInterface.getTopLevelProfiles(profileIdSet);
@@ -172,20 +173,17 @@ public class ProfilePortalController  {
         
         topLevelProfileList.forEach(pair ->
         {
-            if (pair.getValue1() != pair.getValue2())
+            if (childProfileToTopProfileMap.putIfAbsent(
+                    pair.getValue1(), 
+                    new ArrayList<Long>() {{ add(pair.getValue2());}}
+                    ) != null)
             {
-                if (childProfileToTopProfileMap.putIfAbsent(
-                        pair.getValue1(), 
-                        new ArrayList<Long>() {{ add(pair.getValue2());}}
-                        ) != null)
-                {
-                    childProfileToTopProfileMap.compute(pair.getValue1(), (k,v) -> 
-                    new ArrayList<Long>() {{ 
-                        addAll(v);
-                        add(pair.getValue2());}});
-                }
-                topProfileIdSet.add(pair.getValue2());
+                childProfileToTopProfileMap.compute(pair.getValue1(), (k,v) -> 
+                new ArrayList<Long>() {{ 
+                    addAll(v);
+                    add(pair.getValue2());}});
             }
+            topProfileIdSet.add(pair.getValue2());
         });
         
         Map<Long, AtomicInteger> topProfileToEquipmentCountMap = new HashMap<>();
@@ -208,12 +206,7 @@ public class ProfilePortalController  {
             LOG.debug("Page {} - counted {} equipmentids", context.getLastReturnedPageNumber(), context.getTotalItemsReturned());
         }
         
-        // assemble top level profile count for return
-        topProfileToEquipmentCountMap.forEach((topProfileId, equipmentCount) -> 
-        {
-            profileIdToCountMap.replace(topProfileId, equipmentCount);
-        });
-        // assemble child profile count for return, using child to top level profile id map
+        // assemble profile count for return, using child to top level profile id map
         childProfileToTopProfileMap.forEach((childKey,TopLevelIdList) ->
         {
             for (Long topProfileId : TopLevelIdList)
