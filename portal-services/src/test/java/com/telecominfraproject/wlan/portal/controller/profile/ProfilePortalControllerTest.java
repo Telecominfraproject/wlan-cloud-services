@@ -56,6 +56,7 @@ public class ProfilePortalControllerTest {
     private static AtomicLong profileIncrementer = new AtomicLong(1);
     private static AtomicLong equipmentIncrementer = new AtomicLong(1);
     private static Set<Long> profileIds = new HashSet<Long>();
+    private static Set<Long> equipmentIds = new HashSet<Long>();
     
     @Autowired private ProfilePortalController profilePortalController;
     @Autowired private EquipmentDatastore equipmentDatastore;
@@ -64,7 +65,8 @@ public class ProfilePortalControllerTest {
     @BeforeEach
     public void setup()
     {
-        profileIds = new HashSet<Long>();
+        profileIds.clear();
+        equipmentIds.clear();
     }
     
     @Test
@@ -123,6 +125,8 @@ public class ProfilePortalControllerTest {
         }};
         
         expectedReturn.forEach(pair -> assertTrue(ret.contains(pair)));
+        equipmentIds.forEach(id -> equipmentDatastore.delete(id));
+        profileIds.forEach(id -> profileDatastore.delete(id));
     }
     
     private Profile createProfile()
