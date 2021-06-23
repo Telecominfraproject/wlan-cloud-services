@@ -158,55 +158,73 @@ public class ProfilePortalController  {
         }
     }
 
-
     @RequestMapping(value = "/profile/equipmentCounts", method = RequestMethod.GET)
     public ListOfPairLongLong getCountsOfEquipmentThatUseProfiles(@RequestParam Set<Long> profileIdSet) {
         LOG.debug("getCountsOfEquipmentThatUseProfiles({})", profileIdSet);
         
-        //first get top-level profiles for the supplied set - only top-level profiles are linked to equipment
-        List<PairLongLong> topLevelProfiles = this.profileServiceInterface.getTopLevelProfiles(profileIdSet);
+        Map<Long, AtomicInteger> profileIdToCountMap = new HashMap<Long, AtomicInteger>();
+        profileIdSet.forEach(profileId -> profileIdToCountMap.put(profileId, new AtomicInteger(0)));
+        
+        Map<Long, List<Long>> childProfileToTopProfileMap = new HashMap<Long, List<Long>>();
+        
+        List<PairLongLong> topLevelProfileList = profileServiceInterface.getTopLevelProfiles(profileIdSet);
+        Set<Long> topProfileIdSet= new HashSet<Long>();
+        
+        topLevelProfileList.forEach(pair ->
+        {
+            if (pair.getValue1() != pair.getValue2())
+            {
+                if (childProfileToTopProfileMap.putIfAbsent(
+                        pair.getValue1(), 
+                        new ArrayList<Long>() {{ add(pair.getValue2());}}
+                        ) != null)
+                {
+                    childProfileToTopProfileMap.compute(pair.getValue1(), (k,v) -> 
+                    new ArrayList<Long>() {{ 
+                        addAll(v);
+                        add(pair.getValue2());}});
+                }
+                topProfileIdSet.add(pair.getValue2());
+            }
+        });
+        
+        Map<Long, AtomicInteger> topProfileToEquipmentCountMap = new HashMap<>();
+        topProfileIdSet.forEach(p -> topProfileToEquipmentCountMap.put(p, new AtomicInteger()));
+        
+        PaginationContext<PairLongLong> context = new PaginationContext<>(500);   
+        equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIdSet, context);
+        
+        while(!context.isLastPage()) {
+            PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIdSet, context );
+            context = page.getContext();
+            
+            page.getItems().forEach(p -> {
+                AtomicInteger cnt = topProfileToEquipmentCountMap.get(p.getValue1());
+                if(cnt!=null) {
+                    cnt.incrementAndGet();
+                }
+            });
+            
+            LOG.debug("Page {} - counted {} equipmentids", context.getLastReturnedPageNumber(), context.getTotalItemsReturned());
+        }
+        
+        // assemble top level profile count for return
+        topProfileToEquipmentCountMap.forEach((topProfileId, equipmentCount) -> 
+        {
+            profileIdToCountMap.replace(topProfileId, equipmentCount);
+        });
+        // assemble child profile count for return, using child to top level profile id map
+        childProfileToTopProfileMap.forEach((childKey,TopLevelIdList) ->
+        {
+            for (Long topProfileId : TopLevelIdList)
+            {
+                profileIdToCountMap.get(childKey).addAndGet(topProfileToEquipmentCountMap.get(topProfileId).get());
+            }
+        });
+      //package results to get equipment counts for the original profile ids
         ListOfPairLongLong ret = new ListOfPairLongLong();
+        profileIdToCountMap.forEach((id, count) -> ret.add(new PairLongLong(id, count.get())));
         
-        //map each supplied profile to its top-level parent
-        Map<Long, Long> profileIdToTopProfileIdMap = new HashMap<>();
-        topLevelProfiles.forEach(pair -> profileIdToTopProfileIdMap.put(pair.getValue1(), pair.getValue2()));
-        
-        //gather top-level profile ids
-        Set<Long> topProfileIds = new HashSet<>();
-        topLevelProfiles.forEach(pair -> topProfileIds.add(pair.getValue2()));
-
-		
-		//TODO: this may be more efficiently done by a specialized count method on equipment datastore
-
-        //now get pages of equipmentIds that refer to the top-level profiles and count the equipmentIds
-        PaginationContext<PairLongLong> context = new PaginationContext<>(500);        
-		this.equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIds, context );
-
-		//prepare map of top-level profileId to the count of equipmentIds
-        Map<Long, AtomicInteger> topProfileIdToEquipmentCountsMap = new HashMap<>();
-        topProfileIds.forEach(p -> topProfileIdToEquipmentCountsMap.put(p, new AtomicInteger()));
-
-		while(!context.isLastPage()) {
-			PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(topProfileIds, context );
-			context = page.getContext();
-			
-			page.getItems().forEach(p -> {
-				AtomicInteger cnt = topProfileIdToEquipmentCountsMap.get(p.getValue1());
-				if(cnt!=null) {
-					cnt.incrementAndGet();
-				}
-			});
-			
-			LOG.debug("Page {} - counted {} equipmentids", context.getLastReturnedPageNumber(), context.getTotalItemsReturned());
-		}			
-
-		
-		//package results to get equipment counts for the original profile ids
-		profileIdToTopProfileIdMap.forEach((p, tp) -> ret.add(new PairLongLong(p, topProfileIdToEquipmentCountsMap.get(tp).intValue())));
-		
-        LOG.debug("getCountsOfEquipmentThatUseProfiles({}) return {}", profileIdSet, ret);
         return ret;
     }
-
-
 }
