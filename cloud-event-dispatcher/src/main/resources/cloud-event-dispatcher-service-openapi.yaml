@@ -4398,7 +4398,9 @@ components:
           - RADIO_CHANNEL
         channelNumberStatusDataMap:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
-                
+        txPowerDataMap:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+                          
 #
 # Equipment configuration data models
 #
