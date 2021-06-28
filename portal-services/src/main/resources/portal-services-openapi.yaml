@@ -4309,6 +4309,8 @@ components:
           - RADIO_CHANNEL
         channelNumberStatusDataMap:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        txPowerDataMap:
+          $ref: '#/components/schemas/IntegerPerRadioTypeMap'
           
 #
 # Objects related to Client sessions
