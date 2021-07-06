@@ -1,6 +1,6 @@
 package com.telecominfraproject.wlan.client.models.events.realtime;
 
-import java.util.Arrays;
+import java.net.InetAddress;
 import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -14,7 +14,7 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
 
     private long sessionId;
     private MacAddress clientMacAddress;
-    private byte[] ipAddr;
+    private InetAddress ipAddr;
 
     public ClientIpAddressEvent() {
         // serialization
@@ -45,11 +45,11 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
         this.clientMacAddress = clientMacAddress;
     }
 
-    public byte[] getIpAddr() {
+    public InetAddress getIpAddr() {
         return ipAddr;
     }
 
-    public void setIpAddr(byte[] ipAddr) {
+    public void setIpAddr(InetAddress ipAddr) {
         this.ipAddr = ipAddr;
     }
 
@@ -57,8 +57,7 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Arrays.hashCode(this.ipAddr);
-        result = prime * result + Objects.hash(clientMacAddress, sessionId);
+        result = prime * result + Objects.hash(ipAddr, clientMacAddress, sessionId);
         return result;
     }
 
@@ -74,7 +73,7 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
             return false;
         }
         ClientIpAddressEvent other = (ClientIpAddressEvent) obj;
-        return Objects.equals(clientMacAddress, other.clientMacAddress) && Arrays.equals(ipAddr, other.ipAddr)
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && Objects.equals(ipAddr, other.ipAddr)
                 && this.sessionId == other.sessionId;
     }
 
