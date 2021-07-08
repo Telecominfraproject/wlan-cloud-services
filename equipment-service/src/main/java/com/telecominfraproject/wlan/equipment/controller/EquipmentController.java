@@ -53,6 +53,9 @@ import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsCha
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
+import com.telecominfraproject.wlan.status.StatusServiceInterface;
+import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 
 
 /**
@@ -72,7 +75,7 @@ public class EquipmentController {
 
     @Autowired private EquipmentDatastore equipmentDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
-
+    @Autowired private StatusServiceInterface statusServiceInterface;
     
     /**
      * Creates new Equipment.
@@ -288,6 +291,13 @@ public class EquipmentController {
         }
         publishEvent(event);
 
+        // when customerId changes, we keep the adminStatus of the ap (which requires the existing data)
+        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+            Status status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.EQUIPMENT_ADMIN);
+            status.setCustomerId(equipment.getCustomerId());
+            statusServiceInterface.update(status);
+        }
+        
         return ret;
     }
     
