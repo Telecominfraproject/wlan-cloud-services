@@ -34,6 +34,9 @@ import com.telecominfraproject.wlan.profile.datastore.inmemory.ProfileDatastoreI
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.ProfileByCustomerRequestFactory;
 import com.telecominfraproject.wlan.profile.models.ProfileType;
+import com.telecominfraproject.wlan.status.StatusServiceLocal;
+import com.telecominfraproject.wlan.status.controller.StatusController;
+import com.telecominfraproject.wlan.status.datastore.inmemory.StatusDatastoreInMemory;
 
 
 @RunWith(SpringRunner.class)
@@ -50,7 +53,10 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
         ProfileDatastoreInMemory.class,
         ProfileByCustomerRequestFactory.class,
         CloudEventDispatcherEmpty.class,
-        ProfilePortalController.class
+        ProfilePortalController.class,
+        StatusServiceLocal.class,
+        StatusController.class,
+        StatusDatastoreInMemory.class
         })
 public class ProfilePortalControllerTest {
     private static AtomicLong profileIncrementer = new AtomicLong(1);
