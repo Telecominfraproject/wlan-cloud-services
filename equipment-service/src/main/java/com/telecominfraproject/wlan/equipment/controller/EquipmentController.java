@@ -291,11 +291,18 @@ public class EquipmentController {
         }
         publishEvent(event);
 
-        // when customerId changes, we keep the adminStatus of the ap (which requires the existing data)
+        // when customerId changes, we keep the EQUIPMENT_ADMIN and PROTOCOL status of the AP (which requires the existing data)
         if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
             Status status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.EQUIPMENT_ADMIN);
-            status.setCustomerId(equipment.getCustomerId());
-            statusServiceInterface.update(status);
+            if (status != null) {
+                status.setCustomerId(equipment.getCustomerId());
+                statusServiceInterface.update(status);
+            }
+            status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.PROTOCOL);
+            if (status != null) {
+                status.setCustomerId(equipment.getCustomerId());
+                statusServiceInterface.update(status);
+            }
         }
         
         return ret;
