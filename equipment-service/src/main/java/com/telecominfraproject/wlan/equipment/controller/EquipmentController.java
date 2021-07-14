@@ -47,6 +47,7 @@ import com.telecominfraproject.wlan.equipment.models.SourceSelectionMulticast;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentAddedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentApImpactingChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentBlinkLEDsEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
@@ -286,7 +287,11 @@ public class EquipmentController {
         if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
-        } else {
+        } else if (existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
+            LOG.debug("Updated BlinkingLEDs {}", ret);
+            event = new EquipmentBlinkLEDsEvent(ret);
+        }
+        else {
             event = new EquipmentChangedEvent(ret);
         }
         publishEvent(event);

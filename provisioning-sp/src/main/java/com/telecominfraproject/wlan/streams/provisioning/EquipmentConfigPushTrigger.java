@@ -1,3 +1,4 @@
+
 package com.telecominfraproject.wlan.streams.provisioning;
 
 import java.util.ArrayList;
@@ -18,12 +19,15 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.core.model.streams.QueuedStreamMessage;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentApImpactingChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentBlinkLEDsEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
+import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBlinkRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCloseSessionRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNotification;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
@@ -40,8 +44,8 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 
 /**
- * @author dtop 
- * 			This stream processor is listening for events related to changes
+ * @author dtop
+ *         This stream processor is listening for events related to changes
  *         in Equipment, Location, and Profile objects. If a change is detected,
  *         it uses Routing service to find affected equipment and delivers
  *         CEGWConfigChangeNotification command to the equipment, which results
@@ -50,187 +54,189 @@ import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 @Component
 public class EquipmentConfigPushTrigger extends StreamProcessor {
 
-	    private static final Logger LOG = LoggerFactory.getLogger(EquipmentConfigPushTrigger.class);
-	    
-        @Value("${tip.wlan.systemEventsTopic:system_events}")
-    	private String systemEventsTopic;
-        
-        @Autowired
-        private EquipmentGatewayServiceInterface equipmentGatewayInterface;
-        @Autowired
-        private ProfileServiceInterface profileServiceInterface;
-        @Autowired
-        private EquipmentServiceInterface equipmentServiceInterface;
+    private static final Logger LOG = LoggerFactory.getLogger(EquipmentConfigPushTrigger.class);
 
-	    @Override
-	    protected boolean acceptMessage(QueuedStreamMessage message) {
-		    boolean ret = message.getTopic().equals(systemEventsTopic);
+    @Value("${tip.wlan.systemEventsTopic:system_events}")
+    private String systemEventsTopic;
 
-		    if(ret && ( message.getModel() instanceof SystemEventRecord) ) {
-		    
-			    SystemEventRecord ser = (SystemEventRecord) message.getModel(); 
-			    ret = ret &&
-			    		(
-			    			ser.getDetails() instanceof EquipmentApImpactingChangedEvent ||
-			    			ser.getDetails() instanceof EquipmentChannelsChangedEvent ||
-			    			ser.getDetails() instanceof EquipmentCellSizeAttributesChangedEvent ||
-			    			ser.getDetails() instanceof EquipmentRemovedEvent ||
-			    			ser.getDetails() instanceof ProfileAddedEvent ||
-			    			ser.getDetails() instanceof ProfileChangedEvent ||
-			    			ser.getDetails() instanceof ProfileRemovedEvent ||
-			    			ser.getDetails() instanceof LocationChangedApImpactingEvent
-			    		);
-		    } else {
-		    	ret = false;
-		    }
-		    
-		    LOG.trace("acceptMessage {}", ret);
-		    
-		    return ret;
-	    }
-	    
-	    @Override
-	    protected void processMessage(QueuedStreamMessage message) {
-	    	SystemEventRecord mdl = (SystemEventRecord) message.getModel();
-	    	SystemEvent se = mdl.getDetails();
-	    	LOG.debug("Processing {}", mdl);
-	    	
-	    	switch ( se.getClass().getSimpleName() ) {
-	    	case "EquipmentApImpactingChangedEvent":
-	    		process((EquipmentApImpactingChangedEvent) se);
-	    		break;
-	    	case "EquipmentChannelsChangedEvent":
+    @Autowired
+    private EquipmentGatewayServiceInterface equipmentGatewayInterface;
+    @Autowired
+    private ProfileServiceInterface profileServiceInterface;
+    @Autowired
+    private EquipmentServiceInterface equipmentServiceInterface;
+
+    @Override
+    protected boolean acceptMessage(QueuedStreamMessage message) {
+        boolean ret = message.getTopic().equals(systemEventsTopic);
+
+        if (ret && (message.getModel() instanceof SystemEventRecord)) {
+
+            SystemEventRecord ser = (SystemEventRecord) message.getModel();
+            ret = ret && (ser.getDetails() instanceof EquipmentApImpactingChangedEvent || ser.getDetails() instanceof EquipmentBlinkLEDsEvent
+                    || ser.getDetails() instanceof EquipmentChannelsChangedEvent || ser.getDetails() instanceof EquipmentCellSizeAttributesChangedEvent
+                    || ser.getDetails() instanceof EquipmentRemovedEvent || ser.getDetails() instanceof ProfileAddedEvent
+                    || ser.getDetails() instanceof ProfileChangedEvent || ser.getDetails() instanceof ProfileRemovedEvent
+                    || ser.getDetails() instanceof LocationChangedApImpactingEvent);
+        } else {
+            ret = false;
+        }
+
+        LOG.trace("acceptMessage {}", ret);
+
+        return ret;
+    }
+
+    @Override
+    protected void processMessage(QueuedStreamMessage message) {
+        SystemEventRecord mdl = (SystemEventRecord) message.getModel();
+        SystemEvent se = mdl.getDetails();
+        LOG.debug("Processing {}", mdl);
+
+        switch (se.getClass().getSimpleName()) {
+            case "EquipmentApImpactingChangedEvent":
+                process((EquipmentApImpactingChangedEvent) se);
+                break;
+            case "EquipmentChannelsChangedEvent":
                 process((EquipmentChannelsChangedEvent) se);
                 break;
-	    	case "EquipmentCellSizeAttributesChangedEvent":
+            case "EquipmentCellSizeAttributesChangedEvent":
                 process((EquipmentCellSizeAttributesChangedEvent) se);
                 break;
-	    	case "EquipmentRemovedEvent":
+            case "EquipmentBlinkLEDsEvent":
+                process((EquipmentBlinkLEDsEvent) se);
+                break;
+            case "EquipmentRemovedEvent":
                 process((EquipmentRemovedEvent) se);
                 break;
-	    	case "ProfileAddedEvent":
-	    		process((ProfileAddedEvent) se);
-	    		break;
-	    	case "ProfileChangedEvent":
-	    		process((ProfileChangedEvent) se);
-	    		break;
-	    	case "ProfileRemovedEvent":
-	    		process((ProfileRemovedEvent) se);
-	    		break;
-	    	case "LocationChangedApImpactingEvent":
-	    		process((LocationChangedApImpactingEvent) se);
-	    		break;	    	
-	    	default:
-	    		process(mdl);
-	    	} 
-	    	
-	    }
-
-        private void process(EquipmentApImpactingChangedEvent model) {
-            LOG.debug("Processing EquipmentChangedEvent");
-            equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(),
-                    model.getEquipmentId()));
+            case "ProfileAddedEvent":
+                process((ProfileAddedEvent) se);
+                break;
+            case "ProfileChangedEvent":
+                process((ProfileChangedEvent) se);
+                break;
+            case "ProfileRemovedEvent":
+                process((ProfileRemovedEvent) se);
+                break;
+            case "LocationChangedApImpactingEvent":
+                process((LocationChangedApImpactingEvent) se);
+                break;
+            default:
+                process(mdl);
         }
-        
-        private void process(EquipmentChannelsChangedEvent model) {
-            LOG.debug("Processing EquipmentChannelsChangedEvent for equipmentId {}", model.getEquipmentId());
-            equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(),
-                   model.getEquipmentId(), model.getNewBackupChannels(), model.getNewPrimaryChannels()));
+
+    }
+
+    private void process(EquipmentApImpactingChangedEvent model) {
+        LOG.debug("Processing EquipmentChangedEvent");
+        equipmentGatewayInterface.sendCommand(new CEGWConfigChangeNotification(model.getPayload().getInventoryId(), model.getEquipmentId()));
+    }
+
+    private void process(EquipmentChannelsChangedEvent model) {
+        LOG.debug("Processing EquipmentChannelsChangedEvent for equipmentId {}", model.getEquipmentId());
+        equipmentGatewayInterface.sendCommand(new CEGWNewChannelRequest(model.getPayload().getInventoryId(), model.getEquipmentId(),
+                model.getNewBackupChannels(), model.getNewPrimaryChannels()));
+    }
+
+    private void process(EquipmentCellSizeAttributesChangedEvent model) {
+        LOG.debug("Processing EquipmentCellSizeAttributesChangedEvent for equipmentId {}", model.getEquipmentId());
+        equipmentGatewayInterface
+                .sendCommand(new CEGWCellSizeAttributesRequest(model.getPayload().getInventoryId(), model.getEquipmentId(), model.getCellSizeAttributesMap()));
+    }
+
+    private void process(EquipmentBlinkLEDsEvent model) {
+        LOG.debug("Processing EquipmentBlinkLEDsEvent for equipmentId {}", model.getEquipmentId());
+        CEGWBlinkRequest br = new CEGWBlinkRequest(model.getPayload().getInventoryId(), model.getEquipmentId());
+        br.setBlinkAllLEDs(((ApElementConfiguration) model.getPayload().getDetails()).isBlinkAllLEDs());
+        equipmentGatewayInterface.sendCommand(br);
+    }
+
+    private void process(EquipmentRemovedEvent model) {
+        LOG.debug("Processing EquipmentRemovedEvent");
+        equipmentGatewayInterface.sendCommand(new CEGWCloseSessionRequest(model.getPayload().getInventoryId(), model.getEquipmentId()));
+    }
+
+    private void process(ProfileAddedEvent model) {
+        LOG.debug("Processing ProfileAddedEvent {}", model.getPayload().getId());
+        processProfile(model.getPayload());
+    }
+
+    private void process(ProfileChangedEvent model) {
+        LOG.debug("Processing ProfileChangedEvent {}", model.getPayload().getId());
+        processProfile(model.getPayload());
+    }
+
+    private void process(ProfileRemovedEvent model) {
+        LOG.debug("Processing ProfileRemovedEvent {}", model.getPayload().getId());
+        processProfile(model.getPayload());
+    }
+
+    private void processProfile(Profile profile) {
+
+        List<PairLongLong> ret = profileServiceInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile.getId())));
+        if (ret == null || ret.isEmpty()) {
+            // nothing to do here
+            return;
         }
-        
-        private void process(EquipmentCellSizeAttributesChangedEvent model) {
-            LOG.debug("Processing EquipmentCellSizeAttributesChangedEvent for equipmentId {}", model.getEquipmentId());
-            equipmentGatewayInterface.sendCommand(new CEGWCellSizeAttributesRequest(model.getPayload().getInventoryId(),
-                   model.getEquipmentId(), model.getCellSizeAttributesMap()));
+
+        Set<Long> parentProfileIds = new HashSet<>();
+        ret.forEach(p -> parentProfileIds.add(p.getValue2()));
+
+        // go through all equipmentIds that refer to parent profiles and trigger change config notification on them
+        PaginationContext<PairLongLong> context = new PaginationContext<>(100);
+
+        while (!context.isLastPage()) {
+            PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(parentProfileIds, context);
+            context = page.getContext();
+
+            Set<Long> equipmentIds = new HashSet<>();
+            page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
+
+            // retrieve full equipment objects to get the inventory id
+            List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
+
+            List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
+            equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
+
+            equipmentGatewayInterface.sendCommands(commands);
+            LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
         }
-		
-        private void process(EquipmentRemovedEvent model) {
-            LOG.debug("Processing EquipmentRemovedEvent");
-            equipmentGatewayInterface.sendCommand(new CEGWCloseSessionRequest(model.getPayload().getInventoryId(), model.getEquipmentId()));
+
+        LOG.debug("Finished processing profile {}", profile.getId());
+    }
+
+    private void process(LocationChangedApImpactingEvent model) {
+        LOG.debug("Processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
+
+        Set<Long> locationIds = new HashSet<>(Arrays.asList(model.getPayload().getId()));
+
+        // go through all equipmentIds that reside in the specified location and trigger change config notification on
+        // them
+        PaginationContext<PairLongLong> context = new PaginationContext<>(100);
+
+        while (!context.isLastPage()) {
+            PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByLocationIds(locationIds, context);
+            context = page.getContext();
+
+            Set<Long> equipmentIds = new HashSet<>();
+            page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
+
+            // retrieve full equipment objects to get the inventory id
+            List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
+
+            List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
+            equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
+
+            equipmentGatewayInterface.sendCommands(commands);
+            LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
         }
-        
-		private void process(ProfileAddedEvent model) {
-			LOG.debug("Processing ProfileAddedEvent {}", model.getPayload().getId());
-			processProfile(model.getPayload());
-		}
 
-		private void process(ProfileChangedEvent model) {
-			LOG.debug("Processing ProfileChangedEvent {}", model.getPayload().getId());
-			processProfile(model.getPayload());
-		}
+        LOG.debug("Finished processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
 
-		private void process(ProfileRemovedEvent model) {
-			LOG.debug("Processing ProfileRemovedEvent {}", model.getPayload().getId());
-			processProfile(model.getPayload());
-		}
+    }
 
+    private void process(BaseJsonModel model) {
+        LOG.warn("Unprocessed model: {}", model);
+    }
 
-		private void processProfile(Profile profile) {
-			
-			List<PairLongLong> ret = profileServiceInterface.getTopLevelProfiles(new HashSet<>(Arrays.asList(profile.getId())));
-			if(ret == null || ret.isEmpty()) {
-				//nothing to do here
-				return;
-			}
-			
-			Set<Long> parentProfileIds = new HashSet<>();
-			ret.forEach(p -> parentProfileIds.add(p.getValue2()));
-			
-			//go through all equipmentIds that refer to parent profiles and trigger change config notification on them
-			PaginationContext<PairLongLong> context = new PaginationContext<>(100);
-			
-			while(!context.isLastPage()) {
-				PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByProfileIds(parentProfileIds, context );
-				context = page.getContext();
-				
-				Set<Long> equipmentIds = new HashSet<>();
-				page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
-				
-				//retrieve full equipment objects to get the inventory id 
-				List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
-				
-				List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
-				equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
-			
-				equipmentGatewayInterface.sendCommands(commands);
-				LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
-			}			
-			
-			LOG.debug("Finished processing profile {}", profile.getId());
-		}
-		
-		private void process(LocationChangedApImpactingEvent model) {
-			LOG.debug("Processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
-			
-			Set<Long> locationIds = new HashSet<>(Arrays.asList(model.getPayload().getId()));
-			
-			//go through all equipmentIds that reside in the specified location and trigger change config notification on them
-			PaginationContext<PairLongLong> context = new PaginationContext<>(100);
-			
-			while(!context.isLastPage()) {
-				PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByLocationIds(locationIds, context );
-				context = page.getContext();
-				
-				Set<Long> equipmentIds = new HashSet<>();
-				page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
-				
-				//retrieve full equipment objects to get the inventory id 
-				List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
-				
-				List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
-				equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
-			
-				equipmentGatewayInterface.sendCommands(commands);
-				LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
-			}		
-			
-			LOG.debug("Finished processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
-
-		}
-
-		private void process(BaseJsonModel model) {
-			LOG.warn("Unprocessed model: {}", model);
-		}
-	    
-	    
 }
