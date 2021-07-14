@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
@@ -77,7 +79,7 @@ public class EquipmentController {
     @Autowired private EquipmentDatastore equipmentDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
     @Autowired private StatusServiceInterface statusServiceInterface;
-    
+    @Autowired private AlarmServiceInterface alarmServiceInterface;
     /**
      * Creates new Equipment.
      *  
@@ -308,6 +310,17 @@ public class EquipmentController {
                 status.setCustomerId(equipment.getCustomerId());
                 statusServiceInterface.update(status);
             }
+            
+            // Alarms has to move to new customerId as well
+            List<Alarm> oldCustomerAlarms = alarmServiceInterface.get(existingEquipment.getCustomerId(), Set.of(existingEquipment.getId()), null);
+            if (!oldCustomerAlarms.isEmpty()) {
+                oldCustomerAlarms.stream().forEach(a -> {
+                    a.setCustomerId(equipment.getCustomerId());
+                    Alarm alarm = alarmServiceInterface.create(a);
+                    LOG.debug("Move an alarm to new customer {}", alarm);
+                });
+            }
+            alarmServiceInterface.delete(existingEquipment.getCustomerId(), existingEquipment.getId());
         }
         
         return ret;
