@@ -9098,6 +9098,7 @@ components:
       - EquipmentChangedEvent
       - EquipmentApImpactingChangedEvent
       - EquipmentChannelsChangedEvent
+      - EquipmentBlinkLEDsEvent
       - EquipmentCellSizeAttributesChangedEvent
       - EquipmentRemovedEvent
       - StatusChangedEvent
@@ -9191,6 +9192,7 @@ components:
         - $ref: '#/components/schemas/EquipmentChangedEvent'
         - $ref: '#/components/schemas/EquipmentApImpactingChangedEvent'
         - $ref: '#/components/schemas/EquipmentChannelsChangedEvent'
+        - $ref: '#/components/schemas/EquipmentBlinkLEDsEvent'
         - $ref: '#/components/schemas/EquipmentCellSizeAttributesChangedEvent'
         - $ref: '#/components/schemas/EquipmentRemovedEvent'
         - $ref: '#/components/schemas/StatusChangedEvent'
@@ -9544,7 +9546,12 @@ components:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
         newBackupChannels:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
-    
+          
+    EquipmentBlinkLEDsEvent:
+      properties:
+        allOf:
+          $ref: '#/components/schemas/EquipmentChangedEvent'
+          
     EquipmentCellSizeAttributesChangedEvent:
       properties:
         allOf:
