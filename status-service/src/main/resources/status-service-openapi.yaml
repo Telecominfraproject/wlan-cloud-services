@@ -197,6 +197,15 @@ components:
           $ref: '#/components/schemas/StatusCode'
         statusMessage:
           type: string
+        ledStatus:
+          $ref: '#/components/schemas/LedStatus'
+    
+    LedStatus:
+      type: string
+      enum:
+      - led_blink
+      - led_off
+      - UNKNOWN
     
     StatusCode:
       type: string

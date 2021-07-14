@@ -1,7 +1,9 @@
+
 package com.telecominfraproject.wlan.status.equipment.models;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.status.models.StatusCode;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
@@ -29,70 +31,29 @@ public class EquipmentAdminStatusData extends StatusDetails {
      */
     private String statusMessage;
 
+    private Map<String, Long> alarmTimestamps;
 
-    private Map<String,Long> alarmTimestamps;
-    
+    private LedStatus ledStatus;
+
     public EquipmentAdminStatusData() {
 
     }
 
     @Override
     public StatusDataType getStatusDataType() {
-    	return StatusDataType.EQUIPMENT_ADMIN;
+        return StatusDataType.EQUIPMENT_ADMIN;
     }
-    
+
     public EquipmentAdminStatusData(EquipmentAdminStatusData data) {
         this.statusCode = data.statusCode;
         this.statusMessage = data.statusMessage;
-        this.alarmTimestamps = data.alarmTimestamps==null?null:new HashMap<>(data.alarmTimestamps);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((alarmTimestamps == null) ? 0 : alarmTimestamps.hashCode());
-        result = prime * result + ((statusCode == null) ? 0 : statusCode.hashCode());
-        result = prime * result + ((statusMessage == null) ? 0 : statusMessage.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof EquipmentAdminStatusData)) {
-            return false;
-        }
-        EquipmentAdminStatusData other = (EquipmentAdminStatusData) obj;
-        if (alarmTimestamps == null) {
-            if (other.alarmTimestamps != null) {
-                return false;
-            }
-        } else if (!alarmTimestamps.equals(other.alarmTimestamps)) {
-            return false;
-        }
-        if (statusCode != other.statusCode) {
-            return false;
-        }
-        if (statusMessage == null) {
-            if (other.statusMessage != null) {
-                return false;
-            }
-        } else if (!statusMessage.equals(other.statusMessage)) {
-            return false;
-        }
-        return true;
+        this.alarmTimestamps = data.alarmTimestamps == null ? null : new HashMap<>(data.alarmTimestamps);
     }
 
     @Override
     public EquipmentAdminStatusData clone() {
         EquipmentAdminStatusData res = (EquipmentAdminStatusData) super.clone();
-        if(this.alarmTimestamps != null) {
+        if (this.alarmTimestamps != null) {
             res.setAlarmTimestamps(new HashMap<>(this.alarmTimestamps));
         }
         return res;
@@ -121,26 +82,54 @@ public class EquipmentAdminStatusData extends StatusDetails {
     public void setAlarmTimestamps(Map<String, Long> alarmTimestamps) {
         this.alarmTimestamps = alarmTimestamps;
     }
-    
+
     public long findAlarmTimeOrZero(String alarmKey) {
-        return alarmTimestamps==null?0:alarmTimestamps.getOrDefault(alarmKey, 0l);
+        return alarmTimestamps == null ? 0 : alarmTimestamps.getOrDefault(alarmKey, 0l);
     }
 
     public void putAlarmTimestamp(String alarmKey, long value) {
-        if(alarmTimestamps == null) {
+        if (alarmTimestamps == null) {
             alarmTimestamps = new HashMap<>();
         }
         alarmTimestamps.put(alarmKey, value);
     }
-    
+
     @Override
     public boolean hasUnsupportedValue() {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (StatusCode.isUnsupported(statusCode) ) {
+        if (StatusCode.isUnsupported(statusCode)) {
             return true;
         }
         return false;
     }
+
+    public LedStatus getLedStatus() {
+        return ledStatus;
+    }
+
+    public void setLedStatus(LedStatus ledStatus) {
+        this.ledStatus = ledStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(alarmTimestamps, ledStatus, statusCode, statusMessage);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EquipmentAdminStatusData other = (EquipmentAdminStatusData) obj;
+        return Objects.equals(alarmTimestamps, other.alarmTimestamps) && ledStatus == other.ledStatus && statusCode == other.statusCode
+                && Objects.equals(statusMessage, other.statusMessage);
+    }
+    
+    
 }

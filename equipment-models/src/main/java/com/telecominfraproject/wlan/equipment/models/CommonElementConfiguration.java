@@ -37,6 +37,7 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
     private AntennaType antennaType;
     private Boolean costSavingEventsEnabled;
     private NetworkForwardMode forwardMode;
+    private boolean blinkAllLEDs;
 
     /**
      * this constructor is used for CAMI only
@@ -69,37 +70,33 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(antennaType, blinkAllLEDs, costSavingEventsEnabled, deploymentType, deviceMode, deviceName, elementConfigVersion,
+                equipmentType, forwardMode, frameReportThrottleEnabled, gettingDNS, gettingIP, locallyConfigured, locallyConfiguredMgmtVlan, locationData,
+                peerInfoList, staticDnsIp1, staticDnsIp2, staticIP, staticIpGw, staticIpMaskCidr, syntheticClientEnabled);
+        return result;
+    }
 
-        if (!super.equals(obj)) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
             return false;
-        }
-        
-        if (!(obj instanceof CommonElementConfiguration)) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         CommonElementConfiguration other = (CommonElementConfiguration) obj;
-        return this.antennaType == other.antennaType
-                && Objects.equals(costSavingEventsEnabled, other.costSavingEventsEnabled)
-                && this.deploymentType == other.deploymentType && this.deviceMode == other.deviceMode
-                && Objects.equals(deviceName, other.deviceName)
-                && Objects.equals(elementConfigVersion, other.elementConfigVersion)
-                && this.equipmentType == other.equipmentType && this.forwardMode == other.forwardMode
-                && Objects.equals(frameReportThrottleEnabled, other.frameReportThrottleEnabled)
-                && this.gettingDNS == other.gettingDNS && this.gettingIP == other.gettingIP
-                && this.locallyConfigured == other.locallyConfigured
-                && this.locallyConfiguredMgmtVlan == other.locallyConfiguredMgmtVlan
-                && Objects.equals(locationData, other.locationData) && Objects.equals(peerInfoList, other.peerInfoList)
-                && Objects.equals(staticDnsIp1, other.staticDnsIp1) && Objects.equals(staticDnsIp2, other.staticDnsIp2)
-                && Objects.equals(staticIP, other.staticIP) && Objects.equals(staticIpGw, other.staticIpGw)
-                && Objects.equals(staticIpMaskCidr, other.staticIpMaskCidr)
-                && Objects.equals(syntheticClientEnabled, other.syntheticClientEnabled);
+        return antennaType == other.antennaType && blinkAllLEDs == other.blinkAllLEDs && Objects.equals(costSavingEventsEnabled, other.costSavingEventsEnabled)
+                && deploymentType == other.deploymentType && deviceMode == other.deviceMode && Objects.equals(deviceName, other.deviceName)
+                && Objects.equals(elementConfigVersion, other.elementConfigVersion) && Objects.equals(equipmentType, other.equipmentType)
+                && forwardMode == other.forwardMode && Objects.equals(frameReportThrottleEnabled, other.frameReportThrottleEnabled)
+                && gettingDNS == other.gettingDNS && gettingIP == other.gettingIP && locallyConfigured == other.locallyConfigured
+                && locallyConfiguredMgmtVlan == other.locallyConfiguredMgmtVlan && Objects.equals(locationData, other.locationData)
+                && Objects.equals(peerInfoList, other.peerInfoList) && Objects.equals(staticDnsIp1, other.staticDnsIp1)
+                && Objects.equals(staticDnsIp2, other.staticDnsIp2) && Objects.equals(staticIP, other.staticIP) && Objects.equals(staticIpGw, other.staticIpGw)
+                && Objects.equals(staticIpMaskCidr, other.staticIpMaskCidr) && Objects.equals(syntheticClientEnabled, other.syntheticClientEnabled);
     }
 
     public AntennaType getAntennaType() {
@@ -187,14 +184,6 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
 
     public Boolean getSyntheticClientEnabled() {
         return syntheticClientEnabled;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(antennaType, costSavingEventsEnabled, deploymentType, deviceMode, deviceName,
-                elementConfigVersion, equipmentType, forwardMode, frameReportThrottleEnabled, gettingDNS, gettingIP,
-                locallyConfigured, locallyConfiguredMgmtVlan, locationData, peerInfoList, staticDnsIp1, staticDnsIp2,
-                staticIP, staticIpGw, staticIpMaskCidr, syntheticClientEnabled);
     }
 
     @Override
@@ -311,4 +300,14 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
     public void setSyntheticClientEnabled(Boolean syntheticClientEnabled) {
         this.syntheticClientEnabled = syntheticClientEnabled;
     }
+
+    public boolean isBlinkAllLEDs() {
+        return blinkAllLEDs;
+    }
+
+    public void setBlinkAllLEDs(boolean blinkAllLEDs) {
+        this.blinkAllLEDs = blinkAllLEDs;
+    }
+    
+    
 }

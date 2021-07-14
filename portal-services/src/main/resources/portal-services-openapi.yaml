@@ -1043,6 +1043,8 @@ components:
           type: boolean
         forwardMode:
           $ref: '#/components/schemas/NetworkForwardMode'
+        blinkAllLEDs:
+          type: boolean                
         radioMap:
            $ref: '#/components/schemas/RadioMap'
         advancedRadioMap:
@@ -3331,8 +3333,6 @@ components:
 
     EquipmentAdminStatusData:
       type: object
-      required:
-        - model_type
       properties:
         model_type:
           type: string
@@ -3346,6 +3346,15 @@ components:
           $ref: '#/components/schemas/StatusCode'
         statusMessage:
           type: string
+        ledStatus:
+          $ref: '#/components/schemas/LedStatus'
+    
+    LedStatus:
+      type: string
+      enum:
+      - led_blink
+      - led_off
+      - UNKNOWN
     
     StatusCode:
       type: string

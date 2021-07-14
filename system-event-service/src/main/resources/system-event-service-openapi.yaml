@@ -3474,6 +3474,15 @@ components:
           $ref: '#/components/schemas/StatusCode'
         statusMessage:
           type: string
+        ledStatus:
+          $ref: '#/components/schemas/LedStatus'
+    
+    LedStatus:
+      type: string
+      enum:
+      - led_blink
+      - led_off
+      - UNKNOWN
     
     StatusCode:
       type: string
@@ -4520,6 +4529,8 @@ components:
           type: boolean
         forwardMode:
           $ref: '#/components/schemas/NetworkForwardMode'
+        blinkAllLEDs:
+          type: boolean
         radioMap:
            $ref: '#/components/schemas/RadioMap'
         advancedRadioMap:
