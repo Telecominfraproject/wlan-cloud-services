@@ -287,7 +287,7 @@ public class EquipmentController {
         if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
-        } else if (existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
+        } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
             LOG.debug("Updated BlinkingLEDs {}", ret);
             event = new EquipmentBlinkLEDsEvent(ret);
         }
