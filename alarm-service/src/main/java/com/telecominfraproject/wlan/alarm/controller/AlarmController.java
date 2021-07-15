@@ -129,6 +129,24 @@ public class AlarmController {
              throw exp;
         }
     }
+    
+    @RequestMapping(value = "/forAlarmCode", method = RequestMethod.GET)
+    public ListOfAlarms getAllForAlarmCode(
+            @RequestParam Set<AlarmCode> alarmCode,
+            @RequestParam long createdAfterTimestamp) {
+        LOG.debug("getAllForAlarmCode({}, {})", alarmCode, createdAfterTimestamp);
+        try {
+            List<Alarm> result = alarmDatastore.get(alarmCode, createdAfterTimestamp);
+            LOG.debug("getAllForAlarmCode({},{}) return {} entries", alarmCode, createdAfterTimestamp, result.size());
+            ListOfAlarms ret = new ListOfAlarms();
+            ret.addAll(result);
+            return ret;
+        } catch (Exception exp) {
+             LOG.error("getAllForAlarmCode({},{}) exception ", alarmCode, createdAfterTimestamp, exp);
+             throw exp;
+        }
+    }
+
 
     @RequestMapping(value = "/forCustomer", method = RequestMethod.GET)
     public PaginationResponse<Alarm> getForCustomer(@RequestParam int customerId,

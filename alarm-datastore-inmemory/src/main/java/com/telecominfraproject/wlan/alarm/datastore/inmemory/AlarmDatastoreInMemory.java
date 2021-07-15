@@ -356,4 +356,25 @@ public class AlarmDatastoreInMemory extends BaseInMemoryDatastore implements Ala
 
         return alarmCounts;
     }
+
+
+    @Override
+    public List<Alarm> get(Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp) {
+
+        if (alarmCodeSet == null || alarmCodeSet.isEmpty()) {
+            throw new IllegalArgumentException("alarmCodeSet must be provided");
+        }
+
+        List<Alarm> ret = new ArrayList<>();
+
+        idToAlarmMap.values().forEach(a -> {
+            if (alarmCodeSet.contains(a.getAlarmCode()) && a.getCreatedTimestamp() > createdAfterTimestamp) {
+                ret.add(a.clone());
+            }
+        });
+
+        LOG.debug("Found Alarms {}", ret);
+
+        return ret;
+    }
 }

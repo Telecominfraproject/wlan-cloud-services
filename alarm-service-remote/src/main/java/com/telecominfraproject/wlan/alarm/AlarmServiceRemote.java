@@ -241,14 +241,45 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
         
         return ret;
     }
-    
+
+    @Override
+    public List<Alarm> get(Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp) {
+        LOG.debug("get({},{})", alarmCodeSet, createdAfterTimestamp);
+
+        if (alarmCodeSet == null || alarmCodeSet.isEmpty()) {
+            throw new IllegalArgumentException("alarmCodeSet must be provided");
+        }
+
+        String alarmCodeSetStr = alarmCodeSet.toString();
+        // remove [] around the string, otherwise will get:
+        // Failed to convert value of type 'java.lang.String' to required
+        // type 'java.util.Set'; nested exception is
+        // java.lang.NumberFormatException: For input string: "[690]"
+        alarmCodeSetStr = alarmCodeSetStr.substring(1, alarmCodeSetStr.length() - 1);
+
+        try {
+            ResponseEntity<List<Alarm>> responseEntity =
+                    restTemplate.exchange(getBaseUrl() + "/forAlarmCode?alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}",
+                            HttpMethod.GET, null, Alarm_LIST_CLASS_TOKEN, alarmCodeSetStr, createdAfterTimestamp);
+
+            List<Alarm> result = responseEntity.getBody();
+            if (null == result) {
+                result = Collections.emptyList();
+            }
+            LOG.debug("get({},{}) return {} entries", alarmCodeSet, createdAfterTimestamp, result.size());
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getAllInSet({},{}) exception ", alarmCodeSet, createdAfterTimestamp, exp);
+            throw exp;
+        }
+    }
+
     public String getBaseUrl() {
         if(baseUrl==null) {
             baseUrl = environment.getProperty("tip.wlan.alarmServiceBaseUrl").trim()+"/api/alarm";
         }
 
-    	return baseUrl;
+        return baseUrl;
     }
-
 
 }
