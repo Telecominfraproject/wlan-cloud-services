@@ -113,5 +113,16 @@ public interface AlarmServiceInterface {
      * @return alarm counts for the given filters
      */
     AlarmCounts getAlarmCounts(int customerId, Set<Long> equipmentIdSet, Set<AlarmCode> alarmCodeSet, Boolean acknowledged);
+
+    /**
+     * Retrieves a list of Alarms for the given alarm codes.
+     *
+     * @param alarmCodeSet - null or empty means include all alarm codes
+     * @param createdAfterTimestamp
+     * @return list of matching Alarm objects.
+     * @throws IllegalArgumentException if supplied alarmCodeSet is null or empty
+     */
+    List<Alarm> get(Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp);
+
     
 }

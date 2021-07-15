@@ -121,6 +121,10 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
         		" from " + TABLE_NAME + " " + 
         		" where customerId = ? ";
 
+        private static final String CQL_GET_ALL = 
+                "select " + ALL_COLUMNS +
+                " from " + TABLE_NAME + " ";
+
         private static final String CQL_GET_LASTMOD_BY_ID =
             "select lastModifiedTimestamp " +
             " from "+TABLE_NAME+" " +
@@ -921,5 +925,52 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 
 		return alarmCounts;		
 	}
+
+    @Override
+    public List<Alarm> get(Set<AlarmCode> alarmCodes, long createdAfterTimestamp) {
+
+        if (alarmCodes == null || alarmCodes.isEmpty()) {
+            throw new IllegalArgumentException("alarmCodes must be provided");
+        }
+
+        LOG.debug("Looking up Alarms for alarmCodes {} createdAfter {}", alarmCodes, createdAfterTimestamp);
+
+        String query = CQL_GET_ALL;
+
+        // add filters for the query
+        ArrayList<Object> queryArgs = new ArrayList<>();
+
+        // add alarmCodes filters
+        alarmCodes.forEach(ac -> queryArgs.add(ac.getId()));
+
+        StringBuilder strb = new StringBuilder(100);
+        strb.append("where alarmCode in (");
+        for (int i = 0; i < alarmCodes.size(); i++) {
+            strb.append("?");
+            if (i < alarmCodes.size() - 1) {
+                strb.append(",");
+            }
+        }
+        strb.append(") ");
+
+        if (createdAfterTimestamp > 0) {
+            strb.append(" and createdTimestamp > ?");
+            queryArgs.add(createdAfterTimestamp);
+        }
+        strb.append(" allow filtering");
+        query += strb.toString();
+
+        List<Alarm> ret = new ArrayList<>();
+
+        PreparedStatement preparedStmt_getListForCustomer = cqlSession.prepare(query);
+
+        ResultSet rs = cqlSession.execute(preparedStmt_getListForCustomer.bind(queryArgs.toArray()));
+
+        rs.forEach(row -> ret.add(alarmRowMapper.mapRow(row)));
+
+        LOG.debug("Found {} Alarms for alarmCodes {} createdAfter {}", ret.size(), alarmCodes, createdAfterTimestamp);
+
+        return ret;
+    }
 
 }

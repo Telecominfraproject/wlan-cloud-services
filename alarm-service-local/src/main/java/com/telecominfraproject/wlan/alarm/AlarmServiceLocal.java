@@ -47,6 +47,10 @@ public class AlarmServiceLocal implements AlarmServiceInterface {
 		return alarmController.getAllForEquipment(customerId, equipmentIdSet, alarmCodeSet, createdAfterTimestamp);
 	}
 
+    @Override
+    public List<Alarm> get(Set<AlarmCode> alarmCodeSet, long createdAfterTimestamp) {
+        return alarmController.getAllForAlarmCode(alarmCodeSet, createdAfterTimestamp);
+    }
 
 	@Override
 	public Alarm update(Alarm alarm) {
