@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
+import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -25,6 +27,7 @@ import com.telecominfraproject.wlan.equipment.models.events.EquipmentApImpacting
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentBlinkLEDsEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentCustomerChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBaseCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBlinkRequest;
@@ -39,6 +42,9 @@ import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
+import com.telecominfraproject.wlan.status.StatusServiceInterface;
+import com.telecominfraproject.wlan.status.models.Status;
+import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.stream.StreamProcessor;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
@@ -65,6 +71,10 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
     private ProfileServiceInterface profileServiceInterface;
     @Autowired
     private EquipmentServiceInterface equipmentServiceInterface;
+    @Autowired
+    private StatusServiceInterface statusServiceInterface;
+    @Autowired
+    private AlarmServiceInterface alarmServiceInterface;
 
     @Override
     protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -77,7 +87,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
                     || ser.getDetails() instanceof EquipmentChannelsChangedEvent || ser.getDetails() instanceof EquipmentCellSizeAttributesChangedEvent
                     || ser.getDetails() instanceof EquipmentRemovedEvent || ser.getDetails() instanceof ProfileAddedEvent
                     || ser.getDetails() instanceof ProfileChangedEvent || ser.getDetails() instanceof ProfileRemovedEvent
-                    || ser.getDetails() instanceof LocationChangedApImpactingEvent);
+                    || ser.getDetails() instanceof LocationChangedApImpactingEvent || ser.getDetails() instanceof EquipmentCustomerChangedEvent);
         } else {
             ret = false;
         }
@@ -121,6 +131,8 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
             case "LocationChangedApImpactingEvent":
                 process((LocationChangedApImpactingEvent) se);
                 break;
+            case "EquipmentCustomerChangedEvent":
+                process((EquipmentCustomerChangedEvent) se);
             default:
                 process(mdl);
         }
@@ -233,6 +245,36 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
 
         LOG.debug("Finished processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
 
+    }
+
+    private void process(EquipmentCustomerChangedEvent model) {
+        LOG.info("Processing EquipmentCustomerChangedEvent {}", model.getPayload().getId());
+        
+        Equipment existingEquipment = model.getExistingEquipment();
+        Equipment equipment = model.getEquipment();
+
+        // when customerId changes, we keep the EQUIPMENT_ADMIN and PROTOCOL status of the AP
+        Status status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.EQUIPMENT_ADMIN);
+        if (status != null) {
+            status.setCustomerId(equipment.getCustomerId());
+            statusServiceInterface.update(status);
+        }
+        status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.PROTOCOL);
+        if (status != null) {
+            status.setCustomerId(equipment.getCustomerId());
+            statusServiceInterface.update(status);
+        }
+
+        // Alarms has to move to new customerId as well
+        List<Alarm> oldCustomerAlarms = alarmServiceInterface.get(existingEquipment.getCustomerId(), Set.of(existingEquipment.getId()), null);
+        if (!oldCustomerAlarms.isEmpty()) {
+            oldCustomerAlarms.stream().forEach(a -> {
+                a.setCustomerId(equipment.getCustomerId());
+                Alarm alarm = alarmServiceInterface.create(a);
+                LOG.debug("Move an alarm to new customer {}", alarm);
+            });
+        }
+        alarmServiceInterface.delete(existingEquipment.getCustomerId(), existingEquipment.getId());
     }
 
     private void process(BaseJsonModel model) {
