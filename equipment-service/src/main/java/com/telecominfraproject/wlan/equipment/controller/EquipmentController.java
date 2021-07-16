@@ -51,13 +51,10 @@ import com.telecominfraproject.wlan.equipment.models.events.EquipmentBlinkLEDsEv
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentCellSizeAttributesChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentChannelsChangedEvent;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentCustomerChangedEvent;
 import com.telecominfraproject.wlan.equipment.models.events.EquipmentRemovedEvent;
 import com.telecominfraproject.wlan.server.exceptions.ConfigurationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
-import com.telecominfraproject.wlan.status.StatusServiceInterface;
-import com.telecominfraproject.wlan.status.models.Status;
-import com.telecominfraproject.wlan.status.models.StatusDataType;
-
 
 /**
  * @author dtoptygin
@@ -76,8 +73,7 @@ public class EquipmentController {
 
     @Autowired private EquipmentDatastore equipmentDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
-    @Autowired private StatusServiceInterface statusServiceInterface;
-    
+
     /**
      * Creates new Equipment.
      *  
@@ -290,25 +286,12 @@ public class EquipmentController {
         } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
             LOG.debug("Updated BlinkingLEDs {}", ret);
             event = new EquipmentBlinkLEDsEvent(ret);
-        }
-        else {
+        } else if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+            event = new EquipmentCustomerChangedEvent(existingEquipment, ret);
+        } else {
             event = new EquipmentChangedEvent(ret);
         }
         publishEvent(event);
-
-        // when customerId changes, we keep the EQUIPMENT_ADMIN and PROTOCOL status of the AP (which requires the existing data)
-        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
-            Status status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.EQUIPMENT_ADMIN);
-            if (status != null) {
-                status.setCustomerId(equipment.getCustomerId());
-                statusServiceInterface.update(status);
-            }
-            status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.PROTOCOL);
-            if (status != null) {
-                status.setCustomerId(equipment.getCustomerId());
-                statusServiceInterface.update(status);
-            }
-        }
         
         return ret;
     }
