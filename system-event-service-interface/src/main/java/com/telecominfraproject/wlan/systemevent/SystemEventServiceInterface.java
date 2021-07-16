@@ -9,6 +9,7 @@ import com.telecominfraproject.wlan.core.model.pagination.ColumnAndSort;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 
 /**
@@ -69,5 +70,14 @@ public interface SystemEventServiceInterface {
             PaginationContext<SystemEventRecord> context){
 	    return getForCustomer(fromTime, toTime, customerId, null, equipmentIds, null, dataTypes, sortBy, context);
 	}
+
+    /**
+     * @param filterAttributeName
+     * @param filterAttributeValue
+     * @param fromTime
+     * @param toTime
+     * @return Returns system event statistics for the given time range.
+     */
+    SystemEventStats getSystemEventStats(String filterAttributeName, String filterAttributeValue, long fromTime, long toTime);
 
 }
