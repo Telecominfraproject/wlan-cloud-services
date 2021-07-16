@@ -22,9 +22,6 @@ import com.telecominfraproject.wlan.equipment.EquipmentServiceLocal;
 import com.telecominfraproject.wlan.equipment.controller.EquipmentController;
 import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
-import com.telecominfraproject.wlan.status.StatusServiceLocal;
-import com.telecominfraproject.wlan.status.controller.StatusController;
-import com.telecominfraproject.wlan.status.datastore.inmemory.StatusDatastoreInMemory;
 import com.telecominfraproject.wlan.alarm.datastore.inmemory.AlarmDatastoreInMemory;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
 import com.telecominfraproject.wlan.alarm.models.AlarmCode;
@@ -48,10 +45,7 @@ import com.telecominfraproject.wlan.alarm.models.AlarmDetails;
         AlarmControllerTest.Config.class, 
         EquipmentServiceLocal.class,
         EquipmentController.class,
-        EquipmentDatastoreInMemory.class,
-        StatusServiceLocal.class,
-        StatusController.class,
-        StatusDatastoreInMemory.class
+        EquipmentDatastoreInMemory.class
         })
 public class AlarmControllerTest {
     

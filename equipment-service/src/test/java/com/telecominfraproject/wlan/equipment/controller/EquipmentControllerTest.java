@@ -18,9 +18,6 @@ import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherEmp
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
 import com.telecominfraproject.wlan.equipment.datastore.inmemory.EquipmentDatastoreInMemory;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
-import com.telecominfraproject.wlan.status.StatusServiceLocal;
-import com.telecominfraproject.wlan.status.controller.StatusController;
-import com.telecominfraproject.wlan.status.datastore.inmemory.StatusDatastoreInMemory;
 
 /**
  * @author dtoptygin
@@ -37,10 +34,7 @@ import com.telecominfraproject.wlan.status.datastore.inmemory.StatusDatastoreInM
         EquipmentController.class,
         CloudEventDispatcherEmpty.class,
         EquipmentDatastoreInMemory.class,
-        EquipmentControllerTest.Config.class,
-        StatusServiceLocal.class,
-        StatusController.class,
-        StatusDatastoreInMemory.class
+        EquipmentControllerTest.Config.class
         })
 public class EquipmentControllerTest {
     

@@ -1,83 +1,70 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.telecominfraproject.wlan</groupId>
-    <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
-    <relativePath>../../wlan-cloud-root</relativePath>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.telecominfraproject.wlan</groupId>
+		<artifactId>tip-wlan-cloud-root-pom</artifactId>
+		<version>1.2.0-SNAPSHOT</version>
+		<relativePath>../../wlan-cloud-root</relativePath>
+	</parent>
 
-  <artifactId>alarm-service</artifactId>
-  <name>alarm-service</name>
-  <description>Server side implementation of the service.</description>
-  
-    <dependencies>
-      <dependency>
-        <artifactId>base-container</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-        <artifactId>cloud-event-dispatcher-interface</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-      </dependency>
-      
-    <dependency>
-        <artifactId>alarm-models</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-        <artifactId>alarm-datastore-interface</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-        <artifactId>equipment-service-interface</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-        <artifactId>alarm-datastore-inmemory</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <artifactId>equipment-service-local</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <artifactId>equipment-datastore-inmemory</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-    </dependency>
+	<artifactId>alarm-service</artifactId>
+	<name>alarm-service</name>
+	<description>Server side implementation of the service.</description>
 
-      <dependency>
-        <artifactId>status-service-local</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-      </dependency>
-    
-      <dependency>
-        <artifactId>status-datastore-inmemory</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-      </dependency>
-      
-      <dependency>
-        <artifactId>cloud-event-dispatcher-empty</artifactId>
-        <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
-        <scope>test</scope>
-      </dependency>
+	<dependencies>
+		<dependency>
+			<artifactId>base-container</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+		</dependency>
 
-    </dependencies>
+		<dependency>
+			<artifactId>cloud-event-dispatcher-interface</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<artifactId>alarm-models</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>alarm-datastore-interface</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>equipment-service-interface</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>alarm-datastore-inmemory</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<artifactId>equipment-service-local</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<artifactId>equipment-datastore-inmemory</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<artifactId>cloud-event-dispatcher-empty</artifactId>
+			<groupId>com.telecominfraproject.wlan</groupId>
+			<version>1.2.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
