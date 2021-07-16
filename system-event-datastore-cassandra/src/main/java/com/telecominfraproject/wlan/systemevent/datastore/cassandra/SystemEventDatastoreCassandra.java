@@ -33,6 +33,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.server.cassandra.RowMapper;
 import com.telecominfraproject.wlan.systemevent.datastore.SystemEventDatastore;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 
 /**
@@ -1029,6 +1030,11 @@ public class SystemEventDatastoreCassandra implements SystemEventDatastore {
         keepPaging.set((filterOptions == FilterOptions.location || filterOptions == FilterOptions.location_all_filters) && indexRecordsRead > 0 && pageItems.isEmpty()  && nextPagingState!=null );
         
         return nextPagingState;
+    }
+
+    @Override
+    public SystemEventStats getSystemEventStats(String filterAttributeName, String filterAttributeValue, long fromTime, long toTime) {
+         return new SystemEventStats();
     }
 
 }

@@ -15,6 +15,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.systemevent.controller.SystemEventController;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 /**
  * @author dtoptygin
@@ -56,11 +57,17 @@ public class SystemEventServiceLocal implements SystemEventServiceInterface {
 	        Set<Long> locationIds, Set<Long> equipmentIds, Set<MacAddress> clientMacAdresses, Set<String> dataTypes, List<ColumnAndSort> sortBy,
 			PaginationContext<SystemEventRecord> context) {
 		
-        LOG.debug("calling serviceMetricController.getForCustomer {} {} {} ", fromTime, toTime, customerId);
+        LOG.debug("calling systemEventController.getForCustomer {} {} {} ", fromTime, toTime, customerId);
 
         return systemEventController.getForCustomer(fromTime, toTime, customerId,
                 locationIds, equipmentIds, clientMacAdresses, dataTypes, sortBy, context);
 	}
 
-    
+    @Override
+    public SystemEventStats getSystemEventStats(String filterAttributeName, String filterAttributeValue, long fromTime, long toTime) {
+        LOG.debug("calling systemEventController.getSystemEventStats {} {} {} {}", filterAttributeName, filterAttributeValue, fromTime, toTime);
+
+        return systemEventController.getSystemEventStats(filterAttributeName, filterAttributeValue, fromTime, toTime);
+    }
+
 }

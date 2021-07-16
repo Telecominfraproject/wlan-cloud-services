@@ -20,6 +20,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 /**
  * @author dtoptygin
@@ -175,5 +176,22 @@ public class SystemEventServiceRemote extends BaseRemoteClient implements System
     	return baseUrl;
     }
 
+    @Override
+    public SystemEventStats getSystemEventStats(String filterAttributeName, String filterAttributeValue, long fromTime, long toTime) {
+        LOG.debug("calling getSystemEventStats( {}, {}, {}, {} )", filterAttributeName, filterAttributeValue, fromTime, toTime);
+
+        try {
+            ResponseEntity<SystemEventStats> responseEntity = restTemplate.exchange(getBaseUrl() +
+                    "/stats?filterAttributeName={filterAttributeName}&filterAttributeValue={filterAttributeValue}&fromTime={fromTime}&toTime={toTime}",
+                    HttpMethod.GET, null, SystemEventStats.class, filterAttributeName, filterAttributeValue, fromTime, toTime);
+
+            SystemEventStats result = responseEntity.getBody();
+            LOG.debug("getSessionCounts({}, {}, {}, {}) returns {} ", filterAttributeName, filterAttributeValue, fromTime, toTime, result);
+            return result;
+        } catch (Exception exp) {
+            LOG.error("getSessionCounts({}, {}, {}, {}) exception ", filterAttributeName, filterAttributeValue, fromTime, toTime, exp);
+            throw exp;
+        }
+    }
 
 }

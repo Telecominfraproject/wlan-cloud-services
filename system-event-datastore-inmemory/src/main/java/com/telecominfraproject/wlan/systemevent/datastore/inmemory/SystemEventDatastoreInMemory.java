@@ -3,6 +3,7 @@ package com.telecominfraproject.wlan.systemevent.datastore.inmemory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,10 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.datastore.inmemory.BaseInMemoryDatastore;
 import com.telecominfraproject.wlan.systemevent.datastore.SystemEventDatastore;
+import com.telecominfraproject.wlan.systemevent.models.EquipmentEventStats;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecordKey;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 /**
  * @author dtoptygin
@@ -226,6 +229,40 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
             }
         }
         return clientMacAddresses.contains(macAddress);
+    }
+
+    @Override
+    public SystemEventStats getSystemEventStats(String filterAttributeName, String filterAttributeValue, long fromTime, long toTime) {
+        List<SystemEventRecord> items = new LinkedList<>();
+
+        // apply filters and build the full result list first - inefficient, but ok for testing
+        for (SystemEventRecord mdl : idToSystemEventRecordMap.values()) {
+
+            if (mdl.getEventTimestamp() >= fromTime && mdl.getEventTimestamp() <= toTime) {
+                items.add(mdl);
+            }
+        }
+
+        SystemEventStats stats = new SystemEventStats();
+        stats.setTotalCount(items.size());
+        Map<String, EquipmentEventStats> eqptStatsMap = new HashMap<>();
+        for (SystemEventRecord mdl : items) {
+            EquipmentEventStats eqptStats = eqptStatsMap.get(Long.toString(mdl.getEquipmentId()));
+            if (eqptStats == null) {
+                eqptStats = new EquipmentEventStats();
+                eqptStats.setEquipmentId(mdl.getEquipmentId());
+                eqptStatsMap.put(Long.toString(mdl.getEquipmentId()), eqptStats);
+            }
+            eqptStats.setTotalCount(eqptStats.getTotalCount() + 1);
+            if (mdl.getEventTimestamp() > eqptStats.getLastEventTime()) {
+                eqptStats.setLastEventTime(mdl.getEventTimestamp());
+            }
+            items.add(mdl);
+        }
+
+        List<EquipmentEventStats> equipmentStats = new ArrayList<>();
+        stats.setEquipmentStats(equipmentStats);
+        return stats;
     }
 
 }

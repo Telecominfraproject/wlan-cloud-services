@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,7 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.systemevent.datastore.SystemEventDatastore;
 import com.telecominfraproject.wlan.systemevent.models.SystemEventRecord;
+import com.telecominfraproject.wlan.systemevent.models.SystemEventStats;
 
 
 /**
@@ -141,7 +143,6 @@ public class SystemEventController {
         return ret;
     }
     
-    
     /**
      * Deletes SystemEventRecord records
      * 
@@ -173,5 +174,23 @@ public class SystemEventController {
     	
     	return new GenericResponse(true, "");
     }
-    
+
+    /**
+     * @param filterAttributeName
+     * @param filterAttributeValue
+     * @param fromTime
+     * @param toTime
+     * @return Returns system event statistics for the given time range.
+     */
+    @GetMapping("/stats")
+    public SystemEventStats getSystemEventStats(
+            @RequestParam String filterAttributeName,
+            @RequestParam String filterAttributeValue,
+            @RequestParam long fromTime,
+            @RequestParam long toTime) {
+        SystemEventStats ret = systemEventDatastore.getSystemEventStats(filterAttributeName, filterAttributeValue, fromTime, toTime);
+        LOG.debug("getSystemEventStats({},{},{},{})  {}", filterAttributeName, filterAttributeName, fromTime, toTime, ret);
+        return ret;
+    }
+
 }
