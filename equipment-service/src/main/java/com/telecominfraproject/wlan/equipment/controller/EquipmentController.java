@@ -280,14 +280,15 @@ public class EquipmentController {
         LOG.debug("Updated Equipment {}", ret);
         
         EquipmentChangedEvent event;
+        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+            publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
+        }
         if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
         } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
             LOG.debug("Updated BlinkingLEDs {}", ret);
             event = new EquipmentBlinkLEDsEvent(ret);
-        } else if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
-            event = new EquipmentCustomerChangedEvent(existingEquipment, ret);
         } else {
             event = new EquipmentChangedEvent(ret);
         }
@@ -295,7 +296,6 @@ public class EquipmentController {
         
         return ret;
     }
-    
     
 	private void validateChannelNum(Equipment equipment) {
 		if (equipment.getDetails() instanceof ApElementConfiguration) {
