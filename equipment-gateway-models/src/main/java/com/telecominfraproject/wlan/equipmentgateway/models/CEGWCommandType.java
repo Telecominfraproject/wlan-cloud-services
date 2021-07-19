@@ -59,6 +59,11 @@ public enum CEGWCommandType {
 	WdsRequest,
 	
 	ClientBlocklistChangeNotification,
+	
+	/**
+	 * Most recent timestamp for receipt of stats data from this AP.
+	 */
+	MostRecentStatsTimestamp,
 
 	UNSUPPORTED;
 
