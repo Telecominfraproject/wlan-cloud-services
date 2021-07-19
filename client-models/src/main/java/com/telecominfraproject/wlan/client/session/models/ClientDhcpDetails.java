@@ -124,7 +124,22 @@ public class ClientDhcpDetails extends BaseJsonModel {
     
     public void mergeDetails(ClientDhcpDetails other) {
         if(other == null) return;
-
+        if(WiFiSessionUtility.decodeWiFiAssociationId(Long.parseUnsignedLong(other.associationId))>WiFiSessionUtility.decodeWiFiAssociationId(Long.parseUnsignedLong(associationId))) {
+            // The other dhcp details are from a newer session and so everything must be reset.
+            this.dhcpServerIp = null;
+            this.firstDiscoverTimestamp = null;
+            this.firstOfferTimestamp = null;
+            this.firstRequestTimestamp = null;
+            this.gatewayIp = null;
+            this.leaseStartTimestamp = null;
+            this.leaseTimeInSeconds = null;
+            this.primaryDns = null;
+            this.secondaryDns = null;
+            this.subnetMask = null;
+            // set the session Id to the newer session
+            this.associationId = other.associationId;
+            this.fromInternal = false;
+        }
         if(!Objects.equals(this.associationId, other.associationId)) {
             return;
         }
