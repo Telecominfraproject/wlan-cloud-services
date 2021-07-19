@@ -280,6 +280,9 @@ public class EquipmentController {
         LOG.debug("Updated Equipment {}", ret);
         
         EquipmentChangedEvent event;
+        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+            publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
+        }
         if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
@@ -291,13 +294,8 @@ public class EquipmentController {
         }
         publishEvent(event);
         
-        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
-            publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
-        }
-        
         return ret;
     }
-    
     
 	private void validateChannelNum(Equipment equipment) {
 		if (equipment.getDetails() instanceof ApElementConfiguration) {
