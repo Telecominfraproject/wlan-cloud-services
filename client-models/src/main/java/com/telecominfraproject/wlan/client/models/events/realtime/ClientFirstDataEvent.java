@@ -10,7 +10,7 @@ import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent
 public class ClientFirstDataEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 298223061973506469L;
-    private long sessionId;
+    private String sessionId;
     private MacAddress clientMacAddress;
     private long firstDataRcvdTs;
     private long firstDataSentTs;
@@ -28,11 +28,11 @@ public class ClientFirstDataEvent extends RealTimeEvent implements HasClientMac 
         super(eventType, timestamp);
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

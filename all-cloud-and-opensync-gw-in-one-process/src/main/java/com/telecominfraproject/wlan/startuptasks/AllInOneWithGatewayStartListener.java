@@ -811,10 +811,10 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 			sessionDetails.setRadioType(radioType);
 			sessionDetails.setSecurityType(SecurityType.PSK);
 			sessionDetails.setSsid(ssidConfig.getSsid());
-			sessionDetails.setSessionId(System.currentTimeMillis());
+			sessionDetails.setSessionId(Long.toUnsignedString(System.currentTimeMillis()));
 			sessionDetails.setAssocTimestamp(System.currentTimeMillis() - getRandomLong(10000, 1000000));
 
-			ClientDhcpDetails dhcpDetails = new ClientDhcpDetails(System.currentTimeMillis());
+			ClientDhcpDetails dhcpDetails = new ClientDhcpDetails(Long.toUnsignedString(System.currentTimeMillis()));
 			dhcpDetails.setLeaseStartTimestamp(System.currentTimeMillis() - getRandomLong(0, TimeUnit.HOURS.toMillis(4)));
 			dhcpDetails.setLeaseTimeInSeconds((int)TimeUnit.HOURS.toSeconds(4));
 			try {

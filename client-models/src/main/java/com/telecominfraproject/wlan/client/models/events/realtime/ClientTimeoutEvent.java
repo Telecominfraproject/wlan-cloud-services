@@ -26,7 +26,7 @@ public class ClientTimeoutEvent extends RealTimeEvent implements HasClientMac {
         }
     }
 
-    private long sessionId;
+    private String sessionId;
     private MacAddress clientMacAddress;
     private long lastRecvTime;
     private long lastSentTime;
@@ -45,11 +45,11 @@ public class ClientTimeoutEvent extends RealTimeEvent implements HasClientMac {
         super(eventType, timestamp);
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

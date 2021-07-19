@@ -10,12 +10,12 @@ public class DhcpOfferEvent extends BaseDhcpEvent {
      */
     private boolean fromInternal = false;
 
-    public DhcpOfferEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, long sessionId) {
+    public DhcpOfferEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, String sessionId) {
         super(customerId, locationId, equipmentId, eventTimestamp, sessionId);
     }
 
     public DhcpOfferEvent() {
-        super(0, 0L,0L,0L,0L);
+        super(0, 0L,0L,0L,"0");
     }
 
     /**

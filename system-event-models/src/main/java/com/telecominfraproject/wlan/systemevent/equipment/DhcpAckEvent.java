@@ -22,12 +22,12 @@ public class DhcpAckEvent extends BaseDhcpEvent {
      */
     private boolean fromInternal = false;
 
-    public DhcpAckEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, long sessionId) {
+    public DhcpAckEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, String sessionId) {
         super(customerId, locationId, equipmentId, eventTimestamp, sessionId);
     }
 
     public DhcpAckEvent() {
-        super(0, 0L,0L,0L,0L);
+        super(0, 0L,0L,0L,"0");
     }
 
     public InetAddress getGatewayIp() {

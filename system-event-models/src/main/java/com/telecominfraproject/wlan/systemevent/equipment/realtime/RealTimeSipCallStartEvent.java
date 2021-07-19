@@ -18,7 +18,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
      */
     private static final long serialVersionUID = -7289926906539107435L;
     private Long sipCallId;
-    private Long associationId;
+    private String associationId;
     private MacAddress macAddress;
     private List<String> codecs;
     private String providerDomain;
@@ -52,7 +52,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
                 && Objects.equals(channel, other.channel) && Objects.equals(radioType, other.radioType);
     }
 
-    public Long getAssociationId() {
+    public String getAssociationId() {
         return associationId;
     }
 
@@ -92,7 +92,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
         return result;
     }
 
-    public void setAssociationId(Long associationId) {
+    public void setAssociationId(String associationId) {
         this.associationId = associationId;
     }
 
@@ -131,7 +131,7 @@ public class RealTimeSipCallStartEvent extends RealTimeEvent
     }
 
     public boolean hasValidAssociationId() {
-        return (associationId != null) && (associationId != 0);
+        return (associationId != null) && (!associationId.equals("0"));
     }
 
     public int getChannel() {

@@ -42,7 +42,7 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Integer vhtMcs;
     private Integer snr;
     private Integer rssi;
-    private Long sessionId;
+    private String sessionId;
     private String classificationName;
     ChannelBandwidth channelBandWidth;
     GuardInterval guardInterval;
@@ -1191,7 +1191,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         return rxLastRssi;
     }
 
-    public Long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -1537,7 +1537,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         this.rxLastRssi = rxLastRssi;
     }
 
-    public void setSessionId(Long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

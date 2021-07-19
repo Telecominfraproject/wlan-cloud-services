@@ -4347,8 +4347,7 @@ components:
       type: object
       properties:
         sessionId:
-          type: integer
-          format: int64
+          type: string
         authTimestamp:
           type: integer
           format: int64
@@ -5234,9 +5233,8 @@ components:
           format: int32
         
         sessionId:
-          type: integer
-          format: int64
-        
+          type: string
+       
         classificationName:
           type: string
 
@@ -9783,8 +9781,7 @@ components:
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         customerId:
           type: integer
           format: int32
@@ -9916,8 +9913,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         ssid:
           type: string
         clientMacAddress:
@@ -9952,8 +9948,7 @@ components:
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         radioType:
           $ref: '#/components/schemas/RadioType'        
         isReassociation:
@@ -10009,8 +10004,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         ssid:
           type: string
         clientMacAddress:
@@ -10029,8 +10023,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         macAddressBytes:
           type: array
           items:
@@ -10057,8 +10050,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'
         lastRecvTime:
@@ -10079,8 +10071,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         ssid:
           type: string
         clientMacAddress:
@@ -10115,8 +10106,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         ssid:
           type: string
         clientMacAddress:
@@ -10156,8 +10146,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'          
         firstDataRcvdTs:
@@ -10176,8 +10165,7 @@ components:
         allOf:
           $ref: '#/components/schemas/RealTimeEvent'   
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         ipAddr:
@@ -10259,8 +10247,7 @@ components:
           type: integer
           format: int64
         associationId:
-          type: integer
-          format: int64
+          type: string
         clientMacAddress:
           $ref: '#/components/schemas/MacAddress'  
         radioType:
@@ -10302,8 +10289,7 @@ components:
           type: integer
           format: int64
         associationId:
-          type: integer
-          format: int64
+          type: string
         macAddress:
           $ref: '#/components/schemas/MacAddress'  
         radioType:
@@ -10353,8 +10339,7 @@ components:
           type: integer
           format: int64
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMac:
           $ref: '#/components/schemas/MacAddress'
         serverIp:
@@ -10377,8 +10362,7 @@ components:
           type: integer
           format: int64
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMac:
           $ref: '#/components/schemas/MacAddress'
         serverIp:
@@ -10399,8 +10383,7 @@ components:
           type: integer
           format: int64
         sessionId:
-          type: integer
-          format: int64
+          type: string
         clientMac:
           $ref: '#/components/schemas/MacAddress'
         serverIp:

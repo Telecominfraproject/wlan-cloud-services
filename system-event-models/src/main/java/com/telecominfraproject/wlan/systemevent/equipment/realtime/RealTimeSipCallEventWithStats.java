@@ -28,7 +28,7 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     private static final long serialVersionUID = -8908272967317508366L;
 
     private Long sipCallId;
-    private Long associationId;
+    private String associationId;
     private MacAddress clientMacAddress;
     private List<RtpFlowStats> statuses;
     private int channel;
@@ -49,12 +49,12 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
         this.sipCallId = sipCallId;
     }
 
-    public Long getAssociationId() {
+    public String getAssociationId() {
         return associationId;
     }
 
-    public void setAssociationId(Long associationId) {
-        this.associationId = associationId;
+    public void setAssociationId(String string) {
+        this.associationId = string;
     }
 
     @Override
@@ -79,7 +79,7 @@ public abstract class RealTimeSipCallEventWithStats extends RealTimeEvent
     }
 
     public boolean hasValidAssociationId() {
-        return (associationId != null) && (associationId != 0);
+        return (associationId != null) && (!associationId.equals("0"));
     }
 
     public int getChannel() {
