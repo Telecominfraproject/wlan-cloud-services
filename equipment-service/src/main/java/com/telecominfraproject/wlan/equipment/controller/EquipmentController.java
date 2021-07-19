@@ -286,12 +286,14 @@ public class EquipmentController {
         } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
             LOG.debug("Updated BlinkingLEDs {}", ret);
             event = new EquipmentBlinkLEDsEvent(ret);
-        } else if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
-            event = new EquipmentCustomerChangedEvent(existingEquipment, ret);
         } else {
             event = new EquipmentChangedEvent(ret);
         }
         publishEvent(event);
+        
+        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+            publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
+        }
         
         return ret;
     }
