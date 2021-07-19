@@ -20,12 +20,12 @@ public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac,
     private InetAddress clientIp;
     private InetAddress relayIp;
     private MacAddress clientMacAddress;
-    private long sessionId; // association sessionid
+    private String sessionId; // association sessionid
     private int customerId;
     private long equipmentId;
     private long locationId;
 
-    public BaseDhcpEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, long sessionId) {
+    public BaseDhcpEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, String sessionId) {
         super(eventTimestamp);
         this.customerId = customerId;
         this.locationId = locationId;
@@ -113,11 +113,11 @@ public abstract class BaseDhcpEvent extends SystemEvent implements HasClientMac,
         this.relayIp = relayIp;
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
     

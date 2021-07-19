@@ -270,8 +270,7 @@ components:
           format: int32
         
         sessionId:
-          type: integer
-          format: int64
+          type: string
         
         classificationName:
           type: string

@@ -12,7 +12,7 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
 
     private static final long serialVersionUID = -5332534925768685589L;
 
-    private long sessionId;
+    private String sessionId;
     private MacAddress clientMacAddress;
     private InetAddress ipAddr;
 
@@ -29,11 +29,11 @@ public class ClientIpAddressEvent extends RealTimeEvent implements HasClientMac 
         super(eventType, timestamp);
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

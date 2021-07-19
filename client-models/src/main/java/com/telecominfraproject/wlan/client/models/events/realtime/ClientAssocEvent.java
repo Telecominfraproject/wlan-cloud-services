@@ -12,7 +12,7 @@ import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent
 public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
     private static final long serialVersionUID = 7015822981315570338L;
 
-    private long sessionId;
+    private String sessionId;
     private String ssid;
     private MacAddress clientMacAddress;
     private RadioType radioType;
@@ -29,7 +29,7 @@ public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
         
     }
 
-    public ClientAssocEvent(int customerId, long locationId, long equipmentId, long timestamp, long sessionId, String ssid,
+    public ClientAssocEvent(int customerId, long locationId, long equipmentId, long timestamp, String sessionId, String ssid,
             MacAddress clientMacAddress, RadioType radioType, boolean isReassociation, WlanStatusCode status,
             Integer internalSC, Integer rssi) {
         super(RealTimeEventType.STA_Client_Assoc, customerId, locationId, equipmentId, timestamp);
@@ -50,7 +50,7 @@ public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
     /**
      * @return the sessionId
      */
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -58,7 +58,7 @@ public class ClientAssocEvent extends RealTimeEvent implements HasClientMac {
      * @param sessionId
      *            the sessionId to set
      */
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

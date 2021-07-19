@@ -10,12 +10,12 @@ package com.telecominfraproject.wlan.systemevent.equipment;
 public class DhcpInformEvent extends BaseDhcpEvent {
     private static final long serialVersionUID = 7053813308222200205L;
 
-    public DhcpInformEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, long sessionId){
+    public DhcpInformEvent(int customerId, long locationId, long equipmentId, long eventTimestamp, String sessionId){
     	super(customerId, locationId,equipmentId,eventTimestamp, sessionId);
     }
     
     public DhcpInformEvent() {
-        super(0, 0L,0L,0L,0L);
+        super(0, 0L,0L,0L,"0");
     }
 
     @Override

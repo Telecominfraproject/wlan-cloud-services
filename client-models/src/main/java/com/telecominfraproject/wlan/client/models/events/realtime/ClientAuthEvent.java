@@ -13,7 +13,7 @@ public class ClientAuthEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 1221389696911864515L;
 
-    private long sessionId;
+    private String sessionId;
     private String ssid;
     private MacAddress clientMacAddress;
     private WlanStatusCode authStatus;
@@ -32,11 +32,11 @@ public class ClientAuthEvent extends RealTimeEvent implements HasClientMac {
         super(eventType, timestamp);
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

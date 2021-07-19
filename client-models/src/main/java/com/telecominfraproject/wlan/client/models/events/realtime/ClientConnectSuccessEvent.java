@@ -14,7 +14,7 @@ public class ClientConnectSuccessEvent extends RealTimeEvent implements HasClien
 
     private static final long serialVersionUID = -6082134146801575193L;
     private MacAddress clientMacAddress;
-    private long sessionId;
+    private String sessionId;
     private RadioType radioType;
     private boolean isReassociation;
     private String ssid;
@@ -61,7 +61,7 @@ public class ClientConnectSuccessEvent extends RealTimeEvent implements HasClien
     /**
      * @return the sessionId
      */
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -69,7 +69,7 @@ public class ClientConnectSuccessEvent extends RealTimeEvent implements HasClien
      * @param sessionId
      *            the sessionId to set
      */
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

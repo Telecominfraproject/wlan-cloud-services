@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.client.session.models;
 
 import java.net.InetAddress;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.WiFiSessionUtility;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
@@ -29,10 +30,9 @@ public class ClientDhcpDetails extends BaseJsonModel {
     /**
      * Identifies the association where DHCP last occurred.
      */
-    private long associationId;
+    private String associationId;
     
-
-    public ClientDhcpDetails(long sessionId) {
+    public ClientDhcpDetails(String sessionId) {
         this.associationId = sessionId;
     }
     
@@ -101,10 +101,10 @@ public class ClientDhcpDetails extends BaseJsonModel {
         this.firstDiscoverTimestamp = firstDiscoverTimestamp;
     }
     
-    public long getAssociationId() {
+    public String getAssociationId() {
         return associationId;
     }
-    public void setAssociationId(Long associationId) {
+    public void setAssociationId(String associationId) {
         this.associationId = associationId;
     }
     
@@ -117,123 +117,6 @@ public class ClientDhcpDetails extends BaseJsonModel {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (associationId ^ (associationId >>> 32));
-        result = prime * result + ((dhcpServerIp == null) ? 0 : dhcpServerIp.hashCode());
-        result = prime * result + ((firstDiscoverTimestamp == null) ? 0 : firstDiscoverTimestamp.hashCode());
-        result = prime * result + ((firstOfferTimestamp == null) ? 0 : firstOfferTimestamp.hashCode());
-        result = prime * result + ((firstRequestTimestamp == null) ? 0 : firstRequestTimestamp.hashCode());
-        result = prime * result + (fromInternal ? 1231 : 1237);
-        result = prime * result + ((gatewayIp == null) ? 0 : gatewayIp.hashCode());
-        result = prime * result + ((leaseStartTimestamp == null) ? 0 : leaseStartTimestamp.hashCode());
-        result = prime * result + ((leaseTimeInSeconds == null) ? 0 : leaseTimeInSeconds.hashCode());
-        result = prime * result + ((nakTimestamp == null) ? 0 : nakTimestamp.hashCode());
-        result = prime * result + ((primaryDns == null) ? 0 : primaryDns.hashCode());
-        result = prime * result + ((secondaryDns == null) ? 0 : secondaryDns.hashCode());
-        result = prime * result + ((subnetMask == null) ? 0 : subnetMask.hashCode());
-        return result;
-    }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof ClientDhcpDetails)) {
-            return false;
-        }
-        ClientDhcpDetails other = (ClientDhcpDetails) obj;
-        if (associationId != other.associationId) {
-            return false;
-        }
-        if (dhcpServerIp == null) {
-            if (other.dhcpServerIp != null) {
-                return false;
-            }
-        } else if (!dhcpServerIp.equals(other.dhcpServerIp)) {
-            return false;
-        }
-        if (firstDiscoverTimestamp == null) {
-            if (other.firstDiscoverTimestamp != null) {
-                return false;
-            }
-        } else if (!firstDiscoverTimestamp.equals(other.firstDiscoverTimestamp)) {
-            return false;
-        }
-        if (firstOfferTimestamp == null) {
-            if (other.firstOfferTimestamp != null) {
-                return false;
-            }
-        } else if (!firstOfferTimestamp.equals(other.firstOfferTimestamp)) {
-            return false;
-        }
-        if (firstRequestTimestamp == null) {
-            if (other.firstRequestTimestamp != null) {
-                return false;
-            }
-        } else if (!firstRequestTimestamp.equals(other.firstRequestTimestamp)) {
-            return false;
-        }
-        if (fromInternal != other.fromInternal) {
-            return false;
-        }
-        if (gatewayIp == null) {
-            if (other.gatewayIp != null) {
-                return false;
-            }
-        } else if (!gatewayIp.equals(other.gatewayIp)) {
-            return false;
-        }
-        if (leaseStartTimestamp == null) {
-            if (other.leaseStartTimestamp != null) {
-                return false;
-            }
-        } else if (!leaseStartTimestamp.equals(other.leaseStartTimestamp)) {
-            return false;
-        }
-        if (leaseTimeInSeconds == null) {
-            if (other.leaseTimeInSeconds != null) {
-                return false;
-            }
-        } else if (!leaseTimeInSeconds.equals(other.leaseTimeInSeconds)) {
-            return false;
-        }
-        if (nakTimestamp == null) {
-            if (other.nakTimestamp != null) {
-                return false;
-            }
-        } else if (!nakTimestamp.equals(other.nakTimestamp)) {
-            return false;
-        }
-        if (primaryDns == null) {
-            if (other.primaryDns != null) {
-                return false;
-            }
-        } else if (!primaryDns.equals(other.primaryDns)) {
-            return false;
-        }
-        if (secondaryDns == null) {
-            if (other.secondaryDns != null) {
-                return false;
-            }
-        } else if (!secondaryDns.equals(other.secondaryDns)) {
-            return false;
-        }
-        if (subnetMask == null) {
-            if (other.subnetMask != null) {
-                return false;
-            }
-        } else if (!subnetMask.equals(other.subnetMask)) {
-            return false;
-        }
-        return true;
-    }
-    
-    @Override
     public ClientDhcpDetails clone() {
         ClientDhcpDetails ret = (ClientDhcpDetails) super.clone();
         return ret;
@@ -241,25 +124,8 @@ public class ClientDhcpDetails extends BaseJsonModel {
     
     public void mergeDetails(ClientDhcpDetails other) {
         if(other == null) return;
-        
-        if(WiFiSessionUtility.decodeWiFiAssociationId(other.associationId)>WiFiSessionUtility.decodeWiFiAssociationId(associationId)) {
-            // The other dhcp details are from a newer session and so everything must be reset.
-            this.dhcpServerIp = null;
-            this.firstDiscoverTimestamp = null;
-            this.firstOfferTimestamp = null;
-            this.firstRequestTimestamp = null;
-            this.gatewayIp = null;
-            this.leaseStartTimestamp = null;
-            this.leaseTimeInSeconds = null;
-            this.primaryDns = null;
-            this.secondaryDns = null;
-            this.subnetMask = null;
-            // set the session Id to the newer session
-            this.associationId = other.associationId;
-            this.fromInternal = false;
-        }
-        else if(other.associationId != associationId) {
-            // other is older, ignore it
+
+        if(!Objects.equals(this.associationId, other.associationId)) {
             return;
         }
         dhcpServerIp = (InetAddress) assignOtherIfOtherNotNull(dhcpServerIp, other.dhcpServerIp);
@@ -303,6 +169,30 @@ public class ClientDhcpDetails extends BaseJsonModel {
      */
     public void setFromInternal(boolean fromInternal) {
         this.fromInternal = fromInternal;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(associationId, dhcpServerIp, firstDiscoverTimestamp, firstOfferTimestamp, firstRequestTimestamp, fromInternal, gatewayIp,
+                leaseStartTimestamp, leaseTimeInSeconds, nakTimestamp, primaryDns, secondaryDns, subnetMask);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClientDhcpDetails other = (ClientDhcpDetails) obj;
+        return Objects.equals(associationId, other.associationId) && Objects.equals(dhcpServerIp, other.dhcpServerIp)
+                && Objects.equals(firstDiscoverTimestamp, other.firstDiscoverTimestamp) && Objects.equals(firstOfferTimestamp, other.firstOfferTimestamp)
+                && Objects.equals(firstRequestTimestamp, other.firstRequestTimestamp) && fromInternal == other.fromInternal
+                && Objects.equals(gatewayIp, other.gatewayIp) && Objects.equals(leaseStartTimestamp, other.leaseStartTimestamp)
+                && Objects.equals(leaseTimeInSeconds, other.leaseTimeInSeconds) && Objects.equals(nakTimestamp, other.nakTimestamp)
+                && Objects.equals(primaryDns, other.primaryDns) && Objects.equals(secondaryDns, other.secondaryDns)
+                && Objects.equals(subnetMask, other.subnetMask);
     }
 
 }

@@ -13,8 +13,8 @@ public class RealTimeStreamingStopEvent extends RealTimeEvent
         implements HasCustomerId, HasEquipmentId, HasClientMac, HasProducedTimestamp {
 
     private static final long serialVersionUID = 6433913573274597688L;
-    private Long videoSessionId;
-    private Long sessionId;
+    private String videoSessionId;
+    private String sessionId;
     private MacAddress clientMac;
     private InetAddress serverIp;
     private Long totalBytes;
@@ -33,19 +33,19 @@ public class RealTimeStreamingStopEvent extends RealTimeEvent
         super(RealTimeEventType.VideoStreamStop, customerId, locationId, equipmentId, eventTimestamp);
     }
 
-    public Long getVideoSessionId() {
+    public String getVideoSessionId() {
         return videoSessionId;
     }
 
-    public void setVideoSessionId(Long videoSessionId) {
+    public void setVideoSessionId(String videoSessionId) {
         this.videoSessionId = videoSessionId;
     }
 
-    public Long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(Long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

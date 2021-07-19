@@ -45,7 +45,7 @@ public class ClientDisconnectEvent extends RealTimeEvent implements HasClientMac
     }
 
     private static final long serialVersionUID = -7674230178565760938L;
-    private long sessionId;
+    private String sessionId;
     private byte[] macAddressBytes;
     private MacAddress clientMacAddress;
     private long lastRecvTime;
@@ -104,7 +104,7 @@ public class ClientDisconnectEvent extends RealTimeEvent implements HasClientMac
         return rssi;
     }
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -148,7 +148,7 @@ public class ClientDisconnectEvent extends RealTimeEvent implements HasClientMac
         this.rssi = rssi;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

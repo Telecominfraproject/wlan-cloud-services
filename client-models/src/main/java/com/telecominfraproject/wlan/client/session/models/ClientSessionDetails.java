@@ -19,7 +19,7 @@ public class ClientSessionDetails extends BaseJsonModel {
 
     private static final long serialVersionUID = -7714023056859882994L;
 
-    private long sessionId;
+    private String sessionId;
     private Long authTimestamp;
     private Long assocTimestamp;
     private Integer assocInternalSC;
@@ -60,16 +60,16 @@ public class ClientSessionDetails extends BaseJsonModel {
     private Integer associationStatus;
     private Integer dynamicVlan;
     private Integer assocRssi;
-    private Long priorSessionId;
+    private String priorSessionId;
     private Long priorEquipmentId;
     private String classificationName;
     private AssociationState associationState;
 
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -821,11 +821,11 @@ public class ClientSessionDetails extends BaseJsonModel {
         this.assocRssi = assocRssi;
     }
 
-    public Long getPriorSessionId() {
+    public String getPriorSessionId() {
         return priorSessionId;
     }
 
-    public void setPriorSessionId(Long priorSessionId) {
+    public void setPriorSessionId(String priorSessionId) {
         this.priorSessionId = priorSessionId;
     }
 

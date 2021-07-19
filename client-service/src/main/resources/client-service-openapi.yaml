@@ -147,8 +147,7 @@ components:
       type: object
       properties:
         sessionId:
-          type: integer
-          format: int64
+          type: string
         authTimestamp:
           type: integer
           format: int64

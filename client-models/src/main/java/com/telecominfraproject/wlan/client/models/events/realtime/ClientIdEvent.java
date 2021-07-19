@@ -1,6 +1,7 @@
 package com.telecominfraproject.wlan.client.models.events.realtime;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasClientMac;
@@ -10,7 +11,7 @@ import com.telecominfraproject.wlan.systemevent.equipment.realtime.RealTimeEvent
 public class ClientIdEvent extends RealTimeEvent implements HasClientMac {
 
     private static final long serialVersionUID = 298223061973506469L;
-    private long sessionId;
+    private String sessionId;
     private byte[] macAddressBytes;
     private MacAddress clientMacAddress;
     private String userId;
@@ -27,7 +28,7 @@ public class ClientIdEvent extends RealTimeEvent implements HasClientMac {
     /**
      * @return the sessionId
      */
-    public long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -35,7 +36,7 @@ public class ClientIdEvent extends RealTimeEvent implements HasClientMac {
      * @param sessionId
      *            the sessionId to set
      */
-    public void setSessionId(long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -65,58 +66,28 @@ public class ClientIdEvent extends RealTimeEvent implements HasClientMac {
         this.userId = userId;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+
+
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
         result = prime * result + Arrays.hashCode(macAddressBytes);
-        result = prime * result + (int) (sessionId ^ (sessionId >>> 32));
-        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        result = prime * result + ((clientMacAddress == null) ? 0 : clientMacAddress.hashCode());
+        result = prime * result + Objects.hash(clientMacAddress, sessionId, userId);
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (!super.equals(obj))
             return false;
-        }
-        if (!super.equals(obj)) {
+        if (getClass() != obj.getClass())
             return false;
-        }
-        if (!(obj instanceof ClientIdEvent)) {
-            return false;
-        }
         ClientIdEvent other = (ClientIdEvent) obj;
-        if (!Arrays.equals(macAddressBytes, other.macAddressBytes))
-            return false;
-        if (sessionId != other.sessionId)
-            return false;
-        if (userId == null) {
-            if (other.userId != null)
-                return false;
-        } else if (!userId.equals(other.userId))
-            return false;
-        if (clientMacAddress == null) {
-            if (other.clientMacAddress != null)
-                return false;
-        } else if (!clientMacAddress.equals(other.clientMacAddress))
-            return false;
-
-        return true;
+        return Objects.equals(clientMacAddress, other.clientMacAddress) && Arrays.equals(macAddressBytes, other.macAddressBytes)
+                && Objects.equals(sessionId, other.sessionId) && Objects.equals(userId, other.userId);
     }
 
     @Override
