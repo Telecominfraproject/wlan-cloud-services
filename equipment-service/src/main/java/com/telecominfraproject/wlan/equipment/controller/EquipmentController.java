@@ -280,10 +280,10 @@ public class EquipmentController {
         LOG.debug("Updated Equipment {}", ret);
         
         EquipmentChangedEvent event;
-        if (equipment.getCustomerId() != existingEquipment.getCustomerId()) {
+        if (ret.getCustomerId() != existingEquipment.getCustomerId()) {
             publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
         }
-        if ((equipment.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
+        if ((ret.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
         } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
