@@ -234,8 +234,7 @@ components:
         steerType:
           $ref: '#/components/schemas/SteerType'
         previousValidSessionId:
-          type: integer
-          format: int64
+          type: string
         lastFailureDetails:
           $ref: '#/components/schemas/ClientFailureDetails'
         firstFailureDetails:
@@ -250,8 +249,7 @@ components:
           type: integer
           format: int32
         priorSessionId:
-          type: integer
-          format: int64
+          type: string
         priorEquipmentId:
           type: integer
           format: int64

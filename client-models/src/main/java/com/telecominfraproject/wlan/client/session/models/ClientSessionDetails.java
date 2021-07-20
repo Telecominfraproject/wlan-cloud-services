@@ -54,7 +54,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     private Boolean is11VUsed;
     private SecurityType securityType;
     private SteerType steerType;
-    private Long previousValidSessionId;
+    private String previousValidSessionId;
     private ClientFailureDetails lastFailureDetails;
     private ClientFailureDetails firstFailureDetails;
     private Integer associationStatus;
@@ -413,11 +413,11 @@ public class ClientSessionDetails extends BaseJsonModel {
         this.steerType = steerType;
     }
 
-    public Long getPreviousValidSessionId() {
+    public String getPreviousValidSessionId() {
         return previousValidSessionId;
     }
 
-    public void setPreviousValidSessionId(Long previousValidSessionId) {
+    public void setPreviousValidSessionId(String previousValidSessionId) {
         this.previousValidSessionId = previousValidSessionId;
     }
 
