@@ -259,7 +259,7 @@ public class AlarmServiceRemote extends BaseRemoteClient implements AlarmService
 
         try {
             ResponseEntity<List<Alarm>> responseEntity =
-                    restTemplate.exchange(getBaseUrl() + "/forAlarmCode?alarmCodeSet={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}",
+                    restTemplate.exchange(getBaseUrl() + "/forAlarmCode?alarmCode={alarmCodeSetStr}&createdAfterTimestamp={createdAfterTimestamp}",
                             HttpMethod.GET, null, Alarm_LIST_CLASS_TOKEN, alarmCodeSetStr, createdAfterTimestamp);
 
             List<Alarm> result = responseEntity.getBody();
