@@ -148,7 +148,7 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     	PortalUser ret = null;
     	
         for (PortalUser mdl : idToPortalUserMap.values()) {
-        	if(mdl.getCustomerId() == customerId && mdl.getUsername().equals(username)) {
+        	if(mdl.getCustomerId() == customerId && mdl.getUsername().toLowerCase().equals(username.toLowerCase())) {
         		ret = mdl.clone();
         	}
         }
@@ -161,7 +161,7 @@ public class PortalUserDatastoreInMemory extends BaseInMemoryDatastore implement
     	List<PortalUser> listOfPortalUsers = new ArrayList<>();
     	
     	for (PortalUser portalUser : idToPortalUserMap.values()) {
-    		if (portalUser.getUsername().equals(username)) {
+    		if (portalUser.getUsername().toLowerCase().equals(username.toLowerCase())) {
     			listOfPortalUsers.add(portalUser);
     		}
     	}

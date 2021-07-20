@@ -75,7 +75,6 @@ public class PortalUserDAO extends BaseJdbcDao {
 
     public static final Set<String> ALL_COLUMNS_LOWERCASE = new HashSet<>();
 
-    @SuppressWarnings("unused")
     //use this for queries where multiple tables are involved
     public static final String ALL_COLUMNS_WITH_PREFIX;
     
@@ -135,10 +134,10 @@ public class PortalUserDAO extends BaseJdbcDao {
     private static final String SQL_GET_BY_USERNAME = 
     		"select " + ALL_COLUMNS +
     		" from " + TABLE_NAME + " " + 
-    		" where username = ? ";
+    		" where lower(username) = ? ";
     
     private static final String SQL_GET_BY_CUSTOMERID_AND_USERNAME = SQL_GET_BY_CUSTOMER_ID +
-    		" and username = ?";
+    		" and lower(username) = ?";
 
     private static final String SQL_GET_LASTMOD_BY_ID =
         "select lastModifiedTimestamp " +
@@ -463,7 +462,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         try{
             PortalUser portalUser = this.jdbcTemplate.queryForObject(
                     SQL_GET_BY_CUSTOMERID_AND_USERNAME,
-                    portalUserRowMapper, customerId, username);
+                    portalUserRowMapper, customerId, username.toLowerCase());
             
             LOG.debug("Found PortalUser {}", portalUser);
             
@@ -478,7 +477,7 @@ public class PortalUserDAO extends BaseJdbcDao {
         LOG.debug("Looking up PortalUsers for username {} {}", username);
 
     	List<PortalUser> ret = this.jdbcTemplate.query(SQL_GET_BY_USERNAME,
-                portalUserRowMapper, username);
+                portalUserRowMapper, username.toLowerCase());
         
         LOG.debug("Found List of Portal Users {}", ret);
                 
