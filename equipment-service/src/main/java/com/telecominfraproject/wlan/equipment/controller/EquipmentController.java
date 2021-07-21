@@ -258,7 +258,10 @@ public class EquipmentController {
         
         LOG.debug("Updating Equipment {}", equipment);
         
-        if (BaseJsonModel.hasUnsupportedValue(equipment)) {
+        if (BaseJsonModel.hasUnsupportedValue(equipment) 
+        		|| equipment.getCustomerId() == 0 
+        		|| equipment.getLocationId() == 0 
+        		|| equipment.getProfileId() == 0) {
             LOG.error("Failed to update Equipment, request contains unsupported value: {}", equipment);
             throw new DsDataValidationException("Equipment contains unsupported value");
         }

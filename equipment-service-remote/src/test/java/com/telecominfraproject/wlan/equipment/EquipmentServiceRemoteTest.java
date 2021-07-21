@@ -83,7 +83,10 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         equipment.setName("testName-"+getNextEquipmentId());
         equipment.setInventoryId("test-inv-"+getNextEquipmentId());
         equipment.setEquipmentType(EquipmentType.AP);
-
+        equipment.setLocationId(1);
+        equipment.setProfileId(1);
+        equipment.setCustomerId(1);
+        
         Equipment ret = remoteInterface.create(equipment);
         assertNotNull(ret);
         
@@ -631,6 +634,9 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         equipment.setName("testName-"+getNextEquipmentId());
         equipment.setInventoryId("test-inv-"+getNextEquipmentId());
         equipment.setEquipmentType(EquipmentType.AP);
+        equipment.setCustomerId(1);
+        equipment.setLocationId(1);
+        equipment.setProfileId(1);
         equipment.setDetails(ApElementConfiguration.createWithDefaults());
 
         ElementRadioConfiguration element2dot4RadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);       
