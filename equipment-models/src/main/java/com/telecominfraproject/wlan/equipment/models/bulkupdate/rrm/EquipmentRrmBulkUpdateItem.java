@@ -118,33 +118,40 @@ public class EquipmentRrmBulkUpdateItem extends BaseJsonModel {
 				finalDetails.getRadioMap().put(rt, erc);
 			}
 			
-			if(erc.getManualChannelNumber()== null || erc.getManualChannelNumber().intValue() != updateDetails.getChannelNumber()) {
+			if(erc.getManualChannelNumber() == null 
+			        || erc.getManualChannelNumber().intValue() != updateDetails.getChannelNumber()) {
 				erc.setManualChannelNumber(updateDetails.getChannelNumber());
 				modelChanged.set(true);
 			}
 			
-			if(erc.getManualBackupChannelNumber()== null ||
-					erc.getManualBackupChannelNumber().intValue() != updateDetails.getBackupChannelNumber()) {
+			if(erc.getManualBackupChannelNumber() == null 
+			        || erc.getManualBackupChannelNumber().intValue() != updateDetails.getBackupChannelNumber()) {
 				erc.setManualBackupChannelNumber(updateDetails.getBackupChannelNumber());
 				modelChanged.set(true);
 			}
 			
-			if ((erc.getClientDisconnectThresholdDb() == null && updateDetails.getClientDisconnectThresholdDb() != null)
-					|| !erc.getClientDisconnectThresholdDb().equals(updateDetails.getClientDisconnectThresholdDb())) {
-				erc.setClientDisconnectThresholdDb(updateDetails.getClientDisconnectThresholdDb());
-				modelChanged.set(true);
+			if (updateDetails.getClientDisconnectThresholdDb() != null) {
+    			if ((erc.getClientDisconnectThresholdDb() == null && updateDetails.getClientDisconnectThresholdDb() != null)
+    					|| !erc.getClientDisconnectThresholdDb().equals(updateDetails.getClientDisconnectThresholdDb())) {
+    				erc.setClientDisconnectThresholdDb(updateDetails.getClientDisconnectThresholdDb());
+    				modelChanged.set(true);
+    			}
 			}
 
-			if ((erc.getProbeResponseThresholdDb() == null && updateDetails.getProbeResponseThresholdDb() != null)
-					|| !erc.getProbeResponseThresholdDb().equals(updateDetails.getProbeResponseThresholdDb())) {
-				erc.setProbeResponseThresholdDb(updateDetails.getProbeResponseThresholdDb());
-				modelChanged.set(true);
+			if (updateDetails.getProbeResponseThresholdDb() != null) {
+    			if ((erc.getProbeResponseThresholdDb() == null && updateDetails.getProbeResponseThresholdDb() != null)
+    					|| !erc.getProbeResponseThresholdDb().equals(updateDetails.getProbeResponseThresholdDb())) {
+    				erc.setProbeResponseThresholdDb(updateDetails.getProbeResponseThresholdDb());
+    				modelChanged.set(true);
+    			}
 			}
 
-			if ((erc.getRxCellSizeDb() == null && updateDetails.getRxCellSizeDb() != null)
-					|| !erc.getRxCellSizeDb().equals(updateDetails.getRxCellSizeDb())) {
-				erc.setRxCellSizeDb(updateDetails.getRxCellSizeDb());
-				modelChanged.set(true);
+			if (updateDetails.getRxCellSizeDb() != null) {
+    			if ((erc.getRxCellSizeDb() == null && updateDetails.getRxCellSizeDb() != null)
+    					|| !erc.getRxCellSizeDb().equals(updateDetails.getRxCellSizeDb())) {
+    				erc.setRxCellSizeDb(updateDetails.getRxCellSizeDb());
+    				modelChanged.set(true);
+    			}
 			}
 			
 			
