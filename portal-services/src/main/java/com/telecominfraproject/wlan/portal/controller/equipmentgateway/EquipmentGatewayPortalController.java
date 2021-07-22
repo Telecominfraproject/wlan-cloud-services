@@ -16,12 +16,9 @@ import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.RadioChannelChangeSettings;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBlinkRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
-import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandType;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWFirmwareDownloadRequest;
-import com.telecominfraproject.wlan.equipmentgateway.models.CEGWMostRecentStatsTimestamp;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWRebootRequest;
-import com.telecominfraproject.wlan.equipmentgateway.models.CEGatewayCommand;
 import com.telecominfraproject.wlan.equipmentgateway.models.EquipmentCommandResponse;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
 import com.telecominfraproject.wlan.firmware.FirmwareServiceInterface;
@@ -163,17 +160,4 @@ public class EquipmentGatewayPortalController {
         }
     }
 
-    @RequestMapping(value = "/equipmentGateway/lastReceivedStatsTimestamp", method = RequestMethod.GET)
-    public GenericResponse lastReceivedStatsTimestamp(@RequestParam long equipmentId) {
-        Equipment equipment = equipmentServiceInterface.get(equipmentId);
-        String apId = equipment.getInventoryId();
-        CEGWMostRecentStatsTimestamp mostRecentStatsTimestamp = new CEGWMostRecentStatsTimestamp(CEGWCommandType.MostRecentStatsTimestamp, apId, equipmentId);
-        EquipmentCommandResponse response = equipmentGatewayServiceInterface.sendCommand(mostRecentStatsTimestamp);
-        LOG.debug("lastReceivedStatsTimestamp response {}", response);
-        if (response.getResultCode() == CEGWCommandResultCode.Success) {
-            return new GenericResponse(true, response.getResultDetail());
-        } else {
-            return new GenericResponse(false, response.getResultCode() + " - Failed to get last received stats timestamp for " + apId);
-        }
-    }
 }

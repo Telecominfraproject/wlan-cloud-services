@@ -14268,31 +14268,6 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         500:
           $ref: '#/components/responses/GenericApiError'
-
-  /portal/equipmentGateway/lastReceivedStatsTimestamp:
-    get:
-      tags:
-       - Equipment Gateway
-      summary: Request to get the last received (most recent) stats received timestamp for the APs session with the gateway controller
-      operationId: lastReceivedStatsTimestamp
-      parameters:
-      - name: equipmentId
-        in: query
-        description: Equipment id for AP for which last received stats timestamp is being requested.
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
-        500:
-          $ref: '#/components/responses/GenericApiError'
-
           
   /portal/equipmentGateway/requestChannelChange:
     post:
