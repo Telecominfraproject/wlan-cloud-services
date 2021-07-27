@@ -56,8 +56,7 @@ public class StatusDatastoreCassandra implements StatusDatastore {
         private static final Set<String> columnsToSkipForUpdate = new HashSet<>(Arrays.asList( 
         		"customerId",
                 "equipmentId",
-                "statusDataType",
-                "createdTimestamp"));
+                "statusDataType"));
         
         private static final String TABLE_NAME = "status";
         private static final String ALL_COLUMNS;
@@ -230,11 +229,14 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 		//This DAO does not enforce check for concurrent updates. Last one always wins.
 
         long newLastModifiedTs = System.currentTimeMillis();
+        boolean isCreateNotSet = status.getCreatedTimestamp() == 0;
+        
         
 		cqlSession.execute(preparedStmt_update.bind(
 
                 //TODO: add remaining properties from Status here
                 (status.getDetails()!=null) ? ByteBuffer.wrap(status.getDetails().toZippedBytes()) : null ,
+                isCreateNotSet ? newLastModifiedTs : status.getCreatedTimestamp(),
                                 
                 newLastModifiedTs,
                 
@@ -253,6 +255,9 @@ public class StatusDatastoreCassandra implements StatusDatastore {
 
         //make a copy so that we don't accidentally update caller's version by reference
         Status statusCopy = status.clone();
+        if(isCreateNotSet) {
+            statusCopy.setCreatedTimestamp(newLastModifiedTs);
+        }
         statusCopy.setLastModifiedTimestamp(newLastModifiedTs);
 
         LOG.debug("Updated Status {}", statusCopy);
