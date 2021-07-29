@@ -20,6 +20,8 @@ public class PortalUserEventPayload extends BaseJsonModel implements HasCustomer
     private long createdTimestamp;
     private long lastModifiedTimestamp;
     
+    public PortalUserEventPayload() {}
+    
     public PortalUserEventPayload(PortalUser portalUser) {
         this.setId(portalUser.getId());
         this.setCustomerId(portalUser.getCustomerId());
