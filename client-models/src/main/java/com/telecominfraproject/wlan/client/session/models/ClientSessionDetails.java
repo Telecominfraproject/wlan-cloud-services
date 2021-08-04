@@ -42,7 +42,6 @@ public class ClientSessionDetails extends BaseJsonModel {
     private String cpUsername;
     private ClientDhcpDetails dhcpDetails;
     private ClientEapDetails eapDetails;
-    private ClientSessionMetricDetails metricDetails;
     private Boolean isReassociation;
     private Integer disconnectByApReasonCode;
     private Integer disconnectByClientReasonCode;
@@ -154,12 +153,6 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Long getLastEventTimestamp() {
-        if (getMetricDetails() != null) {
-            if (lastEventTimestamp != null) {
-                return Math.max(getMetricDetails().getLastMetricTimestamp(), lastEventTimestamp);
-            }
-            return getMetricDetails().getLastMetricTimestamp();
-        }
         return lastEventTimestamp;
     }
 
@@ -192,13 +185,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Long getLastRxTimestamp() {
-        if (lastRxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastRxTimestamp() != null) {
-            return Math.max(lastRxTimestamp, getMetricDetails().getLastRxTimestamp());
-        } else if (lastRxTimestamp != null) {
-            return lastRxTimestamp;
-        }
-
-        return getMetricDetails() == null ? null : getMetricDetails().getLastRxTimestamp();
+        return lastRxTimestamp;
     }
 
     public void setLastRxTimestamp(Long lastRxTimestamp) {
@@ -206,12 +193,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     }
 
     public Long getLastTxTimestamp() {
-        if (lastTxTimestamp != null && getMetricDetails() != null && getMetricDetails().getLastTxTimestamp() != null) {
-            return Math.max(lastTxTimestamp, getMetricDetails().getLastTxTimestamp());
-        } else if (lastTxTimestamp != null) {
-            return lastTxTimestamp;
-        }
-        return getMetricDetails() == null ? null : getMetricDetails().getLastTxTimestamp();
+        return lastTxTimestamp;
     }
 
     public void setLastTxTimestamp(Long lastTxTimestamp) {
@@ -255,14 +237,6 @@ public class ClientSessionDetails extends BaseJsonModel {
 
     public void setEapDetails(ClientEapDetails eapDetails) {
         this.eapDetails = eapDetails;
-    }
-
-    public ClientSessionMetricDetails getMetricDetails() {
-        return metricDetails;
-    }
-
-    public void setMetricDetails(ClientSessionMetricDetails metricDetails) {
-        this.metricDetails = metricDetails;
     }
 
     /**
@@ -514,9 +488,7 @@ public class ClientSessionDetails extends BaseJsonModel {
             return AssociationState.Cloud_Timeout;
 
         }
-        if (firstDataRcvdTimestamp != null || firstDataSentTimestamp != null
-                || (getMetricDetails() != null && (getMetricDetails().getLastRxTimestamp() != null
-                        || getMetricDetails().getLastTxTimestamp() != null))) {
+        if (firstDataRcvdTimestamp != null || firstDataSentTimestamp != null) {
             return AssociationState.Active_Data;
         }
         if (assocTimestamp != null) {
@@ -535,9 +507,6 @@ public class ClientSessionDetails extends BaseJsonModel {
         if (this.eapDetails != null) {
             ret.setEapDetails(this.eapDetails.clone());
         }
-        if (this.metricDetails != null) {
-            ret.setMetricDetails(this.metricDetails.clone());
-        }
         if (this.lastFailureDetails != null) {
             ret.setLastFailureDetails(this.lastFailureDetails.clone());
         }
@@ -554,7 +523,7 @@ public class ClientSessionDetails extends BaseJsonModel {
                 disconnectByApTimestamp, disconnectByClientInternalReasonCode, disconnectByClientReasonCode,
                 disconnectByClientTimestamp, dynamicVlan, eapDetails, firstDataRcvdTimestamp, firstDataSentTimestamp,
                 firstFailureDetails, hostname, ipAddress, ipTimestamp, is11KUsed, is11RUsed, is11VUsed, isReassociation,
-                lastEventTimestamp, lastFailureDetails, lastRxTimestamp, lastTxTimestamp, metricDetails,
+                lastEventTimestamp, lastFailureDetails, lastRxTimestamp, lastTxTimestamp, 
                 portEnabledTimestamp, previousValidSessionId, priorEquipmentId, priorSessionId, radioType,
                 radiusUsername, securityType, sessionId, ssid, steerType, timeoutTimestamp, userAgentStr,
                 associationState);
@@ -594,7 +563,6 @@ public class ClientSessionDetails extends BaseJsonModel {
                 && Objects.equals(lastFailureDetails, other.lastFailureDetails)
                 && Objects.equals(lastRxTimestamp, other.lastRxTimestamp)
                 && Objects.equals(lastTxTimestamp, other.lastTxTimestamp)
-                && Objects.equals(metricDetails, other.metricDetails)
                 && Objects.equals(portEnabledTimestamp, other.portEnabledTimestamp)
                 && Objects.equals(previousValidSessionId, other.previousValidSessionId)
                 && Objects.equals(priorEquipmentId, other.priorEquipmentId)
@@ -676,9 +644,6 @@ public class ClientSessionDetails extends BaseJsonModel {
             this.eapDetails = latest.eapDetails;
         } else if (latest.eapDetails != null) {
             this.eapDetails.mergeDetails(latest.eapDetails);
-        }
-        if (null != latest.metricDetails) {
-            this.metricDetails = latest.metricDetails;
         }
 
         if (null != latest.getIsReassociation()) {
