@@ -31,7 +31,6 @@ import com.telecominfraproject.wlan.client.models.Client;
 import com.telecominfraproject.wlan.client.session.models.ClientDhcpDetails;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.client.session.models.ClientSessionDetails;
-import com.telecominfraproject.wlan.client.session.models.ClientSessionMetricDetails;
 import com.telecominfraproject.wlan.core.model.entity.CountryCode;
 import com.telecominfraproject.wlan.core.model.entity.MinMaxAvgValueInt;
 import com.telecominfraproject.wlan.core.model.equipment.EquipmentType;
@@ -828,16 +827,6 @@ public class AllInOneWithGatewayStartListener implements ApplicationRunner {
 			}
 
 			sessionDetails.setDhcpDetails(dhcpDetails );
-
-			ClientSessionMetricDetails metricDetails = new ClientSessionMetricDetails();
-			metricDetails.setRssi(getRandomInt(-60, -40));
-			metricDetails.setRxBytes(getRandomLong(10000, 10000000));
-			metricDetails.setTxBytes(getRandomLong(10000, 10000000));
-			metricDetails.setRxMbps(getRandomFloat(50, 100));
-			metricDetails.setTxMbps(getRandomFloat(50, 100));
-			metricDetails.setSnr(getRandomInt(-90, -50));
-
-			sessionDetails.setMetricDetails(metricDetails);
 
 			clientSession.setDetails(sessionDetails);
 
