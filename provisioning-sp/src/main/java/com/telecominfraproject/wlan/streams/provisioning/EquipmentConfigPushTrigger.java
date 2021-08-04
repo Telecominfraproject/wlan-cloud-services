@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import com.telecominfraproject.wlan.alarm.AlarmServiceInterface;
 import com.telecominfraproject.wlan.alarm.models.Alarm;
+import com.telecominfraproject.wlan.client.ClientServiceInterface;
+import com.telecominfraproject.wlan.client.session.models.AssociationState;
+import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
@@ -75,6 +78,8 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
     private StatusServiceInterface statusServiceInterface;
     @Autowired
     private AlarmServiceInterface alarmServiceInterface;
+    @Autowired
+    private ClientServiceInterface clientServiceInterface;
 
     @Override
     protected boolean acceptMessage(QueuedStreamMessage message) {
@@ -275,10 +280,49 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
             });
         }
         alarmServiceInterface.delete(existingEquipment.getCustomerId(), existingEquipment.getId());
+        
+        // Disconnect all associated client devices from existing equipment
+        disconnectClients(existingEquipment);
+        
     }
 
     private void process(BaseJsonModel model) {
         LOG.warn("Unprocessed model: {}", model);
     }
+    
+    private void disconnectClients(Equipment ce) {
 
+        LOG.info("EquipmentConfigPushTrigger::disconnectClients for Equipment {}", ce);
+        PaginationResponse<ClientSession> clientSessions = clientServiceInterface.getSessionsForCustomer(
+                ce.getCustomerId(), Set.of(ce.getId()), Set.of(ce.getLocationId()), null, null,
+                new PaginationContext<ClientSession>(100));
+
+        if (clientSessions == null) {
+            LOG.info("There are no existing client sessions to disconnect.");
+            return;
+        }
+
+        List<ClientSession> toBeDisconnected = new ArrayList<>();
+
+        clientSessions.getItems().stream().forEach(c -> {
+            if (c.getDetails().getAssociationState() != null
+                    && !c.getDetails().getAssociationState().equals(AssociationState.Disconnected)) {
+                LOG.info("Change association state for client {} from {} to {}", c.getMacAddress(),
+                        c.getDetails().getAssociationState(), AssociationState.Disconnected);
+
+                c.getDetails().setAssociationState(AssociationState.Disconnected);
+                toBeDisconnected.add(c);
+
+            }
+        });
+
+        if (!toBeDisconnected.isEmpty()) {
+            LOG.info("Sending disconnect for client sessions {}", toBeDisconnected);
+            List<ClientSession> disconnectedSessions = clientServiceInterface.updateSessions(toBeDisconnected);
+            LOG.info("Result of client disconnect {}", disconnectedSessions);
+        } else {
+            LOG.info("There are no existing client sessions that are not already in Disconnected state.");
+        }
+
+    }
 }
