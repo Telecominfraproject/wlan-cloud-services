@@ -42,7 +42,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Integer vhtMcs;
     private Integer snr;
     private Integer rssi;
-    private String sessionId;
     private String classificationName;
     ChannelBandwidth channelBandWidth;
     GuardInterval guardInterval;
@@ -953,7 +952,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 && Arrays.equals(rates, other.rates) && Objects.equals(rssi, other.rssi)
                 && Objects.equals(rxBytes, other.rxBytes) && Objects.equals(rxDataBytes, other.rxDataBytes)
                 && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets)
-                && Objects.equals(rxLastRssi, other.rxLastRssi) && Objects.equals(sessionId, other.sessionId)
+                && Objects.equals(rxLastRssi, other.rxLastRssi)
                 && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries)
                 && Objects.equals(vhtMcs, other.vhtMcs) && Objects.equals(wmmQueueStats, other.wmmQueueStats);
     }
@@ -1191,10 +1190,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         return rxLastRssi;
     }
 
-    public String getSessionId() {
-        return sessionId;
-    }
-
     public Integer getSnr() {
         return snr;
     }
@@ -1288,7 +1283,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 numTxVHT_702_Mbps, numTxVHT_720_Mbps, numTxVHT_780_Mbps, numTxVHT_800_Mbps, numTxVHT_866_7_Mbps,
                 numTxVHT_877_5_Mbps, numTxVHT_936_Mbps, numTxVHT_975_Mbps, numTx_12_Mbps, numTx_18_Mbps, numTx_1_Mbps,
                 numTx_24_Mbps, numTx_36_Mbps, numTx_48_Mbps, numTx_54_Mbps, numTx_6_Mbps, numTx_9_Mbps, radioType,
-                rateCount, rssi, rxBytes, rxDataBytes, rxDuplicatePackets, rxLastRssi, sessionId, snr, txRetries,
+                rateCount, rssi, rxBytes, rxDataBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries,
                 vhtMcs, wmmQueueStats);
         return result;
     }
@@ -1535,10 +1530,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setRxLastRssi(Integer rxLastRssi) {
         this.rxLastRssi = rxLastRssi;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
     }
 
     public void setSnr(Integer snr) {
