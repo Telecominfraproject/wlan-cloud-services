@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
-import com.telecominfraproject.wlan.servicemetric.models.McsStats;
 import com.telecominfraproject.wlan.servicemetric.models.McsType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
@@ -261,7 +260,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Long lastSentLayer3Ts;
 
     private Map<WmmQueueType, WmmQueueStats> wmmQueueStats;
-    private List<McsStats> mcsStats;
 
     /**
      * The last RX MCS/rate index.
@@ -298,9 +296,6 @@ public class ClientMetrics extends ServiceMetricDetails {
             	ret.wmmQueueStats.putAll(this.wmmQueueStats);
             }
         }
-        if (this.mcsStats != null) {
-            ret.mcsStats = new ArrayList<>(this.mcsStats);
-        }
         
         if(this.rates!=null){
             ret.rates = this.rates.clone();
@@ -326,7 +321,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 && Objects.equals(classificationName, other.classificationName)
                 && this.lastRxMcsIdx == other.lastRxMcsIdx && Objects.equals(lastSentLayer3Ts, other.lastSentLayer3Ts)
                 && this.lastTxMcsIdx == other.lastTxMcsIdx
-                && Objects.equals(mcsStats, other.mcsStats) && Objects.equals(numRcvFrameForTx, other.numRcvFrameForTx)
+                && Objects.equals(numRcvFrameForTx, other.numRcvFrameForTx)
                 && Objects.equals(numRxAck, other.numRxAck) && Objects.equals(numRxBytes, other.numRxBytes)
                 && Objects.equals(numRxControl, other.numRxControl) && Objects.equals(numRxCts, other.numRxCts)
                 && Objects.equals(numRxData, other.numRxData) 
@@ -379,23 +374,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public McsType getLastTxMcsIdx() {
         return lastTxMcsIdx;
-    }
-
-    public List<McsStats> getMcsStats() 
-    {
-        // We need to populate the McsStats
-        if(mcsStats != null)
-        {
-            for(McsStats stats : mcsStats)
-            {
-                if(stats.getRate() == null && stats.getMcsNum() != null)
-                {
-                    stats.setRate(getLastPhyRateKb(stats.getMcsNum()));
-                }
-            }
-        }
-
-        return mcsStats;
     }
 
     public Long getNumRcvFrameForTx() {
@@ -609,7 +587,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         result = prime * result + Arrays.hashCode(this.rates);
         result = prime * result + Objects.hash(averageRxRate, averageTxRate, channelBandWidth,
                 classificationName, lastRecvLayer3Ts, lastRxMcsIdx, lastSentLayer3Ts, lastTxMcsIdx,
-                mcsStats, numRcvFrameForTx, numRxAck, numRxBytes, numRxControl, numRxCts, numRxData,
+                numRcvFrameForTx, numRxAck, numRxBytes, numRxControl, numRxCts, numRxData,
                 numRxDup, numRxFramesReceived, numRxLdpc, numRxManagement,
                 numRxNoFcsErr, numRxNullData, numRxPackets, numRxProbeReq, numRxPspoll, numRxRetry, numRxRts, numRxStbc,
                 numTxAction, numTxAggrOneMpdu, numTxAggrSucc, numTxByteSucc, numTxBytes,
@@ -628,8 +606,7 @@ public class ClientMetrics extends ServiceMetricDetails {
             return true;
         }
         if (McsType.isUnsupported(lastRxMcsIdx) || McsType.isUnsupported(lastTxMcsIdx)
-         || RadioType.isUnsupported(radioType) || hasUnsupportedValue(mcsStats)
-         || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
+         || RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
             return true;
         }
         if (null != wmmQueueStats) {
@@ -659,10 +636,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setLastTxMcsIdx(McsType lastTxMcsIdx) {
         this.lastTxMcsIdx = lastTxMcsIdx;
-    }
-
-    public void setMcsStats(List<McsStats> mcsStats) {
-        this.mcsStats = mcsStats;
     }
 
     public void setNumRcvFrameForTx(Long numRcvFrameForTx) {
