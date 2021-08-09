@@ -1,17 +1,9 @@
 package com.telecominfraproject.wlan.servicemetric.apssid.models;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.json.BaseJsonModel;
 import com.telecominfraproject.wlan.core.model.json.interfaces.HasSourceTimestamp;
-import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
-import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
 
 /**
  * @author ekeddy

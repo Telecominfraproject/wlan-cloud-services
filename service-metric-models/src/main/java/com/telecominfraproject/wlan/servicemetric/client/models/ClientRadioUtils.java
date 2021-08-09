@@ -1,8 +1,5 @@
 package com.telecominfraproject.wlan.servicemetric.client.models;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;

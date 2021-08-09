@@ -1,21 +1,13 @@
 package com.telecominfraproject.wlan.servicemetric.client.models;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
-import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
-import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
-import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
 
 /**
  * @author ekeddy
@@ -258,8 +250,6 @@ public class ClientMetrics extends ServiceMetricDetails {
      */
     private Long lastSentLayer3Ts;
 
-    private Map<WmmQueueType, WmmQueueStats> wmmQueueStats;
-
     /**
      * Radio Type
      */
@@ -279,13 +269,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     public ClientMetrics clone() {
         ClientMetrics ret = (ClientMetrics) super.clone();
 
-        if (this.wmmQueueStats != null) {
-            ret.wmmQueueStats = new EnumMap<>(WmmQueueType.class);
-            if(!this.wmmQueueStats.isEmpty()) {
-            	ret.wmmQueueStats.putAll(this.wmmQueueStats);
-            }
-        }
-        
         if(this.rates!=null){
             ret.rates = this.rates.clone();
         }
@@ -344,8 +327,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 && Objects.equals(rxBytes, other.rxBytes) && Objects.equals(rxDataBytes, other.rxDataBytes)
                 && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets)
                 && Objects.equals(rxLastRssi, other.rxLastRssi)
-                && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries)
-                && Objects.equals(wmmQueueStats, other.wmmQueueStats);
+                && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries);
     }
 
     public Long getLastRecvLayer3Ts() {
@@ -556,10 +538,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         return txRetries;
     }
 
-    public Map<WmmQueueType, WmmQueueStats> getWmmQueueStats() {
-        return wmmQueueStats;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -575,8 +553,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 numTxLdpc, numTxManagement,
                 numTxMultiRetries, numTxNoAck, numTxPackets, numTxPropResp, numTxQueued,
                 numTxRetryDropped, numTxRtsFail, numTxRtsSucc, numTxStbc, numTxSucc, numTxSuccNoRetry, numTxSuccRetries, 
-                radioType, rssi, rxBytes, rxDataBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries,
-                wmmQueueStats);
+                radioType, rssi, rxBytes, rxDataBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries);
         return result;
     }
 
@@ -587,16 +564,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         }
         if (RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
             return true;
-        }
-        if (null != wmmQueueStats) {
-            for (Entry<WmmQueueType, WmmQueueStats> entry : wmmQueueStats.entrySet()) {
-                if (WmmQueueType.isUnsupported(entry.getKey())) {
-                    return true;
-                }
-                if (hasUnsupportedValue(entry.getValue())) {
-                    return true;
-                }
-            }
         }
         return false;
     }
@@ -807,10 +774,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setTxRetries(Integer txRetries) {
         this.txRetries = txRetries;
-    }
-
-    public void setWmmQueueStats(Map<WmmQueueType, WmmQueueStats> wmmQueueStats) {
-        this.wmmQueueStats = wmmQueueStats;
     }
 
     public Long getNumTxFramesTransmitted() {
