@@ -15,8 +15,11 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
+import com.telecominfraproject.wlan.servicemetric.models.McsStats;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
+import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats.WmmQueueType;
 
 /**
  * Node-level metric data from the Access Point.
@@ -76,8 +79,14 @@ public class ApNodeMetrics extends ServiceMetricDetails
 
     private Map<RadioType, List<RadioUtilization>> radioUtilizationPerRadio = new EnumMap<>(RadioType.class);
 
+
     private Map<RadioType, RadioStatistics> radioStatsPerRadio = new EnumMap<>(RadioType.class);
     
+    private Map<RadioType, List<McsStats>> mcsStatsPerRadio = new EnumMap<>(RadioType.class);
+    
+    private Map<RadioType, Map<WmmQueueType, WmmQueueStats>> wmmQueuesPerRadio = new EnumMap<>(RadioType.class);
+    
+
     public Integer getPeriodLengthSec() {
         return periodLengthSec;
     }
@@ -253,6 +262,25 @@ public class ApNodeMetrics extends ServiceMetricDetails
        this.radioStatsPerRadio.put(radioType, radioStats);
    }
 
+   public List<McsStats> getMcsStats(RadioType radioType) {
+       return mcsStatsPerRadio.get(radioType);
+   }
+
+   public void setMcsStats(RadioType radioType, List<McsStats> mcsStats) {
+       this.mcsStatsPerRadio.put(radioType, mcsStats);
+   }
+
+
+   public Map<WmmQueueType, WmmQueueStats> getWmmQueue(RadioType radioType) {
+       return wmmQueuesPerRadio.get(radioType);
+   }
+
+   public void setWmmQueue(RadioType radioType, Map<WmmQueueType, WmmQueueStats> wmmQueue) {
+      this.wmmQueuesPerRadio.put(radioType, wmmQueue);
+   }
+
+
+
    //
    // Utility Functions 
    //
@@ -376,14 +404,31 @@ public class ApNodeMetrics extends ServiceMetricDetails
 		this.radioStatsPerRadio = radioStatsPerRadio;
 	}
 
+	public Map<RadioType, List<McsStats>> getMcsStatsPerRadio() {
+		return mcsStatsPerRadio;
+	}
+
+	public void setMcsStatsPerRadio(Map<RadioType, List<McsStats>> mcsStatsPerRadio) {
+		this.mcsStatsPerRadio = mcsStatsPerRadio;
+	}
+
+	public Map<RadioType, Map<WmmQueueType, WmmQueueStats>> getWmmQueuesPerRadio() {
+		return wmmQueuesPerRadio;
+	}
+
+	public void setWmmQueuesPerRadio(Map<RadioType, Map<WmmQueueType, WmmQueueStats>> wmmQueuesPerRadio) {
+		this.wmmQueuesPerRadio = wmmQueuesPerRadio;
+	}
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + Objects.hash(apPerformance, channelUtilizationPerRadio, clientMacAddressesPerRadio,
-				cloudLinkAvailability, cloudLinkLatencyInMs, networkProbeMetrics, noiseFloorPerRadio,
+				cloudLinkAvailability, cloudLinkLatencyInMs, mcsStatsPerRadio, networkProbeMetrics, noiseFloorPerRadio,
 				periodLengthSec, radioStatsPerRadio, radioUtilizationPerRadio, radiusMetrics, rxBytesPerRadio,
-				tunnelMetrics, txBytesPerRadio, vlanSubnet);
+				tunnelMetrics, txBytesPerRadio, vlanSubnet, wmmQueuesPerRadio);
 		return result;
 	}
 
@@ -404,6 +449,7 @@ public class ApNodeMetrics extends ServiceMetricDetails
 				&& Objects.equals(clientMacAddressesPerRadio, other.clientMacAddressesPerRadio)
 				&& Objects.equals(cloudLinkAvailability, other.cloudLinkAvailability)
 				&& Objects.equals(cloudLinkLatencyInMs, other.cloudLinkLatencyInMs)
+				&& Objects.equals(mcsStatsPerRadio, other.mcsStatsPerRadio)
 				&& Objects.equals(networkProbeMetrics, other.networkProbeMetrics)
 				&& Objects.equals(noiseFloorPerRadio, other.noiseFloorPerRadio)
 				&& Objects.equals(periodLengthSec, other.periodLengthSec)
@@ -413,7 +459,8 @@ public class ApNodeMetrics extends ServiceMetricDetails
 				&& Objects.equals(rxBytesPerRadio, other.rxBytesPerRadio)
 				&& Objects.equals(tunnelMetrics, other.tunnelMetrics)
 				&& Objects.equals(txBytesPerRadio, other.txBytesPerRadio)
-				&& Objects.equals(vlanSubnet, other.vlanSubnet);
+				&& Objects.equals(vlanSubnet, other.vlanSubnet)
+				&& Objects.equals(wmmQueuesPerRadio, other.wmmQueuesPerRadio);
 	}
 
 	@Override
@@ -435,6 +482,14 @@ public class ApNodeMetrics extends ServiceMetricDetails
 
         if(radioStatsPerRadio!=null) {
         	radioStatsPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(mcsStatsPerRadio!=null) {
+        	mcsStatsPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
+        }
+
+        if(wmmQueuesPerRadio!=null) {
+        	wmmQueuesPerRadio.values().forEach(c -> { if (hasUnsupportedValue(c)) { ai.incrementAndGet();} }); 
         }
 
         if(ai.get()>0) {
@@ -462,6 +517,25 @@ public class ApNodeMetrics extends ServiceMetricDetails
 			});
 
         }
+        
+        if(this.wmmQueuesPerRadio!=null) {
+        	ret.wmmQueuesPerRadio = new EnumMap<>(RadioType.class);
+        	this.wmmQueuesPerRadio.forEach((rt,  wq) -> {
+        		Map<WmmQueueStats.WmmQueueType, WmmQueueStats> newWm = new EnumMap<>(WmmQueueType.class);
+        		ret.wmmQueuesPerRadio.put(rt, newWm);
+        		wq.forEach((k, v) -> newWm.put(k, v.clone()));
+        	});
+        }
+               
+        if(this.mcsStatsPerRadio !=null) {
+            ret.mcsStatsPerRadio = new EnumMap<>(RadioType.class);
+			this.mcsStatsPerRadio.forEach((k, listV) -> {
+				List<McsStats> newList = new ArrayList<>();
+				ret.mcsStatsPerRadio.put(k, newList);
+				listV.forEach(mcs -> newList.add(mcs.clone()));
+			});
+        }
+
         
         if(this.networkProbeMetrics !=null) {
             ret.networkProbeMetrics = new ArrayList<>();
