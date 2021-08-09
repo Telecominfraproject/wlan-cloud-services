@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.GuardInterval;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
-import com.telecominfraproject.wlan.servicemetric.models.McsType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
 import com.telecominfraproject.wlan.servicemetric.models.WmmQueueStats;
@@ -262,16 +261,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Map<WmmQueueType, WmmQueueStats> wmmQueueStats;
 
     /**
-     * The last RX MCS/rate index.
-     */
-    private McsType lastRxMcsIdx;
-
-    /**
-     * The last TX MCS/rate index.
-     */
-    private McsType lastTxMcsIdx;
-
-    /**
      * Radio Type
      */
     private RadioType radioType;
@@ -319,8 +308,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         return Objects.equals(averageRxRate, other.averageRxRate) && Objects.equals(averageTxRate, other.averageTxRate)
                 && this.channelBandWidth == other.channelBandWidth && Objects.equals(lastRecvLayer3Ts, other.lastRecvLayer3Ts)
                 && Objects.equals(classificationName, other.classificationName)
-                && this.lastRxMcsIdx == other.lastRxMcsIdx && Objects.equals(lastSentLayer3Ts, other.lastSentLayer3Ts)
-                && this.lastTxMcsIdx == other.lastTxMcsIdx
+                && Objects.equals(lastSentLayer3Ts, other.lastSentLayer3Ts)
                 && Objects.equals(numRcvFrameForTx, other.numRcvFrameForTx)
                 && Objects.equals(numRxAck, other.numRxAck) && Objects.equals(numRxBytes, other.numRxBytes)
                 && Objects.equals(numRxControl, other.numRxControl) && Objects.equals(numRxCts, other.numRxCts)
@@ -364,16 +352,8 @@ public class ClientMetrics extends ServiceMetricDetails {
         return lastRecvLayer3Ts;
     }
 
-    public McsType getLastRxMcsIdx() {
-        return lastRxMcsIdx;
-    }
-
     public Long getLastSentLayer3Ts() {
         return lastSentLayer3Ts;
-    }
-
-    public McsType getLastTxMcsIdx() {
-        return lastTxMcsIdx;
     }
 
     public Long getNumRcvFrameForTx() {
@@ -586,7 +566,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         int result = super.hashCode();
         result = prime * result + Arrays.hashCode(this.rates);
         result = prime * result + Objects.hash(averageRxRate, averageTxRate, channelBandWidth,
-                classificationName, lastRecvLayer3Ts, lastRxMcsIdx, lastSentLayer3Ts, lastTxMcsIdx,
+                classificationName, lastRecvLayer3Ts, lastSentLayer3Ts,
                 numRcvFrameForTx, numRxAck, numRxBytes, numRxControl, numRxCts, numRxData,
                 numRxDup, numRxFramesReceived, numRxLdpc, numRxManagement,
                 numRxNoFcsErr, numRxNullData, numRxPackets, numRxProbeReq, numRxPspoll, numRxRetry, numRxRts, numRxStbc,
@@ -605,8 +585,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (McsType.isUnsupported(lastRxMcsIdx) || McsType.isUnsupported(lastTxMcsIdx)
-         || RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
+        if (RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
             return true;
         }
         if (null != wmmQueueStats) {
@@ -626,16 +605,8 @@ public class ClientMetrics extends ServiceMetricDetails {
         this.lastRecvLayer3Ts = lastRecvLayer3Ts;
     }
 
-    public void setLastRxMcsIdx(McsType lastRxMcsIdx) {
-        this.lastRxMcsIdx = lastRxMcsIdx;
-    }
-
     public void setLastSentLayer3Ts(Long lastSentLayer3Ts) {
         this.lastSentLayer3Ts = lastSentLayer3Ts;
-    }
-
-    public void setLastTxMcsIdx(McsType lastTxMcsIdx) {
-        this.lastTxMcsIdx = lastTxMcsIdx;
     }
 
     public void setNumRcvFrameForTx(Long numRcvFrameForTx) {
@@ -840,44 +811,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setWmmQueueStats(Map<WmmQueueType, WmmQueueStats> wmmQueueStats) {
         this.wmmQueueStats = wmmQueueStats;
-    }
-
-    /**
-     * Get the last Rx physical rate based on the McsType, Channel Bandwidth and
-     * GuardInterval. Result is in kilobit per second.
-     * 
-     * <b>1 megabit per second = 1000 kilobit per second.</b>
-     * 
-     * @return physical rate in Kilobit per Second. Return null if information is not available.
-     */
-    public Long getLastRxPhyRateKb() {
-        return getLastPhyRateKb(this.lastRxMcsIdx);
-    }
-
-    /**
-     * Get the last Tx physical rate based on the McsType, Channel Bandwidth and
-     * GuardInterval. Result is in kilobit per second.
-     * 
-     * <b>1 megabit per second = 1000 kilobit per second.</b>
-     * 
-     * @return physical rate in Kilobit per Second. Return null if information is not available.
-     */
-    public Long getLastTxPhyRateKb() {
-        return getLastPhyRateKb(this.lastTxMcsIdx);
-    }
-    
-    public Long getLastPhyRateKb(McsType lastMcsIdx) {
-        if (lastMcsIdx == null) {
-            return null;
-        }
-        // assume SGI, channel bandwidth based on radio type
-        ChannelBandwidth bw = ClientRadioUtils.getDefaultChannelBandwidth(radioType);
-        GuardInterval gi = GuardInterval.SGI;
-        
-        if (this.channelBandWidth != null) {
-            bw = this.channelBandWidth;
-        }
-        return ClientRadioUtils.getPhyRateKb(lastMcsIdx, bw, gi);
     }
 
     public Long getNumTxFramesTransmitted() {
