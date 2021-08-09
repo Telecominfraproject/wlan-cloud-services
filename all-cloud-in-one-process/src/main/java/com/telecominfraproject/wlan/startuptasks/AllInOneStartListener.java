@@ -1237,8 +1237,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
                 clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
 
-                clientMetrics.setSessionId(Long.toUnsignedString(getRandomLong(3000000, 7000000)));
-
                 clientMetrics.setTxRetries(getRandomInt(30, 70));
                 clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
                 clientMetrics.setSnr(getRandomInt(-70, -30));
@@ -1264,8 +1262,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
                 clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
 
-                clientMetrics.setSessionId(Long.toUnsignedString(getRandomLong(3000000, 7000000)));
-
                 clientMetrics.setTxRetries(getRandomInt(30, 70));
                 clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
                 clientMetrics.setSnr(getRandomInt(-70, -30));
@@ -1290,8 +1286,6 @@ public class AllInOneStartListener implements ApplicationRunner {
                 clientMetrics.setNumTxPackets(getRandomLong(30000, 70000));
                 clientMetrics.setNumRxBytes(getRandomLong(3000000, 7000000));
                 clientMetrics.setNumTxBytes(getRandomLong(3000000, 7000000));
-
-                clientMetrics.setSessionId(Long.toUnsignedString(getRandomLong(3000000, 7000000)));
 
                 clientMetrics.setTxRetries(getRandomInt(30, 70));
                 clientMetrics.setRxDuplicatePackets(getRandomInt(30, 70));
