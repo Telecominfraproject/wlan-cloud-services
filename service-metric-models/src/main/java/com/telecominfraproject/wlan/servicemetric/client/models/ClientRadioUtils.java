@@ -99,45 +99,4 @@ public final class ClientRadioUtils {
     private ClientRadioUtils() {
 
     }
-
-    /**
-     * Convert mbps to kbps
-     * 
-     * @param mbps
-     * @return kbps
-     */
-    private static Long M2Kbps(int mbps) {
-        return KBITS_IN_MBITS * mbps;
-    }
-
-    /**
-     * Avoid decimal math
-     * 
-     * @param mbps
-     * @param div
-     * @return kbps
-     */
-    private static Long M2Kbps(int mbps, int div) {
-        return KBITS_IN_MBITS * mbps / div;
-    }
-    
-    /**
-     * Get the default channel bandwidth based on radio type.
-     * 
-     * @param radioType
-     * @return default channel bandwidth
-     */
-    public static ChannelBandwidth getDefaultChannelBandwidth(RadioType radioType) {
-        if (null == radioType) {
-            return null;
-        }
-        switch (radioType) {
-        case is2dot4GHz:
-            return ChannelBandwidth.is20MHz;
-        case is5GHz:
-            return ChannelBandwidth.is40MHz;
-        default:
-            return null;
-        }
-    }
 }
