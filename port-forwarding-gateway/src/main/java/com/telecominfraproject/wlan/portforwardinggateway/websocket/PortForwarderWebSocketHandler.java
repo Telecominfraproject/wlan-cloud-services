@@ -232,7 +232,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
                         socketInputStreamReaderThread.setDaemon(true);
                         forwarderSession.setSocketStreamReaderThread(socketInputStreamReaderThread);
 
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         LOG.error("[{}] error accepting conection on port {} - closing forwarding session {}", inventoryId, listenOnLocalPort, forwarderSession.getSessionId());
                         try {
                             serverSocket.close();
@@ -259,6 +259,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
     }
     
     public void stopForwarderSession(String sessionId){
+        LOG.debug("Received stop forwarding Session request for sessionId {}", sessionId);
         ForwarderSession forwarderSession = sessionIdToForwarderSessionMap.get(sessionId);
         if(forwarderSession==null){
             LOG.info("Could not find session {}", sessionId);
@@ -266,6 +267,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
         }
         
         try {
+            LOG.debug("Found forwarderSession {} for sessionId {}", forwarderSession, sessionId);
             //find websocket session by inventoryId and send control messages to disconnect from target port on the client side of the port forwarder
             WebSocketSession webSocketSession = webSocketSessionMap.get(forwarderSession.getInventoryId());
             TextMessage message = new TextMessage(DISCONNECT_FROM_CE_PORT_COMMAND + forwarderSession.getConnectToPortOnEquipment());
@@ -274,22 +276,24 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
                 LOG.debug("[{}] Session {} sent command {}", forwarderSession.getInventoryId(), forwarderSession.getSessionId(), message.getPayload());
             }
 
-            if(forwarderSession.getServerSocket()!=null){
+            if(forwarderSession.getServerSocket() != null){
                 forwarderSession.getServerSocket().close();
+                LOG.debug("Closed forwarderSession server socket for sessionId {}", sessionId);
             }
             
-            if(forwarderSession.getLocalSocket()!=null){
+            if(forwarderSession.getLocalSocket() != null){
                 forwarderSession.getLocalSocket().close();
+                LOG.debug("Closed forwarderSession local socket for sessionId {}", sessionId);
             }
             //stream reader will stop in a separate thread by themselves
             
             sessionIdToForwarderSessionMap.remove(forwarderSession.getSessionId());
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             // do nothing here
+            LOG.error("Encountered exception when closing connection for forwarder session {}", forwarderSession, e);
+            sessionIdToForwarderSessionMap.remove(forwarderSession.getSessionId());
         }
-        
-        sessionIdToForwarderSessionMap.remove(forwarderSession.getSessionId());
 
         LOG.info("[{}] Stopped forwarder session {}", forwarderSession.getInventoryId(), sessionId);
     }
@@ -322,7 +326,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
         if(payload.indexOf(':')>0){
             port = Integer.parseInt(payload.substring(payload.indexOf(':')+1));
         }
-
+        LOG.debug("handleTextMessage: Port {} is used on Equipment {}", port, webSocketSessionKey);
         //find forwarderSession by inventoryId and CEPort
         ForwarderSession forwarderSession = null;
         for(ForwarderSession fs: sessionIdToForwarderSessionMap.values()){
@@ -332,7 +336,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
             }
         }
 
-        LOG.debug("[{}] Session {} got message {}", webSocketSessionKey, session, payload);
+        LOG.debug("[{}] Session {} got message {} with forwarderSession {}", webSocketSessionKey, session, payload, forwarderSession);
 
         if(payload.startsWith(CONNECTED_TO_CE_PORT_MSG)){
             //start reader thread to forward packets from local socket to websocket
@@ -381,6 +385,7 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
         int msgPayloadLength = message.getPayloadLength();
         
         int port = payload.getInt();
+        LOG.debug("handleBinaryMessage: Port {} is used on Equipment {}", port, webSocketSessionKey);
 
         //find forwarderSession by inventoryId and CEPort
         ForwarderSession forwarderSession = null;
@@ -419,6 +424,15 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
             }
         } else  {
             LOG.debug("[{}] Session {} received message that cannot be delivered because local socket is inoperable {}", webSocketSessionKey, session, message);
+            if (forwarderSession == null) {
+                LOG.debug("forwarderSession not found fpr webSocketSessionKey {}", webSocketSessionKey);
+            } else if (forwarderSession.getLocalSocket() == null) {
+                LOG.debug("forwarderSession local socket is null for webSocketSessionKey {}", webSocketSessionKey);
+            } else {
+                LOG.debug("forwarderSession local socket for webSocketSessionKey {} is closed = {} and connected = {} ",
+                        webSocketSessionKey, forwarderSession.getLocalSocket().isClosed(), forwarderSession.getLocalSocket().isConnected());
+            }
+
         }
         
     }
@@ -443,22 +457,26 @@ public class PortForwarderWebSocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        LOG.info("[{}] Closed portForwarder websocket connection {} : {}", getWebSocketSessionKey(session), session, closeStatus);
-
         String webSocketSessionKey = getWebSocketSessionKey(session);
+        LOG.info("[{}] Closed portForwarder websocket connection {} : {}", webSocketSessionKey, session, closeStatus);
+
         webSocketSessionMap.remove(webSocketSessionKey);
-        
+
+        LOG.debug(" Removed key {} from webSocketSessionMap", webSocketSessionKey);
         //close and remove all forwarder sessions for that CE
 
         Iterator<ForwarderSession> iter = sessionIdToForwarderSessionMap.values().iterator();
         while(iter.hasNext()){
             ForwarderSession fs = iter.next();
-            if(fs.getInventoryId().equals(webSocketSessionKey) ){
+            if (fs.getInventoryId().equals(webSocketSessionKey)) {
+                LOG.debug("Closing webSocketSession for forwarderSession: {} ", fs);
                 if(fs.getLocalSocket()!=null && !fs.getLocalSocket().isClosed()){
                     fs.getLocalSocket().close();
+                    LOG.debug("Closing local Socket for fs {}", fs);
                 }
                 if(fs.getServerSocket()!=null && !fs.getServerSocket().isClosed()){
                     fs.getServerSocket().close();
+                    LOG.debug("Closing Server Socket for fs {}", fs);
                 }
             }
             iter.remove();
