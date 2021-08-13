@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.telecominfraproject.wlan</groupId>
     <artifactId>tip-wlan-cloud-root-pom</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <relativePath>../../wlan-cloud-root</relativePath>
   </parent>
 
@@ -16,149 +16,149 @@
       <dependency>
         <artifactId>base-container</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>      
 
 	  <!--  ssc dependencies -->
       <dependency>
         <artifactId>cloud-event-dispatcher-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>      
 
       <dependency>
         <artifactId>cloud-metrics</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
       
      <dependency>
         <artifactId>status-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>client-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>alarm-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>service-metric-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>system-event-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
 	<!--  prov dependencies -->
      <dependency>
         <artifactId>customer-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>location-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>equipment-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>profile-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>portal-user-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>firmware-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>manufacturer-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
      <dependency>
         <artifactId>adoption-metrics-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
 
     <!--  equipment gateway dependencies -->
      <dependency>
         <artifactId>equipment-gateway-service-interface</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
       </dependency>
       
       <!--  test dependencies -->
       <dependency>
         <artifactId>equipment-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <artifactId>equipment-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <artifactId>equipment-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
       <artifactId>cloud-event-dispatcher-empty</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <artifactId>profile-service-local</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <artifactId>profile-service</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <artifactId>profile-datastore-inmemory</artifactId>
         <groupId>com.telecominfraproject.wlan</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
