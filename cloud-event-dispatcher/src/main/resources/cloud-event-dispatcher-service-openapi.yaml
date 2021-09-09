@@ -4982,10 +4982,6 @@ components:
 
     ClientMetrics:
       properties:
-        secondsSinceLastRecv:
-          type: integer
-          format: int32
-        
         numRxPackets:
           type: integer
           format: int64

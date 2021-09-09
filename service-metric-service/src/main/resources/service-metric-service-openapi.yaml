@@ -213,11 +213,7 @@ components:
       - SGI# Short Guard Interval
 
     ClientMetrics:
-      properties:
-        secondsSinceLastRecv:
-          type: integer
-          format: int32
-        
+      properties:      
         numRxPackets:
           type: integer
           format: int64

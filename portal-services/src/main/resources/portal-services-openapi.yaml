@@ -5175,9 +5175,6 @@ components:
       properties:
         model_type:
           type: string
-        secondsSinceLastRecv:
-          type: integer
-          format: int32
         
         numRxPackets:
           type: integer

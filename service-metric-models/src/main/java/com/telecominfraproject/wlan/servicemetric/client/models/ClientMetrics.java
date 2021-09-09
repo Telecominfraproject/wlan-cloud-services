@@ -1,6 +1,5 @@
 package com.telecominfraproject.wlan.servicemetric.client.models;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,8 +16,6 @@ import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
 public class ClientMetrics extends ServiceMetricDetails {
 
     private static final long serialVersionUID = 7242365268669169773L;
-
-    private Integer secondsSinceLastRecv;
 
     private Long numRxPackets;
     private Long numTxPackets;
@@ -315,14 +312,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     public void setAverageRxRate(Double averageRxRate) {
         this.averageRxRate = averageRxRate;
     }
-
-	public Integer getSecondsSinceLastRecv() {
-		return secondsSinceLastRecv;
-	}
-
-	public void setSecondsSinceLastRecv(Integer secondsSinceLastRecv) {
-		this.secondsSinceLastRecv = secondsSinceLastRecv;
-	}
 
 	public Integer getPeriodLengthSec() {
 		return periodLengthSec;
