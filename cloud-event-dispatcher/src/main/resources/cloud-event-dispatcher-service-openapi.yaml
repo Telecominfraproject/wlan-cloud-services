@@ -5038,11 +5038,6 @@ components:
           type: integer
           format: int64
         
-        rxLastRssi:
-          description: The RSSI of last frame received.
-          type: integer
-          format: int32
-        
         numRxNoFcsErr:
           description: The number of received frames without FCS errors.
           type: integer

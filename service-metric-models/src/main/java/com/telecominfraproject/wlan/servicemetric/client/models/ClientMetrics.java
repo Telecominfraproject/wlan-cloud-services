@@ -32,11 +32,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Long numRxFramesReceived;
 
     /**
-     * The RSSI of last frame received.
-     */
-    private Integer rxLastRssi;
-
-    /**
      * The number of received frames without FCS errors.
      */
     private Integer numRxNoFcsErr;
@@ -106,7 +101,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 && Objects.equals(numTxDropped, other.numTxDropped) && Objects.equals(numTxFramesTransmitted, other.numTxFramesTransmitted)
                 && Objects.equals(numTxPackets, other.numTxPackets) && this.radioType == other.radioType
                 && Objects.equals(rssi, other.rssi) && Objects.equals(rxBytes, other.rxBytes)
-                && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets) && Objects.equals(rxLastRssi, other.rxLastRssi)
+                && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets)
                 && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries);
     }
 
@@ -162,10 +157,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         return rxDuplicatePackets;
     }
 
-    public Integer getRxLastRssi() {
-        return rxLastRssi;
-    }
-
     public Integer getSnr() {
         return snr;
     }
@@ -182,7 +173,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 numRxBytes, numRxData, numRxFramesReceived,
                 numRxNoFcsErr, numRxPackets, numRxRetry, numTxBytes,
                 numTxDataRetries, numTxDropped, numTxFramesTransmitted, numTxPackets,
-                radioType, rssi, rxBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries);
+                radioType, rssi, rxBytes, rxDuplicatePackets, snr, txRetries);
         return result;
     }
 
@@ -247,10 +238,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setRxDuplicatePackets(Integer rxDuplicatePackets) {
         this.rxDuplicatePackets = rxDuplicatePackets;
-    }
-
-    public void setRxLastRssi(Integer rxLastRssi) {
-        this.rxLastRssi = rxLastRssi;
     }
 
     public void setSnr(Integer snr) {
