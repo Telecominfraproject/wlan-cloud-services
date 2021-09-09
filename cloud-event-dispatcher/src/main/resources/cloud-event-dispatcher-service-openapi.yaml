@@ -5022,12 +5022,6 @@ components:
         
         sessionId:
           type: string
-       
-        classificationName:
-          type: string
- 
-        channelBandWidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
         
         averageTxRate:
           type: number

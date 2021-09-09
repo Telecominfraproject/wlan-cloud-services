@@ -252,12 +252,6 @@ components:
           type: integer
           format: int32
         
-        classificationName:
-          type: string
- 
-        channelBandWidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
-        
         averageTxRate:
           type: number
           format: double

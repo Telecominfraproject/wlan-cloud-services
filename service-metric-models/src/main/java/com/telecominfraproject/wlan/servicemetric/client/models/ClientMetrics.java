@@ -3,7 +3,6 @@ package com.telecominfraproject.wlan.servicemetric.client.models;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
@@ -25,8 +24,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Integer rxDuplicatePackets;
     private Integer snr;
     private Integer rssi;
-    private String classificationName;
-    ChannelBandwidth channelBandWidth;
     
     private Double averageTxRate;
     private Double averageRxRate;
@@ -102,7 +99,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         }
         ClientMetrics other = (ClientMetrics) obj;
         return Objects.equals(averageRxRate, other.averageRxRate) && Objects.equals(averageTxRate, other.averageTxRate)
-                && this.channelBandWidth == other.channelBandWidth && Objects.equals(classificationName, other.classificationName)
                 && Objects.equals(numRxBytes, other.numRxBytes) && Objects.equals(numRxData, other.numRxData) 
                 && Objects.equals(numRxFramesReceived, other.numRxFramesReceived) && Objects.equals(numRxNoFcsErr, other.numRxNoFcsErr)
                 && Objects.equals(numRxPackets, other.numRxPackets) && Objects.equals(numRxRetry, other.numRxRetry)
@@ -182,8 +178,8 @@ public class ClientMetrics extends ServiceMetricDetails {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Objects.hash(averageRxRate, averageTxRate, channelBandWidth,
-                classificationName, numRxBytes, numRxData, numRxFramesReceived,
+        result = prime * result + Objects.hash(averageRxRate, averageTxRate,
+                numRxBytes, numRxData, numRxFramesReceived,
                 numRxNoFcsErr, numRxPackets, numRxRetry, numTxBytes,
                 numTxDataRetries, numTxDropped, numTxFramesTransmitted, numTxPackets,
                 radioType, rssi, rxBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries);
@@ -195,7 +191,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
+        if (RadioType.isUnsupported(radioType)) {
             return true;
         }
         return false;
@@ -279,22 +275,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setNumRxFramesReceived(Long numRxFramesReceived) {
         this.numRxFramesReceived = numRxFramesReceived;
-    }
-
-    public String getClassificationName() {
-        return classificationName;
-    }
-
-    public void setClassificationName(String classificationName) {
-        this.classificationName = classificationName;
-    }
-
-    public ChannelBandwidth getChannelBandWidth() {
-        return channelBandWidth;
-    }
-
-    public void setChannelBandWidth(ChannelBandwidth channelBandWidth) {
-        this.channelBandWidth = channelBandWidth;
     }
 
     public Double getAverageTxRate() {

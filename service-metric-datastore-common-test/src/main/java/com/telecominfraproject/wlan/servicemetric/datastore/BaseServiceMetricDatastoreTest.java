@@ -114,10 +114,6 @@ public abstract class BaseServiceMetricDatastoreTest {
             serviceMetric.setEquipmentId(testSequence.incrementAndGet());
             serviceMetric.setClientMac(testSequence.incrementAndGet());
             serviceMetric.setCreatedTimestamp(baseTimestamp - 100000 + testSequence.incrementAndGet());
-            
-            ClientMetrics details2 = new ClientMetrics();
-            details2.setClassificationName("qr_"+apNameIdx);
-            serviceMetric.setDetails(details2);
 
             apNameIdx++;
 
@@ -132,10 +128,6 @@ public abstract class BaseServiceMetricDatastoreTest {
             serviceMetric.setEquipmentId(testSequence.incrementAndGet());
             serviceMetric.setClientMac(testSequence.incrementAndGet());
             serviceMetric.setCreatedTimestamp(baseTimestamp + testSequence.incrementAndGet());
-            
-            ClientMetrics details2 = new ClientMetrics();
-            details2.setClassificationName("qr_"+apNameIdx);
-            serviceMetric.setDetails(details2);
 
             apNameIdx++;
 
@@ -150,10 +142,6 @@ public abstract class BaseServiceMetricDatastoreTest {
             serviceMetric.setEquipmentId(testSequence.incrementAndGet());
             serviceMetric.setClientMac(testSequence.incrementAndGet());
             serviceMetric.setCreatedTimestamp(baseTimestamp  - 100000 + testSequence.incrementAndGet());
-            
-            ClientMetrics details2 = new ClientMetrics();
-            details2.setClassificationName("qr_"+apNameIdx);
-            serviceMetric.setDetails(details2);
 
             apNameIdx++;
 
@@ -200,42 +188,17 @@ public abstract class BaseServiceMetricDatastoreTest {
         assertTrue(page6.getContext().isLastPage());
         assertTrue(page7.getContext().isLastPage());
         
-        List<String> expectedPage3Strings = new ArrayList<>(Arrays.asList(new String[]{"qr_20", "qr_21", "qr_22", "qr_23", "qr_24", "qr_25", "qr_26", "qr_27", "qr_28", "qr_29" }));
-        List<String> actualPage3Strings = new ArrayList<>();
-        page3.getItems().stream().forEach( ce -> actualPage3Strings.add(((ClientMetrics) ce.getDetails()).getClassificationName()) );
-        
-        assertEquals(expectedPage3Strings, actualPage3Strings);
-       
         //test first page of the results with empty sort order -> default sort order (by createdTimestamp ascending)
         PaginationResponse<ServiceMetric> page1EmptySort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.emptyList(), context);
         assertEquals(10, page1EmptySort.getItems().size());
-
-        List<String> expectedPage1EmptySortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
-        List<String> actualPage1EmptySortStrings = new ArrayList<>();
-        page1EmptySort.getItems().stream().forEach( ce -> actualPage1EmptySortStrings.add(((ClientMetrics) ce.getDetails()).getClassificationName() ) );
-
-        assertEquals(expectedPage1EmptySortStrings, actualPage1EmptySortStrings);
 
         //test first page of the results with null sort order -> default sort order (by createdTimestamp ascending)
         PaginationResponse<ServiceMetric> page1NullSort = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, null, context);
         assertEquals(10, page1NullSort.getItems().size());
 
-        List<String> expectedPage1NullSortStrings = new ArrayList<>(Arrays.asList(new String[]{"qr_0", "qr_1", "qr_2", "qr_3", "qr_4", "qr_5", "qr_6", "qr_7", "qr_8", "qr_9" }));
-        List<String> actualPage1NullSortStrings = new ArrayList<>();
-        page1NullSort.getItems().stream().forEach( ce -> actualPage1NullSortStrings.add(((ClientMetrics) ce.getDetails()).getClassificationName() ) );
-
-        assertEquals(expectedPage1NullSortStrings, actualPage1NullSortStrings);
-
-        
         //test first page of the results with sort descending order by a equipmentId property 
         PaginationResponse<ServiceMetric> page1SingleSortDesc = testInterface.getForCustomer(fromTime, toTime, customerId_1, null, null, null, null, Collections.singletonList(new ColumnAndSort("equipmentId", SortOrder.desc)), context);
         assertEquals(10, page1SingleSortDesc.getItems().size());
-
-        List<String> expectedPage1SingleSortDescStrings = getPagination_expectedPage1SingleSortDescStrings();
-        List<String> actualPage1SingleSortDescStrings = new ArrayList<>();
-        page1SingleSortDesc.getItems().stream().forEach( ce -> actualPage1SingleSortDescStrings.add(((ClientMetrics) ce.getDetails()).getClassificationName() ) );
-        
-        assertEquals(expectedPage1SingleSortDescStrings, actualPage1SingleSortDescStrings);        
 
         used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_1, eqId, System.currentTimeMillis()));
         used_equipmentIds.forEach(eqId -> testInterface.delete(customerId_2, eqId, System.currentTimeMillis()));
@@ -335,10 +298,6 @@ public abstract class BaseServiceMetricDatastoreTest {
            serviceMetric.setClientMac(clientMacs.get(i).getAddressAsLong());
            serviceMetric.setCreatedTimestamp(baseTimestamp - testSequence.incrementAndGet());
            
-           ClientMetrics details2 = new ClientMetrics();
-           details2.setClassificationName("qr_"+apNameIdx);
-           serviceMetric.setDetails(details2);
-
            testInterface.create(serviceMetric);
 
            //third metric - neighbour
