@@ -26,7 +26,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Long numTxBytes;
     private Integer txRetries;
     private Integer rxDuplicatePackets;
-    private int[] rates;
     private Integer snr;
     private Integer rssi;
     private String classificationName;
@@ -90,13 +89,7 @@ public class ClientMetrics extends ServiceMetricDetails {
     
     @Override
     public ClientMetrics clone() {
-        ClientMetrics ret = (ClientMetrics) super.clone();
-
-        if(this.rates!=null){
-            ret.rates = this.rates.clone();
-        }
-
-        return ret;
+        return (ClientMetrics) super.clone();
     }
 
     @Override
@@ -119,7 +112,7 @@ public class ClientMetrics extends ServiceMetricDetails {
                 && Objects.equals(numTxBytes, other.numTxBytes) && Objects.equals(numTxDataRetries, other.numTxDataRetries)
                 && Objects.equals(numTxDropped, other.numTxDropped) && Objects.equals(numTxFramesTransmitted, other.numTxFramesTransmitted)
                 && Objects.equals(numTxPackets, other.numTxPackets) && this.radioType == other.radioType
-                && Arrays.equals(rates, other.rates) && Objects.equals(rssi, other.rssi) && Objects.equals(rxBytes, other.rxBytes)
+                && Objects.equals(rssi, other.rssi) && Objects.equals(rxBytes, other.rxBytes)
                 && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets) && Objects.equals(rxLastRssi, other.rxLastRssi)
                 && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries);
     }
@@ -164,10 +157,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         return radioType;
     }
 
-    public int[] getRates() {
-        return rates;
-    }
-
     public Integer getRssi() {
         return rssi;
     }
@@ -196,7 +185,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Arrays.hashCode(this.rates);
         result = prime * result + Objects.hash(averageRxRate, averageTxRate, channelBandWidth,
                 classificationName, numRxBytes, numRxData, numRxFramesReceived,
                 numRxNoFcsErr, numRxPackets, numRxRetry, numTxBytes,
@@ -254,10 +242,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setRadioType(RadioType radioType) {
         this.radioType = radioType;
-    }
-
-    public void setRates(int[] rates) {
-        this.rates = rates;
     }
 
     public void setRssi(Integer rssi) {
