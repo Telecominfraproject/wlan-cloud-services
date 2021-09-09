@@ -37,11 +37,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Integer numRxNoFcsErr;
 
     /**
-     * The number of received data frames.
-     */
-    private Integer numRxData;
-
-    /**
      * The number of received bytes.
      */
     private Long rxBytes;
@@ -94,7 +89,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         }
         ClientMetrics other = (ClientMetrics) obj;
         return Objects.equals(averageRxRate, other.averageRxRate) && Objects.equals(averageTxRate, other.averageTxRate)
-                && Objects.equals(numRxBytes, other.numRxBytes) && Objects.equals(numRxData, other.numRxData) 
+                && Objects.equals(numRxBytes, other.numRxBytes)
                 && Objects.equals(numRxFramesReceived, other.numRxFramesReceived) && Objects.equals(numRxNoFcsErr, other.numRxNoFcsErr)
                 && Objects.equals(numRxPackets, other.numRxPackets) && Objects.equals(numRxRetry, other.numRxRetry)
                 && Objects.equals(numTxBytes, other.numTxBytes) && Objects.equals(numTxDataRetries, other.numTxDataRetries)
@@ -107,10 +102,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public Long getNumRxBytes() {
         return numRxBytes;
-    }
-
-    public Integer getNumRxData() {
-        return numRxData;
     }
 
     public Integer getNumRxNoFcsErr() {
@@ -170,7 +161,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + Objects.hash(averageRxRate, averageTxRate,
-                numRxBytes, numRxData, numRxFramesReceived,
+                numRxBytes, numRxFramesReceived,
                 numRxNoFcsErr, numRxPackets, numRxRetry, numTxBytes,
                 numTxDataRetries, numTxDropped, numTxFramesTransmitted, numTxPackets,
                 radioType, rssi, rxBytes, rxDuplicatePackets, snr, txRetries);
@@ -190,10 +181,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setNumRxBytes(Long numRxBytes) {
         this.numRxBytes = numRxBytes;
-    }
-
-    public void setNumRxData(Integer numRxData) {
-        this.numRxData = numRxData;
     }
 
     public void setNumRxNoFcsErr(Integer numRxNoFcsErr) {

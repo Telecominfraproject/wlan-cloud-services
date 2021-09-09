@@ -5042,12 +5042,7 @@ components:
           description: The number of received frames without FCS errors.
           type: integer
           format: int32
-        
-        numRxData:
-          description: The number of received data frames.
-          type: integer
-          format: int32
-        
+
         rxBytes:
           description: The number of received bytes.
           type: integer
