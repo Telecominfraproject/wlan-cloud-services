@@ -298,6 +298,9 @@ public abstract class BaseServiceMetricDatastoreTest {
            serviceMetric.setClientMac(clientMacs.get(i).getAddressAsLong());
            serviceMetric.setCreatedTimestamp(baseTimestamp - testSequence.incrementAndGet());
            
+           ClientMetrics details2 = new ClientMetrics();
+           serviceMetric.setDetails(details2);
+           
            testInterface.create(serviceMetric);
 
            //third metric - neighbour
