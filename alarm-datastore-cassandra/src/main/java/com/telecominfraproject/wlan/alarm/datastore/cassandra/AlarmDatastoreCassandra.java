@@ -795,7 +795,10 @@ public class AlarmDatastoreCassandra implements AlarmDatastore {
 				long equipmentIdPostQuery = row.getLong("equipmentId");
 				int alarmCodePostQuery = row.getInt("alarmCode");
 				long createdTimestampPostQuery = row.getLong("createdTimestamp");
-				pageItems.add(getOrNull(customerId, equipmentIdPostQuery, AlarmCode.getById(alarmCodePostQuery), createdTimestampPostQuery));
+				Alarm alarmToAdd = getOrNull(customerId, equipmentIdPostQuery, AlarmCode.getById(alarmCodePostQuery), createdTimestampPostQuery);
+                if (alarmToAdd != null) {
+                    pageItems.add(alarmToAdd);
+                }
 			}
 			break;
 		default:
