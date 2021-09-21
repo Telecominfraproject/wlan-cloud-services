@@ -309,5 +309,4 @@ public abstract class CommonElementConfiguration extends EquipmentDetails implem
         this.blinkAllLEDs = blinkAllLEDs;
     }
     
-    
 }
