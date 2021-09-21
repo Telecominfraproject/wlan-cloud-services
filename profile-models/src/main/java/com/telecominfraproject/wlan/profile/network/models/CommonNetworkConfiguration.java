@@ -93,7 +93,7 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     }
 
 
-    public Boolean getLedControlEnabled() {
+    public Boolean isLedControlEnabled() {
         return ledControlEnabled;
     }
 
