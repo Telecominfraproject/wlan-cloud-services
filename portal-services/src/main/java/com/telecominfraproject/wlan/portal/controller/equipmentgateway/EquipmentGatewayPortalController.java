@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.telecominfraproject.wlan.core.model.json.GenericResponse;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
+import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.RadioChannelChangeSettings;
+import com.telecominfraproject.wlan.equipment.models.events.EquipmentBlinkLEDsEvent;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWBlinkRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCommandResultCode;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWFirmwareDownloadRequest;
@@ -140,9 +142,9 @@ public class EquipmentGatewayPortalController {
 
     @RequestMapping(value = "/equipmentGateway/requestApBlinkLEDs", method = RequestMethod.POST)
     public GenericResponse requestApBlinkLEDs(@RequestParam long equipmentId, @RequestParam boolean blinkAllLEDs) {
-        String action = "stop blinking LEDs on AP ";
+        String action = "stop blinking LEDs on AP";
         if (blinkAllLEDs)
-            action = "start blinking LEDs on AP ";
+            action = "start blinking LEDs on AP";
         Equipment equipment = equipmentServiceInterface.get(equipmentId);
         LOG.debug("Request {} for AP {}", action, equipment.getInventoryId());
 
@@ -154,6 +156,9 @@ public class EquipmentGatewayPortalController {
         LOG.debug("{} response {}", action, response);
 
         if (response.getResultCode() == CEGWCommandResultCode.Success) {
+        	ApElementConfiguration apElementConfig = (ApElementConfiguration) equipment.getDetails();
+        	apElementConfig.setBlinkAllLEDs(blinkAllLEDs);
+        	equipmentServiceInterface.update(equipment);
             return new GenericResponse(true, "");
         } else {
             return new GenericResponse(false, "Failed to " + action + " for AP: " + response.getResultCode() + " " + response.getResultDetail());
