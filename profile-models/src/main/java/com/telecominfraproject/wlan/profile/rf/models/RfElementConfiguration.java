@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.ChannelHopSettings;
@@ -80,6 +82,8 @@ public class RfElementConfiguration extends BaseJsonModel {
     private Boolean useMaxTxPower;
     private Integer eirpTxPower;
     private RadioBestApSettings bestApSettings;
+    
+    private Set<Integer> autoExclusionChannels = new TreeSet<Integer>();
 
     private RfElementConfiguration() {
         long timestamp = System.currentTimeMillis();
@@ -362,9 +366,25 @@ public class RfElementConfiguration extends BaseJsonModel {
         this.bestApSettings = bestApSettings;
     }
 
+    public Set<Integer> getAutoExclusionChannels() {
+        return autoExclusionChannels;
+    }
+
+    public void setAutoExclusionChannels(Set<Integer> autoExclusionChannels) {
+        if (autoExclusionChannels != null) {
+            this.autoExclusionChannels.clear();
+            this.autoExclusionChannels.addAll(autoExclusionChannels);
+        }
+    }
+
     @Override
     public RfElementConfiguration clone() {
-        return (RfElementConfiguration) super.clone();
+        RfElementConfiguration ret = (RfElementConfiguration) super.clone();
+
+        if (autoExclusionChannels != null) {
+            ret.autoExclusionChannels = new TreeSet<>(autoExclusionChannels);
+        }
+        return ret;
     }
 
     @Override
@@ -409,7 +429,7 @@ public class RfElementConfiguration extends BaseJsonModel {
                 channelBandwidth, channelHopSettings, clientDisconnectThresholdDb, eirpTxPower, forceScanDuringVoice,
                 managementRate, maxNumClients, mimoMode, minAutoCellSize, multicastRate, neighbouringListApConfig,
                 perimeterDetectionEnabled, probeResponseThresholdDb, radioMode, radioType, rf, rtsCtsThreshold,
-                rxCellSizeDb, autoCellSizeSelection, maxAutoCellSize);
+                rxCellSizeDb, autoCellSizeSelection, maxAutoCellSize, autoExclusionChannels);
     }
 
     @Override
@@ -439,7 +459,8 @@ public class RfElementConfiguration extends BaseJsonModel {
                 && Objects.equals(probeResponseThresholdDb, other.probeResponseThresholdDb)
                 && radioMode == other.radioMode && radioType == other.radioType && Objects.equals(rf, other.rf)
                 && Objects.equals(rtsCtsThreshold, other.rtsCtsThreshold)
-                && Objects.equals(rxCellSizeDb, other.rxCellSizeDb);
+                && Objects.equals(rxCellSizeDb, other.rxCellSizeDb)
+                && Objects.equals(autoExclusionChannels, other.autoExclusionChannels);
     }
 
 }
