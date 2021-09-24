@@ -283,7 +283,9 @@ public class EquipmentController {
         if (ret.getCustomerId() != existingEquipment.getCustomerId()) {
             publishEvent(new EquipmentCustomerChangedEvent(existingEquipment, ret));
         }
-        if ((ret.getProfileId() != existingEquipment.getProfileId()) ||  (existingApElementConfig != null && updatedApElementConfig != null &&
+        if ((ret.getProfileId() != existingEquipment.getProfileId()) ||
+                ret.getLocationId() != existingEquipment.getLocationId() ||
+                (existingApElementConfig != null && updatedApElementConfig != null &&
                 updatedApElementConfig.needsToBeUpdatedOnDevice(existingApElementConfig))) {
             event = new EquipmentApImpactingChangedEvent(ret);
         } else if (existingApElementConfig != null && existingApElementConfig.isBlinkAllLEDs() != updatedApElementConfig.isBlinkAllLEDs()) {
