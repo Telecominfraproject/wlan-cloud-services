@@ -5175,9 +5175,6 @@ components:
       properties:
         model_type:
           type: string
-        secondsSinceLastRecv:
-          type: integer
-          format: int32
         
         numRxPackets:
           type: integer
@@ -5216,12 +5213,6 @@ components:
         rssi:
           type: integer
           format: int32
-       
-        classificationName:
-          type: string
-
-        channelBandWidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
         
         averageTxRate:
           type: number
@@ -5238,18 +5229,8 @@ components:
           type: integer
           format: int64
         
-        rxLastRssi:
-          description: The RSSI of last frame received.
-          type: integer
-          format: int32
-        
         numRxNoFcsErr:
           description: The number of received frames without FCS errors.
-          type: integer
-          format: int32
-        
-        numRxData:
-          description: The number of received data frames.
           type: integer
           format: int32
         

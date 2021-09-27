@@ -1,10 +1,8 @@
 package com.telecominfraproject.wlan.servicemetric.client.models;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDataType;
 import com.telecominfraproject.wlan.servicemetric.models.ServiceMetricDetails;
@@ -18,19 +16,14 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     private static final long serialVersionUID = 7242365268669169773L;
 
-    private Integer secondsSinceLastRecv;
-
     private Long numRxPackets;
     private Long numTxPackets;
     private Long numRxBytes;
     private Long numTxBytes;
     private Integer txRetries;
     private Integer rxDuplicatePackets;
-    private int[] rates;
     private Integer snr;
     private Integer rssi;
-    private String classificationName;
-    ChannelBandwidth channelBandWidth;
     
     private Double averageTxRate;
     private Double averageRxRate;
@@ -39,19 +32,9 @@ public class ClientMetrics extends ServiceMetricDetails {
     private Long numRxFramesReceived;
 
     /**
-     * The RSSI of last frame received.
-     */
-    private Integer rxLastRssi;
-
-    /**
      * The number of received frames without FCS errors.
      */
     private Integer numRxNoFcsErr;
-
-    /**
-     * The number of received data frames.
-     */
-    private Integer numRxData;
 
     /**
      * The number of received bytes.
@@ -90,13 +73,7 @@ public class ClientMetrics extends ServiceMetricDetails {
     
     @Override
     public ClientMetrics clone() {
-        ClientMetrics ret = (ClientMetrics) super.clone();
-
-        if(this.rates!=null){
-            ret.rates = this.rates.clone();
-        }
-
-        return ret;
+        return (ClientMetrics) super.clone();
     }
 
     @Override
@@ -112,24 +89,19 @@ public class ClientMetrics extends ServiceMetricDetails {
         }
         ClientMetrics other = (ClientMetrics) obj;
         return Objects.equals(averageRxRate, other.averageRxRate) && Objects.equals(averageTxRate, other.averageTxRate)
-                && this.channelBandWidth == other.channelBandWidth && Objects.equals(classificationName, other.classificationName)
-                && Objects.equals(numRxBytes, other.numRxBytes) && Objects.equals(numRxData, other.numRxData) 
+                && Objects.equals(numRxBytes, other.numRxBytes)
                 && Objects.equals(numRxFramesReceived, other.numRxFramesReceived) && Objects.equals(numRxNoFcsErr, other.numRxNoFcsErr)
                 && Objects.equals(numRxPackets, other.numRxPackets) && Objects.equals(numRxRetry, other.numRxRetry)
                 && Objects.equals(numTxBytes, other.numTxBytes) && Objects.equals(numTxDataRetries, other.numTxDataRetries)
                 && Objects.equals(numTxDropped, other.numTxDropped) && Objects.equals(numTxFramesTransmitted, other.numTxFramesTransmitted)
                 && Objects.equals(numTxPackets, other.numTxPackets) && this.radioType == other.radioType
-                && Arrays.equals(rates, other.rates) && Objects.equals(rssi, other.rssi) && Objects.equals(rxBytes, other.rxBytes)
-                && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets) && Objects.equals(rxLastRssi, other.rxLastRssi)
+                && Objects.equals(rssi, other.rssi) && Objects.equals(rxBytes, other.rxBytes)
+                && Objects.equals(rxDuplicatePackets, other.rxDuplicatePackets)
                 && Objects.equals(snr, other.snr) && Objects.equals(txRetries, other.txRetries);
     }
 
     public Long getNumRxBytes() {
         return numRxBytes;
-    }
-
-    public Integer getNumRxData() {
-        return numRxData;
     }
 
     public Integer getNumRxNoFcsErr() {
@@ -164,10 +136,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         return radioType;
     }
 
-    public int[] getRates() {
-        return rates;
-    }
-
     public Integer getRssi() {
         return rssi;
     }
@@ -178,10 +146,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public Integer getRxDuplicatePackets() {
         return rxDuplicatePackets;
-    }
-
-    public Integer getRxLastRssi() {
-        return rxLastRssi;
     }
 
     public Integer getSnr() {
@@ -196,12 +160,11 @@ public class ClientMetrics extends ServiceMetricDetails {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Arrays.hashCode(this.rates);
-        result = prime * result + Objects.hash(averageRxRate, averageTxRate, channelBandWidth,
-                classificationName, numRxBytes, numRxData, numRxFramesReceived,
+        result = prime * result + Objects.hash(averageRxRate, averageTxRate,
+                numRxBytes, numRxFramesReceived,
                 numRxNoFcsErr, numRxPackets, numRxRetry, numTxBytes,
                 numTxDataRetries, numTxDropped, numTxFramesTransmitted, numTxPackets,
-                radioType, rssi, rxBytes, rxDuplicatePackets, rxLastRssi, snr, txRetries);
+                radioType, rssi, rxBytes, rxDuplicatePackets, snr, txRetries);
         return result;
     }
 
@@ -210,7 +173,7 @@ public class ClientMetrics extends ServiceMetricDetails {
         if (super.hasUnsupportedValue()) {
             return true;
         }
-        if (RadioType.isUnsupported(radioType) || (ChannelBandwidth.isUnsupported(this.channelBandWidth))) {
+        if (RadioType.isUnsupported(radioType)) {
             return true;
         }
         return false;
@@ -218,10 +181,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setNumRxBytes(Long numRxBytes) {
         this.numRxBytes = numRxBytes;
-    }
-
-    public void setNumRxData(Integer numRxData) {
-        this.numRxData = numRxData;
     }
 
     public void setNumRxNoFcsErr(Integer numRxNoFcsErr) {
@@ -256,10 +215,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         this.radioType = radioType;
     }
 
-    public void setRates(int[] rates) {
-        this.rates = rates;
-    }
-
     public void setRssi(Integer rssi) {
         this.rssi = rssi;
     }
@@ -270,10 +225,6 @@ public class ClientMetrics extends ServiceMetricDetails {
 
     public void setRxDuplicatePackets(Integer rxDuplicatePackets) {
         this.rxDuplicatePackets = rxDuplicatePackets;
-    }
-
-    public void setRxLastRssi(Integer rxLastRssi) {
-        this.rxLastRssi = rxLastRssi;
     }
 
     public void setSnr(Integer snr) {
@@ -300,22 +251,6 @@ public class ClientMetrics extends ServiceMetricDetails {
         this.numRxFramesReceived = numRxFramesReceived;
     }
 
-    public String getClassificationName() {
-        return classificationName;
-    }
-
-    public void setClassificationName(String classificationName) {
-        this.classificationName = classificationName;
-    }
-
-    public ChannelBandwidth getChannelBandWidth() {
-        return channelBandWidth;
-    }
-
-    public void setChannelBandWidth(ChannelBandwidth channelBandWidth) {
-        this.channelBandWidth = channelBandWidth;
-    }
-
     public Double getAverageTxRate() {
         return averageTxRate;
     }
@@ -331,14 +266,6 @@ public class ClientMetrics extends ServiceMetricDetails {
     public void setAverageRxRate(Double averageRxRate) {
         this.averageRxRate = averageRxRate;
     }
-
-	public Integer getSecondsSinceLastRecv() {
-		return secondsSinceLastRecv;
-	}
-
-	public void setSecondsSinceLastRecv(Integer secondsSinceLastRecv) {
-		this.secondsSinceLastRecv = secondsSinceLastRecv;
-	}
 
 	public Integer getPeriodLengthSec() {
 		return periodLengthSec;

@@ -213,11 +213,7 @@ components:
       - SGI# Short Guard Interval
 
     ClientMetrics:
-      properties:
-        secondsSinceLastRecv:
-          type: integer
-          format: int32
-        
+      properties:      
         numRxPackets:
           type: integer
           format: int64
@@ -256,12 +252,6 @@ components:
           type: integer
           format: int32
         
-        classificationName:
-          type: string
- 
-        channelBandWidth:
-          $ref: '#/components/schemas/ChannelBandwidth'
-        
         averageTxRate:
           type: number
           format: double
@@ -277,22 +267,11 @@ components:
           type: integer
           format: int64
         
-        rxLastRssi:
-          description: The RSSI of last frame received.
-          type: integer
-          format: int32
-        
         numRxNoFcsErr:
           description: The number of received frames without FCS errors.
           type: integer
           format: int32
         
-        numRxData:
-          description: The number of received data frames.
-          type: integer
-          format: int32
-
-
         rxBytes:
           description: The number of received bytes.
           type: integer
