@@ -344,7 +344,6 @@ components:
         - cyan
         - white
         - off
-
     CEGWBlinkRequest:
       description: Turn all LEDs on the AP to blinking, or turn off. The blinkAllLEDs attribute is the only currently supported functionality on the AP.
       allOf:
