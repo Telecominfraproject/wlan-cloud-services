@@ -116,7 +116,7 @@ public class RfElementConfiguration extends BaseJsonModel {
         ret.setMinAutoCellSize(MIN_CELL_SIZE_MAP.get(radioType));
         ret.setMaxAutoCellSize(MAX_CELL_SIZE_MAP.get(radioType));
         if (radioType == RadioType.is5GHz || radioType == RadioType.is5GHzL || radioType == RadioType.is5GHzU) {
-            ret.setChannelBandwidth(ChannelBandwidth.is80MHz);
+            ret.setChannelBandwidth(ChannelBandwidth.is40MHz);
             ret.setRadioMode(RadioMode.modeAC);
         } else {
             ret.setChannelBandwidth(ChannelBandwidth.is20MHz);

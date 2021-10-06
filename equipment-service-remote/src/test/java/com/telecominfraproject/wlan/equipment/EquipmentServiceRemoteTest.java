@@ -932,9 +932,9 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(11, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
         
         assertEquals(36, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
-        assertEquals(149, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(44, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
         assertEquals(36, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
-        assertEquals(149, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
+        assertEquals(44, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
             
         Map<RadioType, Integer> primaryChannels =  new EnumMap<>(RadioType.class);
         Map<RadioType, Integer> backupChannels =  new EnumMap<>(RadioType.class);
@@ -970,7 +970,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
         
         assertEquals(36, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
-        assertEquals(149, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(44, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
         assertEquals(40, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
         assertEquals(48, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
         
@@ -980,7 +980,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         
         backupChannels.clear();
         backupChannels.put(RadioType.is2dot4GHz, 6);
-        backupChannels.put(RadioType.is5GHz, 44);
+        backupChannels.put(RadioType.is5GHz, 149);
         
         autoChannelSelections.clear();
         autoChannelSelections.put(RadioType.is2dot4GHz, true);
@@ -1007,7 +1007,7 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
         assertEquals(6, radioMap.get(RadioType.is2dot4GHz).getManualBackupChannelNumber().intValue());
         
         assertEquals(161, radioMap.get(RadioType.is5GHz).getChannelNumber().intValue());
-        assertEquals(44, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
+        assertEquals(149, radioMap.get(RadioType.is5GHz).getBackupChannelNumber().intValue());
         assertEquals(40, radioMap.get(RadioType.is5GHz).getManualChannelNumber().intValue());
         assertEquals(48, radioMap.get(RadioType.is5GHz).getManualBackupChannelNumber().intValue());
 
