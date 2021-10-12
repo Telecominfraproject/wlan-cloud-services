@@ -269,6 +269,11 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
             status.setCustomerId(equipment.getCustomerId());
             statusServiceInterface.update(status);
         }
+        status = statusServiceInterface.getOrNull(existingEquipment.getCustomerId(), existingEquipment.getId(), StatusDataType.FIRMWARE);
+        if (status != null) {
+            status.setCustomerId(equipment.getCustomerId());
+            statusServiceInterface.update(status);
+        }
 
         // Alarms has to move to new customerId as well
         List<Alarm> oldCustomerAlarms = alarmServiceInterface.get(existingEquipment.getCustomerId(), Set.of(existingEquipment.getId()), null);
