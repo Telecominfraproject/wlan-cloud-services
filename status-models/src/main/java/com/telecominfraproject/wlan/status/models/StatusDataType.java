@@ -101,6 +101,9 @@ public class StatusDataType implements EnumWithId {
      */    
     EQUIPMENT_MANUFACTURER_DATA = new StatusDataType(17, "EQUIPMENT_MANUFACTURER_DATA", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
 
+    // STATUS OF ETHERNET PORTS ON THE DEVICE
+    WIRED_ETHERNET_PORT = new StatusDataType(18, "WIRED_ETHERNET_PORT", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)),
+
     UNSUPPORTED  = new StatusDataType(-1, "UNSUPPORTED") ;
     
     static {
