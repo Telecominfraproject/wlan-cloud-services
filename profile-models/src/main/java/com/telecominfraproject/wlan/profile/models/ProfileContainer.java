@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.telecominfraproject.wlan.profile.ethernetport.models.WiredEthernetPortConfiguration;
+
 /**
  * @author dtop
  * Utility class for dealing with profiles
@@ -38,6 +40,26 @@ public class ProfileContainer {
 		
 		//return first child that matches the profile type
 		return ret.get(0);
+	}
+
+	public Profile getChildOfTypeOrNullByEquipmentModel(long profileId, ProfileType childProfileType,
+														String equipmentModel) {
+		// The profile type of the profileId should be equipment_ap
+		Profile apProfile = profileMap.get(profileId);
+		if (apProfile != null && apProfile.getProfileType() == ProfileType.equipment_ap) {
+
+			List<Profile> profiles = getChildrenOfType(profileId, childProfileType);
+			for (Profile ret : profiles) {
+				WiredEthernetPortConfiguration config = (WiredEthernetPortConfiguration) ret.getDetails();
+				if (config != null && config.getEquipmentModel() != null
+						&& config.getEquipmentModel().equals(equipmentModel)) {
+					return ret;
+				}
+			}
+		} else {
+			throw new IllegalArgumentException("Profile Id " + profileId + " is not of type equipment_ap");
+		}
+		return null;
 	}
 
 	public List<Profile> getChildrenOfType(long profileId, ProfileType childProfileType) {
