@@ -146,7 +146,7 @@ public class EquipmentPortalController  {
     }
     
     private void validateChannelNum(Equipment equipment) {
-        if (equipment.getDetails() instanceof ApElementConfiguration) {
+        if (equipment != null && equipment.getDetails() instanceof ApElementConfiguration) {
             ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipment.getDetails();
             if (apElementConfiguration.getRadioMap() != null) {
                 
