@@ -1,12 +1,10 @@
 package com.telecominfraproject.wlan.equipment.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,6 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationExcepti
 import com.telecominfraproject.wlan.equipment.datastore.EquipmentDatastore;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.CellSizeAttributes;
-import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -263,14 +260,12 @@ public class EquipmentController {
             throw new DsDataValidationException("Equipment contains unsupported value");
         }
         
-        validateChannelNum(equipment);
-        
         Equipment existingEquipment = equipmentDatastore.getOrNull(equipment.getId());
         ApElementConfiguration existingApElementConfig = null;
         if (existingEquipment != null && existingEquipment.getDetails() instanceof ApElementConfiguration) {
             existingApElementConfig = (ApElementConfiguration) existingEquipment.getDetails();
         }
-
+        
         Equipment ret = equipmentDatastore.update(equipment);
         ApElementConfiguration updatedApElementConfig = null;
         if (ret != null && ret.getDetails() instanceof ApElementConfiguration) {
@@ -299,39 +294,6 @@ public class EquipmentController {
         return ret;
     }
     
-	private void validateChannelNum(Equipment equipment) {
-		if (equipment.getDetails() instanceof ApElementConfiguration) {
-			ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipment.getDetails();
-			if (apElementConfiguration.getRadioMap() != null) {
-				for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
-
-					ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
-					Integer channelNum = elementRadioConfig.getChannelNumber();
-					Integer manualChannelNum = elementRadioConfig.getManualChannelNumber();
-					Integer backupChannelNum = elementRadioConfig.getBackupChannelNumber();
-					Integer manualBackupChannelNum = elementRadioConfig.getManualBackupChannelNumber();
-					
-					List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
-					
-					if (allowedChannels != null && !allowedChannels.isEmpty()) {
-						checkAllowedChannels(channelNum, "channelNumber", allowedChannels);
-						checkAllowedChannels(backupChannelNum, "backupChannelNumber", allowedChannels);
-						checkAllowedChannels(manualChannelNum, "manualChannelNumber", allowedChannels);
-						checkAllowedChannels(manualBackupChannelNum, "manualBackupChannelNumber", allowedChannels);
-					}
-				}
-			}
-		}
-	}
-	
-	private void checkAllowedChannels(Integer channelNum, String channelType, List<Integer> allowedChannels) {
-		if (channelNum != null && !allowedChannels.contains(channelNum)) {
-			LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {}",
-					channelType, channelNum, allowedChannels);
-			throw new DsDataValidationException("Equipment contains disallowed " + channelType);
-		}
-	}
-	
     /**
      * Updates Equipment Channels
      *
@@ -574,25 +536,13 @@ public class EquipmentController {
         Set<Long> equipmentIds = new HashSet<>();
         request.getItems().forEach(item -> equipmentIds.add(item.getEquipmentId()));
         
-        //validate equipment before the bulk update
-        List<Equipment> equipmentBeforeUpdate = equipmentDatastore.get(equipmentIds);
-        Map<Long, Equipment> eqMap = new HashMap<>();        
-        equipmentBeforeUpdate.forEach(eq -> eqMap.put(eq.getId(), eq));
-        
-        request.getItems().forEach(item -> {
-        	Equipment eq = eqMap.get(item.getEquipmentId());
-        	if(item.applyToEquipment(eq)) {
-        		validateChannelNum(eq);
-        	}
-        });
-        
         equipmentDatastore.updateRrmBulk(request);
 
         //send events after the bulk update
         List<Equipment> equipmentAfterUpdate = equipmentDatastore.get(equipmentIds);
 
         List<SystemEvent> events = new ArrayList<>();
-        equipmentAfterUpdate.forEach(eq -> events.add(new EquipmentChangedEvent(eq)));
+        equipmentAfterUpdate.forEach(eq -> events.add(new EquipmentApImpactingChangedEvent(eq)));
         publishEvents(events);
 
         return new GenericResponse(true, "");

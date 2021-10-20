@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,10 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
 import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificationException;
+import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.EquipmentServiceInterface;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
+import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
 import com.telecominfraproject.wlan.equipment.models.EquipmentCellSizeAttributesUpdateRequest;
@@ -36,7 +40,9 @@ import com.telecominfraproject.wlan.equipment.models.EquipmentChannelsUpdateRequ
 import com.telecominfraproject.wlan.equipment.models.EquipmentDetails;
 import com.telecominfraproject.wlan.equipment.models.RadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.bulkupdate.rrm.EquipmentRrmBulkUpdateRequest;
+import com.telecominfraproject.wlan.location.service.LocationServiceInterface;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
+import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.status.StatusServiceInterface;
 
 /**
@@ -48,6 +54,9 @@ import com.telecominfraproject.wlan.status.StatusServiceInterface;
 public class EquipmentPortalController  {
 
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentPortalController.class);
+    
+    public static enum CHANNEL_NUMBER_TYPE {channelNumber, backupChannelNumber, manualChannelNumber,
+        manualBackupChannelNumber};
 
     @Value("${tip.wlan.portal.equipment.numRetryUpdate:10}") 
     private int numRetryUpdate;
@@ -71,6 +80,9 @@ public class EquipmentPortalController  {
     
     @Autowired
     private ProfileServiceInterface profileServiceInterface;
+    
+    @Autowired
+    private LocationServiceInterface locationServiceInterface;
 
     @RequestMapping(value = "/equipment", method = RequestMethod.GET)
     public Equipment getEquipment(@RequestParam long equipmentId) {
@@ -86,14 +98,25 @@ public class EquipmentPortalController  {
         LOG.debug("Updating equipment {}", equipment.getId());
 
         Equipment ret = null;
+        Equipment existing  = equipmentServiceInterface.getOrNull(equipment.getId());
 
         for(int i=0; i<numRetryUpdate; i++) {
 	        try {
+	            if (equipment != null && existing != null && equipment.getLocationId() != existing.getLocationId()) {
+	                Location location = locationServiceInterface.get(equipment.getLocationId());
+	                Location existingLocation = locationServiceInterface.get(existing.getLocationId());
+	                
+	                if (!Objects.equals(Location.getCountryCode(location), Location.getCountryCode(existingLocation))) {
+	                    updateEquipmentWithDefaultChannels(equipment);
+	                }
+	            }
+	            validateChannelNum(equipment);
+	            
 	            ret = equipmentServiceInterface.update(equipment);
 	            break;
 	        } catch (DsConcurrentModificationException e) {
 	            LOG.debug("Equipment was concurrently updated, retrying: {}", e.getMessage());
-	            Equipment existing  = equipmentServiceInterface.getOrNull(equipment.getId());
+	            existing  = equipmentServiceInterface.getOrNull(equipment.getId());
 	            equipment.setLastModifiedTimestamp(existing.getLastModifiedTimestamp());
 	        }
         }
@@ -103,6 +126,73 @@ public class EquipmentPortalController  {
         }
         
         return ret;
+    }
+    
+    private void updateEquipmentWithDefaultChannels(Equipment equipment) {
+        if (equipment.getDetails() instanceof ApElementConfiguration) {
+            ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipment.getDetails();
+            if (apElementConfiguration.getRadioMap() != null) {
+                
+                for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
+                    ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
+
+                    elementRadioConfig.setChannelNumber(ElementRadioConfiguration.getDefaultChannelNumber(radioType));
+                    elementRadioConfig.setBackupChannelNumber(ElementRadioConfiguration.getDefaultBackupChannelNumber(radioType));
+                    elementRadioConfig.setManualChannelNumber(ElementRadioConfiguration.getDefaultChannelNumber(radioType));
+                    elementRadioConfig.setManualBackupChannelNumber(ElementRadioConfiguration.getDefaultBackupChannelNumber(radioType));
+                }
+            }
+        }
+    }
+    
+    private void validateChannelNum(Equipment equipment) {
+        if (equipment.getDetails() instanceof ApElementConfiguration) {
+            ApElementConfiguration apElementConfiguration = (ApElementConfiguration) equipment.getDetails();
+            if (apElementConfiguration.getRadioMap() != null) {
+                
+                for (RadioType radioType : apElementConfiguration.getRadioMap().keySet()) {
+                    ElementRadioConfiguration elementRadioConfig = apElementConfiguration.getRadioMap().get(radioType);
+                    List<Integer> allowedChannels = elementRadioConfig.getAllowedChannelsPowerLevels().stream().map(
+                            ChannelPowerLevel::getChannelNumber).collect(Collectors.toList());
+                    
+                    if (allowedChannels != null && !allowedChannels.isEmpty()) {
+                        for (CHANNEL_NUMBER_TYPE channelType : CHANNEL_NUMBER_TYPE.values()) {
+                            checkAllowedChannels(elementRadioConfig, channelType, allowedChannels, radioType);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private void checkAllowedChannels(ElementRadioConfiguration elementRadioConfig, CHANNEL_NUMBER_TYPE channelType,
+            List<Integer> allowedChannels, RadioType radioType) {
+        Integer channelNum = null;
+        switch (channelType) {
+        case channelNumber: {
+            channelNum = elementRadioConfig.getChannelNumber();
+            break;
+        }
+        case backupChannelNumber: {
+            channelNum = elementRadioConfig.getBackupChannelNumber();
+            break;
+        }
+        case manualChannelNumber: {
+            channelNum = elementRadioConfig.getManualChannelNumber();
+            break;
+        }
+        case manualBackupChannelNumber: {
+            channelNum = elementRadioConfig.getManualBackupChannelNumber();
+            break;
+        }
+        default:
+            break;
+        }
+        if (channelNum != null && !allowedChannels.contains(channelNum)) {
+            LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {} for radioType {}",
+                    channelType, channelNum, allowedChannels, radioType);
+            throw new DsDataValidationException("Equipment contains disallowed " + channelType);
+        }
     }
     
     @RequestMapping(value = "/equipment/channel", method = RequestMethod.PUT)
@@ -302,6 +392,20 @@ public class EquipmentPortalController  {
     @RequestMapping(value = "/equipment/rrmBulk", method=RequestMethod.PUT)
 	public GenericResponse updateRrmBulk(@RequestBody EquipmentRrmBulkUpdateRequest request) {
         LOG.debug("updateRrmBulk {}", request);
+        
+        //validate equipment before the bulk update
+        Set<Long> equipmentIds = new HashSet<>();
+        request.getItems().forEach(item -> equipmentIds.add(item.getEquipmentId()));
+        List<Equipment> equipmentBeforeUpdate = equipmentServiceInterface.get(equipmentIds);
+        Map<Long, Equipment> eqMap = new HashMap<>();
+        equipmentBeforeUpdate.forEach(eq -> eqMap.put(eq.getId(), eq));
+        
+        request.getItems().forEach(item -> {
+            Equipment eq = eqMap.get(item.getEquipmentId());
+            if(item.applyToEquipment(eq)) {
+                validateChannelNum(eq);
+            }
+        });
         equipmentServiceInterface.updateRrmBulk(request);
         return new GenericResponse(true, "");
     }

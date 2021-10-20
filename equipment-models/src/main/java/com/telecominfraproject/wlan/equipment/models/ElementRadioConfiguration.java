@@ -1,6 +1,8 @@
 package com.telecominfraproject.wlan.equipment.models;
 
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -48,6 +50,46 @@ public class ElementRadioConfiguration extends BaseJsonModel
 
     private Boolean deauthAttackDetection;
     private Set<ChannelPowerLevel> allowedChannelsPowerLevels = new HashSet<>();
+    
+    private static Map<RadioType, Integer> defaultChannelNumberMap = new EnumMap<>(RadioType.class);
+    private static Map<RadioType, Integer> defaultBackupChannelNumberMap = new EnumMap<>(RadioType.class);
+    
+    public final static int DEFAULT_CHANNEL_NUMBER_2DOT4GHZ = 6;
+    public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ = 11;
+    public final static int DEFAULT_CHANNEL_NUMBER_5GHZ = 36;
+    public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZ = 44;
+    public final static int DEFAULT_CHANNEL_NUMBER_5GHZL = 36;
+    public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZL = 44;
+    public final static int DEFAULT_CHANNEL_NUMBER_5GHZU = 149;
+    public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZU = 157;
+    
+    static {
+        defaultChannelNumberMap.put(RadioType.is2dot4GHz, DEFAULT_CHANNEL_NUMBER_2DOT4GHZ);
+        defaultChannelNumberMap.put(RadioType.is5GHz, DEFAULT_CHANNEL_NUMBER_5GHZ);
+        defaultChannelNumberMap.put(RadioType.is5GHzL, DEFAULT_CHANNEL_NUMBER_5GHZL);
+        defaultChannelNumberMap.put(RadioType.is5GHzU, DEFAULT_CHANNEL_NUMBER_5GHZU);
+        
+        defaultBackupChannelNumberMap.put(RadioType.is2dot4GHz, DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ);
+        defaultBackupChannelNumberMap.put(RadioType.is5GHz, DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZ);
+        defaultBackupChannelNumberMap.put(RadioType.is5GHzL, DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZL);
+        defaultBackupChannelNumberMap.put(RadioType.is5GHzU, DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZU);
+    }
+    
+    public static Integer getDefaultChannelNumber(RadioType radioType) {
+        Integer channelNumber = defaultChannelNumberMap.get(radioType);
+        if (channelNumber == null) {
+            return DEFAULT_CHANNEL_NUMBER_2DOT4GHZ;
+        }
+        return channelNumber;
+    }
+    
+    public static Integer getDefaultBackupChannelNumber(RadioType radioType) {
+        Integer backupChannelNumber =  defaultBackupChannelNumberMap.get(radioType);
+        if (backupChannelNumber == null) {
+            return DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ;
+        }
+        return backupChannelNumber;
+    }
 
     /**
      * Static creator
@@ -60,19 +102,8 @@ public class ElementRadioConfiguration extends BaseJsonModel
 
         returnValue.setRadioType(radioType);
 
-        if (radioType == RadioType.is5GHz) {
-            returnValue.setChannelNumber(36);
-            returnValue.setBackupChannelNumber(44);
-        } else if (radioType == RadioType.is5GHzL) {
-            returnValue.setChannelNumber(36);
-            returnValue.setBackupChannelNumber(44);
-        } else if (radioType == RadioType.is5GHzU) {
-            returnValue.setChannelNumber(149);
-            returnValue.setBackupChannelNumber(157);
-        } else {
-            returnValue.setChannelNumber(6);
-            returnValue.setBackupChannelNumber(11);
-        }
+        returnValue.setChannelNumber(getDefaultChannelNumber(radioType));
+        returnValue.setBackupChannelNumber(getDefaultBackupChannelNumber(radioType));
 
         return returnValue;
     }

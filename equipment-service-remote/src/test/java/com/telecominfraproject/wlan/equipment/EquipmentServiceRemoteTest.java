@@ -36,11 +36,9 @@ import com.telecominfraproject.wlan.core.model.pagination.PaginationContext;
 import com.telecominfraproject.wlan.core.model.pagination.PaginationResponse;
 import com.telecominfraproject.wlan.core.model.pagination.SortOrder;
 import com.telecominfraproject.wlan.core.model.pair.PairLongLong;
-import com.telecominfraproject.wlan.datastore.exceptions.DsDataValidationException;
 import com.telecominfraproject.wlan.equipment.models.AntennaType;
 import com.telecominfraproject.wlan.equipment.models.ApElementConfiguration;
 import com.telecominfraproject.wlan.equipment.models.CellSizeAttributes;
-import com.telecominfraproject.wlan.equipment.models.ChannelPowerLevel;
 import com.telecominfraproject.wlan.equipment.models.CustomerEquipmentCounts;
 import com.telecominfraproject.wlan.equipment.models.ElementRadioConfiguration;
 import com.telecominfraproject.wlan.equipment.models.Equipment;
@@ -624,94 +622,6 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
     }
     
     @Test
-    public void testEquipmentUpdateChannelNumValidation() {
-
-        //Create new Equipment - success
-        Equipment equipment = new Equipment();
-        equipment.setName("testName-"+getNextEquipmentId());
-        equipment.setInventoryId("test-inv-"+getNextEquipmentId());
-        equipment.setEquipmentType(EquipmentType.AP);
-        equipment.setDetails(ApElementConfiguration.createWithDefaults());
-
-        ElementRadioConfiguration element2dot4RadioConfig = ((ApElementConfiguration)equipment.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);       
-        element2dot4RadioConfig.setAllowedChannelsPowerLevels(new HashSet<>());
-        
-        for (int i = 1; i <= 11; i++) {
-            ChannelPowerLevel cpl = new ChannelPowerLevel();
-            cpl.setChannelNumber(i);
-            cpl.setChannelWidth(20);
-            cpl.setDfs(false);
-            cpl.setPowerLevel(30);
-            element2dot4RadioConfig.getAllowedChannelsPowerLevels().add(cpl);
-        }
-
-        Equipment ret = remoteInterface.create(equipment);
-        assertNotNull(ret);
-
-        ret = remoteInterface.get(ret.getId());
-        assertEqualEquipments(equipment, ret);
-
-        ElementRadioConfiguration retElement2dot4RadioConfig = ((ApElementConfiguration)ret.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
-        assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 6);
-
-        //Update success
-        retElement2dot4RadioConfig.setChannelNumber(1);
-        retElement2dot4RadioConfig.setManualChannelNumber(2);
-        retElement2dot4RadioConfig.setBackupChannelNumber(3);
-        retElement2dot4RadioConfig.setManualBackupChannelNumber(4);
-
-        Equipment updatedEquipment = remoteInterface.update(ret);
-
-        Equipment retUpdate = remoteInterface.get(ret.getId());
-        assertEqualEquipments(retUpdate, updatedEquipment);
-        ElementRadioConfiguration ret2Element2dot4RadioConfig = ((ApElementConfiguration)retUpdate.getDetails()).getRadioMap().get(RadioType.is2dot4GHz);
-        assertEquals(retElement2dot4RadioConfig.getChannelNumber().intValue(), 1);
-        assertEquals(retElement2dot4RadioConfig.getManualChannelNumber().intValue(), 2);
-        assertEquals(retElement2dot4RadioConfig.getBackupChannelNumber().intValue(), 3);
-        assertEquals(retElement2dot4RadioConfig.getManualBackupChannelNumber().intValue(), 4);
-
-        //Update failure
-        ret2Element2dot4RadioConfig.setChannelNumber(12);
-        try {
-        	remoteInterface.update(retUpdate);
-        	fail("EquipmentService update channelNumber failed");
-        } catch (DsDataValidationException e) {
-        	// pass
-        }
-        
-        ret2Element2dot4RadioConfig.setChannelNumber(6);
-        ret2Element2dot4RadioConfig.setManualChannelNumber(13);
-        try {
-        	remoteInterface.update(retUpdate);
-        	fail("EquipmentService update manualChannelNumber failed");
-        } catch (DsDataValidationException e) {
-        	// pass
-        }
-        
-        ret2Element2dot4RadioConfig.setManualChannelNumber(7);
-        ret2Element2dot4RadioConfig.setBackupChannelNumber(14);
-        try {
-        	remoteInterface.update(retUpdate);
-        	fail("EquipmentService update backupChannelNumber failed");
-        } catch (DsDataValidationException e) {
-        	// pass
-        }
-        
-        ret2Element2dot4RadioConfig.setBackupChannelNumber(8);
-        ret2Element2dot4RadioConfig.setManualBackupChannelNumber(15);
-        try {
-        	remoteInterface.update(retUpdate);
-        	fail("EquipmentService update manualBackupChannelNumber failed");
-        } catch (DsDataValidationException e) {
-        	// pass
-        }
-        
-        //Tolerate null now
-        ret2Element2dot4RadioConfig.setManualBackupChannelNumber(null);
-        remoteInterface.update(retUpdate);
-    }
-
-    @Test
     public void testGetPaginatedEquipmentIds()
     {
        //create Equipment objects
@@ -869,7 +779,6 @@ public class EquipmentServiceRemoteTest extends BaseRemoteTest {
 
         // Clean up after test
         createdSet.forEach( c-> remoteInterface.delete(c));
-        
     }
     
     @Test
