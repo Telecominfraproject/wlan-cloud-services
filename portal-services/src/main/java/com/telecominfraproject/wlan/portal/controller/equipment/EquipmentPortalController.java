@@ -157,7 +157,7 @@ public class EquipmentPortalController  {
                     
                     if (allowedChannels != null && !allowedChannels.isEmpty()) {
                         for (CHANNEL_NUMBER_TYPE channelType : CHANNEL_NUMBER_TYPE.values()) {
-                            checkAllowedChannels(elementRadioConfig, channelType, allowedChannels, radioType);
+                            checkAllowedChannels(equipment.getId(), elementRadioConfig, channelType, allowedChannels, radioType);
                         }
                     }
                 }
@@ -165,7 +165,7 @@ public class EquipmentPortalController  {
         }
     }
     
-    private Integer getChannelNumber(ElementRadioConfiguration elementRadioConfig, CHANNEL_NUMBER_TYPE channelType) {
+    private Integer getChannelNumber( ElementRadioConfiguration elementRadioConfig, CHANNEL_NUMBER_TYPE channelType) {
         Integer channelNum = null;
         
         switch (channelType) {
@@ -189,18 +189,18 @@ public class EquipmentPortalController  {
         return channelNum;
     }
     
-    private void checkAllowedChannels(ElementRadioConfiguration elementRadioConfig, CHANNEL_NUMBER_TYPE channelType,
+    private void checkAllowedChannels(long equipmentId, ElementRadioConfiguration elementRadioConfig, CHANNEL_NUMBER_TYPE channelType,
             List<Integer> allowedChannels, RadioType radioType) {
         Integer channelNum = getChannelNumber(elementRadioConfig, channelType);
 
-        checkAllowedChannels(channelNum, channelType, allowedChannels, radioType);
+        checkAllowedChannels(equipmentId, channelNum, channelType, allowedChannels, radioType);
     }
     
-    private void checkAllowedChannels(Integer channelNum, CHANNEL_NUMBER_TYPE channelType,
+    private void checkAllowedChannels(long equipmentId, Integer channelNum, CHANNEL_NUMBER_TYPE channelType,
             List<Integer> allowedChannels, RadioType radioType) {
         if (channelNum != null && !allowedChannels.contains(channelNum)) {
-            LOG.error("Failed to update Equipment. The {} ({}) is out of the allowed channels range {} for radioType {}",
-                    channelType, channelNum, allowedChannels, radioType);
+            LOG.error("Failed to update Equipment {}. The {} ({}) is out of the allowed channels range {} for radioType {}",
+                    equipmentId, channelType, channelNum, allowedChannels, radioType);
             throw new DsDataValidationException("Failed to update Equipment. The " + channelType + "(" + channelNum +
                     ")  is out of the allowed channels range " + allowedChannels + " for radioType " + 
                     RadioType.getRadioDisplayString(radioType));
@@ -213,8 +213,9 @@ public class EquipmentPortalController  {
         
         Map<RadioType, Integer> primaryChannels = request.getPrimaryChannels();
         Map<RadioType, Integer> backupChannels = request.getBackupChannels();
+        long equipmentId = request.getEquipmentId();
         
-        Equipment existing  = equipmentServiceInterface.getOrNull(request.getEquipmentId());
+        Equipment existing  = equipmentServiceInterface.getOrNull(equipmentId);
         if (existing != null && existing.getDetails() instanceof ApElementConfiguration) {
             ApElementConfiguration apElementConfiguration = (ApElementConfiguration) existing.getDetails();
             if (apElementConfiguration.getRadioMap() != null) {
@@ -226,10 +227,10 @@ public class EquipmentPortalController  {
                     
                     if (allowedChannels != null && !allowedChannels.isEmpty()) {
                         if (primaryChannels != null && primaryChannels.get(radioType) != null) {
-                            checkAllowedChannels(primaryChannels.get(radioType), CHANNEL_NUMBER_TYPE.channelNumber, allowedChannels, radioType);
+                            checkAllowedChannels(equipmentId, primaryChannels.get(radioType), CHANNEL_NUMBER_TYPE.channelNumber, allowedChannels, radioType);
                         }
                         if (backupChannels != null && backupChannels.get(radioType) != null) {
-                            checkAllowedChannels(backupChannels.get(radioType), CHANNEL_NUMBER_TYPE.backupChannelNumber, allowedChannels, radioType);
+                            checkAllowedChannels(equipmentId, backupChannels.get(radioType), CHANNEL_NUMBER_TYPE.backupChannelNumber, allowedChannels, radioType);
                         }
                     }
                 }
