@@ -51,8 +51,8 @@ public class ElementRadioConfiguration extends BaseJsonModel
     private Boolean deauthAttackDetection;
     private Set<ChannelPowerLevel> allowedChannelsPowerLevels = new HashSet<>();
     
-    private static Map<RadioType, Integer> defaultChannelNumberMap = new EnumMap<>(RadioType.class);
-    private static Map<RadioType, Integer> defaultBackupChannelNumberMap = new EnumMap<>(RadioType.class);
+    private static final Map<RadioType, Integer> defaultChannelNumberMap = new EnumMap<>(RadioType.class);
+    private static final Map<RadioType, Integer> defaultBackupChannelNumberMap = new EnumMap<>(RadioType.class);
     
     public final static int DEFAULT_CHANNEL_NUMBER_2DOT4GHZ = 6;
     public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ = 11;
