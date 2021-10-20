@@ -51,9 +51,6 @@ public class ElementRadioConfiguration extends BaseJsonModel
     private Boolean deauthAttackDetection;
     private Set<ChannelPowerLevel> allowedChannelsPowerLevels = new HashSet<>();
     
-    private static final Map<RadioType, Integer> defaultChannelNumberMap = new EnumMap<>(RadioType.class);
-    private static final Map<RadioType, Integer> defaultBackupChannelNumberMap = new EnumMap<>(RadioType.class);
-    
     public final static int DEFAULT_CHANNEL_NUMBER_2DOT4GHZ = 6;
     public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ = 11;
     public final static int DEFAULT_CHANNEL_NUMBER_5GHZ = 36;
@@ -62,6 +59,9 @@ public class ElementRadioConfiguration extends BaseJsonModel
     public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZL = 44;
     public final static int DEFAULT_CHANNEL_NUMBER_5GHZU = 149;
     public final static int DEFAULT_BACKUP_CHANNEL_NUMBER_5GHZU = 157;
+    
+    private static final Map<RadioType, Integer> defaultChannelNumberMap = new EnumMap<>(RadioType.class);
+    private static final Map<RadioType, Integer> defaultBackupChannelNumberMap = new EnumMap<>(RadioType.class);
     
     static {
         defaultChannelNumberMap.put(RadioType.is2dot4GHz, DEFAULT_CHANNEL_NUMBER_2DOT4GHZ);
@@ -76,19 +76,11 @@ public class ElementRadioConfiguration extends BaseJsonModel
     }
     
     public static Integer getDefaultChannelNumber(RadioType radioType) {
-        Integer channelNumber = defaultChannelNumberMap.get(radioType);
-        if (channelNumber == null) {
-            return DEFAULT_CHANNEL_NUMBER_2DOT4GHZ;
-        }
-        return channelNumber;
+        return defaultChannelNumberMap.get(radioType);
     }
     
     public static Integer getDefaultBackupChannelNumber(RadioType radioType) {
-        Integer backupChannelNumber =  defaultBackupChannelNumberMap.get(radioType);
-        if (backupChannelNumber == null) {
-            return DEFAULT_BACKUP_CHANNEL_NUMBER_2DOT4GHZ;
-        }
-        return backupChannelNumber;
+        return defaultBackupChannelNumberMap.get(radioType);
     }
 
     /**
