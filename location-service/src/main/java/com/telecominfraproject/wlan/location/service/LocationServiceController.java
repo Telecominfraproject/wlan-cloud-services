@@ -25,7 +25,6 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
 import com.telecominfraproject.wlan.location.datastore.LocationDatastore;
 import com.telecominfraproject.wlan.location.models.Location;
 import com.telecominfraproject.wlan.location.models.events.LocationAddedEvent;
-import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.location.models.events.LocationChangedEvent;
 import com.telecominfraproject.wlan.location.models.events.LocationRemovedEvent;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
@@ -97,14 +96,15 @@ public class LocationServiceController {
         }
         
         Location existingLocation = locationDatastore.get(location.getId());
+        
+        if (location.needsToBeUpdatedOnDevice(existingLocation)) {
+        	throw new IllegalStateException("Cannot update location. Country code is not allow to modify once created.");
+        }
 
         Location ret = locationDatastore.update(location);
         
         List<SystemEvent> events = new ArrayList<>();
         
-        if (ret.needsToBeUpdatedOnDevice(existingLocation)) {
-        	events.add(new LocationChangedApImpactingEvent(ret));
-        }
         events.add(new LocationChangedEvent(ret));
         
         publishEvents(events);

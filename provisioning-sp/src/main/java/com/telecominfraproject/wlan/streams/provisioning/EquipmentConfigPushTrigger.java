@@ -39,7 +39,6 @@ import com.telecominfraproject.wlan.equipmentgateway.models.CEGWConfigChangeNoti
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWNewChannelRequest;
 import com.telecominfraproject.wlan.equipmentgateway.models.CEGWCellSizeAttributesRequest;
 import com.telecominfraproject.wlan.equipmentgateway.service.EquipmentGatewayServiceInterface;
-import com.telecominfraproject.wlan.location.models.events.LocationChangedApImpactingEvent;
 import com.telecominfraproject.wlan.profile.ProfileServiceInterface;
 import com.telecominfraproject.wlan.profile.models.Profile;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
@@ -92,7 +91,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
                     || ser.getDetails() instanceof EquipmentChannelsChangedEvent || ser.getDetails() instanceof EquipmentCellSizeAttributesChangedEvent
                     || ser.getDetails() instanceof EquipmentRemovedEvent || ser.getDetails() instanceof ProfileAddedEvent
                     || ser.getDetails() instanceof ProfileChangedEvent || ser.getDetails() instanceof ProfileRemovedEvent
-                    || ser.getDetails() instanceof LocationChangedApImpactingEvent || ser.getDetails() instanceof EquipmentCustomerChangedEvent);
+                    || ser.getDetails() instanceof EquipmentCustomerChangedEvent);
         } else {
             ret = false;
         }
@@ -132,9 +131,6 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
                 break;
             case "ProfileRemovedEvent":
                 process((ProfileRemovedEvent) se);
-                break;
-            case "LocationChangedApImpactingEvent":
-                process((LocationChangedApImpactingEvent) se);
                 break;
             case "EquipmentCustomerChangedEvent":
                 process((EquipmentCustomerChangedEvent) se);
@@ -220,36 +216,6 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
         }
 
         LOG.debug("Finished processing profile {}", profile.getId());
-    }
-
-    private void process(LocationChangedApImpactingEvent model) {
-        LOG.debug("Processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
-
-        Set<Long> locationIds = new HashSet<>(Arrays.asList(model.getPayload().getId()));
-
-        // go through all equipmentIds that reside in the specified location and trigger change config notification on
-        // them
-        PaginationContext<PairLongLong> context = new PaginationContext<>(100);
-
-        while (!context.isLastPage()) {
-            PaginationResponse<PairLongLong> page = equipmentServiceInterface.getEquipmentIdsByLocationIds(locationIds, context);
-            context = page.getContext();
-
-            Set<Long> equipmentIds = new HashSet<>();
-            page.getItems().forEach(p -> equipmentIds.add(p.getValue2()));
-
-            // retrieve full equipment objects to get the inventory id
-            List<Equipment> equipmentForPage = equipmentServiceInterface.get(equipmentIds);
-
-            List<CEGWBaseCommand> commands = new ArrayList<>(equipmentForPage.size());
-            equipmentForPage.forEach(eq -> commands.add(new CEGWConfigChangeNotification(eq.getInventoryId(), eq.getId())));
-
-            equipmentGatewayInterface.sendCommands(commands);
-            LOG.debug("Page {} - sent {} commands to equipment gateway", context.getLastReturnedPageNumber(), commands.size());
-        }
-
-        LOG.debug("Finished processing LocationChangedApImpactingEvent {}", model.getPayload().getId());
-
     }
 
     private void process(EquipmentCustomerChangedEvent model) {

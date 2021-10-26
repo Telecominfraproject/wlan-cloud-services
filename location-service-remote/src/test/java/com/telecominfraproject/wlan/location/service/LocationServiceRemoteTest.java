@@ -80,7 +80,7 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
         location.setLocationType(LocationType.FLOOR);
         location.setCustomerId(getNextCustomerId());
         location.setName("testName_updated");
-        location.setDetails(generateDetails(CountryCode.US));
+        location.setDetails(generateDetails(CountryCode.CA));
 
         Location retFromUpdate = testInterface.update(location);
         assertFieldEquals(location, retFromUpdate);
@@ -95,6 +95,14 @@ public class LocationServiceRemoteTest extends BaseRemoteTest {
         	// expected it
         }
 
+        //UPDATE test - fail because country code cannot be modified once created
+        try {
+            location.setDetails(generateDetails(CountryCode.US));
+            testInterface.update(location);
+            fail("failed to detect country code update");
+        } catch (IllegalStateException e) {
+            // expected it
+        }
         
         //DELETE Test
         testInterface.delete(ret.getId());
