@@ -634,7 +634,7 @@ public class AllInOneStartListener implements ApplicationRunner {
         ((PasspointProfile) passpointHotspotConfig.getDetails()).setPasspointVenueProfileId(passpointVenueProfileId);
         ((PasspointProfile) passpointHotspotConfig.getDetails()).setOsuSsidProfileId(profileSsidOpenId);
         ((PasspointProfile) passpointHotspotConfig.getDetails())
-                .setAssociatedAccessSsidProfileIds(List.of(profileSsidPskId));
+                .setAssociatedAccessSsidProfileIds(Set.of(profileSsidPskId));
 
         return profileServiceInterface.create(passpointHotspotConfig);
     }

@@ -63,7 +63,7 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
     private boolean enable2pt4GHz;
     private boolean enable5GHz;
    
-    private List<Long> associatedAccessSsidProfileIds;
+    private Set<Long> associatedAccessSsidProfileIds;
 
     private Long osuSsidProfileId;
 
@@ -321,11 +321,11 @@ public class PasspointProfile extends ProfileDetails implements PushableConfigur
         this.passpointNetworkAuthenticationType = passpointNetworkAuthenticationType;
     }
 
-    public List<Long> getAssociatedAccessSsidProfileIds() {
+    public Set<Long> getAssociatedAccessSsidProfileIds() {
         return associatedAccessSsidProfileIds;
     }
 
-    public void setAssociatedAccessSsidProfileIds(List<Long> associatedAccessSsidProfileIds) {
+    public void setAssociatedAccessSsidProfileIds(Set<Long> associatedAccessSsidProfileIds) {
         this.associatedAccessSsidProfileIds = associatedAccessSsidProfileIds;
     }
 
