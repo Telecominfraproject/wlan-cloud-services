@@ -88,12 +88,7 @@ public class EquipmentController {
             throw new DsDataValidationException("Equipment contains unsupported value");
         }
 
-        long ts = System.currentTimeMillis();
-        if (equipment.getCreatedTimestamp() == 0) {
-        	equipment.setCreatedTimestamp(ts);
-        }
-        equipment.setLastModifiedTimestamp(ts);
-
+        updateValuesIfNeeded(equipment);
         Equipment ret = equipmentDatastore.create(equipment);
 
         LOG.debug("Created Equipment {}", ret);
@@ -104,7 +99,24 @@ public class EquipmentController {
 
         return ret;
     }
-    
+
+    private void updateValuesIfNeeded(Equipment equipment) {
+        // strip out whitespaces from user entered inventoryId and name strings
+        if (equipment.getName() != null) {
+            equipment.setName(equipment.getName().strip());
+        }
+        if (equipment.getInventoryId() != null) {
+            equipment.setInventoryId(equipment.getInventoryId().strip());
+        }
+
+        // Update timestamp
+        long ts = System.currentTimeMillis();
+        if (equipment.getCreatedTimestamp() == 0) {
+            equipment.setCreatedTimestamp(ts);
+        }
+        equipment.setLastModifiedTimestamp(ts);
+    }
+
     /**
      * Retrieves Equipment by id
      * @param equipmentId
