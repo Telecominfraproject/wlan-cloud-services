@@ -71,11 +71,33 @@ public class EquipmentControllerTest {
         equipmentController.delete(ret.getId());
         
     }
-        
-    private void assertEqualEquipments(
-            Equipment expected,
-            Equipment actual) {
-        
+
+    @Test
+    public void testEquipmentCRUD_ValidateSpaceInInputString() {
+
+        //Create new Equipment - success
+        Equipment equipment = new Equipment();
+        equipment.setName("    nameAndInventoryIdWithTrailingSpaces   ");
+        equipment.setInventoryId("   C4411EAA31F5   ");
+        equipment.setEquipmentType(EquipmentType.AP);
+
+        Equipment ret = equipmentController.create(equipment);
+        assertNotNull(ret);
+
+        ret = equipmentController.get(ret.getId());
+        assertEqualEquipments(equipment, ret);
+
+        ret = equipmentController.getOrNull(ret.getId());
+        assertEqualEquipments(equipment, ret);
+
+        assertNull(equipmentController.getOrNull(-1));
+
+        //Delete - success
+        equipmentController.delete(ret.getId());
+
+    }
+
+    private void assertEqualEquipments(Equipment expected, Equipment actual) {
         assertEquals(expected.getName(), actual.getName());
         //TODO: add more fields to check here
     }

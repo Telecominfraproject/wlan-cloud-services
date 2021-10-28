@@ -263,7 +263,8 @@ public class EquipmentDAO extends BaseJdbcDao {
                 },
                 keyHolder);
         }catch (DuplicateKeyException e) {
-            throw new DsDuplicateEntityException(e);
+            LOG.error("Duplicate equipment found", e);
+            throw new DsDuplicateEntityException("Equipment with the assetId " + equipment.getInventoryId() + " already exists!");
         }
         
         // keyHolder.getKey() now contains the generated key   
