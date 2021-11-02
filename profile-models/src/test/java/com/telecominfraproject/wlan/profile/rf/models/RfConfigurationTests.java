@@ -93,4 +93,16 @@ public class RfConfigurationTests {
         assertEquals(Integer.valueOf(23), list2.get(2));
         assertEquals(Integer.valueOf(45), list2.get(3));
     }
+    
+    @Test
+    public void testMaxAutoCellSize() {
+        RfElementConfiguration rfConfig = RfElementConfiguration.createWithDefaults(RadioType.is5GHz);
+        assertNotNull(rfConfig.getMaxAutoCellSize());
+        
+        assertEquals(RfElementConfiguration.DEFAULT_MAX_CELL_SIZE_DB, rfConfig.getMaxAutoCellSize().intValue());
+        
+        rfConfig.setMaxAutoCellSize(-93);
+        //getMaxAutoCellSize always return default MaxAutoCellSize
+        assertEquals(RfElementConfiguration.DEFAULT_MAX_CELL_SIZE_DB, rfConfig.getMaxAutoCellSize().intValue());
+    }
 }
