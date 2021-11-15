@@ -3435,7 +3435,17 @@ components:
           type: integer
           format: int64
     
- 
+    ChannelBandwidthPerRadioTypeMap:
+      properties:
+        is5GHz:
+          $ref: '#/components/schemas/ChannelBandwidth'
+        is5GHzU:
+          $ref: '#/components/schemas/ChannelBandwidth'
+        is5GHzL:
+          $ref: '#/components/schemas/ChannelBandwidth'
+        is2dot4GHz:
+          $ref: '#/components/schemas/ChannelBandwidth'
+    
     EquipmentAdminStatusData:
       type: object
       properties:
@@ -4395,6 +4405,8 @@ components:
           - RADIO_CHANNEL
         channelNumberStatusDataMap:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
+        channelBandwidthStatusDataMap:
+          $ref: '#/components/schemas/ChannelBandwidthPerRadioTypeMap'
         txPowerDataMap:
           $ref: '#/components/schemas/IntegerPerRadioTypeMap'
                 

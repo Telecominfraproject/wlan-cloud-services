@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.telecominfraproject.wlan.core.model.equipment.ChannelBandwidth;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.status.models.StatusDataType;
 import com.telecominfraproject.wlan.status.models.StatusDetails;
@@ -12,6 +13,7 @@ public class EquipmentChannelStatusData extends StatusDetails {
     private static final long serialVersionUID = 470569467119609438L;
 
     private Map<RadioType, Integer> channelNumberStatusDataMap = new EnumMap<>(RadioType.class);
+    private Map<RadioType, ChannelBandwidth> channelBandwidthStatusDataMap = new EnumMap<>(RadioType.class);
     private Map<RadioType, Integer> txPowerDataMap = new EnumMap<>(RadioType.class);
 
 
@@ -29,11 +31,16 @@ public class EquipmentChannelStatusData extends StatusDetails {
     {
         if (data !=null) {
             this.channelNumberStatusDataMap.putAll(data.channelNumberStatusDataMap);
+            this.channelBandwidthStatusDataMap.putAll(data.channelBandwidthStatusDataMap);
         }
     }
     
     public Map<RadioType, Integer> getChannelNumberStatusDataMap() {
         return channelNumberStatusDataMap;
+    }
+    
+    public Map<RadioType, ChannelBandwidth> getChannelBandwidthStatusDataMap() {
+        return channelBandwidthStatusDataMap;
     }
     
     public Map<RadioType, Integer> getTxPowerDataMap() {
@@ -42,6 +49,10 @@ public class EquipmentChannelStatusData extends StatusDetails {
 
     public void setChannelNumberStatusDataMap(Map<RadioType, Integer> channelNumberStatusDataMap) {
         this.channelNumberStatusDataMap = channelNumberStatusDataMap;
+    }
+    
+    public void setChannelBandwidthStatusDataMap(Map<RadioType, ChannelBandwidth> channelBandwidthStatusDataMap) {
+        this.channelBandwidthStatusDataMap = channelBandwidthStatusDataMap;
     }
     
     public void setTxPowerDataMap(Map<RadioType, Integer> txPowerDataMap) {
@@ -59,6 +70,14 @@ public class EquipmentChannelStatusData extends StatusDetails {
             });
         }
         
+        if (getChannelBandwidthStatusDataMap() != null) {
+            result.setChannelBandwidthStatusDataMap(new EnumMap<>(RadioType.class));
+            
+            this.channelBandwidthStatusDataMap.forEach((k, v) -> {
+                result.channelBandwidthStatusDataMap.put(k, v);
+            });
+        }
+        
         if (getTxPowerDataMap() != null) {
             result.setTxPowerDataMap(new EnumMap<>(RadioType.class));
             
@@ -71,7 +90,7 @@ public class EquipmentChannelStatusData extends StatusDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelNumberStatusDataMap, txPowerDataMap);
+        return Objects.hash(channelNumberStatusDataMap, channelBandwidthStatusDataMap, txPowerDataMap);
     }
 
     @Override
@@ -84,6 +103,7 @@ public class EquipmentChannelStatusData extends StatusDetails {
             return false;
         EquipmentChannelStatusData other = (EquipmentChannelStatusData) obj;
         return Objects.equals(channelNumberStatusDataMap, other.channelNumberStatusDataMap)
+                && Objects.equals(channelBandwidthStatusDataMap, other.channelBandwidthStatusDataMap)
                 && Objects.equals(txPowerDataMap, other.txPowerDataMap);
     }
 
