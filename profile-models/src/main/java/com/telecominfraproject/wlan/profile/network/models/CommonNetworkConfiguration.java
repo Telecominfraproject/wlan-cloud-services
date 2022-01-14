@@ -23,6 +23,7 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     private Boolean syntheticClientEnabled;
     private Boolean ledControlEnabled;
     private Boolean equipmentDiscovery;
+    private Boolean dynamicRadiusProxyEnabled;
 
     public CommonNetworkConfiguration() {
     }
@@ -67,7 +68,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         this.vlanNative = bool;
     }
 
-
     public AutoOrManualString getNtpServer() {
         return ntpServer;
     }
@@ -92,7 +92,6 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         this.syntheticClientEnabled = syntheticClientEnabled;
     }
 
-
     public Boolean isLedControlEnabled() {
         return ledControlEnabled;
     }
@@ -108,6 +107,23 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
     public void setRtlsSettings(RtlsSettings rtlsSettings) {
         this.rtlsSettings = rtlsSettings;
     }
+    
+    public Boolean isDynamicRadiusProxyEnabled() {
+        return dynamicRadiusProxyEnabled;
+    }
+
+    public void setDynamicRadiusProxyEnabled(Boolean dynamicRadiusProxyEnabled) {
+        this.dynamicRadiusProxyEnabled = dynamicRadiusProxyEnabled;
+    }
+    
+    public Boolean getEquipmentDiscovery() {
+        return equipmentDiscovery;
+    }
+
+    public void setEquipmentDiscovery(Boolean equipmentDiscovery) {
+        this.equipmentDiscovery = equipmentDiscovery;
+    }
+
 
     @Override
     public CommonNetworkConfiguration clone() {
@@ -124,7 +140,9 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         ret.setVlan(getVlan());
         ret.setVlanNative(isVlanNative());
         ret.setSyntheticClientEnabled(getSyntheticClientEnabled());
-
+        ret.setLedControlEnabled(isLedControlEnabled());
+        ret.setEquipmentDiscovery(getEquipmentDiscovery());
+        ret.setDynamicRadiusProxyEnabled(isDynamicRadiusProxyEnabled());
 
         return ret;
     }
@@ -145,26 +163,10 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
         return false;
     }
 
-    public Boolean getEquipmentDiscovery() {
-        return equipmentDiscovery;
-    }
-
-    public void setEquipmentDiscovery(Boolean equipmentDiscovery) {
-        this.equipmentDiscovery = equipmentDiscovery;
-    }
-
-    
-    
-
-    
-    public Boolean getVlanNative() {
-        return vlanNative;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(equipmentDiscovery, equipmentType, ledControlEnabled, networkConfigVersion, ntpServer, rtlsSettings,
-                syntheticClientEnabled, syslogRelay, vlan, vlanNative);
+                syntheticClientEnabled, syslogRelay, vlan, vlanNative, dynamicRadiusProxyEnabled);
     }
 
     @Override
@@ -183,7 +185,8 @@ public abstract class CommonNetworkConfiguration extends ProfileDetails {
                 && Objects.equals(ntpServer, other.ntpServer) && Objects.equals(rtlsSettings, other.rtlsSettings)
                 && Objects.equals(syntheticClientEnabled, other.syntheticClientEnabled)
                 && Objects.equals(syslogRelay, other.syslogRelay) && vlan == other.vlan
-                && Objects.equals(vlanNative, other.vlanNative);
+                && Objects.equals(vlanNative, other.vlanNative)
+                && Objects.equals(dynamicRadiusProxyEnabled, other.dynamicRadiusProxyEnabled);
     }
     
     

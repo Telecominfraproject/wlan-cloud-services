@@ -28,6 +28,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     private Boolean useRadSec;
     private String sharedSecret; // if useRadSec is false
     private String acctSharedSecret; // if useRadSec is false
+    private String radiusProxySecret;
     private Boolean dynamicDiscovery; // dynamic discovery of HSP and IdPs (home service and identity providers).
                                       // regardless of configured value, this will only be set 'true' on the AP if useRadSec is also true.
 
@@ -145,6 +146,14 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     public void setAcctSharedSecret(String acctSharedSecret) {
         this.acctSharedSecret = acctSharedSecret;
     }
+    
+    public String getRadiusProxySecret() {
+        return radiusProxySecret;
+    }
+
+    public void setRadiusProxySecret(String radiusProxySecret) {
+        this.radiusProxySecret = radiusProxySecret;
+    }
 
     /**
      * @return the dynamicDiscovery
@@ -174,7 +183,7 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
     @Override
     public int hashCode() {
         return Objects.hash(acctPort, acctServer, acctSharedSecret, caCert, clientCert, clientKey, dynamicDiscovery, name, passphrase, port, realm, server,
-                sharedSecret, useRadSec);
+                sharedSecret, useRadSec, radiusProxySecret);
     }
 
     @Override
@@ -191,7 +200,8 @@ public class RadiusProxyConfiguration extends BaseJsonModel implements PushableC
                 && Objects.equals(clientCert, other.clientCert) && Objects.equals(clientKey, other.clientKey)
                 && Objects.equals(dynamicDiscovery, other.dynamicDiscovery) && Objects.equals(name, other.name) && Objects.equals(passphrase, other.passphrase)
                 && Objects.equals(port, other.port) && Objects.equals(realm, other.realm) && Objects.equals(server, other.server)
-                && Objects.equals(sharedSecret, other.sharedSecret) && Objects.equals(useRadSec, other.useRadSec);
+                && Objects.equals(sharedSecret, other.sharedSecret) && Objects.equals(useRadSec, other.useRadSec)
+                && Objects.equals(radiusProxySecret, other.radiusProxySecret);
     }
 
 

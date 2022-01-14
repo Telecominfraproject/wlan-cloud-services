@@ -28,6 +28,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
     public static final Boolean DEFAULT_SYNTHETIC_CLIENT_ENABLED = Boolean.TRUE;
     public static final Boolean DEFAULT_LED_CONTROL_ENABLED = Boolean.TRUE;
     public static final Boolean DEFAULT_EQUIPMENT_DISCOVERY_ENABLED = Boolean.FALSE;
+    public static final Boolean DEFAULT_DYNAMIC_RADIUS_PROXY_ENABLED = Boolean.FALSE;
 
     /**
      * Added as a profile level setting that can be used to provide
@@ -59,6 +60,7 @@ public class ApNetworkConfiguration extends CommonNetworkConfiguration
         setSyntheticClientEnabled(DEFAULT_SYNTHETIC_CLIENT_ENABLED);
         setLedControlEnabled(DEFAULT_LED_CONTROL_ENABLED);
         setEquipmentDiscovery(DEFAULT_EQUIPMENT_DISCOVERY_ENABLED);
+        setDynamicRadiusProxyEnabled(DEFAULT_DYNAMIC_RADIUS_PROXY_ENABLED);
 
         // initialize the profile level radio map settings parameter
         radioMap = new EnumMap<>(RadioType.class);
