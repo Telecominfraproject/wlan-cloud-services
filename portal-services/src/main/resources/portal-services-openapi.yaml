@@ -1804,6 +1804,8 @@ components:
             type: boolean
           equipmentDiscovery:
             type: boolean
+          dynamicRadiusProxyEnabled:
+            type: boolean
           greTunnelConfigurations:
             type: array
             items:
@@ -1865,6 +1867,9 @@ components:
         useRadSec:
           type: boolean
         sharedSecret:
+          type: string
+          format: password
+        radiusProxySecret:
           type: string
           format: password
         dynamicDiscovery:
