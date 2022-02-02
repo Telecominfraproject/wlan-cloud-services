@@ -31,6 +31,7 @@ import com.telecominfraproject.wlan.profile.models.ProfileType;
 import com.telecominfraproject.wlan.profile.models.events.ProfileAddedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileChangedEvent;
 import com.telecominfraproject.wlan.profile.models.events.ProfileRemovedEvent;
+import com.telecominfraproject.wlan.profile.passpoint.models.PasspointProfile;
 
 
 /**
@@ -208,6 +209,20 @@ public class ProfileController {
         if (BaseJsonModel.hasUnsupportedValue(profile)) {
             LOG.error("Failed to update Profile, request contains unsupported value: {}", profile);
             throw new DsDataValidationException("Profile contains unsupported value");
+        }
+        
+        // WIFI-6855: To handle SSID-Passpoint association update when SSID profiles are updated
+        // If the passpoint profile update is requested, but no change is made to the details, then skip the update
+        if (profile.getProfileType().equals(ProfileType.passpoint)) {
+            Profile existingProfile = profileDatastore.getOrNull(profile.getId());
+            if (existingProfile != null) {
+                PasspointProfile existingDetails = (PasspointProfile) existingProfile.getDetails();
+                PasspointProfile newDetails = (PasspointProfile) profile.getDetails();
+                if (existingDetails.equals(newDetails)) {
+                    LOG.info("No change was made to this profile, skip update on profile {}", profile.getId());
+                    return profile;
+                }
+            }
         }
 
         Profile ret = profileDatastore.update(profile);
