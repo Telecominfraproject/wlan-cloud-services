@@ -64,7 +64,11 @@ public class StatusDataType implements EnumWithId {
     /**
      * Protocol status
      */
-    PROTOCOL = new StatusDataType(4, "PROTOCOL", Set.of(StatusTrait.DeleteOnEquipmentDisconnect)) ,
+    PROTOCOL = new StatusDataType(4, "PROTOCOL"
+            // some of the properties of this status need to be preserved across equipment connections
+            // example - reportedCfgDataVersion 
+            //, Set.of(StatusTrait.DeleteOnEquipmentDisconnect)
+            ) ,
     /**
      * Firmware upgrade status
      */
