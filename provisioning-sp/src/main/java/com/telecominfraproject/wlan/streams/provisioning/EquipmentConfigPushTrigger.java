@@ -167,6 +167,7 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
     private void process(EquipmentRemovedEvent model) {
         LOG.debug("Processing EquipmentRemovedEvent");
         equipmentGatewayInterface.sendCommand(new CEGWCloseSessionRequest(model.getPayload().getInventoryId(), model.getEquipmentId()));
+        cleanUpClientSessions(model.getPayload());
     }
 
     private void process(ProfileAddedEvent model) {
@@ -294,6 +295,21 @@ public class EquipmentConfigPushTrigger extends StreamProcessor {
         } else {
             LOG.info("There are no existing client sessions that are not already in Disconnected state.");
         }
+    }
+    
+    private void cleanUpClientSessions(Equipment ce) {
+        LOG.info("EquipmentConfigPushTrigger::cleanUpClientSessions for Equipment {}", ce);
+        PaginationResponse<ClientSession> clientSessions = clientServiceInterface.getSessionsForCustomer(
+                ce.getCustomerId(), Set.of(ce.getId()), Set.of(ce.getLocationId()), null, null,
+                new PaginationContext<ClientSession>(100));
 
+        if (clientSessions.getItems().isEmpty() || clientSessions == null) {
+            LOG.info("There are no existing client sessions to clean up.");
+            return;
+        }
+        
+        clientSessions.getItems().stream().forEach(c -> clientServiceInterface.deleteSession(c.getCustomerId(), c.getEquipmentId(), c.getMacAddress()));
+
+        LOG.info("Cleaned up client sessions for deleted Equipment {}", ce.getId());
     }
 }
