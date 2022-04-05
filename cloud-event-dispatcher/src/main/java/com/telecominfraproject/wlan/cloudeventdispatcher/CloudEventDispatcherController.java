@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,8 +33,8 @@ public class CloudEventDispatcherController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudEventDispatcherController.class);
 
-    @Autowired @Qualifier("metricStreamInterface") private StreamInterface<ServiceMetric> metricStream;
-    @Autowired @Qualifier("eventStreamInterface") private StreamInterface<SystemEventRecord> systemEventStream;
+    @Autowired @Qualifier("metricStreamInterface") @Lazy private StreamInterface<ServiceMetric> metricStream;
+    @Autowired @Qualifier("eventStreamInterface") @Lazy private StreamInterface<SystemEventRecord> systemEventStream;
     @Autowired private ServiceMetricServiceInterface serviceMetricInterface;
     @Autowired private SystemEventServiceInterface systemEventInterface;
     
