@@ -257,7 +257,6 @@ public class SystemEventDatastoreInMemory extends BaseInMemoryDatastore implemen
             if (mdl.getEventTimestamp() > eqptStats.getLastEventTime()) {
                 eqptStats.setLastEventTime(mdl.getEventTimestamp());
             }
-            items.add(mdl);
         }
 
         List<EquipmentEventStats> equipmentStats = new ArrayList<>();

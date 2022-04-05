@@ -262,7 +262,7 @@ public class AlarmController {
 	public AlarmCounts getAlarmCounts(@RequestParam int customerId, 
 			@RequestParam Set<Long> equipmentIdSet,
 			@RequestParam Set<AlarmCode> alarmCodeSet,
-			@RequestParam Boolean acknowledged) {
+			@RequestParam(required = false) Boolean acknowledged) {
     	
         LOG.debug("Getting Alarm counts for {} {} {} {}", customerId, equipmentIdSet, alarmCodeSet, acknowledged);
 
