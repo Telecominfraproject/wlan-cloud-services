@@ -619,12 +619,34 @@ paths:
                 $ref: '#/components/schemas/FirmwareTrackAssignmentDetails'
         500: 
           $ref: '#/components/responses/GenericApiError'
+          
   /api/firmware/customerTrack/default:
     get:
       tags:
       - Firmware Data
-      summary: Get customer firmware track settings
+      summary: Get customer firmware track settings, if it doesn't exist, create it
       operationId: getCustomerFirmwareTrackSettings
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
+        500: 
+          $ref: '#/components/responses/GenericApiError' 
+    put:
+      tags:
+      - Firmware Data
+      summary: Update customer firmware track settings, if it doesn't exist, create it
+      operationId: updateCustomerFirmwareTrackSettings
+      requestBody:
+        description: CustomerFirmwareTrackSettings
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
       responses:
         200:
           description: Successful operation

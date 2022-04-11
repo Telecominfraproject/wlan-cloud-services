@@ -57,6 +57,7 @@ public interface FirmwareServiceInterface {
     CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(CustomerFirmwareTrackRecord record);
     CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(int customerId);
     CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting();
+    CustomerFirmwareTrackSettings updateDefaultCustomerTrackSetting(CustomerFirmwareTrackSettings defaultSettings);
 
 	/**
 	 * @param equipmentType

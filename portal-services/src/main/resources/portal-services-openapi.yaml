@@ -10371,8 +10371,29 @@ paths:
     get:
       tags:
       - Firmware Management
-      summary: Get default settings for handling automatic firmware upgrades
+      summary: Get default settings for handling automatic firmware upgrades, if it doesn't exist, create it
       operationId: getDefaultCustomerTrackSetting
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
+        500:
+          $ref: '#/components/responses/GenericApiError'
+    put:
+      tags:
+      - Firmware Management
+      summary: Update default settings for handling automatic firmware upgrades, if it doesn't exist, create it
+      operationId: updateDefaultCustomerTrackSetting
+      requestBody:
+        description: CustomerFirmwareTrackSettings
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerFirmwareTrackSettings'
       responses:
         200:
           description: successful operation

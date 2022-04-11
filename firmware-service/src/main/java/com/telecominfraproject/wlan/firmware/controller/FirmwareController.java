@@ -2,8 +2,6 @@ package com.telecominfraproject.wlan.firmware.controller;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +20,11 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundExcepti
 import com.telecominfraproject.wlan.firmware.datastore.FirmwareDatastore;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
-import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings.TrackFlag;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackRecord;
 import com.telecominfraproject.wlan.firmware.models.FirmwareVersion;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings.TrackFlag;
 import com.telecominfraproject.wlan.systemevent.models.SystemEvent;
 
 
@@ -44,35 +42,11 @@ public class FirmwareController {
     @Autowired private FirmwareDatastore firmwareDatastore;
     @Autowired private CloudEventDispatcherInterface cloudEventDispatcher;
     @Autowired Environment environment;
-    
-    CustomerFirmwareTrackSettings defaultCustomerTrackSettings;
-    
-    @PostConstruct
-    private void postConstruct() {
-        defaultCustomerTrackSettings = new CustomerFirmwareTrackSettings();
-        defaultCustomerTrackSettings.setAutoUpgradeDeprecatedOnBind(environment
-                .getProperty("whizcontrol.autoupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
-        defaultCustomerTrackSettings.setAutoUpgradeUnknownOnBind(environment
-                .getProperty("whizcontrol.autoupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
-        defaultCustomerTrackSettings.setAutoUpgradeDeprecatedDuringMaintenance(environment.getProperty(
-                "whizcontrol.maintenanceupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
-        defaultCustomerTrackSettings.setAutoUpgradeUnknownDuringMaintenance(environment
-                .getProperty("whizcontrol.maintenanceupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
-        LOG.info("Default CustomerFirmwareTrackSettings: {}", defaultCustomerTrackSettings);    	
-    }
 
-    private void publishEvent(SystemEvent event) {
-        if (event == null) {
-            return;
-        }
-        
-        try {
-            cloudEventDispatcher.publishEvent(event);
-        } catch (Exception e) {
-            LOG.error("Failed to publish event : {}", event, e);
-        }
-    }
-
+    
+    /*
+     * FirmwareVersion API
+     */
     @RequestMapping(value = "/version", method = RequestMethod.POST)
     public FirmwareVersion createFirmwareVersion(@RequestBody FirmwareVersion firmwareVersion) {
 
@@ -149,6 +123,10 @@ public class FirmwareController {
         return ret;
     }
 
+    
+    /*
+     * FirmwareTrackRecord API
+     */
     @RequestMapping(value = "/track", method = RequestMethod.POST)
     public FirmwareTrackRecord createFirmwareTrack(@RequestBody FirmwareTrackRecord firmwareTrack) {
         LOG.debug("calling createFirmwareTrack({})", firmwareTrack);
@@ -193,7 +171,10 @@ public class FirmwareController {
         return result;
     }
 
-
+    
+    /*
+     * FirmwareTrackAssignmentDetails API
+     */
     @RequestMapping(value = "/trackAssignment", method = RequestMethod.GET)
     public List<FirmwareTrackAssignmentDetails> getFirmwareTrackAssignments (
             @RequestParam String firmwareTrackName) {
@@ -220,33 +201,50 @@ public class FirmwareController {
         FirmwareTrackAssignmentDetails result = new FirmwareTrackAssignmentDetails(assignment, version);
         return result;
     }
-
+    
+    
+    /*
+     * CustomerFirmwareTrackSettings API
+     */
     @RequestMapping(value = "/customerTrack/default", method = RequestMethod.GET)
     public CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting() {
-        if (defaultCustomerTrackSettings == null) {
-                if (defaultCustomerTrackSettings == null) {
-                    defaultCustomerTrackSettings = new CustomerFirmwareTrackSettings();
-                    defaultCustomerTrackSettings.setAutoUpgradeDeprecatedOnBind(environment
-                            .getProperty("whizcontrol.autoupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
-                    defaultCustomerTrackSettings.setAutoUpgradeUnknownOnBind(environment
-                            .getProperty("whizcontrol.autoupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
-                    defaultCustomerTrackSettings.setAutoUpgradeDeprecatedDuringMaintenance(environment.getProperty(
-                            "whizcontrol.maintenanceupgrade.deprecated", TrackFlag.class, TrackFlag.NEVER));
-                    defaultCustomerTrackSettings.setAutoUpgradeUnknownDuringMaintenance(environment
-                            .getProperty("whizcontrol.maintenanceupgrade.unknown", TrackFlag.class, TrackFlag.NEVER));
-                    LOG.info("Default CustomerFirmwareTrackSettings: {}", defaultCustomerTrackSettings);
-                }
+        CustomerFirmwareTrackRecord defaultRecord = firmwareDatastore.getCustomerFirmwareTrackRecord(0);
+        if (defaultRecord == null) {
+            LOG.debug("No default record exists, creating the default");
+            defaultRecord = new CustomerFirmwareTrackRecord();
+            defaultRecord.setCustomerId(0);
+            CustomerFirmwareTrackSettings defaultSettings = new CustomerFirmwareTrackSettings();
+            defaultSettings.setAutoUpgradeDeprecatedOnBind(TrackFlag.NEVER);
+            defaultSettings.setAutoUpgradeUnknownOnBind(TrackFlag.NEVER);
+            defaultSettings.setAutoUpgradeDeprecatedDuringMaintenance(TrackFlag.NEVER);
+            defaultSettings.setAutoUpgradeUnknownDuringMaintenance(TrackFlag.NEVER);
+            
+            defaultRecord.setSettings(defaultSettings);
+            defaultRecord.setTrackRecordId(firmwareDatastore.getFirmwareTrackByName("DEFAULT").getRecordId());
+            defaultRecord = firmwareDatastore.createCustomerFirmwareTrackRecord(defaultRecord);
         }
-        return defaultCustomerTrackSettings;
+        return defaultRecord.getSettings();
     }
 
-
+    @RequestMapping(value = "/customerTrack/default", method = RequestMethod.PUT)
+    public CustomerFirmwareTrackSettings updateDefaultCustomerTrackSetting(@RequestBody CustomerFirmwareTrackSettings customerTrackSettings) {
+        CustomerFirmwareTrackRecord defaultRecord = firmwareDatastore.getCustomerFirmwareTrackRecord(0);
+        if (defaultRecord == null) {
+            defaultRecord = new CustomerFirmwareTrackRecord();
+            defaultRecord.setCustomerId(0);
+            defaultRecord.setSettings(customerTrackSettings);
+            defaultRecord.setTrackRecordId(firmwareDatastore.getFirmwareTrackByName("DEFAULT").getRecordId());
+            return firmwareDatastore.createCustomerFirmwareTrackRecord(defaultRecord).getSettings();
+        }
+        defaultRecord.setSettings(customerTrackSettings);
+        return firmwareDatastore.updateCustomerFirmwareTrackRecord(defaultRecord).getSettings();
+    }
+    
     @RequestMapping(value = "/customerTrack", method = RequestMethod.GET)
     public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(@RequestParam int customerId) {
         LOG.debug("calling getCustomerFirmwareTrackRecord({})", customerId);
         return firmwareDatastore.getCustomerFirmwareTrackRecord(customerId);
     }
-    
 
     @RequestMapping(value = "/customerTrack", method = RequestMethod.POST)
     public CustomerFirmwareTrackRecord createCustomerFirmwareTrackRecord(@RequestBody CustomerFirmwareTrackRecord customerTrack) {
@@ -254,7 +252,6 @@ public class FirmwareController {
         CustomerFirmwareTrackRecord result = firmwareDatastore.createCustomerFirmwareTrackRecord(customerTrack);
         return result;
     }
-    
     
     @RequestMapping(value = "/customerTrack", method = RequestMethod.PUT)
     public CustomerFirmwareTrackRecord updateCustomerFirmwareTrackRecord(@RequestBody CustomerFirmwareTrackRecord customerTrack) {
@@ -270,8 +267,6 @@ public class FirmwareController {
         }
         return result;
     }
-
-    
         
     @RequestMapping(value = "/customerTrack", method = RequestMethod.DELETE)
     public CustomerFirmwareTrackRecord deleteCustomerFirmwareTrackRecord(@RequestParam int customerId) {
@@ -279,6 +274,17 @@ public class FirmwareController {
         CustomerFirmwareTrackRecord result = firmwareDatastore.deleteCustomerFirmwareTrackRecord(customerId);
         return result;    	
     }
-
+    
+    private void publishEvent(SystemEvent event) {
+        if (event == null) {
+            return;
+        }
+        
+        try {
+            cloudEventDispatcher.publishEvent(event);
+        } catch (Exception e) {
+            LOG.error("Failed to publish event : {}", event, e);
+        }
+    }
     
 }
