@@ -209,6 +209,7 @@ public class CustomerFirmwareTrackDAO extends BaseJdbcDao {
         return copy;
     }
 
+    @Transactional(noRollbackFor = { EmptyResultDataAccessException.class })
     public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId) {
         CustomerFirmwareTrackRecord ret = null;
         try {

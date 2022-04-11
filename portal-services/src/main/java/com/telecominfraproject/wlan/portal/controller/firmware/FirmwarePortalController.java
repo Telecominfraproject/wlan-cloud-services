@@ -173,6 +173,11 @@ public class FirmwarePortalController  {
         return firmwareServiceInterface.getDefaultCustomerTrackSetting();
     }
 
+    @RequestMapping(value = "/customerTrack/default", method = RequestMethod.PUT)
+    public CustomerFirmwareTrackSettings updateDefaultCustomerTrackSetting(@RequestBody CustomerFirmwareTrackSettings defaultSettings) {
+        LOG.debug("calling updateDefaultCustomerTrackSetting({})", defaultSettings);
+        return firmwareServiceInterface.updateDefaultCustomerTrackSetting(defaultSettings);
+    }
 
     @RequestMapping(value = "/customerTrack", method = RequestMethod.GET)
     public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(@RequestParam int customerId) {

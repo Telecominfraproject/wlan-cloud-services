@@ -81,6 +81,9 @@ public class FirmwareServiceLocal implements FirmwareServiceInterface {
 	public CustomerFirmwareTrackSettings getDefaultCustomerTrackSetting() {
 		return firmwareController.getDefaultCustomerTrackSetting();
 	}
+	public CustomerFirmwareTrackSettings updateDefaultCustomerTrackSetting(CustomerFirmwareTrackSettings defaultSettings) {
+	    return firmwareController.updateDefaultCustomerTrackSetting(defaultSettings);
+	}
 	public CustomerFirmwareTrackRecord getCustomerFirmwareTrackRecord(int customerId) {
 		return firmwareController.getCustomerFirmwareTrackRecord(customerId);
 	}
