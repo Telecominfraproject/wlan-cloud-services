@@ -24,6 +24,7 @@ import com.telecominfraproject.wlan.client.models.events.ClientChangedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientRemovedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientSessionChangedEvent;
 import com.telecominfraproject.wlan.client.models.events.ClientSessionRemovedEvent;
+import com.telecominfraproject.wlan.client.session.models.AssociationState;
 import com.telecominfraproject.wlan.client.session.models.ClientSession;
 import com.telecominfraproject.wlan.cloudeventdispatcher.CloudEventDispatcherInterface;
 import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
@@ -351,6 +352,8 @@ public class ClientController {
             throw new DsDataValidationException("Client session contains unsupported value");
         }
 
+        forceDisconnectOtherClientSessions(clientSession);
+
         ClientSession ret = clientDatastore.updateSession(clientSession);
 
         LOG.debug("Updated Client session {}", ret);
@@ -383,6 +386,8 @@ public class ClientController {
             LOG.error("Failed to update Client session, request contains unsupported value: {}", clientSessions);
             throw new DsDataValidationException("Client session contains unsupported value");
         }
+
+        clientSessions.forEach(s -> forceDisconnectOtherClientSessions(s));
 
         ListOfClientSessions ret = new ListOfClientSessions();
         
@@ -460,5 +465,39 @@ public class ClientController {
         }
     }
 
-    
+    /**
+     * Force disconnects other client sessions with the same client Mac address.
+     * In an ideal world, this doesn't happen often.
+     * This usually happens when a client is roaming from one AP to another and the AP does not send a
+     * disconnect until much later (5+ minutes timeout on the AP).
+     * Also happens if the AP was disconnected from the cloud from some time and we "missed" the disconnect event.
+     * @param clientSession
+     */
+    private void forceDisconnectOtherClientSessions(ClientSession clientSession) {
+        if (clientSession.getDetails().getAssociationState() != AssociationState._802_11_Associated) {
+            // updating a session that is not associated should not disconnect other sessions
+            return;
+        }
+
+        List<ClientSession> allSessions = clientDatastore.getSessions(clientSession.getCustomerId(), Set.of(clientSession.getMacAddress()));
+
+        if (allSessions == null) {
+            return;
+        }
+
+        for (ClientSession cl : allSessions) {
+            if (cl.getEquipmentId() == clientSession.getEquipmentId()) {
+                // Don't disconnect ourselves!
+                continue;
+            }
+
+            if (cl.getDetails().getAssociationState() == AssociationState._802_11_Associated) {
+                // Force disconnect this client session:
+                LOG.info("Forcing a Disconnect of Client session {}", cl);
+                cl.getDetails().setAssociationState(AssociationState.Disconnected);
+                cl.setLastModifiedTimestamp(System.currentTimeMillis());
+                updateSession(cl);
+            }
+        }
+    }
 }
