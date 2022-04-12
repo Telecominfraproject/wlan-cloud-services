@@ -25,6 +25,7 @@ import com.telecominfraproject.wlan.datastore.exceptions.DsConcurrentModificatio
 import com.telecominfraproject.wlan.datastore.exceptions.DsDuplicateEntityException;
 import com.telecominfraproject.wlan.datastore.exceptions.DsEntityNotFoundException;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackRecord;
+import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings;
 import com.telecominfraproject.wlan.firmware.models.CustomerFirmwareTrackSettings.TrackFlag;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentDetails;
 import com.telecominfraproject.wlan.firmware.models.FirmwareTrackAssignmentRecord;
@@ -275,6 +276,47 @@ public class FirmwareServiceRemoteTest extends BaseRemoteTest {
         res = remoteInterface.getCustomerFirmwareTrackRecord(record.getCustomerId());
         assertNull(res);
         
+    }
+    
+    @Test
+    public void testCreateUpdateDefaultCustomerFirmwareTrackSettings() {
+        // test initialization
+        FirmwareTrackRecord ftr = new FirmwareTrackRecord();
+        ftr.setTrackName("DEFAULT");
+        ftr = remoteInterface.createFirmwareTrack(ftr);
+        CustomerFirmwareTrackSettings track1 = remoteInterface.getDefaultCustomerTrackSetting();
+        
+        assertEquals(TrackFlag.NEVER, track1.getAutoUpgradeDeprecatedOnBind());
+        assertEquals(TrackFlag.NEVER, track1.getAutoUpgradeUnknownOnBind());
+        assertEquals(TrackFlag.NEVER, track1.getAutoUpgradeDeprecatedDuringMaintenance());
+        assertEquals(TrackFlag.NEVER, track1.getAutoUpgradeUnknownDuringMaintenance());
+        
+        // test persistent save
+        CustomerFirmwareTrackRecord defaultCustomerSettings = remoteInterface.getCustomerFirmwareTrackRecord(0);
+        assertEquals(track1, defaultCustomerSettings.getSettings());
+
+        // test update
+        track1.setAutoUpgradeDeprecatedOnBind(TrackFlag.ALWAYS);
+        CustomerFirmwareTrackSettings track2 = remoteInterface.updateDefaultCustomerTrackSetting(track1);
+        
+        assertEquals(TrackFlag.ALWAYS, track2.getAutoUpgradeDeprecatedOnBind());
+        assertEquals(TrackFlag.NEVER, track2.getAutoUpgradeUnknownOnBind());
+        assertEquals(TrackFlag.NEVER, track2.getAutoUpgradeDeprecatedDuringMaintenance());
+        assertEquals(TrackFlag.NEVER, track2.getAutoUpgradeUnknownDuringMaintenance());
+
+        defaultCustomerSettings = remoteInterface.getCustomerFirmwareTrackRecord(0);
+        assertEquals(track2, defaultCustomerSettings.getSettings());
+        
+        // Delete test
+        remoteInterface.deleteCustomerFirmwareTrackRecord(0);
+
+        // test update initialization
+        CustomerFirmwareTrackSettings track3 = remoteInterface.updateDefaultCustomerTrackSetting(track2);
+        assertEquals(track3, track2);
+        
+        // Clean up test
+        remoteInterface.deleteCustomerFirmwareTrackRecord(0);
+        remoteInterface.deleteFirmwareTrackRecord(ftr.getRecordId());
     }
 
     @Test
