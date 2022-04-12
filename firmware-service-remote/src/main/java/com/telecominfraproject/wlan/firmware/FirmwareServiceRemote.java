@@ -391,11 +391,13 @@ public class FirmwareServiceRemote extends BaseRemoteClient implements FirmwareS
     @Override
     public CustomerFirmwareTrackSettings updateDefaultCustomerTrackSetting(CustomerFirmwareTrackSettings defaultSettings) {
         LOG.debug("calling updateDefaultCustomerTrackSetting {} ", defaultSettings);
+        
+        HttpEntity<String> request = new HttpEntity<String>( defaultSettings.toString(), headers );
     
         ResponseEntity<CustomerFirmwareTrackSettings> responseEntity = restTemplate.exchange(
                 getBaseUrl()
-                +"/customerTrack/default", HttpMethod.PUT, null,
-                CustomerFirmwareTrackSettings.class, defaultSettings);
+                +"/customerTrack/default", HttpMethod.PUT, request,
+                CustomerFirmwareTrackSettings.class);
         
         CustomerFirmwareTrackSettings ret = responseEntity.getBody();
         
