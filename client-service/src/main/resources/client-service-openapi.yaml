@@ -181,6 +181,8 @@ components:
           type: string
         ssid:
           type: string
+        bssid:
+          $ref: '#/components/schemas/MacAddress'
         radioType:
           $ref: '#/components/schemas/RadioType'
         lastEventTimestamp:

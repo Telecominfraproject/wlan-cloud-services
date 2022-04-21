@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.telecominfraproject.wlan.core.model.equipment.MacAddress;
 import com.telecominfraproject.wlan.core.model.equipment.RadioType;
 import com.telecominfraproject.wlan.core.model.equipment.SecurityType;
 import com.telecominfraproject.wlan.core.model.equipment.SteerType;
@@ -32,6 +33,7 @@ public class ClientSessionDetails extends BaseJsonModel {
     private InetAddress ipAddress;
     private String radiusUsername;
     private String ssid;
+    private MacAddress bssid;
     private RadioType radioType;
     private Long lastEventTimestamp;
     private String hostname;
@@ -410,6 +412,14 @@ public class ClientSessionDetails extends BaseJsonModel {
     public void setFirstFailureDetails(ClientFailureDetails firstFailureDetails) {
         this.firstFailureDetails = firstFailureDetails;
     }
+    
+    public MacAddress getBssid() {
+        return bssid;
+    }
+    
+    public void setBssid(MacAddress bssid) {
+        this.bssid = bssid;
+    }
 
     @JsonIgnore
     public boolean isTerminated() {
@@ -526,7 +536,7 @@ public class ClientSessionDetails extends BaseJsonModel {
                 lastEventTimestamp, lastFailureDetails, lastRxTimestamp, lastTxTimestamp, 
                 portEnabledTimestamp, previousValidSessionId, priorEquipmentId, priorSessionId, radioType,
                 radiusUsername, securityType, sessionId, ssid, steerType, timeoutTimestamp, userAgentStr,
-                associationState);
+                associationState, bssid);
     }
 
     @Override
@@ -571,7 +581,8 @@ public class ClientSessionDetails extends BaseJsonModel {
                 && sessionId == other.sessionId && Objects.equals(ssid, other.ssid) && steerType == other.steerType
                 && Objects.equals(timeoutTimestamp, other.timeoutTimestamp)
                 && Objects.equals(userAgentStr, other.userAgentStr)
-                && Objects.equals(associationState, other.associationState);
+                && Objects.equals(associationState, other.associationState)
+                && Objects.equals(bssid, other.bssid);
 
     }
 
@@ -723,6 +734,10 @@ public class ClientSessionDetails extends BaseJsonModel {
 
         if (null != latest.getUserAgentStr()) {
             this.userAgentStr = latest.getUserAgentStr();
+        }
+        
+        if (null != latest.getBssid()) {
+            this.bssid = latest.bssid;
         }
 
     }
