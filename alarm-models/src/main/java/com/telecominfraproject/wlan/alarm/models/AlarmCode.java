@@ -48,16 +48,16 @@ public class AlarmCode implements EnumWithId {
     private static final Map<Integer, AlarmCode> ELEMENTS = new ConcurrentHashMap<>();
     private static final Map<String, AlarmCode> ELEMENTS_BY_NAME = new ConcurrentHashMap<>();
     private static final Map<Integer, AlarmCode> VALID_VALUES = new ConcurrentHashMap<>();
-
+    private static final Map<Integer, AlarmCode> USER_VISIBLE_VALUES = new ConcurrentHashMap<>();
 
     public static final AlarmCode 
     LimitedCloudConnectivity = new AlarmCode(3, "LimitedCloudConnectivity", "Equipment is connected, however it's not reporting status or metrics", StatusCode.error, "Service AP and verify networking path to cloud"),
     AccessPointIsUnreachable = new AlarmCode(4, "AccessPointIsUnreachable", "Equipment is not reachable from cloud", StatusCode.error, "Service AP and verify networking path to cloud"),
-    NoMetricsReceived = new AlarmCode(6, "NoMetricsReceived", "Metrics are not received from the equipment"),
-    NoiseFloor2G = new AlarmCode(7, "NoiseFloor2G", "Noise floor is too high on 2G radio", StatusCode.requiresAttention, "Investigate interference sources"),
-    ChannelUtilization2G = new AlarmCode(8, "ChannelUtilization2G", "Channel utilization is too high on 2G radio", StatusCode.requiresAttention, "Consider adding more APs"),
-    NoiseFloor5G = new AlarmCode(9, "NoiseFloor5G", "Noise floor is too high on 5G radio", StatusCode.requiresAttention, "Investigate interference sources"),
-    ChannelUtilization5G = new AlarmCode(10, "ChannelUtilization5G", "Channel utilization is too high on 5G radio", StatusCode.requiresAttention, "Consider adding more APs"),
+    NoMetricsReceived = new AlarmCode(6, "NoMetricsReceived", "Metrics are not received from the equipment", true),
+    NoiseFloor2G = new AlarmCode(7, "NoiseFloor2G", "Noise floor is too high on 2G radio", StatusCode.requiresAttention, "Investigate interference sources", true),
+    ChannelUtilization2G = new AlarmCode(8, "ChannelUtilization2G", "Channel utilization is too high on 2G radio", StatusCode.requiresAttention, "Consider adding more APs", true),
+    NoiseFloor5G = new AlarmCode(9, "NoiseFloor5G", "Noise floor is too high on 5G radio", StatusCode.requiresAttention, "Investigate interference sources", true),
+    ChannelUtilization5G = new AlarmCode(10, "ChannelUtilization5G", "Channel utilization is too high on 5G radio", StatusCode.requiresAttention, "Consider adding more APs", true),
     DNS = new AlarmCode(11, "DNS", "Issue with Domain Name System (DNS)", StatusCode.error, "Service DNS server and network path"),
     DNSLatency = new AlarmCode(12, "DNSLatency", "DNS query takes too long", StatusCode.requiresAttention, "Service DNS server and network path"),
     DHCP = new AlarmCode(13, "DHCP", "Issue with DHCP", StatusCode.error, "Service DHCP server and network path"),
@@ -66,10 +66,10 @@ public class AlarmCode implements EnumWithId {
     RadiusLatency = new AlarmCode(16, "RadiusLatency", "RADIUS request takes too long", StatusCode.requiresAttention, "Service RADIUS server and network path"),
     CloudLink = new AlarmCode(17, "CloudLink", "Issue reported by equipment with connection with Cloud", StatusCode.error, "Investigate networking path to Cloud"),
     CloudLinkLatency = new AlarmCode(18, "CloudLinkLatency", "Cloud request take too long", StatusCode.requiresAttention, "Investigate networking path to Cloud"),
-    CPUUtilization = new AlarmCode(19, "CPUUtilization", "CPU utilization is too high", StatusCode.requiresAttention, "Contact Tech Suport"),
-    MemoryUtilization = new AlarmCode(20, "MemoryUtilization", "Memory utilization is too high", StatusCode.requiresAttention, "Contact Tech Suport"),
-    Disconnected = new AlarmCode(22, "Disconnected", "Equipment is not connected to the cloud", StatusCode.error, "Service AP and verify networking path to cloud"),
-    CPUTemperature = new AlarmCode(23, "CPUTemperature", "CPU Temperature is too high", StatusCode.requiresAttention, "Verify AP location"),
+    CPUUtilization = new AlarmCode(19, "CPUUtilization", "CPU utilization is too high", StatusCode.requiresAttention, "Contact Tech Suport", true),
+    MemoryUtilization = new AlarmCode(20, "MemoryUtilization", "Memory utilization is too high", StatusCode.requiresAttention, "Contact Tech Suport", true),
+    Disconnected = new AlarmCode(22, "Disconnected", "Equipment is not connected to the cloud", StatusCode.error, "Service AP and verify networking path to cloud", true),
+    CPUTemperature = new AlarmCode(23, "CPUTemperature", "CPU Temperature is too high", StatusCode.requiresAttention, "Verify AP location", true),
     LowMemoryReboot = new AlarmCode(25, "LowMemoryReboot", "Equipment rebooted due to low memory"),
     CountryCodeMisMatch = new AlarmCode(26, "CountryCodeMisMatch", "Equipment country code does not match with location", StatusCode.error, "Service AP"),
     HardwareIssueDiagnostic = new AlarmCode(29, "HardwareIssueDiagnostic", "Hardware issue encountered on equipment", StatusCode.error, "Reboot AP and contact tech support for RMA"), 
@@ -131,17 +131,29 @@ public class AlarmCode implements EnumWithId {
     private final StatusCode severity;
     private final String recommendedAction;
     private final AlarmCategory category;
-    private final boolean propagateFast; 
+    private final boolean propagateFast;
+    private final boolean userVisible;
 
     protected AlarmCode(int id, String name, String description){
-        this(id, name, description, StatusCode.error, "", AlarmCategory.CustomerNetworkAffecting, false);
+        this(id, name, description, StatusCode.error, "", AlarmCategory.CustomerNetworkAffecting, false, false);
+    }
+    
+    protected AlarmCode(int id, String name, String description, boolean userVisible){
+
+        this(id, name, description, StatusCode.error, "", AlarmCategory.CustomerNetworkAffecting, false, userVisible);
+
     }
 
     protected AlarmCode(int id, String name, String description, StatusCode severity, String recommendedAction){
-        this(id, name, description, severity, recommendedAction, AlarmCategory.CustomerNetworkAffecting, false);
+        this(id, name, description, severity, recommendedAction, AlarmCategory.CustomerNetworkAffecting, false, false);
+    }
+    
+    protected AlarmCode(int id, String name, String description, StatusCode severity, String recommendedAction, boolean userVisible){
+        this(id, name, description, severity, recommendedAction, AlarmCategory.CustomerNetworkAffecting, false, userVisible);
     }
 
-    protected AlarmCode(int id, String name, String description, StatusCode severity, String recommendedAction, AlarmCategory category, boolean propagateFast){
+    protected AlarmCode(int id, String name, String description, StatusCode severity, String recommendedAction,
+            AlarmCategory category, boolean propagateFast, boolean userVisible){
         
         synchronized(lock) {
             
@@ -154,6 +166,7 @@ public class AlarmCode implements EnumWithId {
             this.recommendedAction = recommendedAction;
             this.category = category;
             this.propagateFast = propagateFast;
+            this.userVisible = userVisible;
 
             ELEMENTS_BY_NAME.values().forEach(s -> {
                 if(s.getName().equals(name)) {
@@ -179,6 +192,9 @@ public class AlarmCode implements EnumWithId {
                         
                         if (!field.isAnnotationPresent(Deprecated.class)) {
                             VALID_VALUES.put(id, this);
+                            if (userVisible) {
+                                USER_VISIBLE_VALUES.put(id,  this);
+                            }
                         }
                         
                         break;
@@ -232,6 +248,11 @@ public class AlarmCode implements EnumWithId {
     public boolean isPropagateFast() {
         return propagateFast;
     }
+    
+    @JsonIgnore
+    public boolean isUserVisible() {
+        return userVisible;
+    }
 
     @JsonIgnore
     public String name() {
@@ -268,6 +289,10 @@ public class AlarmCode implements EnumWithId {
     
     public static boolean isUnsupported(AlarmCode value) {
         return (UNSUPPORTED.equals(value));
+    }
+    
+    public static List<AlarmCode> getUserVisibleValues() {
+        return new ArrayList<>(USER_VISIBLE_VALUES.values());
     }
 
     @Override
